@@ -26,7 +26,6 @@ export const TabTitle:React.FC<Props> = ({className}) => {
             <TabsTrigger value="/add">Добавление чего-то там</TabsTrigger>
           </TabsList>
         </Tabs>
-        <h1>123</h1>
       </Container>
   )
 }
