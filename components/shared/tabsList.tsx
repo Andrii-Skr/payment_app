@@ -1,4 +1,5 @@
 "use client"
+import { AddInfoList } from "@/components/shared/addInfoList";
 import { Tabs, TabsContent} from "../ui/tabs";
 import { Container } from "./container";
 import { EntityLIst } from "./entityList";
@@ -19,7 +20,9 @@ export const TabsList: React.FC<Props> = ({ className }) => {
             <EntityLIst/>
           </TabsContent>
           <TabsContent value="/view">Change your password here.</TabsContent>
-          <TabsContent value="/add">Служебная вкладка для добавление в базу Юр лица и информации о нем</TabsContent>
+        <TabsContent value="/add">
+        <AddInfoList />
+        </TabsContent>
         </Tabs>
       </Container>
 

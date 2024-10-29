@@ -2,18 +2,18 @@
 
 import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
-import { FilePlus2, SquareArrowRight } from "lucide-react";
+import { FilePlus2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 type Props = {
   className?: string;
 };
-type TtempData = {
+type TempData = {
   id: number;
   name: string;
 };
 
-const tempData: TtempData[] = [
+const tempData: TempData[] = [
   {
     id: 1,
     name: "Выбор",

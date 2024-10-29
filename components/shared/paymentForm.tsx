@@ -88,9 +88,9 @@ export const PaymentForm: React.FC<Props> = ({ className }) => {
           <FormInput control={form.control} name="sample" label="Шаблон" placeholder="Выберите шаблон ..." />
           <FormInput control={form.control} name="accountNumber" label="Номер счета" placeholder="Введите номер счета"/>
           <Container className='justify-start gap-10'>
-            <FormDatePicker control={form.control} name="date" label="Дата" />
-            <FormDatePicker control={form.control} name="expectedDate" label="Дата" />
-            <FormDatePicker control={form.control} name="deadLineDate" label="Дата" />
+            <FormDatePicker control={form.control} name="date" label="Дата" description='Дата указанная в счете'/>
+            <FormDatePicker control={form.control} name="expectedDate" label="Дата" description='Желательно заплатить до'/>
+            <FormDatePicker control={form.control} name="deadLineDate" label="Дата" description='Крайний срок оплаты счета'/>
           </Container>
           <Container className='justify-start gap-10'>
             <FormInput control={form.control} name="accountSum" label="Сумма" description='Сумма указанная в счете'/>

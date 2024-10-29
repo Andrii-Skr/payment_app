@@ -16,10 +16,24 @@ export const TabTitle:React.FC<Props> = ({className}) => {
   const handleClick = (value: string) => {
     router.push(`${value}`);
   };
+
+  const getActiveTabValue = () => {
+    if (pathname.startsWith("/create")) {
+      return "/create";
+    } else if (pathname.startsWith("/view")) {
+      return "/view";
+    } else if (pathname.startsWith("/add")) {
+      return "/add";
+    }
+    return "/create";
+  };
+
+  const activeTabValue = getActiveTabValue();
+
     return (
 
       <Container className={ className}>
-      <Tabs defaultValue="/create" value={pathname} onValueChange={handleClick}>
+      <Tabs defaultValue="/create" value={activeTabValue} onValueChange={handleClick}>
           <TabsList>
             <TabsTrigger value="/create">Создать Платеж</TabsTrigger>
             <TabsTrigger value="/view">Просмотр графика оплат</TabsTrigger>
