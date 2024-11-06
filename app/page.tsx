@@ -1,13 +1,11 @@
-
 import { Main } from "@/components/main";
 
- function Home() {
-
+function Home() {
   return (
     <div>
-      <Main/>
+      <Main />
     </div>
   );
- }
+}
 
-export default Home
+export default Home;

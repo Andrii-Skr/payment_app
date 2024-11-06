@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
@@ -32,7 +32,7 @@ const tempData: TempData[] = [
   },
 ];
 export const EntityLIst: React.FC<Props> = ({ className }) => {
-  const router = useRouter()
+  const router = useRouter();
 
   const handleClick = () => {
     router.push("/create/payment-form");
@@ -42,10 +42,15 @@ export const EntityLIst: React.FC<Props> = ({ className }) => {
     <div className={cn("flex flex-col max-w-60", className)}>
       {tempData.map((e) => {
         return (
-            <Button variant="outline" key={e.id} className={cn("flex items-center" ,className)} onClick={handleClick}>
-              <FilePlus2 />
-              <span className="flex-grow text-center">{e.name}</span>
-            </Button>
+          <Button
+            variant="outline"
+            key={e.id}
+            className={cn("flex items-center", className)}
+            onClick={handleClick}
+          >
+            <FilePlus2 />
+            <span className="flex-grow text-center">{e.name}</span>
+          </Button>
         );
       })}
     </div>

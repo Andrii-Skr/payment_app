@@ -1,4 +1,3 @@
-
 import { Main } from "../../components/main";
 
 type Props = {
@@ -6,9 +5,7 @@ type Props = {
 };
 
 const Tabs: React.FC<Props> = ({ className }) => {
-  return (
-      <Main/>
-  );
+  return <Main />;
 };
 
 export default Tabs;
