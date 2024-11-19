@@ -66,23 +66,35 @@ type Props = {
   className?: string;
 };
 export const PaymentForm: React.FC<Props> = ({ className }) => {
+
+  const defaultValues = {
+    sample: "",
+    accountNumber: "",
+    date: undefined,
+    expectedDate: undefined,
+    deadLineDate: undefined,
+    accountSum: 0,
+    paySum: 0,
+    edrpou: "",
+    bankAccount: "",
+    partnerName: "",
+    mfo: "",
+    purposeOfPayment: "",
+  };
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      sample: "",
-      accountNumber: "",
-      date: undefined,
-      expectedDate: undefined,
-      deadLineDate: undefined,
-      accountSum: 0,
-      paySum: 0,
-      edrpou: "",
-      bankAccount: "",
-      partnerName: "",
-      mfo: "",
-      purposeOfPayment: "",
-    },
+    defaultValues,
   });
+
+  const [formState, setFormState] = React.useState(defaultValues);
+
+  console.log(formState);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormState(prev => ({ ...prev, [name]: value }));
+  };
 
   return (
     <div>
@@ -93,12 +105,15 @@ export const PaymentForm: React.FC<Props> = ({ className }) => {
             name="sample"
             label="Шаблон"
             placeholder="Выберите шаблон ..."
+
           />
           <FormInput
             control={form.control}
             name="accountNumber"
             label="Номер счета"
             placeholder="Введите номер счета"
+            value={formState.accountNumber}
+            onChange={handleChange}
           />
           <Container className="justify-start gap-10">
             <FormDatePicker
@@ -106,18 +121,24 @@ export const PaymentForm: React.FC<Props> = ({ className }) => {
               name="date"
               label="Дата"
               description="Дата указанная в счете"
+              value={formState.date}
+              onChange={handleChange}
             />
             <FormDatePicker
               control={form.control}
               name="expectedDate"
               label="Дата"
               description="Желательно заплатить до"
+              value={formState.expectedDate}
+              onChange={handleChange}
             />
             <FormDatePicker
               control={form.control}
               name="deadLineDate"
               label="Дата"
               description="Крайний срок оплаты счета"
+              value={formState.deadLineDate}
+              onChange={handleChange}
             />
           </Container>
           <Container className="justify-start gap-10">
