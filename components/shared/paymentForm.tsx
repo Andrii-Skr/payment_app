@@ -15,7 +15,8 @@ import { z } from "zod";
 import { Container } from "@/components/shared/container";
 import { FormDatePicker, FormInput } from "@/components/shared";
 import { Combobox } from "@/components/shared/combobox";
-import {useEntityStore, useFormStore } from "@/store/store";
+import { useEntityStore, useFormStore } from "@/store/store";
+import { partners } from "@prisma/client";
 
 const formSchema = z.object({
   entity_id: z.number(),
@@ -91,13 +92,12 @@ export const PaymentForm: React.FC<Props> = ({ className }) => {
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {...defaultValues, entity_id: currentEntity?.id},
+    defaultValues: { ...defaultValues, entity_id: currentEntity?.id },
   });
 
   const [formState, setFormState] = React.useState(defaultValues);
 
-
-  const { getValues } = form;
+  const { getValues, reset,setValue } = form;
 
   const onSubmit = (data: FormValues) => {
     console.log(`data ${data}`); // Получите все значения формы при сабмите
@@ -110,10 +110,17 @@ export const PaymentForm: React.FC<Props> = ({ className }) => {
     console.log(`accountNumber ${accountNumber}`);
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormState((prev) => ({ ...prev, [name]: value }));
-    //updateCurrentFormData({ [name]: value });
+  const handleChange = (partner: partners) => {
+    setValue("edrpou", partner.edrpou);
+    setValue("mfo", partner.mfo);
+    setValue("partnerName", partner.name);
+    // const currentValues = getValues()
+    // reset({
+    //   ...currentValues,
+    //   edrpou: partner.edrpou,
+    //   mfo: partner.mfo,
+    //   partnerName: partner.name,
+    // });
   };
 
   const handleChangeDate = (name: string, date: Date | undefined) => {
@@ -148,21 +155,18 @@ export const PaymentForm: React.FC<Props> = ({ className }) => {
               name="date"
               label="Дата"
               description="Дата указанная в счете"
-
             />
             <FormDatePicker
               control={form.control}
               name="expectedDate"
               label="Дата"
               description="Желательно заплатить до"
-
             />
             <FormDatePicker
               control={form.control}
               name="deadLineDate"
               label="Дата"
               description="Крайний срок оплаты счета"
-
             />
           </Container>
           <Container className="justify-start gap-10">
@@ -172,7 +176,6 @@ export const PaymentForm: React.FC<Props> = ({ className }) => {
               name="accountSum"
               label="Сумма"
               description="Сумма указанная в счете"
-
             />
             <FormInput
               control={form.control}
@@ -180,7 +183,6 @@ export const PaymentForm: React.FC<Props> = ({ className }) => {
               name="paySum"
               label="Сумма к оплате"
               description="Фактическая сумма оплаты, если 0, то сумма будет равна сумме счета"
-
             />
           </Container>
           <Container className="justify-start gap-10">
@@ -188,11 +190,10 @@ export const PaymentForm: React.FC<Props> = ({ className }) => {
               control={form.control}
               name="bankAccount"
               label="Номер счета"
-
             />
             <Combobox
               value={formState.edrpou}
-              //onChange={handleChangeEdrpou}
+              onChange={handleChange}
               id={currentEntity?.id}
             />
           </Container>
@@ -201,7 +202,7 @@ export const PaymentForm: React.FC<Props> = ({ className }) => {
             name="partnerName"
             label="Имя контрагента"
           />
-          <FormInput control={form.control} name="mfo" label="МФО"/>
+          <FormInput control={form.control} name="mfo" label="МФО" />
           <FormInput
             control={form.control}
             name="purposeOfPayment"
@@ -209,7 +210,9 @@ export const PaymentForm: React.FC<Props> = ({ className }) => {
             placeholder="Оплата по счету"
             description="Оплата по счету"
           />
-          <Button type="submit" onClick={handleGetValues}>Сохранить</Button>
+          <Button type="submit" onClick={handleGetValues}>
+            Сохранить
+          </Button>
           <Button type="submit" className="ml-8">
             Отправить на оплату
           </Button>

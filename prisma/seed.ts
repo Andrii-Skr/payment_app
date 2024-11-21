@@ -1,4 +1,5 @@
 import { entity } from '@prisma/client';
+import { partners } from '@prisma/client';
 import prisma from "./prisma-client"
 // import {hashSync} from "bcrypt"
 
@@ -19,7 +20,9 @@ async function addData() {
         ]
 
     })
+}
 
+async function addPartners() {
     await prisma.partners.createMany({
         data: [
             {
@@ -90,12 +93,14 @@ async function addData() {
 async function clearData() {
     await prisma.$executeRaw`TRUNCATE TABLE "entity" RESTART IDENTITY CASCADE;`
     await prisma.$executeRaw`TRUNCATE TABLE "partners" RESTART IDENTITY CASCADE;`
+    await prisma.$executeRaw`TRUNCATE TABLE "partner_account_number" RESTART IDENTITY CASCADE;`
 }
 
 async function main() {
     try {
         await clearData()
         await addData()
+        await addPartners()
     } catch (error) {
         console.log(error)
     }

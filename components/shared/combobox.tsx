@@ -24,7 +24,7 @@ import { apiClient } from "@/services/api-client"
 import { partners } from "@prisma/client"
 // import { useFormStore } from "@/store/store"
 
-export function Combobox({ value, id }: { value: string | undefined,id:number | undefined }  ) {
+export function Combobox({ value, id ,onChange}: { value: string | undefined,id:number | undefined,onChange: (edrpouList:partners) => void }  ) {
   const [open, setOpen] = React.useState(false)
   const [partnersList, setPartnersList] = React.useState<partners[] | undefined>([]);
   // const updateCurrentFormData = useFormStore((state) => state.updateCurrentFormData);
@@ -39,9 +39,9 @@ export function Combobox({ value, id }: { value: string | undefined,id:number | 
     });
   }, [open]);
 
-  const handleChangeEdrpou = (currentValue: string) => {
-    // updateCurrentFormData({ edrpou: currentValue });
-  };
+  // const handleChangeEdrpou = (currentValue: string) => {
+  //   // updateCurrentFormData({ edrpou: currentValue });
+  // };
 
     return (
    <Container className="flex flex-col space-y-2">
@@ -72,7 +72,7 @@ export function Combobox({ value, id }: { value: string | undefined,id:number | 
                 key={edrpouList.edrpou}
                 value={edrpouList.edrpou}
                   onSelect={(currentValue) => {
-                    handleChangeEdrpou(currentValue)
+                    onChange(edrpouList)
                     setOpen(false)
                 }}
                     >
