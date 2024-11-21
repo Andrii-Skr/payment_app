@@ -1,6 +1,13 @@
 "use client";
 
-import { Button, Form, FormLabel } from "@/components/ui";
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+  Button,
+  Form,
+  FormLabel,
+} from "@/components/ui";
 import React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -8,8 +15,10 @@ import { z } from "zod";
 import { Container } from "@/components/shared/container";
 import { FormDatePicker, FormInput } from "@/components/shared";
 import { Combobox } from "@/components/shared/combobox";
+import {useEntityStore, useFormStore } from "@/store/store";
 
 const formSchema = z.object({
+  entity_id: z.number(),
   sample: z
     .string()
     .min(2, {
@@ -21,15 +30,13 @@ const formSchema = z.object({
     .min(2, {
       message: "Номер счета должен быть не менее 2 символов.",
     }),
-  date: z.date({
-    message: "Пожалуйста, выберите дату",
-  }),
-  expectedDate: z.date({
-    message: "Пожалуйста, выберите дату",
-  }),
-  deadLineDate: z.date({
-    message: "Пожалуйста, выберите дату",
-  }),
+
+  date: z.date({ message: "Пожалуйста, выберите дату" }),
+
+  expectedDate: z.date({ message: "Пожалуйста, выберите дату" }),
+
+  deadLineDate: z.date({ message: "Пожалуйста, выберите дату" }),
+
   accountSum: z.number().nonnegative({
     message: "Сумма должна быть положительной",
   }),
@@ -54,20 +61,20 @@ const formSchema = z.object({
   }),
 });
 
-function onSubmit(values: z.infer<typeof formSchema>) {
-  // Do something with the form values.
-  // ✅ This will be type-safe and validated.
-  console.log(values);
-}
-
 export type FormValues = z.infer<typeof formSchema>;
 
 type Props = {
   className?: string;
 };
 export const PaymentForm: React.FC<Props> = ({ className }) => {
+  const currentEntity = useEntityStore((state) => state.currentEntity);
+  // const formData = useFormStore((state) => state.currentFormData);
+  // const updateCurrentFormData = useFormStore(
+  //   (state) => state.updateCurrentFormData
+  // );
 
   const defaultValues = {
+    entity_id: currentEntity?.id,
     sample: "",
     accountNumber: "",
     date: undefined,
@@ -84,36 +91,56 @@ export const PaymentForm: React.FC<Props> = ({ className }) => {
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues,
+    defaultValues: {...defaultValues, entity_id: currentEntity?.id},
   });
 
   const [formState, setFormState] = React.useState(defaultValues);
 
-  console.log(formState);
+
+  const { getValues } = form;
+
+  const onSubmit = (data: FormValues) => {
+    console.log(`data ${data}`); // Получите все значения формы при сабмите
+  };
+
+  const handleGetValues = () => {
+    const accountNumber = getValues("accountNumber");
+    const values = getValues(); // Получите все значения формы
+    console.log(`values ${JSON.stringify(values, null, 2)}`);
+    console.log(`accountNumber ${accountNumber}`);
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormState(prev => ({ ...prev, [name]: value }));
+    setFormState((prev) => ({ ...prev, [name]: value }));
+    //updateCurrentFormData({ [name]: value });
+  };
+
+  const handleChangeDate = (name: string, date: Date | undefined) => {
+    setFormState((prev) => ({ ...prev, [name]: date }));
+    //updateCurrentFormData({ [name]: date });
   };
 
   return (
     <div>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <Alert>
+            <AlertDescription>
+              Наименование Плательщика: {currentEntity?.name}
+            </AlertDescription>
+          </Alert>
           <FormInput
             control={form.control}
             name="sample"
             label="Шаблон"
             placeholder="Выберите шаблон ..."
-
           />
           <FormInput
             control={form.control}
             name="accountNumber"
             label="Номер счета"
             placeholder="Введите номер счета"
-            value={formState.accountNumber}
-            onChange={handleChange}
           />
           <Container className="justify-start gap-10">
             <FormDatePicker
@@ -121,38 +148,39 @@ export const PaymentForm: React.FC<Props> = ({ className }) => {
               name="date"
               label="Дата"
               description="Дата указанная в счете"
-              value={formState.date}
-              onChange={handleChange}
+
             />
             <FormDatePicker
               control={form.control}
               name="expectedDate"
               label="Дата"
               description="Желательно заплатить до"
-              value={formState.expectedDate}
-              onChange={handleChange}
+
             />
             <FormDatePicker
               control={form.control}
               name="deadLineDate"
               label="Дата"
               description="Крайний срок оплаты счета"
-              value={formState.deadLineDate}
-              onChange={handleChange}
+
             />
           </Container>
           <Container className="justify-start gap-10">
             <FormInput
               control={form.control}
+              type="number"
               name="accountSum"
               label="Сумма"
               description="Сумма указанная в счете"
+
             />
             <FormInput
               control={form.control}
+              type="number"
               name="paySum"
               label="Сумма к оплате"
               description="Фактическая сумма оплаты, если 0, то сумма будет равна сумме счета"
+
             />
           </Container>
           <Container className="justify-start gap-10">
@@ -160,15 +188,20 @@ export const PaymentForm: React.FC<Props> = ({ className }) => {
               control={form.control}
               name="bankAccount"
               label="Номер счета"
+
             />
-            <Combobox />
+            <Combobox
+              value={formState.edrpou}
+              //onChange={handleChangeEdrpou}
+              id={currentEntity?.id}
+            />
           </Container>
           <FormInput
             control={form.control}
             name="partnerName"
             label="Имя контрагента"
           />
-          <FormInput control={form.control} name="mfo" label="МФО" />
+          <FormInput control={form.control} name="mfo" label="МФО"/>
           <FormInput
             control={form.control}
             name="purposeOfPayment"
@@ -176,7 +209,7 @@ export const PaymentForm: React.FC<Props> = ({ className }) => {
             placeholder="Оплата по счету"
             description="Оплата по счету"
           />
-          <Button type="submit">Сохранить</Button>
+          <Button type="submit" onClick={handleGetValues}>Сохранить</Button>
           <Button type="submit" className="ml-8">
             Отправить на оплату
           </Button>

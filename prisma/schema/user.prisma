@@ -7,10 +7,10 @@ model user {
 
     role_id Int
     role role @relation(fields: [role_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+    documens documents[]
 
-
-    created_at DateTime? @default(now()) @db.Timestamp(6)
-    updated_at DateTime? @updatedAt @db.Timestamp(6)
+    created_at DateTime? @default(now()) @db.Timestamp()
+    updated_at DateTime? @updatedAt @db.Timestamp()
     is_deleted Boolean   @default(false)
 }
 
@@ -21,8 +21,8 @@ model role{
     name String @unique @db.VarChar()
     user user[]
 
-    created_at DateTime? @default(now()) @db.Timestamp(6)
-    updated_at DateTime? @updatedAt @db.Timestamp(6)
+    created_at DateTime? @default(now()) @db.Timestamp()
+    updated_at DateTime? @updatedAt @db.Timestamp()
     is_deleted Boolean   @default(false)
 
 }

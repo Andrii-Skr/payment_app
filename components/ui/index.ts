@@ -13,3 +13,4 @@ export {
 export { Calendar } from "./calendar";
 export { Popover, PopoverTrigger, PopoverContent, PopoverAnchor } from "./popover";
 export { Input } from "./input";
+export { Alert, AlertTitle, AlertDescription } from "./alert";

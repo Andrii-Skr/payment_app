@@ -20,74 +20,69 @@ import {
 } from "@/components/ui/popover"
 import { FormItem, FormLabel } from "@/components/ui"
 import { Container } from "@/components/shared"
+import { apiClient } from "@/services/api-client"
+import { partners } from "@prisma/client"
+// import { useFormStore } from "@/store/store"
 
-const edrpouList = [
-  {
-    value: "012345678",
-    label: "012345678",
-  },
-  {
-    value: "sveltekit",
-    label: "SvelteKit",
-  },
-  {
-    value: "nuxt.js",
-    label: "Nuxt.js",
-  },
-  {
-    value: "remix",
-    label: "Remix",
-  },
-  {
-    value: "astro",
-    label: "Astro",
-  },
-]
-
-export function Combobox() {
+export function Combobox({ value, id }: { value: string | undefined,id:number | undefined }  ) {
   const [open, setOpen] = React.useState(false)
-  const [value, setValue] = React.useState("")
+  const [partnersList, setPartnersList] = React.useState<partners[] | undefined>([]);
+  // const updateCurrentFormData = useFormStore((state) => state.updateCurrentFormData);
+
+
+
+  React.useEffect(() => {
+    if(!id) return
+    apiClient.partners.partnersService(id).then((data) => {
+      setPartnersList(data);
+      console.log(`data ${data}`);
+    });
+  }, [open]);
+
+  const handleChangeEdrpou = (currentValue: string) => {
+    // updateCurrentFormData({ edrpou: currentValue });
+  };
 
     return (
    <Container className="flex flex-col space-y-2">
-    <FormItem className="flex flex-col">
-      <FormLabel>ЕДРПОУ</FormLabel>
-      <Popover open={open} onOpenChange={setOpen}>
+    <FormItem className="flex flex-col content-between">
+      <FormLabel >ЕДРПОУ</FormLabel>
+      <Popover open={open} onOpenChange={setOpen} >
       <PopoverTrigger asChild>
         <Button
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-[200px] justify-between"
+          className="w-[210px] h-9 px-3 py-1 justify-between"
           >
           {value
-            ? edrpouList.find((edrpouList) => edrpouList.value === value)?.label
+            ? partnersList?.find((partnersList) => partnersList.edrpou === value)?.edrpou
             : "Выберите ЕДРПОУ..."}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[200px] p-0">
+      <PopoverContent className="w-[210px] p-0">
         <Command>
           <CommandInput placeholder="Выберите ЕДРПОУ..." />
           <CommandList>
-            <CommandEmpty>No framework found.</CommandEmpty>
+            <CommandEmpty>ЕДРПОУ не найдены =(</CommandEmpty>
             <CommandGroup>
-              {edrpouList.map((edrpouList) => (
+              {partnersList?.map((edrpouList) => (
                 <CommandItem
-                key={edrpouList.value}
-                value={edrpouList.value}
-                onSelect={(currentValue) => {
-                    setValue(currentValue === value ? "" : currentValue)
+                key={edrpouList.edrpou}
+                value={edrpouList.edrpou}
+                  onSelect={(currentValue) => {
+                    handleChangeEdrpou(currentValue)
                     setOpen(false)
                 }}
                     >
                   <Check
                     className={cn(
                         "mr-2 h-4 w-4",
-                        value === edrpouList.value ? "opacity-100" : "opacity-0"
+                        value === edrpouList.edrpou ? "opacity-100" : "opacity-0"
                     )}
                     />
-                  {edrpouList.label}
+                  {edrpouList.edrpou}
                 </CommandItem>
               ))}
             </CommandGroup>

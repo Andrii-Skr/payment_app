@@ -12,9 +12,9 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import { SelectSingleEventHandler } from "react-day-picker"
 
-export function DatePicker({ selected, onChange }: { selected: Date | undefined, onChange: (e: React.ChangeEvent<SelectSingleEventHandler>) => void }) {
+
+export function DatePicker({ selected, onChange }: { selected: Date | undefined, onChange: (day: Date | undefined) => void }) {
 
   return (
     <Popover>

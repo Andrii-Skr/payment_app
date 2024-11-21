@@ -18,8 +18,7 @@ type Props = {
   label: string;
   placeholder?: string;
   description?: string;
-  value?: string;
-  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  type?: "text" | "number";
 };
 
 const FormInput: React.FC<Props> = ({
@@ -28,8 +27,7 @@ const FormInput: React.FC<Props> = ({
   label,
   placeholder,
   description,
-  value,
-  onChange,
+  type
 }) => {
   return (
     <FormField
@@ -40,10 +38,11 @@ const FormInput: React.FC<Props> = ({
           <FormLabel>{label}</FormLabel>
           <FormControl>
             <Input
+              type={type}
               placeholder={placeholder}
               {...field}
-              value={value}
-              onChange={onChange}
+              //value={field.value}
+
             />
           </FormControl>
           <FormDescription>{description}</FormDescription>

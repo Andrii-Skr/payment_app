@@ -10,11 +10,10 @@ type Props = {
   name: keyof Pick<FormValues, "expectedDate" | "deadLineDate" | "date">,
   label: string,
   description?: string
-  value: Date | undefined
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
 };
 
-const FormDatePicker:React.FC<Props> = ({ control, name,label,description,value,onChange}) => {
+const FormDatePicker: React.FC<Props> = ({ control, name, label, description }) => {
+
     return (
         <FormField
             control={control}
@@ -23,7 +22,7 @@ const FormDatePicker:React.FC<Props> = ({ control, name,label,description,value,
           <FormItem className="flex flex-col">
             <FormLabel>{label}</FormLabel>
             <FormControl>
-            <DatePicker selected={value} onChange={onChange}/>
+            <DatePicker selected={field.value} onChange={field.onChange}/>
             </FormControl>
              <FormDescription>
                     {description}

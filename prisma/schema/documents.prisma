@@ -10,15 +10,19 @@ model documents {
     spec_doc spec_doc[]
 
     account_number     String
-    date               DateTime @db.Timestamp(6)
+    date               DateTime @db.Timestamp()
     account_sum        Decimal  @db.Money
     bank_account       String
     purpose_of_payment String
 
-    is_paid            Boolean  @default(false)
+    is_saved Boolean @default(false)
+    is_paid  Boolean @default(false)
 
-    created_at DateTime? @default(now()) @db.Timestamp(6)
-    updated_at DateTime? @updatedAt @db.Timestamp(6)
+    user_id Int
+    user    user @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+    created_at DateTime? @default(now()) @db.Timestamp()
+    updated_at DateTime? @updatedAt @db.Timestamp()
     is_deleted Boolean   @default(false)
 }
 
@@ -26,7 +30,7 @@ model spec_doc {
     id Int @id() @default(autoincrement())
 
     documents_id Int
-    documents documents @relation(fields: [documents_id],references: [id], onDelete: NoAction, onUpdate: NoAction)
+    documents    documents @relation(fields: [documents_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
     pay_sum        Decimal  @db.Money
     expected_date  DateTime @db.Timestamp()

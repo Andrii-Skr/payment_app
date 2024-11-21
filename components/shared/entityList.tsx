@@ -7,40 +7,21 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { apiClient } from "@/services/api-client";
 import { entity } from "@prisma/client";
+import { useEntityStore } from "@/store/store";
 
 
 type Props = {
   className?: string;
 };
-// type TempData = {
-//   id: number;
-//   name: string;
-// };
 
-// const tempData: TempData[] = [
-//   {
-//     id: 1,
-//     name: "Выбор",
-//   },
-//   {
-//     id: 2,
-//     name: "Зенит",
-//   },
-//   {
-//     id: 3,
-//     name: "Аврора",
-//   },
-//   {
-//     id: 4,
-//     name: "Арпи",
-//   },
-// ];
 export const EntityLIst: React.FC<Props> = ({ className }) => {
   const [entityList, setEntityList] = useState<entity[] | undefined>([]);
+  const updateCurrentEntity = useEntityStore((state ) => state.updateCurrentEntity)
   const router = useRouter();
 
-  const handleClick = () => {
+  const handleClick = (entity: entity) => {
     router.push("/create/payment-form");
+    updateCurrentEntity(entity);
   };
 
   useEffect(() => {
@@ -57,7 +38,7 @@ export const EntityLIst: React.FC<Props> = ({ className }) => {
             variant="outline"
             key={e.id}
             className={cn("flex items-center", className)}
-            onClick={handleClick}
+            onClick={() => handleClick(e)}
           >
             <FilePlus2 />
             <span className="flex-grow text-center">{e.name}</span>
