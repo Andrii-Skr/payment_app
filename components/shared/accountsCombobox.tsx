@@ -39,7 +39,7 @@ type Props = {
   onChange?: (edrpouList: partner_account_number) => void
 };
 
-export const Comboboxac:React.FC<Props> =({  id ,onChange, name, label, description, control,placeholder,emty,data}  ) =>{
+export const AccountsCombobox:React.FC<Props> =({  id ,onChange, name, label, description, control,placeholder,emty,data}  ) =>{
   const [open, setOpen] = React.useState(false)
 
   return (

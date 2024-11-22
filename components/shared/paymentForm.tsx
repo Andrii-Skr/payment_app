@@ -13,12 +13,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Container } from "@/components/shared/container";
-import { FormDatePicker, FormInput } from "@/components/shared";
+import { AccountsCombobox, FormDatePicker, FormInput, SampleCombobox } from "@/components/shared";
 import { Combobox } from "@/components/shared/combobox";
 import { useEntityStore, useFormStore } from "@/store/store";
 import { partner_account_number, partners } from "@prisma/client";
-import { Comboboxac } from "@/components/shared/comboboxac";
 import { PartnersWithAccounts } from "@/services/partners";
+import { withDataFetching } from "@/components/hoc/wrappedCombobox";
 
 const formSchema = z.object({
   entity_id: z.number(),
@@ -120,6 +120,7 @@ export const PaymentForm: React.FC<Props> = ({ className }) => {
     setValue("partnerName", partner.name);
 
   };
+  const EnhancedCombobox = withDataFetching(Combobox);
 
   // const handleChangeDate = (name: string, date: Date | undefined) => {
   //   setFormState((prev) => ({ ...prev, [name]: date }));
@@ -135,11 +136,12 @@ export const PaymentForm: React.FC<Props> = ({ className }) => {
               Наименование Плательщика: {currentEntity?.name}
             </AlertDescription>
           </Alert>
-          <FormInput
+          <SampleCombobox
             control={form.control}
             name="sample"
             label="Шаблон"
             placeholder="Выберите шаблон ..."
+            emty="Шаблоны не найдены =("
           />
           <FormInput
             control={form.control}
@@ -184,12 +186,7 @@ export const PaymentForm: React.FC<Props> = ({ className }) => {
             />
           </Container>
           <Container className="justify-start gap-10">
-            {/* <FormInput
-              control={form.control}
-              name="bankAccount"
-              label="Номер счета"
-            /> */}
-            <Comboboxac
+            <AccountsCombobox
               control={form.control}
               name="bankAccount"
               label="Номер счета"
@@ -198,7 +195,7 @@ export const PaymentForm: React.FC<Props> = ({ className }) => {
               //onChange={handleChange}
               data={accountList}
             />
-            <Combobox
+            <EnhancedCombobox
               control={form.control}
               name="edrpou"
               label="ЕДРПОУ"
