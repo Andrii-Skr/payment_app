@@ -8,7 +8,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
             return NextResponse.json({ error: "Invalid ID" }, { status: 400 });
         }
 
-        const partners = await prisma.partners.findMany({ where: { entity_id: id } });
+        const partners = await prisma.partners.findMany({ where: { entity_id: id }, include: { partner_account_number: true } });
         return NextResponse.json(partners);
     } catch (error) {
         console.error("Error fetching partners:", error);

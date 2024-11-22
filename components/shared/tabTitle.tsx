@@ -38,7 +38,7 @@ export const TabTitle: React.FC<Props> = ({ className }) => {
         <TabsList>
           <TabsTrigger value="/create">Создать Платеж</TabsTrigger>
           <TabsTrigger value="/view">Просмотр графика оплат</TabsTrigger>
-          <TabsTrigger value="/add">Добавление чего-то там</TabsTrigger>
+          <TabsTrigger value="/add">Админка</TabsTrigger>
         </TabsList>
       </Tabs>
     </Container>

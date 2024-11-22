@@ -16,7 +16,9 @@ import { Container } from "@/components/shared/container";
 import { FormDatePicker, FormInput } from "@/components/shared";
 import { Combobox } from "@/components/shared/combobox";
 import { useEntityStore, useFormStore } from "@/store/store";
-import { partners } from "@prisma/client";
+import { partner_account_number, partners } from "@prisma/client";
+import { Comboboxac } from "@/components/shared/comboboxac";
+import { PartnersWithAccounts } from "@/services/partners";
 
 const formSchema = z.object({
   entity_id: z.number(),
@@ -69,6 +71,8 @@ type Props = {
 };
 export const PaymentForm: React.FC<Props> = ({ className }) => {
   const currentEntity = useEntityStore((state) => state.currentEntity);
+  const [accountList, setAccountList] = React.useState<partner_account_number[] | undefined>([]);
+
   // const formData = useFormStore((state) => state.currentFormData);
   // const updateCurrentFormData = useFormStore(
   //   (state) => state.updateCurrentFormData
@@ -95,7 +99,7 @@ export const PaymentForm: React.FC<Props> = ({ className }) => {
     defaultValues: { ...defaultValues, entity_id: currentEntity?.id },
   });
 
-  const [formState, setFormState] = React.useState(defaultValues);
+  //const [formState, setFormState] = React.useState(defaultValues);
 
   const { getValues, reset,setValue } = form;
 
@@ -105,28 +109,22 @@ export const PaymentForm: React.FC<Props> = ({ className }) => {
 
   const handleGetValues = () => {
     const accountNumber = getValues("accountNumber");
-    const values = getValues(); // Получите все значения формы
+    const  values  = getValues(); // Получите все значения формы
     console.log(`values ${JSON.stringify(values, null, 2)}`);
-    console.log(`accountNumber ${accountNumber}`);
   };
 
-  const handleChange = (partner: partners) => {
-    setValue("edrpou", partner.edrpou);
+  const handleChange = (partner: PartnersWithAccounts) => {
+    //setValue("edrpou", partner.edrpou);
+    setAccountList(partner.partner_account_number);
     setValue("mfo", partner.mfo);
     setValue("partnerName", partner.name);
-    // const currentValues = getValues()
-    // reset({
-    //   ...currentValues,
-    //   edrpou: partner.edrpou,
-    //   mfo: partner.mfo,
-    //   partnerName: partner.name,
-    // });
+
   };
 
-  const handleChangeDate = (name: string, date: Date | undefined) => {
-    setFormState((prev) => ({ ...prev, [name]: date }));
-    //updateCurrentFormData({ [name]: date });
-  };
+  // const handleChangeDate = (name: string, date: Date | undefined) => {
+  //   setFormState((prev) => ({ ...prev, [name]: date }));
+  //   //updateCurrentFormData({ [name]: date });
+  // };
 
   return (
     <div>
@@ -186,13 +184,26 @@ export const PaymentForm: React.FC<Props> = ({ className }) => {
             />
           </Container>
           <Container className="justify-start gap-10">
-            <FormInput
+            {/* <FormInput
               control={form.control}
               name="bankAccount"
               label="Номер счета"
+            /> */}
+            <Comboboxac
+              control={form.control}
+              name="bankAccount"
+              label="Номер счета"
+              placeholder="Выберите Номер счета..."
+              emty="Номера счетов не найдены =("
+              //onChange={handleChange}
+              data={accountList}
             />
             <Combobox
-              value={formState.edrpou}
+              control={form.control}
+              name="edrpou"
+              label="ЕДРПОУ"
+              placeholder="Выберите ЕДРПОУ..."
+              emty="ЕДРПОУ не найдены =("
               onChange={handleChange}
               id={currentEntity?.id}
             />

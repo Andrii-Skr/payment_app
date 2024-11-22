@@ -21,7 +21,7 @@ import {
 import { FormField, FormItem, FormLabel } from "@/components/ui"
 import { Container } from "@/components/shared"
 import { apiClient } from "@/services/api-client"
-import { partners } from "@prisma/client"
+import { partner_account_number, partners } from "@prisma/client"
 import { Control } from "react-hook-form"
 import { FormValues } from "@/components/shared/paymentForm"
 import { PartnersWithAccounts } from "@/services/partners"
@@ -32,25 +32,15 @@ type Props = {
   name: keyof Omit<FormValues, "expectedDate" | "deadLineDate" | "date">;
   label: string,
   description?: string
-  id: number | undefined
+  id?: number | undefined
   placeholder: string
   emty: string
-  onChange: (edrpouList: PartnersWithAccounts) => void
+  data?: partner_account_number[]
+  onChange?: (edrpouList: partner_account_number) => void
 };
 
-export const Combobox:React.FC<Props> =({  id ,onChange, name, label, description, control,placeholder,emty}  ) =>{
+export const Comboboxac:React.FC<Props> =({  id ,onChange, name, label, description, control,placeholder,emty,data}  ) =>{
   const [open, setOpen] = React.useState(false)
-  const [partnersList, setPartnersList] = React.useState<PartnersWithAccounts[] | undefined>([]);
-
-
-
-  React.useEffect(() => {
-    if(!id) return
-    apiClient.partners.partnersService(id).then((data) => {
-      setPartnersList(data);
-      console.log(`data ${data}`);
-    });
-  }, [open]);
 
   return (
     <FormField
@@ -69,7 +59,7 @@ export const Combobox:React.FC<Props> =({  id ,onChange, name, label, descriptio
                   className="w-[220px] h-9 px-3 py-1 justify-between"
                 >
                   {field.value
-                    ? partnersList?.find((partnersList) => partnersList.edrpou === field.value)?.edrpou
+                    ? data?.find((accountList) => accountList.account_number === field.value)?.account_number
                     : placeholder}
                   <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
@@ -80,23 +70,23 @@ export const Combobox:React.FC<Props> =({  id ,onChange, name, label, descriptio
                   <CommandList>
                     <CommandEmpty>{emty}</CommandEmpty>
                     <CommandGroup>
-                      {partnersList?.map((edrpouList) => (
+                      {data?.map((accountList) => (
                         <CommandItem
-                          key={edrpouList.edrpou}
-                          value={edrpouList.edrpou}
+                          key={accountList.account_number}
+                          value={accountList.account_number}
                           onSelect={(currentValue) => {
                             field.onChange(currentValue === field.value ? "" : currentValue)
-                            onChange(edrpouList)
+                            //onChange(edrpouList)
                             setOpen(false)
                           }}
                         >
                           <Check
                             className={cn(
                               "mr-2 h-4 w-4",
-                              field.value === edrpouList.edrpou ? "opacity-100" : "opacity-0"
+                              field.value === accountList.account_number ? "opacity-100" : "opacity-0"
                             )}
                           />
-                          {edrpouList.edrpou}
+                          {accountList.account_number}
                         </CommandItem>
                       ))}
                     </CommandGroup>
