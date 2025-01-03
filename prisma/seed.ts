@@ -30,42 +30,42 @@ async function addPartners() {
                 type: 1,
                 edrpou: "12345678",
                 entity_id: 1,
-                mfo: "12345678"
+
             },
             {
                 name: "partner2Выбор",
                 type: 1,
                 edrpou: "22345678",
                 entity_id: 1,
-                mfo: "22345678"
+
             },
             {
                 name: "partner3Выбор",
                 type: 1,
                 edrpou: "52345678",
                 entity_id: 1,
-                mfo: "52345678"
+
             },
             {
                 name: "partner3Выбор",
                 type: 1,
                 edrpou: "62345678",
                 entity_id: 1,
-                mfo: "62345678"
+
             },
             {
                 name: "partner1Зенит",
                 type: 2,
                 edrpou: "32345678",
                 entity_id: 2,
-                mfo: "32345678"
+
             },
             {
                 name: "partner1Зенит",
                 type: 2,
                 edrpou: "42345678",
                 entity_id: 2,
-                mfo: "42345678"
+
             }
         ]
 
@@ -75,15 +75,18 @@ async function addPartners() {
         data: [
             {
                 partner_id: 1,
-                account_number: "12345678901234567890",
+                bank_account: "12345678901234567890",
+                mfo:"1234"
             },
             {
                 partner_id: 1,
-                account_number: "22345678901234567890",
+                bank_account: "22345678901234567890",
+                mfo:"2234"
             },
             {
                 partner_id: 2,
-                account_number: "12345678901234567890",
+                bank_account: "32345678901234567890",
+                mfo:"3234"
             }
         ]
 

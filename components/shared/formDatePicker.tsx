@@ -3,11 +3,14 @@ import { DatePicker } from '@/components/shared/datePicker';
 import { FormValues } from '@/components/shared/paymentForm';
 import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui'
 import React from 'react'
-import { Control } from 'react-hook-form';
+import { Control, Path } from 'react-hook-form';
+
+type DateKeys = `payments.${number}.${"expectedDate" | "deadLineDate"}`
+type TopLevelDateKeys = keyof Pick<FormValues, "date">;
 
 type Props = {
   control: Control<FormValues>,
-  name: keyof Pick<FormValues, "expectedDate" | "deadLineDate" | "date">,
+  name: DateKeys | TopLevelDateKeys,
   label: string,
   description?: string
 };
@@ -19,12 +22,12 @@ const FormDatePicker: React.FC<Props> = ({ control, name, label, description }) 
             control={control}
             name={name}
             render={( {field }) => (
-          <FormItem className="flex flex-col">
-            <FormLabel>{label}</FormLabel>
+              <FormItem className="flex flex-col justify-between space-y-1">
+            <FormLabel className="mt-1 mb-1.5">{label}</FormLabel>
             <FormControl>
             <DatePicker selected={field.value} onChange={field.onChange}/>
             </FormControl>
-             <FormDescription>
+             <FormDescription className="mb-2">
                     {description}
             </FormDescription>
             <FormMessage />

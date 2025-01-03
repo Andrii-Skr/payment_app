@@ -22,7 +22,7 @@ export function DatePicker({ selected, onChange }: { selected: Date | undefined,
         <Button
           variant={"outline"}
           className={cn(
-            "w-[280px] justify-start text-left font-normal",
+            "w-[300px] h-9 justify-start text-left font-normal px-3 py-1",
             !selected && "text-muted-foreground"
           )}
         >
@@ -30,7 +30,7 @@ export function DatePicker({ selected, onChange }: { selected: Date | undefined,
           {selected ? format(selected, "dd.MM.yyyy") : <span>Выберите Дату</span>}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-auto p-0">
+      <PopoverContent className="">
         <Calendar
           mode="single"
           selected={selected}

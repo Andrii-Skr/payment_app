@@ -3,7 +3,6 @@ model partners {
     name   String  @db.VarChar
     type   Decimal @db.Decimal(1, 0)
     edrpou String  @unique @db.VarChar(8)
-    mfo    String
     group  Int[]   @db.SmallInt
 
     entity_id Int
@@ -24,8 +23,9 @@ model partner_account_number {
 
     partners partners @relation(fields: [partner_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
-    account_number String
-    is_default     Boolean @default(false)
+    bank_account String
+    mfo          String
+    is_default   Boolean @default(false)
 
     created_at DateTime? @default(now()) @db.Timestamp()
     updated_at DateTime? @updatedAt @db.Timestamp()
