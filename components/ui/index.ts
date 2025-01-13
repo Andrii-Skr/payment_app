@@ -18,3 +18,5 @@ export { Alert, AlertTitle, AlertDescription } from "./alert";
 export { Combobox } from "./combobox";
 export { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription } from "./dialog";
 export { Label } from "./label";
+export { ScrollArea, ScrollBar } from "./scroll-area";
+export { Separator } from "./separator";

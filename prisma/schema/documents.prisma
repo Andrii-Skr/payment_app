@@ -13,6 +13,7 @@ model documents {
     date               DateTime @db.Timestamp()
     account_sum        Decimal  @db.Money
     bank_account       String
+    mfo                String
     purpose_of_payment String
 
     is_saved Boolean @default(false)

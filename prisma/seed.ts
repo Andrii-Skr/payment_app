@@ -1,3 +1,4 @@
+import { role } from './../node_modules/.pnpm/@prisma+client@5.21.1_prisma@5.21.1/node_modules/.prisma/client/index.d';
 import { entity } from '@prisma/client';
 import { partners } from '@prisma/client';
 import prisma from "./prisma-client"
@@ -88,6 +89,29 @@ async function addPartners() {
                 bank_account: "32345678901234567890",
                 mfo:"3234"
             }
+        ]
+
+    })
+
+    await prisma.role.createMany({
+        data: [
+            {
+                name: "admin"
+            },
+
+        ]
+
+    })
+
+    await prisma.user.createMany({
+        data: [
+            {
+                login: "user1",
+                password: "user1",
+                role_id: 1,
+                name: "user1",
+            },
+
         ]
 
     })

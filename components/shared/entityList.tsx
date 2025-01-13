@@ -4,10 +4,10 @@ import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
 import { FilePlus2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
 import { apiClient } from "@/services/api-client";
 import { entity } from "@prisma/client";
 import { useEntityStore } from "@/store/store";
+import React from "react";
 
 
 type Props = {
@@ -15,7 +15,7 @@ type Props = {
 };
 
 export const EntityLIst: React.FC<Props> = ({ className }) => {
-  const [entityList, setEntityList] = useState<entity[] | undefined>([]);
+  const [entityList, setEntityList] = React.useState<entity[] | undefined>([]);
   const updateCurrentEntity = useEntityStore((state ) => state.updateCurrentEntity)
   const router = useRouter();
 
@@ -24,7 +24,7 @@ export const EntityLIst: React.FC<Props> = ({ className }) => {
     updateCurrentEntity(entity);
   };
 
-  useEffect(() => {
+  React.useEffect(() => {
     apiClient.entity.entityService().then((data) => {
       setEntityList(data);
     });
