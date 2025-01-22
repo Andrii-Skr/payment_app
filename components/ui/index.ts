@@ -1,3 +1,4 @@
+import { Table } from '@/components/ui/table';
 
 export { Button } from "./button";
 export { Tabs, TabsList, TabsTrigger, TabsContent } from "./tabs";
@@ -20,3 +21,13 @@ export { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogFooter, Dialo
 export { Label } from "./label";
 export { ScrollArea, ScrollBar } from "./scroll-area";
 export { Separator } from "./separator";
+export {
+  Table,
+  TableHeader,
+  TableBody,
+  TableFooter,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableCaption
+} from "./table";

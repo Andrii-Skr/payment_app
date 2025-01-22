@@ -14,4 +14,6 @@ export { SumAndDateForm } from "./sumAndDateForm";
 export { PartnersCombobox } from "./partnersCombobox";
 export { AddPartner } from "./addPartner";
 export { PartnerInput } from "./partnerInput";
+export { PaymentSchedule } from "./paymentSchedule";
+export { PaymentTable } from "./paymentTable";
 

@@ -2,8 +2,9 @@ import { Combobox } from "@/components/shared";
 import { FormValues } from "@/components/shared/paymentForm";
 import { apiClient } from "@/services/api-client";
 import { PartnersWithAccounts } from "@/services/partners";
+import { useAccountListStore } from "@/store/store";
 import React from "react";
-import { Control } from "react-hook-form";
+import { Control, useFormContext } from "react-hook-form";
 
 type Props = {
   control: Control<FormValues>;
@@ -13,7 +14,6 @@ type Props = {
   description?: string;
   placeholder: string;
   empty: string;
-  handleChange: (id: PartnersWithAccounts) => void;
 };
 
 const PartnersCombobox: React.FC<Props> = ({
@@ -24,12 +24,14 @@ const PartnersCombobox: React.FC<Props> = ({
   description,
   placeholder,
   empty,
-  handleChange,
 }) => {
   const [partnersList, setPartnersList] = React.useState<
     PartnersWithAccounts[]
   >([]);
   const [list, setList] = React.useState<{ key: string; value: string }[]>([]);
+  const updateAccountList = useAccountListStore((state ) => state.updateAccountList);
+
+  const { setValue, watch } = useFormContext();
 
   React.useEffect(() => {
     if (!id) return;
@@ -45,9 +47,19 @@ const PartnersCombobox: React.FC<Props> = ({
     });
   }, [id]);
 
+  const partnerId = watch("partner_id");
+
+  React.useEffect(() => {
+    const partner = partnersList.find((p) => p.id === partnerId);
+    if (partner) {
+      updateAccountList(partner.partner_account_number);
+    }
+  }, [partnerId, partnersList]);
+
     const onChange = (i: number) => {
       const partner = partnersList[i];
-      handleChange(partner);
+      setValue("partner_id", partner.id);
+      setValue("partnerName", partner.name);
     }
   return (
     <Combobox
@@ -64,3 +76,5 @@ const PartnersCombobox: React.FC<Props> = ({
 };
 
 export { PartnersCombobox };
+
+

@@ -83,8 +83,9 @@ export const Combobox: React.FC<Props> = ({
                           key={row.key}
                           value={row.value}
                           onSelect={(currentValue) => {
+                            console.log(currentValue, field.value);
                             field.onChange(
-                              currentValue === field.value ? "" : currentValue
+                              currentValue === field.value ? "1" : currentValue
                             );
                             onChange(i);
                             setOpen(false);

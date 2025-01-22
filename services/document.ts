@@ -29,3 +29,12 @@ export const getById = async (doc_id:number):Promise<documents[] | undefined> =>
         console.log(error)
     }
 }
+
+export const getAll = async ():Promise<documents[] | undefined> => {
+    try {
+        const { data } = await axiosInstance.get<documents[]>(`/document`)
+        return data
+    } catch (error) {
+        console.log(error)
+    }
+}

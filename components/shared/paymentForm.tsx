@@ -129,7 +129,6 @@ export const PaymentForm: React.FC<Props> = ({ className }) => {
 
   React.useEffect(() => {
     if (currentEntity) {
-      console.log("currentEntity", currentEntity.id);
     apiClient.document.getByEntity(currentEntity.id).then((data) => {
       if (data) {
         setDocs(data);
@@ -144,22 +143,21 @@ export const PaymentForm: React.FC<Props> = ({ className }) => {
     reset({ entity_id: currentEntity?.id });
   };
 
-  const handleChange = (partner: PartnersWithAccounts) => {
-    setAccountList(partner.partner_account_number);
-    setValue("partner_id", partner.id);
-    setValue("partnerName", partner.name);
-  };
+  // const handleChange = (partner: PartnersWithAccounts) => {
+  //   // setAccountList(partner.partner_account_number);
+  //   setValue("partner_id", partner.id);
+  //   setValue("partnerName", partner.name);
+  // };
 
-  const accountHandleChange = (account: partner_account_number) => {
-    setValue("mfo", account?.mfo || "");
-  };
+  // const accountHandleChange = (account: partner_account_number) => {
+  //   setValue("mfo", account?.mfo || "");
+  // };
 
   const ClickHandle = (doc_id:number) => {
     apiClient.document.getById(doc_id).then((data) => {
-      console.log(data);
       if (data) {
         const transformedData = TransformedObject(data);
-        console.log(transformedData);
+        //console.log(transformedData);
         reset(transformedData);
       }
     });
@@ -236,7 +234,7 @@ export const PaymentForm: React.FC<Props> = ({ className }) => {
                 label="ЕДРПОУ"
                 placeholder="Выберите ЕДРПОУ..."
                 empty="ЕДРПОУ не найдены =("
-                handleChange={handleChange}
+                // handleChange={handleChange}
                 id={currentEntity?.id}
               />
               <AccountsCombobox
@@ -246,7 +244,7 @@ export const PaymentForm: React.FC<Props> = ({ className }) => {
                 placeholder="Выберите Номер счета..."
                 empty="Номера счетов не найдены =("
                 data={accountList}
-                accountHandleChange={accountHandleChange}
+                //accountHandleChange={accountHandleChange}
               />
               <AddPartner className="self-end" />
             </Container>

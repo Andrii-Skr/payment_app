@@ -11,7 +11,7 @@ model documents {
 
     account_number     String
     date               DateTime @db.Timestamp()
-    account_sum        Decimal  @db.Money
+    account_sum        Decimal  @db.Decimal(10, 2)
     bank_account       String
     mfo                String
     purpose_of_payment String
@@ -33,7 +33,7 @@ model spec_doc {
     documents_id Int
     documents    documents @relation(fields: [documents_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
-    pay_sum        Decimal  @db.Money
+    pay_sum        Decimal  @db.Decimal(10, 2)
     expected_date  DateTime @db.Timestamp()
     dead_line_date DateTime @db.Timestamp()
 

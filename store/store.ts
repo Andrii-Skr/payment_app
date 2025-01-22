@@ -1,7 +1,8 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware';
-import { entity } from "@prisma/client";
+import { entity, partner_account_number } from "@prisma/client";
 import { FormValues } from '@/components/shared/paymentForm';
+import { addDays, subDays } from "date-fns";
 
     type entityState = {
     currentEntity?:entity
@@ -25,6 +26,7 @@ import { FormValues } from '@/components/shared/paymentForm';
     )
   );
 
+// -----------------------------------------------------------------------------------------------------
 
   type formState = {
     currentFormData:Partial<FormValues>
@@ -42,3 +44,47 @@ import { FormValues } from '@/components/shared/paymentForm';
       currentFormData: { ...state.currentFormData, ...formData }
     }))
   }));
+
+// -----------------------------------------------------------------------------------------------------
+
+type AccountListState ={
+  currentAccountList: partner_account_number[];
+}
+type AccountListAction  = {
+  updateAccountList: (accounts: partner_account_number[]) => void
+
+}
+
+export const useAccountListStore = create<AccountListState & AccountListAction>((set) => ({
+  currentAccountList: [],
+
+  updateAccountList: (accounts) => set({ currentAccountList: accounts}),
+}));
+
+// -----------------------------------------------------------------------------------------------------
+
+
+
+interface DateStoreState {
+  startDate: Date;
+  goForward: () => void;
+  goBackward: () => void;
+  setDate: (newDate: Date) => void;
+}
+
+export const useDateStore = create<DateStoreState>((set) => ({
+  startDate: new Date(), // Текущая дата, от которой пляшем (начало недели)
+  goForward: () =>
+    set((state) => ({
+      startDate: addDays(state.startDate, 7),
+    })),
+  goBackward: () =>
+    set((state) => ({
+      startDate: subDays(state.startDate, 7),
+    })),
+  setDate: (newDate: Date) =>
+    set(() => ({
+      startDate: newDate,
+    })),
+}));
+

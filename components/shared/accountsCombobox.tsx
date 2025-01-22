@@ -3,8 +3,9 @@
 import * as React from "react";
 import { Combobox } from "@/components/shared";
 import { partner_account_number } from "@prisma/client";
-import { Control } from "react-hook-form";
+import { Control, useFormContext } from "react-hook-form";
 import { FormValues } from "@/components/shared/paymentForm";
+import { useAccountListStore } from "@/store/store";
 
 type Props = {
   control: Control<FormValues>;
@@ -15,7 +16,7 @@ type Props = {
   placeholder: string;
   empty: string;
   data: partner_account_number[];
-  accountHandleChange: (id:partner_account_number) => void
+  //accountHandleChange: (id:partner_account_number) => void
 };
 
 export const AccountsCombobox: React.FC<Props> = ({
@@ -26,19 +27,22 @@ export const AccountsCombobox: React.FC<Props> = ({
   control,
   placeholder,
   empty,
-  data,
-  accountHandleChange
+  //accountHandleChange
 }) => {
 
-  const list = data
-    ? data.map((e) => {
+  const currentAccountList = useAccountListStore((state) => state.currentAccountList);
+
+  const list = currentAccountList
+    ? currentAccountList.map((e) => {
         return { key: String(e.id), value: e.bank_account };
       })
     : [];
 
+  const { setValue } = useFormContext();
+
   const onChange = (i: number) => {
-    const bankAccount = data[i]
-    accountHandleChange(bankAccount)
+    const bankAccount = currentAccountList[i]
+    setValue("mfo", bankAccount?.mfo || "");
    }
 
   return (
@@ -55,3 +59,4 @@ export const AccountsCombobox: React.FC<Props> = ({
     />
   );
 };
+
