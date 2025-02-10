@@ -1,4 +1,7 @@
-import { TabTitle } from "@/components/shared";
+import { Logout, TabTitle } from "@/components/shared";
+import { Button } from "@/components/ui";
+import { cn } from "@/lib/utils";
+import { signOut } from "next-auth/react";
 
 type Props = {
   className?: string;
@@ -6,8 +9,10 @@ type Props = {
 
 const Header: React.FC<Props> = ({ className }) => {
   return (
-    <header className={className}>
+    <header className={cn("",className)}>
       <TabTitle className="mb-5" />
+      <Logout className={"absolute top-1 right-10"} />
+
     </header>
   );
 };

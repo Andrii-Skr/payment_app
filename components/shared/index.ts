@@ -16,4 +16,6 @@ export { AddPartner } from "./addPartner";
 export { PartnerInput } from "./partnerInput";
 export { PaymentSchedule } from "./paymentSchedule";
 export { PaymentTable } from "./paymentTable";
+export { Logout } from "./logout";
+export { ConditionalHeader } from "./conditionalHeader";
 

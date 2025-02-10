@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
-import { Header } from "@/components/header";
 import React from "react";
 import "./globals.css";
+import SessionProvider from "@/components/SessionProvider";
+import { ConditionalHeader } from "@/components/shared";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -31,8 +32,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <Header />
-        {children}
+      <SessionProvider>
+        <ConditionalHeader />
+          {children}
+          </SessionProvider>
       </body>
     </html>
   );
