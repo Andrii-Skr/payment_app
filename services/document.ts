@@ -6,7 +6,15 @@ import { documents } from "@prisma/client";
 
 export const create = async (data:FormValues) => {
     try {
-        await axiosInstance.post('/document', data)
+        await axiosInstance.post('/document/create', data)
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+export const update = async (data:FormValues) => {
+    try {
+        await axiosInstance.post('/document/update', data)
     } catch (error) {
         console.log(error)
     }
@@ -30,6 +38,15 @@ export const getById = async (doc_id:number):Promise<documents[] | undefined> =>
     }
 }
 
+export const getByParentId = async (partner_id:number):Promise<documents[] | undefined> => {
+    try {
+        const { data } = await axiosInstance.get<documents[]>(`/entity/schedule/${partner_id}`)
+        return data
+    } catch (error) {
+        console.log(error)
+    }
+}
+
 export const getAll = async ():Promise<documents[] | undefined> => {
     try {
         const { data } = await axiosInstance.get<documents[]>(`/document`)
@@ -38,3 +55,5 @@ export const getAll = async ():Promise<documents[] | undefined> => {
         console.log(error)
     }
 }
+
+

@@ -5,7 +5,7 @@ import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessa
 import React from 'react'
 import { Control, Path } from 'react-hook-form';
 
-type DateKeys = `payments.${number}.${"expectedDate" | "deadLineDate"}`
+type DateKeys = `payments.${number}.${"expectedDate" | "deadLineDate" | "paidDate"}`
 type TopLevelDateKeys = keyof Pick<FormValues, "date">;
 
 type Props = {
@@ -13,9 +13,10 @@ type Props = {
   name: DateKeys | TopLevelDateKeys,
   label: string,
   description?: string
+  readOnly?: boolean
 };
 
-const FormDatePicker: React.FC<Props> = ({ control, name, label, description }) => {
+const FormDatePicker: React.FC<Props> = ({ control, name, label, description,readOnly  }) => {
 
     return (
         <FormField
@@ -25,7 +26,7 @@ const FormDatePicker: React.FC<Props> = ({ control, name, label, description }) 
               <FormItem className="flex flex-col justify-between space-y-1">
             <FormLabel className="mt-1 mb-1.5">{label}</FormLabel>
             <FormControl>
-            <DatePicker selected={field.value} onChange={field.onChange}/>
+                  <DatePicker selected={field.value} onChange={field.onChange} disabled={readOnly} />
             </FormControl>
              <FormDescription className="mb-2">
                     {description}

@@ -31,3 +31,5 @@ export {
   TableCell,
   TableCaption
 } from "./table";
+
+export { Modal } from "./modal";

@@ -21,21 +21,19 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({
-
   children,
 }: Readonly<{
   children: React.ReactNode;
-}>)
-{
-
-
+}>) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-      <SessionProvider>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      >
+        {/* <SessionProvider> */}
         <ConditionalHeader />
-          {children}
-          </SessionProvider>
+        {children}
+        {/* </SessionProvider> */}
       </body>
     </html>
   );

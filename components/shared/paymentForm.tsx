@@ -3,10 +3,8 @@
 import {
   Alert,
   AlertDescription,
-  AlertTitle,
   Button,
   Form,
-  FormLabel,
   ScrollArea,
   Separator,
 } from "@/components/ui";
@@ -26,28 +24,38 @@ import {
 } from "@/components/shared";
 import { useEntityStore } from "@/store/store";
 import { documents, partner_account_number } from "@prisma/client";
-import { PartnersWithAccounts } from "@/services/partners";
-import { cn } from "@/lib/utils";
 import { apiClient } from "@/services/api-client";
 import { TransformedObject } from "@/transformData/doc";
+import { cn } from "@/lib/utils";
 
 const paymentSchema = z.object({
-  // accountSum: z.preprocess(
-  //   (value) => (value === "" ? undefined : Number(value)),
-  //   z.number().min(0.1, "Сумма должна быть больше 0")),
   paySum: z.preprocess(
-    (value) => (value === "" ? undefined : Number(value)),
+    (value) => (value === "" ? 0 : Number(value)),
     z.number().min(0.1, "Сумма должна быть больше 0")
   ),
-  expectedDate: z
-    .date({ required_error: "Выберите желаемую дату оплаты" })
-    .optional(),
-  deadLineDate: z
-    .date({ required_error: "Выберите крайний срок оплаты" })
-    .optional(),
+  isPaid: z.boolean(),
+  paidDate: z.preprocess((arg) => {
+    if (typeof arg === "string" || arg instanceof Date) {
+      return new Date(arg);
+    }
+    return arg;
+  },z.date().optional()),
+  expectedDate: z.preprocess((arg) => {
+    if (typeof arg === "string" || arg instanceof Date) {
+      return new Date(arg);
+    }
+    return arg;
+  }, z.date().optional()),
+  deadLineDate: z.preprocess((arg) => {
+    if (typeof arg === "string" || arg instanceof Date) {
+      return new Date(arg);
+    }
+    return arg;
+  }, z.date({ message: "Пожалуйста, выберите дату" }).optional()),
 });
 
 const formSchema = z.object({
+  doc_id: z.number().optional(),
   entity_id: z.number(),
   partner_id: z.number(),
   sample: z.string().optional(),
@@ -56,30 +64,27 @@ const formSchema = z.object({
     .min(2, {
       message: "Номер счета должен быть не менее 2 символов.",
     }),
-
-  date: z.date({ message: "Пожалуйста, выберите дату" }),
-  accountSum: z.preprocess(
-    (value) => (value === "" ? undefined : Number(value)),
-    z.number().min(0.1, "Сумма должна быть больше 0")
-  ),
-
+  date: z.preprocess((arg) => {
+    if (typeof arg === "string" || arg instanceof Date) {
+      return new Date(arg);
+    }
+    return arg;
+  }, z.date({ message: "Пожалуйста, выберите дату" })),
+  accountSum: z
+    .string()
+    .regex(/^(=)?[0-9+\-*/().\s]+$/, "Сумма должна состоять только из цифр"),
+  accountSumExpression: z.string(),
   payments: z.array(paymentSchema),
-
   edrpou: z.string().length(8, {
     message: "ЕДРПОУ должен быть 8 цифр",
   }),
   selectedAccount: z.string().nonempty("Выберите номер счета"),
-  mfo: z.string().nonempty("MFO обязательно"),
-
-  partnerName: z
-    .string()
-    .min(3, {
-      message: "Имя контрагента должно быть не менее 3 символов.",
-    })
-    .trim(),
+  mfo: z.string(),
+  partnerName: z.string(),
   purposeOfPayment: z.string().max(420, {
     message: "Примечание должно быть не более 420 символов.",
   }),
+  note:z.string().optional()
 });
 export type PaymentValues = z.infer<typeof paymentSchema>;
 export type FormValues = z.infer<typeof formSchema>;
@@ -87,6 +92,7 @@ export type FormValues = z.infer<typeof formSchema>;
 type Props = {
   className?: string;
 };
+
 export const PaymentForm: React.FC<Props> = ({ className }) => {
   const currentEntity = useEntityStore((state) => state.currentEntity);
   const [accountList, setAccountList] = React.useState<
@@ -95,30 +101,40 @@ export const PaymentForm: React.FC<Props> = ({ className }) => {
   const [docs, setDocs] = React.useState<documents[] | []>([]);
 
   const defaultValues = {
+    doc_id: undefined,
     entity_id: currentEntity?.id,
     sample: "",
     accountNumber: "",
     date: undefined,
     expectedDate: undefined,
     deadLineDate: undefined,
-    accountSum: 0,
+    accountSum: "0",
+    accountSumExpression: "",
     paySum: 0,
     edrpou: "",
-    payments: [{ paySum: 0, expectedDate: undefined, deadLineDate: undefined }],
+    payments: [
+      {
+        paySum: 0,
+        expectedDate: undefined,
+        deadLineDate: undefined,
+        isPaid: false,
+        paidDate:undefined
+      },
+    ],
     selectedAccount: "",
     partner_id: 0,
     partnerName: "",
     purposeOfPayment: "",
+    note:"",
     mfo: "",
   };
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: { ...defaultValues, entity_id: currentEntity?.id },
+    shouldUnregister: true,
   });
-
-  const { setValue, reset, watch } = form;
-
+  const { setValue, reset, watch, getValues } = form;
   const partner_id = watch("partner_id");
 
   React.useEffect(() => {
@@ -129,38 +145,58 @@ export const PaymentForm: React.FC<Props> = ({ className }) => {
 
   React.useEffect(() => {
     if (currentEntity) {
-    apiClient.document.getByEntity(currentEntity.id).then((data) => {
-      if (data) {
-        setDocs(data);
-      }
-    });
-  }
-  }, [currentEntity,partner_id]);
+      apiClient.document.getByEntity(currentEntity.id).then((data) => {
+        if (data) {
+          setDocs(data);
+        }
+      });
+    }
+  }, [currentEntity, partner_id]);
 
   const onSubmit = (data: FormValues) => {
-    console.log(`data`, data);
-    apiClient.document.create(data);
-    reset({ entity_id: currentEntity?.id });
+    console.log("data", data);
+    if (!data.doc_id) {
+      apiClient.document.create(data);
+    } else {
+      apiClient.document.update(data);
+    }
+
+    reset({ ...defaultValues, entity_id: currentEntity?.id });
   };
 
-  // const handleChange = (partner: PartnersWithAccounts) => {
-  //   // setAccountList(partner.partner_account_number);
-  //   setValue("partner_id", partner.id);
-  //   setValue("partnerName", partner.name);
-  // };
-
-  // const accountHandleChange = (account: partner_account_number) => {
-  //   setValue("mfo", account?.mfo || "");
-  // };
-
-  const ClickHandle = (doc_id:number) => {
+  const ClickHandle = (doc_id: number) => {
     apiClient.document.getById(doc_id).then((data) => {
       if (data) {
         const transformedData = TransformedObject(data);
-        //console.log(transformedData);
         reset(transformedData);
       }
     });
+  };
+
+  // При потере фокуса сохраняем исходное выражение в accountSumExpression,
+  // вычисляем результат и обновляем accountSum
+  const handleAccountSumBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (value.startsWith("=")) {
+      setValue("accountSumExpression", value);
+      try {
+        const expr = value.slice(1); // удаляем знак "="
+        const result = new Function("return " + expr)();
+        setValue("accountSum", String(result));
+      } catch (error) {
+        console.error("Ошибка при вычислении выражения", error);
+      }
+    }
+  };
+
+  // При двойном клике восстанавливаем исходное выражение из accountSumExpression
+  const handleAccountSumDoubleClick = (
+    e: React.MouseEvent<HTMLInputElement>
+  ) => {
+    const expression = getValues("accountSumExpression");
+    if (expression) {
+      setValue("accountSum", expression);
+    }
   };
 
   return (
@@ -171,14 +207,19 @@ export const PaymentForm: React.FC<Props> = ({ className }) => {
           className
         )}
       >
-        <ScrollArea className="w-auto">
+        <ScrollArea className="w-auto  overflow-y-auto">
           <div className="p-4">
             <h4 className="mb-4 text-sm font-bold leading-none">
               Сохраненные документы
             </h4>
             {docs.map((doc) => (
               <>
-                <Button variant="ghost" key={doc.id} className="justify-start w-full text-sm" onClick={()=> ClickHandle(doc.id)}>
+                <Button
+                  variant="ghost"
+                  key={doc.id}
+                  className="justify-start w-full text-sm"
+                  onClick={() => ClickHandle(doc.id)}
+                >
                   {`Номер документа: ${doc.account_number}`}{" "}
                   {`Дата: ${new Date(doc.date).toLocaleDateString("ru-RU", {
                     day: "2-digit",
@@ -213,6 +254,16 @@ export const PaymentForm: React.FC<Props> = ({ className }) => {
           <Container className="justify-start items-start gap-5">
             <FormInput
               control={form.control}
+              className="no-spin"
+              type="text"
+              name="accountSum"
+              label="Сумма счета"
+              description="Сумма, указанная в счете"
+              onBlur={handleAccountSumBlur}
+              onDoubleClick={handleAccountSumDoubleClick}
+            />
+            <FormInput
+              control={form.control}
               name="accountNumber"
               label="Номер счета"
               placeholder="Введите номер счета"
@@ -225,7 +276,22 @@ export const PaymentForm: React.FC<Props> = ({ className }) => {
               description="Дата указанная в счете"
             />
           </Container>
-          <SumAndDateForm control={form.control} />
+          <Container className="justify-start items-start gap-5">
+            <FormInput
+              control={form.control}
+              name="purposeOfPayment"
+              label="Назначение платежа"
+              placeholder=""
+              description="Назначение платежа"
+            />
+            <FormInput
+              control={form.control}
+              name="note"
+              label="Комментарий к платежу"
+              placeholder=""
+              description="Комментарий к счету"
+            />
+          </Container>
           <div className=" w-auto rounded-3xl border-gray-200 border-2 ml-[-20px] p-4">
             <Container className="justify-start gap-5 pb-2">
               <PartnersCombobox
@@ -234,7 +300,6 @@ export const PaymentForm: React.FC<Props> = ({ className }) => {
                 label="ЕДРПОУ"
                 placeholder="Выберите ЕДРПОУ..."
                 empty="ЕДРПОУ не найдены =("
-                // handleChange={handleChange}
                 id={currentEntity?.id}
               />
               <AccountsCombobox
@@ -244,7 +309,6 @@ export const PaymentForm: React.FC<Props> = ({ className }) => {
                 placeholder="Выберите Номер счета..."
                 empty="Номера счетов не найдены =("
                 data={accountList}
-                //accountHandleChange={accountHandleChange}
               />
               <AddPartner className="self-end" />
             </Container>
@@ -256,23 +320,18 @@ export const PaymentForm: React.FC<Props> = ({ className }) => {
               />
               <FormInput
                 control={form.control}
+                className="no-spin"
                 name="mfo"
                 label="МФО"
                 type="number"
               />
             </Container>
           </div>
-          <FormInput
-            control={form.control}
-            name="purposeOfPayment"
-            label="Примечание"
-            placeholder="Оплата по счету"
-            description="Примечание документа"
-          />
-          <Button type="submit">Сохранить</Button>
-          <Button type="submit" className="ml-8">
-            Отправить на оплату
-          </Button>
+          <SumAndDateForm control={form.control} />
+          <Container className="justify-start items-start gap-5">
+            <Button type="submit">Сохранить</Button>
+            {/* <Button type="submit">Отправить на оплату</Button> */}
+          </Container>
         </form>
       </Form>
     </div>

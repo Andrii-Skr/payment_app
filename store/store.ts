@@ -2,7 +2,8 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware';
 import { entity, partner_account_number } from "@prisma/client";
 import { FormValues } from '@/components/shared/paymentForm';
-import { addDays, subDays } from "date-fns";
+import { PaymentDetail } from "../types";
+
 
     type entityState = {
     currentEntity?:entity
@@ -63,28 +64,42 @@ export const useAccountListStore = create<AccountListState & AccountListAction>(
 
 // -----------------------------------------------------------------------------------------------------
 
-
-
-interface DateStoreState {
-  startDate: Date;
-  goForward: () => void;
-  goBackward: () => void;
-  setDate: (newDate: Date) => void;
+interface EntityStore {
+  expandedEntities: number[];
+  toggleEntity: (id: number) => void;
 }
 
-export const useDateStore = create<DateStoreState>((set) => ({
-  startDate: new Date(), // Текущая дата, от которой пляшем (начало недели)
-  goForward: () =>
+export const useEntityScheduleStore = create<EntityStore>((set) => ({
+  expandedEntities: [],
+  toggleEntity: (id: number) =>
     set((state) => ({
-      startDate: addDays(state.startDate, 7),
-    })),
-  goBackward: () =>
-    set((state) => ({
-      startDate: subDays(state.startDate, 7),
-    })),
-  setDate: (newDate: Date) =>
-    set(() => ({
-      startDate: newDate,
+      expandedEntities: state.expandedEntities.includes(id)
+        ? state.expandedEntities.filter((eid) => eid !== id)
+        : [...state.expandedEntities, id],
     })),
 }));
+
+//---------------------------------------------------------------------------------------------------------------
+
+interface PaymentStore {
+  pendingPayments: PaymentDetail[];
+  isPaymentPanelExpanded: boolean;
+  setPendingPayments: (payments: PaymentDetail[]) => void;
+  addPendingPayments: (payments: PaymentDetail[]) => void;
+  clearPendingPayments: () => void;
+  expandPaymentPanel: () => void;
+  collapsePaymentPanel: () => void;
+}
+
+export const usePaymentStore = create<PaymentStore>((set, get) => ({
+  pendingPayments: [],
+  isPaymentPanelExpanded: false,
+  setPendingPayments: (payments) => set({ pendingPayments: payments }),
+  addPendingPayments: (payments) =>
+    set((state) => ({ pendingPayments: [...state.pendingPayments, ...payments] })),
+  clearPendingPayments: () => set({ pendingPayments: [] }),
+  expandPaymentPanel: () => set({ isPaymentPanelExpanded: true }),
+  collapsePaymentPanel: () => set({ isPaymentPanelExpanded: false }),
+}));
+
 

@@ -12,6 +12,7 @@ model documents {
     account_number     String
     date               DateTime @db.Timestamp()
     account_sum        Decimal  @db.Decimal(10, 2)
+    account_sum_expression String?
     bank_account       String
     mfo                String
     purpose_of_payment String
@@ -35,8 +36,9 @@ model spec_doc {
 
     pay_sum        Decimal  @db.Decimal(10, 2)
     expected_date  DateTime @db.Timestamp()
-    dead_line_date DateTime @db.Timestamp()
+    dead_line_date DateTime? @db.Timestamp()
 
+    paid_date  DateTime? @db.Timestamp()
     is_paid Boolean @default(false)
 
     created_at DateTime? @default(now()) @db.Timestamp()

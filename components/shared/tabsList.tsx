@@ -5,6 +5,7 @@ import { Container } from "./container";
 import { EntityLIst } from "./entityList";
 import { usePathname } from "next/navigation";
 import { PaymentSchedule } from "@/components/shared";
+import { cn } from "@/lib/utils";
 
 type Props = {
   className?: string;
@@ -14,7 +15,7 @@ export const TabsList: React.FC<Props> = ({ className }) => {
   const pathname = usePathname();
 
   return (
-    <Container className={className}>
+    <Container className={cn('',className)}>
       <Tabs value={pathname}>
         <TabsContent value="/create">
           <EntityLIst />

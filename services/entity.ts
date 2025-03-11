@@ -11,3 +11,11 @@ export const entityService = async ():Promise<entity[] | undefined> => {
         }
     }
 
+    export const entitySchedule = async () => {
+        try {
+            const { data } = await axiosInstance.get(`/entity/schedule`)
+            return data
+        } catch (error) {
+            console.log(error)
+        }
+    }

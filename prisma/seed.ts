@@ -62,7 +62,7 @@ async function addPartners() {
 
             },
             {
-                name: "partner1Зенит",
+                name: "partner2Зенит",
                 type: 2,
                 edrpou: "42345678",
                 entity_id: 2,
@@ -74,6 +74,21 @@ async function addPartners() {
 
     await prisma.partner_account_number.createMany({
         data: [
+            {
+                partner_id: 1,
+                bank_account: "12345678901234567890",
+                mfo:"1234"
+            },
+            {
+                partner_id: 1,
+                bank_account: "22345678901234567890",
+                mfo:"2234"
+            },
+            {
+                partner_id: 2,
+                bank_account: "32345678901234567890",
+                mfo:"3234"
+            },
             {
                 partner_id: 1,
                 bank_account: "12345678901234567890",

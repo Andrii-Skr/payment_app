@@ -22,7 +22,7 @@ type Props = {
   description?: string;
   type?: "text" | "number";
   className?: string;
-};
+} & React.InputHTMLAttributes<HTMLInputElement>;;
 
 const FormInput: React.FC<Props> = ({
   control,
@@ -31,7 +31,8 @@ const FormInput: React.FC<Props> = ({
   placeholder,
   description,
   type,
-  className
+  className,
+  ...rest
 }) => {
   return (
     <FormField
@@ -46,6 +47,7 @@ const FormInput: React.FC<Props> = ({
               type={type}
               placeholder={placeholder}
               {...field}
+              {...rest}
             />
           </FormControl>
           <FormDescription>{description}</FormDescription>
