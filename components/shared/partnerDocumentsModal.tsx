@@ -29,22 +29,24 @@ export const PartnerDocumentsModal: React.FC<PartnerDocumentsModalProps> = ({
 }) => {
   if (!isOpen) return null;
 
-  const [filterAccount, setFilterAccount] = useState("");
+  // Фильтр по дате документа и по сумме
+  const [filterDate, setFilterDate] = useState("");
   const [filterSum, setFilterSum] = useState("");
 
-  // Фильтрация документов по номеру счета и сумме
+  // Фильтрация документов по дате и сумме
   const filteredDocuments = documents.filter((doc) => {
-    const matchesAccount = filterAccount
-      ? doc.account_number.toString().includes(filterAccount)
-      : true;
+    const docDateStr = new Date(doc.date).toISOString().split("T")[0];
+    const matchesDate = filterDate ? docDateStr === filterDate : true;
     const matchesSum = filterSum
       ? doc.account_sum.toString().includes(filterSum)
       : true;
-    return matchesAccount && matchesSum;
+    return matchesDate && matchesSum;
   });
 
-  // Простая сортировка документов (можно адаптировать при необходимости)
-  const sortedDocuments = [...filteredDocuments].sort((a, b) => a.id - b.id);
+  // Сортировка документов по дате (новые документы сначала)
+  const sortedDocuments = [...filteredDocuments].sort(
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+  );
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
@@ -58,13 +60,13 @@ export const PartnerDocumentsModal: React.FC<PartnerDocumentsModalProps> = ({
         <div className="flex gap-4 mb-4">
           <div className="flex-1">
             <label className="block text-sm font-medium text-gray-700">
-              Фильтр по номеру счета
+              Фильтр по дате
             </label>
             <input
-              type="text"
-              value={filterAccount}
-              onChange={(e) => setFilterAccount(e.target.value)}
-              placeholder="Введите номер счета"
+              type="date"
+              value={filterDate}
+              onChange={(e) => setFilterDate(e.target.value)}
+              placeholder="Выберите дату"
               className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-1"
             />
           </div>
@@ -92,40 +94,47 @@ export const PartnerDocumentsModal: React.FC<PartnerDocumentsModalProps> = ({
           </TableHeader>
           <TableBody>
             {sortedDocuments.map((doc) => {
-              const totalPaid = doc.spec_doc
-                .filter((spec: SpecDocType) => spec.is_paid)
-                .reduce((sum, spec) => sum + Number(spec.pay_sum), 0);
-              const balance = Number(doc.account_sum) - totalPaid;
+              // Подсчёт остатка: вычитаем сумму всех spec.pay_sum и округляем до 2 знаков
+              const totalSpecSum = doc.spec_doc.reduce(
+                (sum, spec: SpecDocType) => sum + Number(spec.pay_sum),
+                0
+              );
+              const balance = (Number(doc.account_sum) - totalSpecSum).toFixed(2);
               return (
                 <TableRow key={doc.id} className="hover:bg-gray-100">
                   <TableCell>
-                    {new Date(doc.date).toLocaleDateString()}
+                    {new Date(doc.date).toLocaleDateString("ru-RU")}
                   </TableCell>
                   <TableCell>{doc.account_sum}</TableCell>
                   <TableCell>{balance}</TableCell>
                   <TableCell>
-                    {doc.spec_doc.map((spec: SpecDocType, index) => {
-                      const expectedDate = new Date(spec.expected_date);
-                      const deadLineDate = spec.dead_line_date
-                        ? new Date(spec.dead_line_date)
-                        : null;
-                      const computedDate =
-                        deadLineDate && deadLineDate > expectedDate
-                          ? deadLineDate
-                          : expectedDate;
-                      const displayDate = spec.is_paid
-                        ? new Date(spec.paid_date)
-                        : computedDate;
-                      return (
-                        <span
-                          key={spec.id}
-                          className={spec.is_paid ? "text-green-500" : ""}
-                        >
-                          {displayDate.toLocaleDateString()} ({spec.pay_sum})
-                          {index < doc.spec_doc.length - 1 && ", "}
-                        </span>
-                      );
-                    })}
+                    <div className="flex flex-row gap-4">
+                      {doc.spec_doc.map((spec: SpecDocType) => {
+                        // Выбираем expected_date, если он существует, иначе dead_line_date
+                        const displayDate = spec.expected_date
+                          ? new Date(spec.expected_date)
+                          : spec.dead_line_date
+                          ? new Date(spec.dead_line_date)
+                          : new Date();
+                        // Определяем класс для суммы:
+                        // Если is_paid === true, используем зеленый;
+                        // Если не оплачен и expected_date существует, красный;
+                        // Если не оплачен и только dead_line_date, красный жирный.
+                        const amountClass = spec.is_paid
+                          ? "text-green-500"
+                          : spec.expected_date
+                          ? "text-red-500"
+                          : spec.dead_line_date
+                          ? "text-red-500 font-bold"
+                          : "";
+                        return (
+                          <div key={spec.id} className="flex flex-col">
+                            <div>{displayDate.toLocaleDateString("ru-RU")}</div>
+                            <div className={amountClass}>{spec.pay_sum}</div>
+                          </div>
+                        );
+                      })}
+                    </div>
                   </TableCell>
                 </TableRow>
               );

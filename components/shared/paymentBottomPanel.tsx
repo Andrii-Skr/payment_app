@@ -39,7 +39,7 @@ export const PaymentBottomPanel: React.FC<PaymentBottomPanelProps> = ({
           <div className="flex justify-end mb-2 font-bold text-lg">
             Общая сумма: {overallTotal}
           </div>
-          <Table>
+          {/* <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>Контрагент</TableHead>
@@ -54,7 +54,7 @@ export const PaymentBottomPanel: React.FC<PaymentBottomPanelProps> = ({
                 </TableRow>
               ))}
             </TableBody>
-          </Table>
+          </Table> */}
           <div className="flex justify-end items-center space-x-2 mt-2">
             <Button onClick={onFinalize}>Сформировать</Button>
             <Button variant="secondary" onClick={collapsePanel}>

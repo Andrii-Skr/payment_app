@@ -1,53 +1,16 @@
 "use client";
 
 import { EntityTable } from "@/components/shared";
-import { Button } from "@/components/ui";
 import { apiClient } from "@/services/api-client";
-import { useEntityScheduleStore } from "@/store/store";
 import React from "react";
-
-type SpecDocType = {
-  id: number;
-  pay_sum: number;
-  expected_date: string; // ISO-формат даты
-  dead_line_date: string; // ISO-формат даты
-  paid_date: string;
-  is_paid: boolean;
-};
-
-type DocumentType = {
-  id: number;
-  partner_id: number;
-  account_number: string;
-  date: string;
-  bank_account: string;
-  account_sum: number;
-  partners: {
-    id: number;
-    name: string;
-    type: string;
-    edrpou: string;
-    group: any[];
-    entity_id: number;
-    created_at: string;
-    updated_at: string;
-    is_deleted: boolean;
-  };
-  spec_doc: SpecDocType[];
-};
-
-type EntityType = {
-  id: number;
-  name: string;
-  documents: DocumentType[];
-};
+import { EntityType } from "../../types";
 
 type Props = {
   className?: string;
 };
 
 export const PaymentSchedule: React.FC<Props> = ({ className }) => {
-  const [entities, setEntities] = React.useState<EntityType[] | []>([]);
+  const [entities, setEntities] = React.useState<EntityType[]>([]);
 
   React.useEffect(() => {
     apiClient.entity.entitySchedule().then((data) => {
@@ -55,37 +18,24 @@ export const PaymentSchedule: React.FC<Props> = ({ className }) => {
     });
   }, []);
 
-  const { expandedEntities, toggleEntity } = useEntityScheduleStore();
+  // Объединяем все документы из всех entities
+  const mergedDocs = entities.flatMap((entity) => entity.documents);
+  // Сортируем по partner.entity_id (то есть по entity.id) и затем по partner.name
+  mergedDocs.sort((a, b) => {
+    const diff = a.partners.entity_id - b.partners.entity_id;
+    if (diff !== 0) return diff;
+    return a.partners.name.localeCompare(b.partners.name);
+  });
+
+  // Формируем маппинг entity_id -> entity name
+  const entityNames = entities.reduce((acc, entity) => {
+    acc[entity.id] = entity.name;
+    return acc;
+  }, {} as Record<number, string>);
 
   return (
-    // <div><aside></aside>
-    // <PaymentTable partnerNameFilter={""} onlyActive={false}/></div>
-
-    <div className="flex">
-      <aside className="w-64 border-r border-gray-300 p-4 min-w-[200px] ml-[-60]">
-        {entities.map((entity) => (
-          <div key={entity.id} className="mb-2">
-            <Button
-              className="w-full p-2 bg-blue-500 text-white rounded"
-              onClick={() => toggleEntity(entity.id)}
-            >
-              {entity.name}
-            </Button>
-          </div>
-        ))}
-      </aside>
-      <main className="flex-1 p-4">
-        {entities.map((entity) => {
-            return (
-              <div key={entity.id} className="mb-4">
-                {expandedEntities.includes(entity.id) && (
-
-                  <EntityTable documents={entity.documents} />
-                )}
-              </div>
-          );
-        })}
-      </main>
-    </div>
+    <main className="flex-1">
+      <EntityTable documents={mergedDocs} entityNames={entityNames} />
+    </main>
   );
 };

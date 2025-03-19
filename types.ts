@@ -1,46 +1,63 @@
+
+// Тип для отдельного платежного документа (специфического платежа)
 export type SpecDocType = {
   id: number;
   pay_sum: number;
-  expected_date: string; // ISO-формат даты
-  dead_line_date: string;
-  paid_date: string; 
+  // Если задан, то отображается в первую очередь. Если отсутствует, используется dead_line_date
+  expected_date?: string; // ISO-формат даты (опционально)
+  dead_line_date?: string; // ISO-формат даты (опционально)
+  paid_date?: string; // ISO-формат даты (опционально)
   is_paid: boolean;
 };
 
+// Тип для информации о контрагенте
+export type PartnerType = {
+  id: number;
+  name: string;
+  type: string;
+  edrpou: string;
+  group: any[];
+  entity_id: number; // идентификатор сущности, к которой принадлежит контрагент
+  created_at: string;
+  updated_at: string;
+  is_deleted: boolean;
+};
+
+// Тип для документа (счёта)
 export type DocumentType = {
   id: number;
   partner_id: number;
   account_number: string;
+  note: string;
   date: string;
   bank_account: string;
   account_sum: number;
-  partners: {
-    id: number;
-    name: string;
-    type: string;
-    edrpou: string;
-    group: any[];
-    entity_id: number;
-    created_at: string;
-    updated_at: string;
-    is_deleted: boolean;
-  };
+  partners: PartnerType;
   spec_doc: SpecDocType[];
 };
 
+// Тип для сущности, которая содержит документы
+export type EntityType = {
+  id: number;
+  name: string;
+  documents: DocumentType[];
+};
+
+// Тип для записи платежей, используемый в таблице EntityTable.
+// Поле isExpected показывает, используется ли expected_date (true) или применяется dead_line_date (false)
 export type PaymentEntry = {
   spec_doc: SpecDocType;
   document: DocumentType;
-  type: "expected" | "deadline";
+  isExpected: boolean;
 };
 
-// При клике в ячейке передадутся следующие поля –
-// spec_doc_id (идентификатор spec_doc), partner_id, partner_name, account_number, date, pay_sum.
+// Тип для деталей платежа, используемый при формировании списков и передачи в модальные окна
 export type PaymentDetail = {
   spec_doc_id: number;
   partner_id: number;
   partner_name: string;
   account_number: string;
+  note: string;
   date: string;
   pay_sum: number;
 };

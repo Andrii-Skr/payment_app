@@ -16,6 +16,7 @@ model documents {
     bank_account       String
     mfo                String
     purpose_of_payment String
+    note String?
 
     is_saved Boolean @default(false)
     is_paid  Boolean @default(false)
@@ -35,7 +36,7 @@ model spec_doc {
     documents    documents @relation(fields: [documents_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
     pay_sum        Decimal  @db.Decimal(10, 2)
-    expected_date  DateTime @db.Timestamp()
+    expected_date  DateTime? @db.Timestamp()
     dead_line_date DateTime? @db.Timestamp()
 
     paid_date  DateTime? @db.Timestamp()

@@ -33,7 +33,7 @@ type Props = {
   placeholder: string;
   empty: string;
   onChange: (id: number) => void;
-  list: {key: string, value: string}[];
+  list: { key: string; value: string }[];
 };
 
 export const Combobox: React.FC<Props> = ({
@@ -65,9 +65,9 @@ export const Combobox: React.FC<Props> = ({
                   className="w-[300px] h-9 px-3 py-1 justify-between"
                 >
                   {field.value
-                    ? list?.find(
-                        (row) => row.value === field.value
-                      )?.value
+                    ? list?.find((row) => {
+                        return row.value === field.value;
+                      })?.value
                     : placeholder}
                   <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
@@ -78,12 +78,11 @@ export const Combobox: React.FC<Props> = ({
                   <CommandList>
                     <CommandEmpty>{empty}</CommandEmpty>
                     <CommandGroup>
-                      {list.map((row,i) => (
+                      {list.map((row, i) => (
                         <CommandItem
                           key={row.key}
                           value={row.value}
                           onSelect={(currentValue) => {
-                            console.log(currentValue, field.value);
                             field.onChange(
                               currentValue === field.value ? "1" : currentValue
                             );

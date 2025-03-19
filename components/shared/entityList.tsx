@@ -16,19 +16,19 @@ type Props = {
 
 export const EntityLIst: React.FC<Props> = ({ className }) => {
   const [entityList, setEntityList] = React.useState<entity[] | undefined>([]);
-  const updateCurrentEntity = useEntityStore((state ) => state.updateCurrentEntity)
+  //const updateCurrentEntity = useEntityStore((state ) => state.updateCurrentEntity)
   const router = useRouter();
 
-  const handleClick = (entity: entity) => {
-    router.push("/create/payment-form");
-    updateCurrentEntity(entity);
-  };
 
   React.useEffect(() => {
     apiClient.entity.entityService().then((data) => {
       setEntityList(data);
     });
   }, []);
+  const handleClick = (entity: entity) => {
+    router.push(`/create/payment-form/${entity.id}`);
+    // updateCurrentEntity(entity);
+  };
 
   return (
     <div className={cn("flex flex-col max-w-60", className)}>

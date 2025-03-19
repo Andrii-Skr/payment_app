@@ -22,15 +22,19 @@ export async function POST(request: NextRequest) {
         is_saved: true,
         spec_doc: {
           create: body.payments.map(
-            ({ paySum, expectedDate, deadLineDate }: {
-                        paySum: number;
-                        expectedDate: string;
-                        deadLineDate: string;
-                      }) => ({
+            ({
+              paySum,
+              expectedDate,
+              deadLineDate,
+            }: {
+              paySum: number;
+              expectedDate: string;
+              deadLineDate: string;
+            }) => ({
               pay_sum: paySum,
               expected_date: expectedDate
                 ? new Date(expectedDate)
-                : new Date(body.date),
+                : (!deadLineDate ? new Date(body.date) : null),
               dead_line_date: deadLineDate ? new Date(deadLineDate) : null,
             })
           ),

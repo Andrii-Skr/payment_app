@@ -29,8 +29,9 @@ export const AccountsCombobox: React.FC<Props> = ({
   empty,
   //accountHandleChange
 }) => {
-
-  const currentAccountList = useAccountListStore((state) => state.currentAccountList);
+  const currentAccountList = useAccountListStore(
+    (state) => state.currentAccountList
+  );
 
   const list = currentAccountList
     ? currentAccountList.map((e) => {
@@ -41,9 +42,9 @@ export const AccountsCombobox: React.FC<Props> = ({
   const { setValue } = useFormContext();
 
   const onChange = (i: number) => {
-    const bankAccount = currentAccountList[i]
+    const bankAccount = currentAccountList[i];
     setValue("mfo", bankAccount?.mfo || "");
-   }
+  };
 
   return (
     <Combobox
@@ -59,4 +60,3 @@ export const AccountsCombobox: React.FC<Props> = ({
     />
   );
 };
-

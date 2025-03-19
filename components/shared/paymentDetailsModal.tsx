@@ -1,9 +1,18 @@
+// Изменённый PaymentDetailsModal.tsx
+
 "use client";
 
 import React, { useState, useEffect } from "react";
 import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
-import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
+import {
+  Table,
+  TableHeader,
+  TableRow,
+  TableHead,
+  TableBody,
+  TableCell,
+} from "@/components/ui/table";
 import { PaymentDetail } from "../../types";
 import { usePaymentStore } from "../../store/store";
 
@@ -26,7 +35,7 @@ export const PaymentDetailsModal = ({
   const [selectedRows, setSelectedRows] = useState<Record<number, boolean>>({});
 
   const pendingPayments = usePaymentStore.getState().pendingPayments;
-  
+
   useEffect(() => {
     const updated: Record<number, boolean> = {};
     paymentDetails.forEach((detail) => {
@@ -57,7 +66,8 @@ export const PaymentDetailsModal = ({
           <TableHeader>
             <TableRow>
               <TableHead>Назначение Платежа</TableHead>
-              <TableHead>Дата Платежа</TableHead>
+              <TableHead>Комментарий к платежу</TableHead> {/* Новый заголовок */}
+              <TableHead>Дата Счета</TableHead>
               <TableHead>Сумма платежа</TableHead>
               <TableHead>На оплату</TableHead>
             </TableRow>
@@ -66,7 +76,10 @@ export const PaymentDetailsModal = ({
             {paymentDetails.map((detail) => (
               <TableRow key={detail.spec_doc_id}>
                 <TableCell>{detail.account_number}</TableCell>
-                <TableCell>{new Date(detail.date).toLocaleDateString()}</TableCell>
+                <TableCell>{detail.note}</TableCell> {/* Вывод комментария */}
+                <TableCell>
+                  {new Date(detail.date).toLocaleDateString("ru-RU")}
+                </TableCell>
                 <TableCell>{detail.pay_sum}</TableCell>
                 <TableCell className="text-center">
                   <input

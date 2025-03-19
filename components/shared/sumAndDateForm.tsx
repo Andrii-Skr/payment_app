@@ -10,7 +10,6 @@ import {
   useWatch,
 } from "react-hook-form";
 import { ComputedFormInput } from "@/components/shared/computedFormInput";
-import { date } from "zod";
 
 type Props = {
   control: Control<FormValues>;
@@ -23,14 +22,36 @@ const SumAndDateForm: React.FC<Props> = ({ control, onBlur }) => {
     name: "payments",
   });
   const { setValue } = useFormContext<FormValues>();
+
   // Отслеживаем значения accountSum и payments для вычисления остатка
   const accountSum = useWatch({ control, name: "accountSum" });
   const payments = useWatch({ control, name: "payments" });
+
+  // Суммируем все платежи
   const totalPayments = (payments || []).reduce(
     (acc: number, curr: any) => acc + (Number(curr.paySum) || 0),
     0
   );
-  const remainder = (Number(accountSum) || 0) - totalPayments;
+
+  // Приводим accountSum к строке, заменяем запятые на точки и преобразуем в число
+  const cleanedAccountSum = Number(String(accountSum).replace(/,/g, ".")) || 0;
+  // Вычисляем остаток и округляем до 2-х знаков после запятой
+  const rawRemainder = cleanedAccountSum - totalPayments;
+  const remainder = Number(rawRemainder.toFixed(2));
+
+  // Новый обработчик для поля paySum: заменяет запятые на точки при потере фокуса
+  const handlePaySumBlur = (
+    e: React.FocusEvent<HTMLInputElement>,
+    index: number
+  ) => {
+    const value = e.target.value;
+    if (value.includes(",")) {
+      const newValue = value.replace(/,/g, ".");
+      setValue(`payments.${index}.paySum`, Number(newValue), {
+        shouldValidate: true,
+      });
+    }
+  };
 
   return (
     <div>
@@ -77,11 +98,12 @@ const SumAndDateForm: React.FC<Props> = ({ control, onBlur }) => {
                     label="Сумма оплаты"
                     description="Сумма, которую нужно оплатить"
                     readOnly={isPaid}
+                    onBlur={(e) => handlePaySumBlur(e, index)}
                   />
                   <Button
                     type="button"
                     variant="ghost"
-                    className="absolute right-0 top-11 transform -translate-y-4  rounded text-xs font-bold"
+                    className="absolute right-0 top-11 transform -translate-y-4 rounded text-xs font-bold"
                     disabled={isPaid}
                     onClick={() => {
                       if (remainder > 0) {
@@ -102,9 +124,7 @@ const SumAndDateForm: React.FC<Props> = ({ control, onBlur }) => {
                     description="Дата оплаты"
                     readOnly={isPaid}
                   />
-                ) : (
-                  <></>
-                )}
+                ) : null}
               </Container>
               <Container className="justify-start gap-5">
                 <FormDatePicker

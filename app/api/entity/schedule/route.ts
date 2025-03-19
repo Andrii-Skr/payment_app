@@ -20,6 +20,7 @@ export async function GET() {
           partner_id: true,
           account_number: true,
           account_sum: true,
+          note: true,
           bank_account: true,
           date: true,
           partners: true,

@@ -1,6 +1,7 @@
 import { FormValues, PaymentValues } from "@/components/shared/paymentForm";
 
 export const TransformedObject = (data: any): FormValues => {
+
   return {
     doc_id: data.id,
     entity_id: data.entity_id || undefined,
@@ -25,8 +26,8 @@ export const TransformedObject = (data: any): FormValues => {
           paidDate: specDoc.paid_date || undefined,
         })
       ) || [],
-    selectedAccount: data.bank_account || data.selectedAccount || undefined,
-    partner_id: data.partner_id || 0,
+    selectedAccount: data.bank_account || "",
+    partner_id: data.partner_id ? Number(data.partner_id) : 0,
     partnerName: data.partners.name,
     purposeOfPayment: data.purpose_of_payment || "",
     mfo: data.mfo,

@@ -32,6 +32,7 @@ const PartnersCombobox: React.FC<Props> = ({
   const updateAccountList = useAccountListStore((state ) => state.updateAccountList);
 
   const { setValue, watch } = useFormContext();
+  const edrpou = watch("edrpou");
 
   React.useEffect(() => {
     if (!id) return;
@@ -47,14 +48,14 @@ const PartnersCombobox: React.FC<Props> = ({
     });
   }, [id]);
 
-  const partnerId = watch("partner_id");
+
 
   React.useEffect(() => {
-    const partner = partnersList.find((p) => p.id === partnerId);
+    const partner = partnersList.find((p) => p.edrpou === edrpou);
     if (partner) {
       updateAccountList(partner.partner_account_number);
     }
-  }, [partnerId, partnersList]);
+  }, [edrpou, partnersList]);
 
     const onChange = (i: number) => {
       const partner = partnersList[i];

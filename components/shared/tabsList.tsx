@@ -20,7 +20,7 @@ export const TabsList: React.FC<Props> = ({ className }) => {
         <TabsContent value="/create">
           <EntityLIst />
         </TabsContent>
-        <TabsContent value="/view">
+        <TabsContent value="/view" >
           <PaymentSchedule />
         </TabsContent>
         <TabsContent value="/add">
