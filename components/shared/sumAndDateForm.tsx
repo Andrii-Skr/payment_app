@@ -1,7 +1,14 @@
-import { Container, FormDatePicker, FormInput } from "@/components/shared";
+import {
+  Container,
+  FormDatePicker,
+  FormInput,
+  ComputedFormInput,
+  RegularPaymentDialog,
+} from "@/components/shared";
 import { FormValues } from "@/components/shared/paymentForm";
 import { Button } from "@/components/ui";
-import { CircleX } from "lucide-react";
+import { apiClient } from "@/services/api-client";
+import { CircleX, Repeat1 } from "lucide-react";
 import React from "react";
 import {
   Control,
@@ -9,7 +16,6 @@ import {
   useFormContext,
   useWatch,
 } from "react-hook-form";
-import { ComputedFormInput } from "@/components/shared/computedFormInput";
 
 type Props = {
   control: Control<FormValues>;
@@ -21,7 +27,13 @@ const SumAndDateForm: React.FC<Props> = ({ control, onBlur }) => {
     control,
     name: "payments",
   });
-  const { setValue } = useFormContext<FormValues>();
+  const { setValue, getValues } = useFormContext<FormValues>();
+
+  // Состояния для AlertDialog
+  const [alertOpen, setAlertOpen] = React.useState(false);
+  const [selectedPaymentIndex, setSelectedPaymentIndex] = React.useState<
+    number | null
+  >(null);
 
   // Отслеживаем значения accountSum и payments для вычисления остатка
   const accountSum = useWatch({ control, name: "accountSum" });
@@ -33,13 +45,11 @@ const SumAndDateForm: React.FC<Props> = ({ control, onBlur }) => {
     0
   );
 
-  // Приводим accountSum к строке, заменяем запятые на точки и преобразуем в число
   const cleanedAccountSum = Number(String(accountSum).replace(/,/g, ".")) || 0;
-  // Вычисляем остаток и округляем до 2-х знаков после запятой
-  const rawRemainder = cleanedAccountSum - totalPayments;
+  const rawRemainder = cleanedAccountSum - Number(totalPayments);
   const remainder = Number(rawRemainder.toFixed(2));
 
-  // Новый обработчик для поля paySum: заменяет запятые на точки при потере фокуса
+  // Обработчик для поля paySum при потере фокуса
   const handlePaySumBlur = (
     e: React.FocusEvent<HTMLInputElement>,
     index: number
@@ -53,24 +63,36 @@ const SumAndDateForm: React.FC<Props> = ({ control, onBlur }) => {
     }
   };
 
+  // Функция для обработки подтверждения в диалоге
+  const handleConfirmRegular = () => {
+    if (selectedPaymentIndex !== null) {
+      const currentPayment = getValues(`payments.${selectedPaymentIndex}`);
+      console.log("currentPayment", currentPayment);
+      setValue(`is_auto_payment`, true);
+      apiClient.autoPayment.create(currentPayment)
+    }
+    setAlertOpen(false);
+    setSelectedPaymentIndex(null);
+  };
+
   return (
     <div>
-      <div className="col-span-3 mb-2 flex justify-start">
+      <Container className="col-span-3 mb-2 gap-10 flex justify-start">
         <Button
           type="button"
           onClick={() =>
             prepend({
               paySum: 0,
-              expectedDate: undefined,
-              deadLineDate: undefined,
+              expectedDate: null,
+              deadLineDate: null,
               isPaid: false,
-              paidDate: undefined,
             })
           }
         >
           Добавить платеж
         </Button>
-      </div>
+        <Button type="submit">Сохранить</Button>
+      </Container>
 
       {/* Вывод вычисленного остатка */}
       <div>
@@ -80,7 +102,7 @@ const SumAndDateForm: React.FC<Props> = ({ control, onBlur }) => {
           return (
             <div
               key={field.id}
-              className="w-auto rounded-3xl border-gray-200 border-2 ml-[-20px] p-4"
+              className="w-auto rounded-3xl border-gray-200 border-2 ml-[-20px] p-3"
             >
               <Container className="justify-start items-start gap-5 pb-2">
                 <ComputedFormInput
@@ -88,7 +110,6 @@ const SumAndDateForm: React.FC<Props> = ({ control, onBlur }) => {
                   description="Остаток: Сумма счета минус сумма платежей"
                   value={remainder}
                 />
-
                 <div className="relative">
                   <FormInput
                     className="no-spin pr-12"
@@ -107,9 +128,12 @@ const SumAndDateForm: React.FC<Props> = ({ control, onBlur }) => {
                     disabled={isPaid}
                     onClick={() => {
                       if (remainder > 0) {
-                        setValue(`payments.${index}.paySum`, remainder, {
-                          shouldValidate: true,
-                        });
+                        setValue(
+                          `payments.${index}.paySum`,
+                          remainder +
+                            Number(getValues(`payments.${index}.paySum`)),
+                          { shouldValidate: true }
+                        );
                       }
                     }}
                   >
@@ -124,7 +148,22 @@ const SumAndDateForm: React.FC<Props> = ({ control, onBlur }) => {
                     description="Дата оплаты"
                     readOnly={isPaid}
                   />
-                ) : null}
+                ) : (
+
+                  getValues(`payments.${index}.documents_id`) && !getValues(`is_auto_payment`)?<Button
+                    type="button"
+                    className="mt-7"
+                    variant="ghost"
+                    disabled={isPaid}
+                    onClick={() => {
+                      setSelectedPaymentIndex(index);
+                      setAlertOpen(true);
+                    }}
+                  >
+                    <Repeat1 className="mr-2" />
+                    Сделать регулярным
+                  </Button> : null
+                )}
               </Container>
               <Container className="justify-start gap-5">
                 <FormDatePicker
@@ -134,7 +173,6 @@ const SumAndDateForm: React.FC<Props> = ({ control, onBlur }) => {
                   description="Желательно заплатить до"
                   readOnly={isPaid}
                 />
-
                 <FormDatePicker
                   control={control}
                   name={`payments.${index}.deadLineDate`}
@@ -142,10 +180,9 @@ const SumAndDateForm: React.FC<Props> = ({ control, onBlur }) => {
                   description="Крайний срок оплаты счета"
                   readOnly={isPaid}
                 />
-
                 <Button
                   type="button"
-                  className="text-red-500 mt-7"
+                  className="text-red-500 mt-[29]"
                   variant="ghost"
                   disabled={isPaid}
                   onClick={() => remove(index)}
@@ -157,6 +194,18 @@ const SumAndDateForm: React.FC<Props> = ({ control, onBlur }) => {
           );
         })}
       </div>
+
+      {/* Использование вынесенного компонента для AlertDialog */}
+      <RegularPaymentDialog
+        open={alertOpen}
+        paySum={
+          selectedPaymentIndex !== null
+            ? getValues(`payments.${selectedPaymentIndex}.paySum`)
+            : ""
+        }
+        onOpenChange={setAlertOpen}
+        onConfirm={handleConfirmRegular}
+      />
     </div>
   );
 };

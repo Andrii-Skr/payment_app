@@ -23,6 +23,9 @@ export const TabsList: React.FC<Props> = ({ className }) => {
         <TabsContent value="/view" >
           <PaymentSchedule />
         </TabsContent>
+        <TabsContent value="/regular" >
+          <p>Регулярные платежи</p>
+        </TabsContent>
         <TabsContent value="/add">
           <AddInfoList />
         </TabsContent>

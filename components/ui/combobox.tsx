@@ -62,7 +62,7 @@ export const Combobox: React.FC<Props> = ({
                   variant="outline"
                   role="combobox"
                   aria-expanded={open}
-                  className="w-[300px] h-9 px-3 py-1 justify-between"
+                  className="w-[300px] h-8 px-3 py-1 justify-between"
                 >
                   {field.value
                     ? list?.find((row) => {

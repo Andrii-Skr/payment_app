@@ -1,28 +1,34 @@
-"use client"
-
-import * as React from "react"
-import { partner_account_number, partners } from "@prisma/client"
-import { Control } from "react-hook-form"
-import { FormValues } from "@/components/shared/paymentForm"
-import { Combobox } from "@/components/ui"
-
+// SampleCombobox.tsx
+import * as React from "react";
+import { Control } from "react-hook-form";
+import { template } from "@prisma/client";
+import { Combobox } from "@/components/ui";
+import { FormValues } from "@/components/shared/paymentForm";
 
 type Props = {
   control: Control<FormValues>;
   name: keyof Omit<FormValues, "expectedDate" | "deadLineDate" | "date">;
-  label: string,
-  description?: string
-  id?: number | undefined
-  placeholder: string
-  empty: string
-
+  label: string;
+  description?: string;
+  id?: number;
+  placeholder: string;
+  empty: string;
+  data: template[];
+  onChange: (id: number) => void;
 };
 
-export const SampleCombobox:React.FC<Props> =({  id , name, label, description, control,placeholder,empty}  ) =>{
-
-  const [list, setList] = React.useState<{ key: string; value: string }[]>([]);
-
-  const onChange = (i: number) => { }
+export const SampleCombobox: React.FC<Props> = ({
+  id,
+  name,
+  label,
+  description,
+  control,
+  placeholder,
+  empty,
+  data,
+  onChange
+}) => {
+  const list = data.map((e) => ({ key: String(e.id), value: e.name }));
 
   return (
     <Combobox
@@ -36,5 +42,5 @@ export const SampleCombobox:React.FC<Props> =({  id , name, label, description, 
       id={id}
       list={list}
     />
-  )
-}
+  );
+};

@@ -11,8 +11,11 @@ import {
 import React from "react";
 import { Control } from "react-hook-form";
 
-type PaymentsKeys = `payments.${number}.${  "paySum"}`;
-type TopLevelKeys = keyof Omit<FormValues, "date" | "accountsList" | "payments">;
+type PaymentsKeys = `payments.${number}.${"paySum"}`;
+type TopLevelKeys = keyof Omit<
+  FormValues,
+  "date" | "accountsList" | "payments" | "is_auto_payment"
+>;
 
 type Props = {
   control: Control<FormValues>;
@@ -22,7 +25,7 @@ type Props = {
   description?: string;
   type?: "text" | "number";
   className?: string;
-} & React.InputHTMLAttributes<HTMLInputElement>;;
+} & React.InputHTMLAttributes<HTMLInputElement>;
 
 const FormInput: React.FC<Props> = ({
   control,

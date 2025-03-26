@@ -5,10 +5,13 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
 
-    const result = await prisma.documents.create({
+    const sample = await prisma.template.create({
       data: {
         entity_id: body.entity_id,
+        name: body.sample,
         partner_id: body.partner_id,
+        partner_name: body.partnerName,
+        edrpou: body.edrpou,
         account_number: body.accountNumber,
         date: new Date(body.date),
         account_sum: body.accountSum,
@@ -16,27 +19,8 @@ export async function POST(request: NextRequest) {
         bank_account: body.selectedAccount,
         mfo: body.mfo,
         purpose_of_payment: body.purposeOfPayment,
+        note: body.note,
         user_id: 1,
-        is_saved: true,
-        spec_doc: {
-          create: body.payments.map(
-            ({
-              paySum,
-              expectedDate,
-              deadLineDate,
-            }: {
-              paySum: number;
-              expectedDate: string;
-              deadLineDate: string;
-            }) => ({
-              pay_sum: paySum,
-              expected_date: expectedDate
-                ? new Date(expectedDate)
-                : (!deadLineDate ? new Date(body.date) : null),
-              dead_line_date: deadLineDate ? new Date(deadLineDate) : null,
-            })
-          ),
-        },
       },
     });
 

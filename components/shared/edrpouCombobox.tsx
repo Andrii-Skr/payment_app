@@ -16,7 +16,7 @@ type Props = {
   empty: string;
 };
 
- export const PartnersCombobox: React.FC<Props> = ({
+const EdrpouCombobox: React.FC<Props> = ({
   id,
   control,
   name,
@@ -32,7 +32,7 @@ type Props = {
   const updateAccountList = useAccountListStore((state ) => state.updateAccountList);
 
   const { setValue, watch } = useFormContext();
-  const partnerName = watch("partnerName");
+  const edrpou = watch("edrpou");
 
   React.useEffect(() => {
     if (!id) return;
@@ -40,7 +40,7 @@ type Props = {
       setList(
         data
           ? data.map((e) => {
-              return { key: String(e.id), value: e.name };
+              return { key: String(e.id), value: e.edrpou };
             })
           : []
       );
@@ -51,16 +51,16 @@ type Props = {
 
 
   React.useEffect(() => {
-    const partner = partnersList.find((p) => p.name === partnerName);
+    const partner = partnersList.find((p) => p.edrpou === edrpou);
     if (partner) {
       updateAccountList(partner.partner_account_number);
     }
-  }, [partnerName, partnersList]);
+  }, [edrpou, partnersList]);
 
     const onChange = (i: number) => {
       const partner = partnersList[i];
       setValue("partner_id", partner.id);
-      setValue("edrpou", partner.edrpou);
+      setValue("partnerName", partner.name);
     }
   return (
     <Combobox
@@ -76,5 +76,6 @@ type Props = {
   );
 };
 
+export { EdrpouCombobox };
 
 

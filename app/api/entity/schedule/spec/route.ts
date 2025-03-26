@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
   const body = await request.json();
-  console.log(body);
+  
   const updatedRecords = await prisma.spec_doc.updateMany({
     where: {
       id: { in: body.specDocIds },

@@ -15,7 +15,6 @@ type Props = {
   id?: number | undefined;
   placeholder: string;
   empty: string;
-  data: partner_account_number[];
   //accountHandleChange: (id:partner_account_number) => void
 };
 

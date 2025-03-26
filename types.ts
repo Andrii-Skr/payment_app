@@ -1,4 +1,3 @@
-
 // Тип для отдельного платежного документа (специфического платежа)
 export type SpecDocType = {
   id: number;
@@ -26,9 +25,10 @@ export type PartnerType = {
 // Тип для документа (счёта)
 export type DocumentType = {
   id: number;
+  entity_id: number;
   partner_id: number;
   account_number: string;
-  note: string;
+  purpose_of_payment: string;
   date: string;
   bank_account: string;
   account_sum: number;
@@ -53,11 +53,14 @@ export type PaymentEntry = {
 
 // Тип для деталей платежа, используемый при формировании списков и передачи в модальные окна
 export type PaymentDetail = {
+  doc_id: number;
+  entity_id: number;
   spec_doc_id: number;
   partner_id: number;
   partner_name: string;
   account_number: string;
-  note: string;
+  purpose_of_payment: string;
   date: string;
+  dead_line_date?: string;
   pay_sum: number;
 };

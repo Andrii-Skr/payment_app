@@ -1,5 +1,7 @@
+import { documents } from '@prisma/client';
 import prisma from "@/prisma/prisma-client";
 import { NextRequest, NextResponse } from "next/server";
+
 
 export async function GET() {
   const entity = await prisma.entity.findMany({
@@ -17,10 +19,11 @@ export async function GET() {
         },
         select: {
           id: true,
+          entity_id: true,
           partner_id: true,
           account_number: true,
           account_sum: true,
-          note: true,
+          purpose_of_payment: true,
           bank_account: true,
           date: true,
           partners: true,

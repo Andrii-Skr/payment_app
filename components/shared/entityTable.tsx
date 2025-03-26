@@ -68,13 +68,12 @@ export type EntityTableProps = {
 };
 
 export const EntityTable = ({ documents, entityNames }: EntityTableProps) => {
-
   // Управление датами и периодом
   const initialDate = new Date(
     new Date().toLocaleString("en-US", { timeZone: "Europe/Kyiv" })
   );
   const [startDate, setStartDate] = useState<Date>(initialDate);
-  const [period, setPeriod] = useState<number>(7);
+  const [period, setPeriod] = useState<number>(14);
 
   // Модальные окна и платежи
   const [modalOpen, setModalOpen] = useState<boolean>(false);
@@ -85,11 +84,16 @@ export const EntityTable = ({ documents, entityNames }: EntityTableProps) => {
   const [selectedPartner, setSelectedPartner] = useState<DocumentType["partners"] | null>(null);
   const [selectedPartnerDocuments, setSelectedPartnerDocuments] = useState<DocumentType[]>([]);
 
-  // Новые состояния для фильтров
+  // Фильтры
   const [selectedEntity, setSelectedEntity] = useState<number | "all">("all");
   const [partnerFilter, setPartnerFilter] = useState<string>("");
 
   const pendingPayments = usePaymentStore((state) => state.pendingPayments);
+
+  const collator = new Intl.Collator(undefined, {
+    numeric: true,
+    sensitivity: "base",
+  });
 
   const dateRange = Array.from({ length: period }).map((_, index) => {
     const d = new Date(startDate);
@@ -97,7 +101,7 @@ export const EntityTable = ({ documents, entityNames }: EntityTableProps) => {
     return d;
   });
 
-  // Группируем документы по контрагентам
+  // Группировка документов по контрагентам
   const partnersMap = documents.reduce((acc, doc) => {
     const partnerId = doc.partners.id;
     if (!acc[partnerId]) {
@@ -112,21 +116,19 @@ export const EntityTable = ({ documents, entityNames }: EntityTableProps) => {
   partnerRows.sort((a, b) => {
     const diff = a.partner.entity_id - b.partner.entity_id;
     if (diff !== 0) return diff;
-    return a.partner.name.localeCompare(b.partner.name);
+    return collator.compare(a.partner.name, b.partner.name);
   });
 
-  // Применяем фильтрацию по выбранному entity
+  // Применяем фильтрацию
   if (selectedEntity !== "all") {
     partnerRows = partnerRows.filter(row => row.partner.entity_id === selectedEntity);
   }
-  // Фильтрация по имени партнёра
   if (partnerFilter) {
     partnerRows = partnerRows.filter(row =>
       row.partner.name.toLowerCase().includes(partnerFilter.toLowerCase())
     );
   }
 
-  // Группируем отфильтрованные строки по entity
   const groupedByEntity = partnerRows.reduce((acc, row) => {
     const entityId = row.partner.entity_id;
     if (!acc[entityId]) {
@@ -155,11 +157,14 @@ export const EntityTable = ({ documents, entityNames }: EntityTableProps) => {
   const handleCellClick = (cellUnpaid: PaymentEntry[]) => {
     if (cellUnpaid.length > 0) {
       const paymentDetails: PaymentDetail[] = cellUnpaid.map((entry) => ({
+        doc_id: entry.document.id,
+        entity_id: entry.document.entity_id,
         spec_doc_id: entry.spec_doc.id,
         partner_id: entry.document.partner_id,
         partner_name: entry.document.partners.name,
         account_number: entry.document.account_number,
-        note: entry.document.note,
+        purpose_of_payment: entry.document.purpose_of_payment,
+        dead_line_date: entry.spec_doc.dead_line_date,
         date: entry.document.date,
         pay_sum: entry.spec_doc.pay_sum,
       }));
@@ -266,7 +271,7 @@ export const EntityTable = ({ documents, entityNames }: EntityTableProps) => {
           >
             Месяц
           </Button>
-          {/* Фильтры добавлены после кнопки "Месяц" */}
+          {/* Фильтры */}
           <Select
             value={selectedEntity === "all" ? "all" : selectedEntity.toString()}
             onValueChange={(value) =>
@@ -299,8 +304,8 @@ export const EntityTable = ({ documents, entityNames }: EntityTableProps) => {
         </div>
       </div>
 
-      {/* Таблица с данными */}
-      <Table containerClassName="overflow-y-auto max-h-[87vh]">
+      {/* Таблица */}
+      <Table containerClassName="overflow-y-auto max-h-[89vh]">
         <TableHeader className="bg-white sticky top-0 z-10">
           <TableRow>
             <TableHead className="sticky top-0 bg-white z-10">💼</TableHead>
@@ -355,10 +360,7 @@ export const EntityTable = ({ documents, entityNames }: EntityTableProps) => {
                     )} hover:bg-gray-100`}
                   >
                     {rowIndex === 0 && (
-                      <TableCell
-                        rowSpan={groupRows.length}
-                        className="align-middle w-2"
-                      >
+                      <TableCell rowSpan={groupRows.length} className="align-middle w-2">
                         <div
                           className="font-bold text-2xl"
                           style={{
@@ -373,9 +375,7 @@ export const EntityTable = ({ documents, entityNames }: EntityTableProps) => {
                     <TableCell>
                       <button
                         className="text-blue-500 hover:underline"
-                        onClick={() =>
-                          handlePartnerNameClick(partner, documents)
-                        }
+                        onClick={() => handlePartnerNameClick(partner, documents)}
                       >
                         {partner.name}
                       </button>
@@ -417,6 +417,8 @@ export const EntityTable = ({ documents, entityNames }: EntityTableProps) => {
                         )
                         .reduce((s, e) => s + Number(e.spec_doc.pay_sum), 0);
 
+                      const combinedSum = expectedSum + deadlineSum;
+
                       const confirmedSum = cellPaid
                         .filter(
                           (entry) =>
@@ -433,19 +435,8 @@ export const EntityTable = ({ documents, entityNames }: EntityTableProps) => {
                             cellUnpaid.length > 0 && handleCellClick(cellUnpaid)
                           }
                         >
-                          <div className="flex flex-col items-center">
-                            {expectedSum > 0 && (
-                              <span className="text-red-500">
-                                {formatMoney(expectedSum)}
-                              </span>
-                            )}
-                            {deadlineSum > 0 && (
-                              <div>
-                                <div className="text-red-600 font-bold">
-                                  {formatMoney(deadlineSum)}
-                                </div>
-                              </div>
-                            )}
+                          <div className="flex flex-col items-start">
+                            {combinedSum > 0 && <span className="text-red-500">{formatMoney(combinedSum)}</span>}
                             {pendingSum > 0 && (
                               <span className="text-blue-500">
                                 {formatMoney(pendingSum)}

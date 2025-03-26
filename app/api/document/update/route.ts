@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
               pay_sum: paySum,
               expected_date: expectedDate
                 ? new Date(expectedDate)
-                : new Date(body.date),
+                : (!deadLineDate ? new Date(body.date) : null),
               dead_line_date: deadLineDate ? new Date(deadLineDate) : null,
               is_paid: isPaid,
             })

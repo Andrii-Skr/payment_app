@@ -13,6 +13,7 @@ import {
   Label,
 } from "@/components/ui";
 import { cn } from "@/lib/utils";
+import { apiClient } from "@/services/api-client";
 import { useEntityStore } from "@/store/store";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CirclePlus } from "lucide-react";
@@ -20,56 +21,25 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 type Props = {
+  entityIdNum: number;
   className?: string;
 };
 
-// const accountSchema = z.object({
-//   accountNumber: z.string(),
-//   isDefault: z.boolean(),
-//   isDeleted: z.boolean(),
-//   mfo: z.string()
-// })
-
-// const synonymSchema = z.object({
-//   name: z.string(),
-//   isDeleted: z.boolean(),
-// })
-
-// const formSchema = z.object({
-//   name: z.string().nonempty("Имя обязательно"),
-//   edrpou: z.string().nonempty("ЕДРПОУ обязательно"),
-
-//   accList: z.array(accountSchema),
-//   synonymList: z.array(synonymSchema)
-// });
-
 const formSchema = z.object({
+  entity_id: z.number(),
   name: z.string().nonempty("Имя обязательно"),
   edrpou: z.string().nonempty("ЕДРПОУ обязательно"),
   accountNumber: z.string().nonempty("Номер счета обязателен"),
-  mfo: z.string().nonempty("MFO обязательно"),
-  synonymName: z.string().optional(),
 });
 
 export type PartnerValues = z.infer<typeof formSchema>;
 
-export const AddPartner: React.FC<Props> = ({ className }) => {
-
-  const currentEntity = useEntityStore((state) => state.currentEntity);
-
-  // const defaultValues = {
-  //   entity_id:currentEntity?.id,
-  //   name: "",
-  //   edrpou: "",
-  //   accList: [{accountNumber: "", isDefault: false, isDeleted: false, mfo: ""}],
-  //   synonymList: [{name: "", isDeleted: false}]
-  // };
+export const AddPartner: React.FC<Props> = ({ className, entityIdNum }) => {
   const defaultValues = {
+    entity_id: entityIdNum,
     name: "",
     edrpou: "",
     accountNumber: "",
-    mfo: "",
-    synonymName: "",
   };
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -77,14 +47,15 @@ export const AddPartner: React.FC<Props> = ({ className }) => {
     defaultValues,
   });
 
-  const onSubmit = (data: z.infer<typeof formSchema>) => {
+  const onSubmit = async (data: z.infer<typeof formSchema>) => {
     console.log("Форма отправлена:", data);
+    await apiClient.partners.createPartner(data);
   };
 
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="ghost" className={cn("", className)}>
+        <Button type="button" variant="ghost" className={cn("", className)}>
           <CirclePlus className="mr-2" />
           Добавить контрагента
         </Button>
@@ -93,48 +64,45 @@ export const AddPartner: React.FC<Props> = ({ className }) => {
         <DialogHeader>
           <DialogTitle>Добавить контрагента</DialogTitle>
           <DialogDescription>
-            Введите данные контрагента. Нажмите "Добавить" когда закончите.
+            Введите данные контрагента. Нажмите "Добавить", когда закончите.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          {/* Обработчик onSubmit останавливает всплытие события, чтобы избежать триггера валидации родительской формы */}
+          <form
+            onSubmit={(e) => {
+              e.stopPropagation();
+              form.handleSubmit(onSubmit, (errors) => {
+                console.error("Валидация не прошла:", errors);
+              })(e);
+            }}
+            className="space-y-4"
+          >
             <Container className="gap-2">
-            <PartnerInput
-              control={form.control}
-              name="name"
-              label="Контрагент"
-              placeholder="Введите название контрагента"
+              <PartnerInput
+                control={form.control}
+                name="name"
+                label="Контрагент"
+                placeholder="Введите название контрагента"
               />
-            <PartnerInput
-              control={form.control}
-              name="edrpou"
-              label="ЕДРПОУ"
-              placeholder="Введите ЕДРПОУ"
+              <PartnerInput
+                control={form.control}
+                name="edrpou"
+                label="ЕДРПОУ"
+                placeholder="Введите ЕДРПОУ"
               />
             </Container>
-            <Container className="gap-2">
-            <PartnerInput
-              control={form.control}
-              name="accountNumber"
-              label="Номер счета"
-              placeholder="Введите Номер счета"
-              />
-            <PartnerInput
-              control={form.control}
-              name="mfo"
-              label="МФО"
-              placeholder="Введите MФO"
-              />
-              </Container>
+            <Container className="justify-start gap-2">
               <PartnerInput
-              control={form.control}
-              name="synonymName"
-              label="Синоним контрагента"
-              placeholder="Введите синоним контрагента"
+                control={form.control}
+                name="accountNumber"
+                label="Номер счета"
+                placeholder="Введите номер счета"
               />
-        <DialogFooter>
-          <Button type="submit">Добавить</Button>
-        </DialogFooter>
+            </Container>
+            <DialogFooter>
+              <Button type="submit">Добавить</Button>
+            </DialogFooter>
           </form>
         </Form>
       </DialogContent>

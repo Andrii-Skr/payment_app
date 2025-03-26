@@ -1,5 +1,3 @@
-// Изменённый PaymentDetailsModal.tsx
-
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -15,6 +13,7 @@ import {
 } from "@/components/ui/table";
 import { PaymentDetail } from "../../types";
 import { usePaymentStore } from "../../store/store";
+import { useRouter } from "next/navigation"; // Импортируем useRouter
 
 export type PaymentDetailsModalProps = {
   isOpen: boolean;
@@ -31,10 +30,9 @@ export const PaymentDetailsModal = ({
   title,
   paymentDetails,
 }: PaymentDetailsModalProps) => {
-  // Храним состояние выбранных строк: ключ – spec_doc_id, значение – true/false
   const [selectedRows, setSelectedRows] = useState<Record<number, boolean>>({});
-
   const pendingPayments = usePaymentStore.getState().pendingPayments;
+  const router = useRouter();
 
   useEffect(() => {
     const updated: Record<number, boolean> = {};
@@ -65,18 +63,26 @@ export const PaymentDetailsModal = ({
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead>Номер Счета</TableHead>
               <TableHead>Назначение Платежа</TableHead>
-              <TableHead>Комментарий к платежу</TableHead> {/* Новый заголовок */}
               <TableHead>Дата Счета</TableHead>
               <TableHead>Сумма платежа</TableHead>
               <TableHead>На оплату</TableHead>
+              <TableHead>Крайний срок</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {paymentDetails.map((detail) => (
-              <TableRow key={detail.spec_doc_id}>
+              <TableRow
+                key={detail.spec_doc_id}
+                onDoubleClick={() =>
+                  router.push(
+                    `/create/payment-form/${detail.entity_id}?doc_id=${detail.doc_id}`
+                  )
+                }
+              >
                 <TableCell>{detail.account_number}</TableCell>
-                <TableCell>{detail.note}</TableCell> {/* Вывод комментария */}
+                <TableCell>{detail.purpose_of_payment}</TableCell>
                 <TableCell>
                   {new Date(detail.date).toLocaleDateString("ru-RU")}
                 </TableCell>
@@ -88,6 +94,7 @@ export const PaymentDetailsModal = ({
                     onChange={() => toggleCheckbox(detail.spec_doc_id)}
                   />
                 </TableCell>
+                <TableCell>{detail.dead_line_date ? new Date(detail.dead_line_date).toLocaleDateString("ru-RU") : ""}</TableCell>
               </TableRow>
             ))}
           </TableBody>

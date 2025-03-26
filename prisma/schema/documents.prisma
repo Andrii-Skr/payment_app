@@ -8,13 +8,14 @@ model documents {
     partners   partners @relation(fields: [partner_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
     spec_doc spec_doc[]
+    auto_payment auto_payment[]
 
     account_number     String
     date               DateTime @db.Timestamp()
     account_sum        Decimal  @db.Decimal(10, 2)
     account_sum_expression String?
     bank_account       String
-    mfo                String
+    mfo                String?
     purpose_of_payment String
     note String?
 
@@ -23,10 +24,12 @@ model documents {
 
     user_id Int
     user    user @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+    is_auto_payment Boolean @default(false)
 
     created_at DateTime? @default(now()) @db.Timestamp()
     updated_at DateTime? @updatedAt @db.Timestamp()
     is_deleted Boolean   @default(false)
+
 }
 
 model spec_doc {
@@ -41,6 +44,46 @@ model spec_doc {
 
     paid_date  DateTime? @db.Timestamp()
     is_paid Boolean @default(false)
+
+    created_at DateTime? @default(now()) @db.Timestamp()
+    updated_at DateTime? @updatedAt @db.Timestamp()
+    is_deleted Boolean   @default(false)
+}
+
+model auto_payment {
+    id Int @id() @default(autoincrement())
+
+    documents_id Int
+    documents    documents @relation(fields: [documents_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+    pay_sum        Decimal  @db.Decimal(10, 2)
+    expected_date  DateTime? @db.Timestamp()
+    dead_line_date DateTime? @db.Timestamp()
+
+    created_at DateTime? @default(now()) @db.Timestamp()
+    updated_at DateTime? @updatedAt @db.Timestamp()
+    is_deleted Boolean   @default(false)
+}
+
+model template {
+    id Int @id() @default(autoincrement())
+    name String    @db.VarChar @unique
+    entity_id Int
+
+    partner_id Int
+    partner_name String
+
+    edrpou String
+    account_number     String
+    date               DateTime @db.Timestamp()
+    account_sum        Decimal  @db.Decimal(10, 2)
+    account_sum_expression String?
+    bank_account       String
+    mfo                String
+    purpose_of_payment String
+    note String?
+
+    user_id Int
 
     created_at DateTime? @default(now()) @db.Timestamp()
     updated_at DateTime? @updatedAt @db.Timestamp()

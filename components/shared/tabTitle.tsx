@@ -22,6 +22,8 @@ export const TabTitle: React.FC<Props> = ({ className }) => {
       return "/view";
     } else if (pathname.startsWith("/add")) {
       return "/add";
+    } else if (pathname.startsWith("/regular")) {
+      return "/regular";
     }
     return "/create";
   };
@@ -38,6 +40,9 @@ export const TabTitle: React.FC<Props> = ({ className }) => {
         <TabsList>
           <TabsTrigger value="/create">Создать Платеж</TabsTrigger>
           <TabsTrigger value="/view">Просмотр графика оплат</TabsTrigger>
+          <TabsTrigger value="/regular">
+            Регулярные платежи
+          </TabsTrigger>
           <TabsTrigger value="/add">Админка</TabsTrigger>
         </TabsList>
       </Tabs>

@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { DocumentType, SpecDocType } from "../../types";
+import { useRouter } from "next/navigation";
 
 type Partner = DocumentType["partners"];
 
@@ -29,6 +30,7 @@ export const PartnerDocumentsModal: React.FC<PartnerDocumentsModalProps> = ({
 }) => {
   if (!isOpen) return null;
 
+  const router = useRouter();
   // Фильтр по дате документа и по сумме
   const [filterDate, setFilterDate] = useState("");
   const [filterSum, setFilterSum] = useState("");
@@ -52,7 +54,7 @@ export const PartnerDocumentsModal: React.FC<PartnerDocumentsModalProps> = ({
     <Modal isOpen={isOpen} onClose={onClose}>
       <div className="max-h-screen overflow-y-auto p-4">
         <div className="flex justify-between items-center border-b pb-2">
-          <h2 className="text-lg font-bold">Документы для счета</h2>
+          <h2 className="text-lg font-bold">Счета по {partner.name}</h2>
           <Button variant="ghost" onClick={onClose}>
             Закрыть
           </Button>
@@ -89,6 +91,7 @@ export const PartnerDocumentsModal: React.FC<PartnerDocumentsModalProps> = ({
               <TableHead>Дата счета</TableHead>
               <TableHead>Сумма</TableHead>
               <TableHead>Остаток</TableHead>
+              <TableHead>Комментарий к платежу</TableHead>
               <TableHead>Платежи</TableHead>
             </TableRow>
           </TableHeader>
@@ -99,14 +102,25 @@ export const PartnerDocumentsModal: React.FC<PartnerDocumentsModalProps> = ({
                 (sum, spec: SpecDocType) => sum + Number(spec.pay_sum),
                 0
               );
-              const balance = (Number(doc.account_sum) - totalSpecSum).toFixed(2);
+              const balance = (Number(doc.account_sum) - totalSpecSum).toFixed(
+                2
+              );
               return (
-                <TableRow key={doc.id} className="hover:bg-gray-100">
+                <TableRow
+                  key={doc.id}
+                  className="hover:bg-gray-100"
+                  onDoubleClick={() =>
+                    router.push(
+                      `/create/payment-form/${doc.entity_id}?doc_id=${doc.id}`
+                    )
+                  }
+                >
                   <TableCell>
                     {new Date(doc.date).toLocaleDateString("ru-RU")}
                   </TableCell>
                   <TableCell>{doc.account_sum}</TableCell>
                   <TableCell>{balance}</TableCell>
+                  <TableCell>{doc.purpose_of_payment}</TableCell>
                   <TableCell>
                     <div className="flex flex-row gap-4">
                       {doc.spec_doc.map((spec: SpecDocType) => {

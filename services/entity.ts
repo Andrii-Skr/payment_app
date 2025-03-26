@@ -20,15 +20,6 @@ export const entityService = async ():Promise<entity[] | undefined> => {
         }
     }
 
-    // export const getEntityById = async () => {
-    //     try {
-    //         const { data } = await axiosInstance.get(`/entity/`)
-    //         return data
-    //     } catch (error) {
-    //         console.log(error)
-    //     }
-    // }
-
     export const getEntityById = async (entity_id: number): Promise<entity | undefined> => {
         try {
             const { data } = await axiosInstance.get<entity>(`/document/entity_name/${entity_id}`)

@@ -1,4 +1,4 @@
-import { spec_doc } from "./../node_modules/.pnpm/@prisma+client@5.21.1_prisma@5.21.1/node_modules/.prisma/client/index.d";
+import { spec_doc } from "@prisma/client";
 import { entity } from "@prisma/client";
 import { partners } from "@prisma/client";
 import { documents } from "@prisma/client";
@@ -18,6 +18,14 @@ function getRandomDate() {
 }
 
 async function addData() {
+  await prisma.role.createMany({
+    data: [
+      {
+        name: "admin",
+      },
+    ],
+  });
+
   await prisma.user.createMany({
     data: [
       {
@@ -48,7 +56,6 @@ async function addData() {
 async function addPartners() {
   await prisma.partners.createMany({
     data: [
-
       {
         name: "partner5Зенит",
         type: 2,
@@ -217,12 +224,12 @@ async function addPartners() {
       },
       {
         partner_id: 1,
-        bank_account: "IBAN 1 22345678901234567890",
+        bank_account: "IBAN 1 12345678901234567890",
         mfo: "2234",
       },
       {
         partner_id: 2,
-        bank_account: "IBAN 2 32345678901234567890",
+        bank_account: "IBAN 2 12345678901234567890",
         mfo: "3234",
       },
       {
@@ -232,127 +239,127 @@ async function addPartners() {
       },
       {
         partner_id: 1,
-        bank_account: "IBAN 1 22345678901234567890",
+        bank_account: "IBAN 1 12345678901234567890",
         mfo: "2234",
       },
       {
         partner_id: 2,
-        bank_account: "IBAN 2 32345678901234567890",
+        bank_account: "IBAN 2 12345678901234567890",
         mfo: "3234",
       },
       {
         partner_id: 4,
-        bank_account: "IBAN 4 42345678901234567890",
+        bank_account: "IBAN 4 12345678901234567890",
         mfo: "3234",
       },
       {
         partner_id: 5,
-        bank_account: "IBAN 5 52345678901234567890",
+        bank_account: "IBAN 5 12345678901234567890",
         mfo: "3234",
       },
       {
         partner_id: 6,
-        bank_account: "IBAN 6 62345678901234567890",
+        bank_account: "IBAN 6 12345678901234567890",
         mfo: "3234",
       },
       {
         partner_id: 7,
-        bank_account: "IBAN 7 72345678901234567890",
+        bank_account: "IBAN 7 12345678901234567890",
         mfo: "3234",
       },
       {
         partner_id: 8,
-        bank_account: "IBAN 8 92345678901234567890",
+        bank_account: "IBAN 8 12345678901234567890",
         mfo: "3234",
       },
       {
         partner_id: 9,
-        bank_account: "IBAN 9 92345678901234567890",
+        bank_account: "IBAN 9 12345678901234567890",
         mfo: "3234",
       },
       {
         partner_id: 10,
-        bank_account: "IBAN 10 92345678901234567890",
+        bank_account: "IBAN 10 12345678901234567890",
         mfo: "3234",
       },
       {
         partner_id: 11,
-        bank_account: "IBAN 11 92345678901234567890",
+        bank_account: "IBAN 11 12345678901234567890",
         mfo: "3234",
       },
       {
         partner_id: 12,
-        bank_account: "IBAN 12 92345678901234567890",
+        bank_account: "IBAN 12 12345678901234567890",
         mfo: "3234",
       },
       {
         partner_id: 13,
-        bank_account: "IBAN 13 92345678901234567890",
+        bank_account: "IBAN 13 12345678901234567890",
         mfo: "3234",
       },
       {
         partner_id: 14,
-        bank_account: "IBAN 14 92345678901234567890",
+        bank_account: "IBAN 14 12345678901234567890",
         mfo: "3234",
       },
       {
         partner_id: 15,
-        bank_account: "IBAN 15 92345678901234567890",
+        bank_account: "IBAN 15 12345678901234567890",
         mfo: "3234",
       },
       {
         partner_id: 16,
-        bank_account: "IBAN 16 92345678901234567890",
+        bank_account: "IBAN 16 12345678901234567890",
         mfo: "3234",
       },
       {
         partner_id: 17,
-        bank_account: "IBAN 17 345678901234567890",
+        bank_account: "IBAN 17 12345678901234567890",
         mfo: "3234",
       },
       {
         partner_id: 18,
-        bank_account: "IBAN 18 345678901234567890",
+        bank_account: "IBAN 18 12345678901234567890",
         mfo: "3234",
       },
       {
         partner_id: 19,
-        bank_account: "IBAN 19 345678901234567890",
+        bank_account: "IBAN 19 12345678901234567890",
         mfo: "3234",
       },
       {
         partner_id: 20,
-        bank_account: "IBAN 20 345678901234567890",
+        bank_account: "IBAN 20 12345678901234567890",
         mfo: "3234",
       },
       {
         partner_id: 21,
-        bank_account: "IBAN 21 345678901234567890",
+        bank_account: "IBAN 21 12345678901234567890",
         mfo: "3234",
       },
       {
         partner_id: 22,
-        bank_account: "IBAN 22 345678901234567890",
+        bank_account: "IBAN 22 12345678901234567890",
         mfo: "3234",
       },
       {
         partner_id: 23,
-        bank_account: "IBAN 23 345678901234567890",
+        bank_account: "IBAN 23 12345678901234567890",
         mfo: "3234",
       },
       {
         partner_id: 24,
-        bank_account: "IBAN 24 345678901234567890",
+        bank_account: "IBAN 24 12345678901234567890",
         mfo: "3234",
       },
       {
         partner_id: 25,
-        bank_account: "IBAN 25 345678901234567890",
+        bank_account: "IBAN 25 12345678901234567890",
         mfo: "3234",
       },
       {
         partner_id: 26,
-        bank_account: "IBAN 26 345678901234567890",
+        bank_account: "IBAN 26 12345678901234567890",
         mfo: "3234",
       },
     ],
@@ -395,7 +402,7 @@ async function addPartners() {
         account_sum: 1200.75,
         account_sum_expression: "",
         purpose_of_payment: "Оплата услуг",
-        bank_account: "IBAN 3 32345678901234567890",
+        bank_account: "IBAN 3 12345678901234567890",
         mfo: "1234",
         is_saved: true,
         is_paid: false,
@@ -409,7 +416,7 @@ async function addPartners() {
         account_sum: 1300.8,
         account_sum_expression: "",
         purpose_of_payment: "Оплата услуг",
-        bank_account: "IBAN 4 42345678901234567890",
+        bank_account: "IBAN 4 12345678901234567890",
         mfo: "1234",
         is_saved: true,
         is_paid: false,
@@ -423,7 +430,7 @@ async function addPartners() {
         account_sum: 1400.95,
         account_sum_expression: "",
         purpose_of_payment: "Оплата услуг",
-        bank_account: "IBAN 5 52345678901234567890",
+        bank_account: "IBAN 5 12345678901234567890",
         mfo: "1234",
         is_saved: true,
         is_paid: false,
@@ -437,7 +444,7 @@ async function addPartners() {
         account_sum: 1500.6,
         account_sum_expression: "",
         purpose_of_payment: "Оплата услуг",
-        bank_account: "IBAN 6 62345678901234567890",
+        bank_account: "IBAN 6 12345678901234567890",
         mfo: "1234",
         is_saved: true,
         is_paid: false,
@@ -451,7 +458,7 @@ async function addPartners() {
         account_sum: 1600.1,
         account_sum_expression: "",
         purpose_of_payment: "Оплата услуг",
-        bank_account: "IBAN 7 72345678901234567890",
+        bank_account: "IBAN 7 12345678901234567890",
         mfo: "1234",
         is_saved: true,
         is_paid: false,
@@ -465,7 +472,7 @@ async function addPartners() {
         account_sum: 1700.2,
         account_sum_expression: "",
         purpose_of_payment: "Оплата услуг",
-        bank_account: "IBAN 8 92345678901234567890",
+        bank_account: "IBAN 8 12345678901234567890",
         mfo: "1234",
         is_saved: true,
         is_paid: false,
@@ -479,7 +486,7 @@ async function addPartners() {
         account_sum: 1800.3,
         account_sum_expression: "",
         purpose_of_payment: "Оплата услуг",
-        bank_account: "IBAN 9 92345678901234567890",
+        bank_account: "IBAN 9 12345678901234567890",
         mfo: "1234",
         is_saved: true,
         is_paid: false,

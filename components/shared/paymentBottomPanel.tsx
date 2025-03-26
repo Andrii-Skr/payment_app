@@ -1,12 +1,5 @@
+"use client";
 import React from "react";
-import {
-  Table,
-  TableHeader,
-  TableRow,
-  TableHead,
-  TableBody,
-  TableCell,
-} from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { PaymentDetail } from "../../types";
 import { usePaymentStore } from "../../store/store";
@@ -56,6 +49,7 @@ export const PaymentBottomPanel: React.FC<PaymentBottomPanelProps> = ({
             </TableBody>
           </Table> */}
           <div className="flex justify-end items-center space-x-2 mt-2">
+            <Button onClick={onFinalize}>Сформировать</Button>
             <Button onClick={onFinalize}>Сформировать</Button>
             <Button variant="secondary" onClick={collapsePanel}>
               Скрыть
