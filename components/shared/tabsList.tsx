@@ -4,7 +4,7 @@ import { Tabs, TabsContent } from "../ui/tabs";
 import { Container } from "./container";
 import { EntityLIst } from "./entityList";
 import { usePathname } from "next/navigation";
-import { PaymentSchedule } from "@/components/shared";
+import { AutoPaymentTable, PaymentSchedule } from "@/components/shared";
 import { cn } from "@/lib/utils";
 
 type Props = {
@@ -24,7 +24,7 @@ export const TabsList: React.FC<Props> = ({ className }) => {
           <PaymentSchedule />
         </TabsContent>
         <TabsContent value="/regular" >
-          <p>Регулярные платежи</p>
+        <AutoPaymentTable/>
         </TabsContent>
         <TabsContent value="/add">
           <AddInfoList />

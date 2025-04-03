@@ -1,5 +1,6 @@
 import axiosInstance from "@/services/instance";
 import { PaymentValues } from "@/components/shared/paymentForm";
+import { AutoPaymentWithDocs } from "@/app/api/regular/get/route";
 
 export const create = async (data: PaymentValues) => {
   try {
@@ -9,9 +10,10 @@ export const create = async (data: PaymentValues) => {
   }
 };
 
-export const get = async () => {
+export const get = async (): Promise<AutoPaymentWithDocs[] | undefined> => {
   try {
-    await axiosInstance.get("/regular/get");
+    const { data } = await axiosInstance.get("/regular/get");
+    return data;
   } catch (error) {
     console.log(error);
   }

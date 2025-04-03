@@ -19,17 +19,14 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { FormField, FormItem, FormLabel } from "@/components/ui";
-import { Container } from "@/components/shared";
 import { Control } from "react-hook-form";
 import { FormValues } from "@/components/shared/paymentForm";
-// import { useFormStore } from "@/store/store"
 
 type Props = {
   control: Control<FormValues>;
   name: keyof Omit<FormValues, "expectedDate" | "deadLineDate" | "date">;
   label: string;
   description?: string;
-  id: number | undefined;
   placeholder: string;
   empty: string;
   onChange: (id: number) => void;
@@ -37,7 +34,6 @@ type Props = {
 };
 
 export const Combobox: React.FC<Props> = ({
-  id,
   onChange,
   name,
   label,
@@ -53,16 +49,15 @@ export const Combobox: React.FC<Props> = ({
       control={control}
       name={name}
       render={({ field }) => (
-        <Container className="flex flex-col space-y-2">
           <FormItem className="flex flex-col content-between">
-            <FormLabel>{label}</FormLabel>
+            <FormLabel className="mb-1">{label}</FormLabel>
             <Popover open={open} onOpenChange={setOpen}>
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
                   role="combobox"
                   aria-expanded={open}
-                  className="w-[300px] h-8 px-3 py-1 justify-between"
+                  className="w-[250px] h-8 px-3 py-1 justify-between"
                 >
                   {field.value
                     ? list?.find((row) => {
@@ -107,7 +102,6 @@ export const Combobox: React.FC<Props> = ({
               </PopoverContent>
             </Popover>
           </FormItem>
-        </Container>
       )}
     />
   );

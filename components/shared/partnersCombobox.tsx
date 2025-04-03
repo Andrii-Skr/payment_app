@@ -17,7 +17,7 @@ type Props = {
 };
 
  export const PartnersCombobox: React.FC<Props> = ({
-  id,
+   id,
   control,
   name,
   label,
@@ -70,7 +70,6 @@ type Props = {
       placeholder={placeholder}
       empty={empty}
       onChange={onChange}
-      id={id}
       list={list}
     />
   );

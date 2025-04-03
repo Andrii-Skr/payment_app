@@ -361,7 +361,7 @@ export const PaymentForm: React.FC<Props> = ({ className }) => {
               />
               <AddPartner entityIdNum={entityIdNum} className="self-end" />
             </Container>
-            <Container className="justify-start gap-5">
+            <Container className="justify-start items-center gap-5">
               <PartnersCombobox
                 control={form.control}
                 name="partnerName"

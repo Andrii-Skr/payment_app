@@ -1,5 +1,3 @@
-import { Save } from "lucide-react";
-import { RegularPaymentDialog } from "./regularPaymentDialog";
 export { Container } from "./container";
 export { Main } from "../main";
 export { EntityLIst } from "./entityList";
@@ -26,3 +24,4 @@ export { RegularPaymentDialog } from "./regularPaymentDialog";
 export { SaveTemplateDialog } from "./saveTemplateDialog";
 export { ReplaceTemplateDialog } from "./replaceTemplateDialog";
 export { AsidePaymentForm } from "./asidePaymentForm";
+export { AutoPaymentTable } from "./autoPaymentTable";

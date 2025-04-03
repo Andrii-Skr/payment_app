@@ -67,7 +67,7 @@ export type EntityTableProps = {
   entityNames: Record<number, string>;
 };
 
-export const EntityTable = ({ documents, entityNames }: EntityTableProps) => {
+export const EntityTable: React.FC<EntityTableProps> = ({ documents, entityNames }) => {
   // Управление датами и периодом
   const initialDate = new Date(
     new Date().toLocaleString("en-US", { timeZone: "Europe/Kyiv" })

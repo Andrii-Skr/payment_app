@@ -107,7 +107,7 @@ const SumAndDateForm: React.FC<Props> = ({ control, onBlur }) => {
               <Container className="justify-start items-start gap-5 pb-2">
                 <ComputedFormInput
                   label="Остаток"
-                  description="Остаток: Сумма счета минус сумма платежей"
+                  description="Сумма счета минус сумма платежей"
                   value={remainder}
                 />
                 <div className="relative">
