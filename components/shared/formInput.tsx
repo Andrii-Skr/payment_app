@@ -1,4 +1,4 @@
-import { FormValues } from "@/components/shared/paymentForm";
+import { FormValues } from "@/types/formTypes";
 import {
   FormControl,
   FormDescription,

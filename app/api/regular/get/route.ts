@@ -8,6 +8,7 @@ export type AutoPaymentWithDocs = auto_payment & {
     id: number;
     entity_id: number;
     account_number: string;
+    purpose_of_payment: string;
     entity: {
       id: number;
       name: string;
@@ -19,14 +20,15 @@ export type AutoPaymentWithDocs = auto_payment & {
 };
 
 export async function GET(req: NextRequest) {
-  const result:AutoPaymentWithDocs[] = await prisma.auto_payment.findMany({
-    where: {},
+  const result: AutoPaymentWithDocs[] = await prisma.auto_payment.findMany({
+    where: { is_deleted: false },
     include: {
       documents: {
         select: {
           id: true,
           entity_id: true,
           account_number: true,
+          purpose_of_payment: true,
           entity: {
             select: {
               id: true,

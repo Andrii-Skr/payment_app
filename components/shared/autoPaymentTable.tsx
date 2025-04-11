@@ -40,8 +40,17 @@ export const AutoPaymentTable: React.FC = () => {
     });
   };
 
-  const handleCancel = (id: number) => {
-    console.log("Отмена автооплаты с id:", id);
+  const handleCancel = async (id: number) => {
+    try {
+      await apiClient.autoPayment.cancel(id);
+      // Повторно загружаем список автооплат
+      const updatedData = await apiClient.autoPayment.get();
+      if (updatedData) {
+        setAutoPayments(updatedData);
+      }
+    } catch (error) {
+      console.error("Ошибка при отмене автооплаты:", error);
+    }
   };
 
   // Группируем платежи по documents.entity_id
@@ -84,6 +93,7 @@ export const AutoPaymentTable: React.FC = () => {
                           <TableRow className="bg-gray-100">
                             <TableHead>Контрагент</TableHead>
                             <TableHead>Номер счета</TableHead>
+                            <TableHead>Назначение платежа</TableHead>
                             <TableHead>Сумма платежа</TableHead>
                             <TableHead></TableHead>
                           </TableRow>
@@ -96,6 +106,9 @@ export const AutoPaymentTable: React.FC = () => {
                               </TableCell>
                               <TableCell>
                                 {payment.documents.account_number}
+                              </TableCell>
+                              <TableCell>
+                                {payment.documents.purpose_of_payment}
                               </TableCell>
                               <TableCell>{Number(payment.pay_sum)}</TableCell>
                               <TableCell>

@@ -2,7 +2,7 @@
 import { AddInfoList } from "@/components/shared/addInfoList";
 import { Tabs, TabsContent } from "../ui/tabs";
 import { Container } from "./container";
-import { EntityLIst } from "./entityList";
+import { EntityList } from "./entityList";
 import { usePathname } from "next/navigation";
 import { AutoPaymentTable, PaymentSchedule } from "@/components/shared";
 import { cn } from "@/lib/utils";
@@ -18,7 +18,7 @@ export const TabsList: React.FC<Props> = ({ className }) => {
     <Container className={cn('',className)}>
       <Tabs value={pathname}>
         <TabsContent value="/create">
-          <EntityLIst />
+          <EntityList />
         </TabsContent>
         <TabsContent value="/view" >
           <PaymentSchedule />

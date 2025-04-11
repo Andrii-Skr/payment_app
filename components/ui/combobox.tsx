@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/popover";
 import { FormField, FormItem, FormLabel } from "@/components/ui";
 import { Control } from "react-hook-form";
-import { FormValues } from "@/components/shared/paymentForm";
+import { FormValues } from "@/types/formTypes";
 
 type Props = {
   control: Control<FormValues>;

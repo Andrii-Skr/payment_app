@@ -5,13 +5,18 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 export default function SignIn() {
-  const [email, setEmail] = useState("");
+  const [login, setLogin] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const result = await signIn("credentials", { email, password, redirect: false });
+
+    const result = await signIn("credentials", {
+      login,
+      password,
+      redirect: false,
+    });
 
     if (result?.ok) {
       router.push("/create");
@@ -26,10 +31,10 @@ export default function SignIn() {
         <h1 className="text-2xl font-bold mb-4">Вход</h1>
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            type="text"
+            placeholder="Логин"
+            value={login}
+            onChange={(e) => setLogin(e.target.value)}
             className="w-full p-2 border rounded"
           />
           <input

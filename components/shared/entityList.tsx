@@ -13,7 +13,7 @@ type Props = {
   className?: string;
 };
 
-export const EntityLIst: React.FC<Props> = ({ className }) => {
+export const EntityList: React.FC<Props> = ({ className }) => {
   const [entityList, setEntityList] = React.useState<entity[] | undefined>([]);
   //const updateCurrentEntity = useEntityStore((state ) => state.updateCurrentEntity)
   const router = useRouter();

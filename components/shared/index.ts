@@ -16,7 +16,7 @@ export { EdrpouCombobox } from "./edrpouCombobox";
 export { AddPartner } from "./addPartner";
 export { PartnerInput } from "./partnerInput";
 export { PaymentSchedule } from "./paymentSchedule";
-export { Logout } from "./logout";
+
 export { ConditionalHeader } from "./conditionalHeader";
 export { EntityTable } from "./entityTable";
 export { ComputedFormInput } from "./computedFormInput";
@@ -25,3 +25,5 @@ export { SaveTemplateDialog } from "./saveTemplateDialog";
 export { ReplaceTemplateDialog } from "./replaceTemplateDialog";
 export { AsidePaymentForm } from "./asidePaymentForm";
 export { AutoPaymentTable } from "./autoPaymentTable";
+export { LogoutDropdown } from "./logoutDropdown";
+export { FiltersBar } from "./filtersBar";

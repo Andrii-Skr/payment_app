@@ -11,6 +11,7 @@ model partners {
     documents              documents[]
     synonym_for_partners   synonym_for_partners[]
     partner_account_number partner_account_number[]
+    users_partners  users_partners[]
 
     created_at DateTime? @default(now()) @db.Timestamp()
     updated_at DateTime? @updatedAt @db.Timestamp()
@@ -22,6 +23,7 @@ model partner_account_number {
     partner_id Int
 
     partners partners @relation(fields: [partner_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
 
     bank_account String
     mfo          String
@@ -42,4 +44,13 @@ model synonym_for_partners {
     created_at DateTime? @default(now()) @db.Timestamp()
     updated_at DateTime? @updatedAt @db.Timestamp()
     is_deleted Boolean   @default(false)
+}
+
+model users_partners {
+  id              Int       @id @default(autoincrement())
+  user_id         Int
+  partner_id      Int
+
+  user            user      @relation(fields: [user_id], references: [id])
+  partners         partners  @relation(fields: [partner_id], references: [id])
 }

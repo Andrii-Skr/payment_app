@@ -55,7 +55,7 @@ export const AddPartner: React.FC<Props> = ({ className, entityIdNum }) => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button type="button" variant="ghost" className={cn("", className)}>
+        <Button type="button" variant="ghost" tabIndex={-1} className={cn("", className)}>
           <CirclePlus className="mr-2" />
           Добавить контрагента
         </Button>

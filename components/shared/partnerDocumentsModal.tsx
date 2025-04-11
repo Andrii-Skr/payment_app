@@ -10,7 +10,7 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { DocumentType, SpecDocType } from "../../types";
+import { DocumentType, SpecDocType } from "../../types/types";
 import { useRouter } from "next/navigation";
 
 type Partner = DocumentType["partners"];

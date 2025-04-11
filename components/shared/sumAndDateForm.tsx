@@ -5,7 +5,7 @@ import {
   ComputedFormInput,
   RegularPaymentDialog,
 } from "@/components/shared";
-import { FormValues } from "@/components/shared/paymentForm";
+import { FormValues } from "@/types/formTypes";
 import { Button } from "@/components/ui";
 import { apiClient } from "@/services/api-client";
 import { CircleX, Repeat1 } from "lucide-react";
@@ -69,7 +69,7 @@ const SumAndDateForm: React.FC<Props> = ({ control, onBlur }) => {
       const currentPayment = getValues(`payments.${selectedPaymentIndex}`);
       console.log("currentPayment", currentPayment);
       setValue(`is_auto_payment`, true);
-      apiClient.autoPayment.create(currentPayment)
+      apiClient.autoPayment.create(currentPayment);
     }
     setAlertOpen(false);
     setSelectedPaymentIndex(null);
@@ -80,6 +80,7 @@ const SumAndDateForm: React.FC<Props> = ({ control, onBlur }) => {
       <Container className="col-span-3 mb-2 gap-10 flex justify-start">
         <Button
           type="button"
+          tabIndex={-1}
           onClick={() =>
             prepend({
               paySum: 0,
@@ -91,7 +92,7 @@ const SumAndDateForm: React.FC<Props> = ({ control, onBlur }) => {
         >
           Добавить платеж
         </Button>
-        <Button type="submit">Сохранить</Button>
+        <Button type="submit" tabIndex={-1}>Сохранить</Button>
       </Container>
 
       {/* Вывод вычисленного остатка */}
@@ -148,10 +149,11 @@ const SumAndDateForm: React.FC<Props> = ({ control, onBlur }) => {
                     description="Дата оплаты"
                     readOnly={isPaid}
                   />
-                ) : (
-
-                  getValues(`payments.${index}.documents_id`) && !getValues(`is_auto_payment`)?<Button
+                ) : getValues(`payments.${index}.documents_id`) &&
+                  !getValues(`is_auto_payment`) ? (
+                  <Button
                     type="button"
+                    tabIndex={-1}
                     className="mt-7"
                     variant="ghost"
                     disabled={isPaid}
@@ -162,8 +164,8 @@ const SumAndDateForm: React.FC<Props> = ({ control, onBlur }) => {
                   >
                     <Repeat1 className="mr-2" />
                     Сделать регулярным
-                  </Button> : null
-                )}
+                  </Button>
+                ) : null}
               </Container>
               <Container className="justify-start gap-5">
                 <FormDatePicker
@@ -182,6 +184,7 @@ const SumAndDateForm: React.FC<Props> = ({ control, onBlur }) => {
                 />
                 <Button
                   type="button"
+                  tabIndex={-1}
                   className="text-red-500 mt-[29]"
                   variant="ghost"
                   disabled={isPaid}

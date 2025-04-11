@@ -11,10 +11,12 @@ export function DatePicker({
   selected,
   onChange,
   disabled,
+  className,
 }: {
   selected: Date | null | undefined;
   onChange: (day: Date | undefined) => void;
-  disabled?: boolean;
+    disabled?: boolean;
+    className?: string
 }) {
   const [open, setOpen] = React.useState(false);
 
@@ -31,7 +33,7 @@ export function DatePicker({
           disabled={disabled}
           className={cn(
             "w-[250px] h-8 justify-start text-left font-normal px-3 py-1",
-            !selected && "text-muted-foreground"
+            !selected && "text-muted-foreground",className
           )}
         >
           <CalendarIcon className="mr-2 h-4 w-4" />

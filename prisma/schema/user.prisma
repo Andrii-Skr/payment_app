@@ -7,6 +7,11 @@ model user {
 
     role_id Int
     role role @relation(fields: [role_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+
+    users_partners  users_partners[]
+  users_entities  users_entities[]
+
     documens documents[]
 
     created_at DateTime? @default(now()) @db.Timestamp()
@@ -27,7 +32,11 @@ model role{
 
 }
 
-model rights {
+model users_entities {
+  id         Int     @id @default(autoincrement())
+  user_id    Int
+  entity_id  Int
 
-    id Int @id @default(autoincrement())
+  user       user    @relation(fields: [user_id], references: [id])
+  entity     entity  @relation(fields: [entity_id], references: [id])
 }

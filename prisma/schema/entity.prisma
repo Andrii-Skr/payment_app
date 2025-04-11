@@ -6,6 +6,7 @@ model entity {
 
     partners partners[]
     documents documents[]
+    users_entities users_entities[]
 
     created_at DateTime? @default(now()) @db.Timestamp()
     updated_at DateTime? @updatedAt @db.Timestamp()

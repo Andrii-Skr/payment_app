@@ -1,5 +1,5 @@
 import axiosInstance from "@/services/instance";
-import { FormValues } from "@/components/shared/paymentForm";
+import { FormValues } from "@/types/formTypes";
 import { documents, template } from "@prisma/client";
 import { DocumentWithPartner } from "@/app/api/document/entity/[entity_id]/route";
 
@@ -23,7 +23,7 @@ export const createTemplate = async (data: TopLevelKeys) => {
 
 export const getTemplateById = async (
   entity_id: number
-): Promise<template[] | undefined> => {
+): Promise<template[]> => {
   try {
     const { data } = await axiosInstance.get<template[]>(
       `/document/get/template/${entity_id}`
@@ -31,6 +31,7 @@ export const getTemplateById = async (
     return data;
   } catch (error) {
     console.log(error);
+    return [];
   }
 };
 
@@ -44,7 +45,7 @@ export const update = async (data: FormValues) => {
 
 export const getByEntity = async (
   entity_id: number
-): Promise<DocumentWithPartner[] | undefined> => {
+): Promise<DocumentWithPartner[]> => {
   try {
     const { data } = await axiosInstance.get<DocumentWithPartner[]>(
       `/document/entity/${entity_id}`
@@ -52,6 +53,7 @@ export const getByEntity = async (
     return data;
   } catch (error) {
     console.log(error);
+    return [];
   }
 };
 

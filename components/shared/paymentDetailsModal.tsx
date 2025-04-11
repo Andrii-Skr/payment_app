@@ -11,7 +11,7 @@ import {
   TableBody,
   TableCell,
 } from "@/components/ui/table";
-import { PaymentDetail } from "../../types";
+import { PaymentDetail } from "../../types/types";
 import { usePaymentStore } from "../../store/store";
 import { useRouter } from "next/navigation"; // Импортируем useRouter
 
@@ -94,7 +94,13 @@ export const PaymentDetailsModal = ({
                     onChange={() => toggleCheckbox(detail.spec_doc_id)}
                   />
                 </TableCell>
-                <TableCell>{detail.dead_line_date ? new Date(detail.dead_line_date).toLocaleDateString("ru-RU") : ""}</TableCell>
+                <TableCell>
+                  {detail.dead_line_date
+                    ? new Date(detail.dead_line_date).toLocaleDateString(
+                        "ru-RU"
+                      )
+                    : ""}
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
