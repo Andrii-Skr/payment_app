@@ -5,7 +5,11 @@ import { Calendar as CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 export function DatePicker({
   selected,
@@ -15,8 +19,8 @@ export function DatePicker({
 }: {
   selected: Date | null | undefined;
   onChange: (day: Date | undefined) => void;
-    disabled?: boolean;
-    className?: string
+  disabled?: boolean;
+  className?: string;
 }) {
   const [open, setOpen] = React.useState(false);
 
@@ -33,15 +37,25 @@ export function DatePicker({
           disabled={disabled}
           className={cn(
             "w-[250px] h-8 justify-start text-left font-normal px-3 py-1",
-            !selected && "text-muted-foreground",className
+            !selected && "text-muted-foreground",
+            className
           )}
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
-          {selected ? format(selected, "dd.MM.yyyy") : <span>Выберите Дату</span>}
+          {selected ? (
+            format(selected, "dd.MM.yyyy")
+          ) : (
+            <span>Выберите Дату</span>
+          )}
         </Button>
       </PopoverTrigger>
       <PopoverContent>
-        <Calendar mode="single" selected={selected} onSelect={handleSelect} initialFocus />
+        <Calendar
+          mode="single"
+          selected={selected ?? undefined}
+          onSelect={handleSelect}
+          initialFocus
+        />
       </PopoverContent>
     </Popover>
   );
