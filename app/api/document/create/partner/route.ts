@@ -1,35 +1,43 @@
-import prisma from "@/prisma/prisma-client";
 import { NextRequest, NextResponse } from "next/server";
+import prisma from "@/prisma/prisma-client";
+import { z } from "zod";
+import { apiRoute } from "@/utils/apiRoute";
 
-export async function POST(request: NextRequest) {
-  try {
-    const body = await request.json();
 
-    const newPartner = await prisma.partners.create({
-      data: {
-        name: body.name,
-        edrpou: body.edrpou,
-        entity_id: body.entity_id,
-        type: 0,
-        group: [],
-        partner_account_number: {
-          create: {
-            bank_account: body.accountNumber,
-            mfo: "1",
-          }
-        }
-      }
-    });
+const partnerSchema = z.object({
+  name: z.string(),
+  edrpou: z.string(),
+  entity_id: z.number(),
+});
 
-    return NextResponse.json(
-      { success: true, message: "Data processed successfully." },
-      { status: 200 }
-    );
-  } catch (error) {
-    console.error("Error processing request:", error);
-    return NextResponse.json(
-      { success: false, message: "Internal server error." },
-      { status: 500 }
-    );
-  }
+type PartnerBody = z.infer<typeof partnerSchema>;
+
+const handler = async (
+  _req: NextRequest,
+  body: PartnerBody,
+  _params: {}, // статичный путь
+  _user: any
+): Promise<NextResponse> => {
+  const partner = await prisma.partners.create({
+    data: {
+      name: body.name,
+      edrpou: body.edrpou,
+      entity_id: body.entity_id,
+      type: 0,
+      group: [],
+    },
+  });
+
+  return NextResponse.json({
+    success: true,
+    partner,
+  });
+};
+
+// ✅ Рабочая сигнатура для Next.js 15 — context не типизируем явно
+export async function POST(req: NextRequest, context: any) {
+  return apiRoute<PartnerBody>(handler, {
+    schema: partnerSchema,
+    requireAuth: true,
+  })(req, context);
 }

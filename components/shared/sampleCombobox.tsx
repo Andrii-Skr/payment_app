@@ -3,7 +3,7 @@ import * as React from "react";
 import { Control } from "react-hook-form";
 import { template } from "@prisma/client";
 import { Combobox } from "@/components/ui";
-import { FormValues } from "@/components/shared/paymentForm";
+import { FormValues } from "@/types/formTypes";
 
 type Props = {
   control: Control<FormValues>;
@@ -18,7 +18,6 @@ type Props = {
 };
 
 export const SampleCombobox: React.FC<Props> = ({
-  id,
   name,
   label,
   description,
@@ -39,7 +38,6 @@ export const SampleCombobox: React.FC<Props> = ({
       placeholder={placeholder}
       empty={empty}
       onChange={onChange}
-      id={id}
       list={list}
     />
   );

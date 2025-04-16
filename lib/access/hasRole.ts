@@ -1,3 +1,5 @@
+import { Role } from "@/constants/roles";
+
 /**
  * Проверка роли пользователя.
  * @param actualRole - роль из токена (`token.role`)
@@ -6,12 +8,12 @@
  */
 export function hasRole(
   actualRole: string | undefined,
-  allowed: string | string[]
+  allowed: Role | Role[]
 ): boolean {
   if (!actualRole) return false;
 
   if (Array.isArray(allowed)) {
-    return allowed.includes(actualRole);
+    return allowed.includes(actualRole as Role);
   }
 
   return actualRole === allowed;

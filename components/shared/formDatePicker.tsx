@@ -1,6 +1,6 @@
 "use client"
 import { DatePicker } from '@/components/shared/datePicker';
-import { FormValues } from '@/components/shared/paymentForm';
+import { FormValues } from '@/types/formTypes';
 import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui'
 import React from 'react'
 import { Control, Path } from 'react-hook-form';

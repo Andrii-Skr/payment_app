@@ -30,8 +30,8 @@ export const formSchema = z.object({
   accountNumber: z
     .string()
     .min(2, "Номер счета должен быть не менее 2 символов."),
-  vatType: z.enum(["with", "without"]).default("with"),
-  vatPercent: z.string().optional(),
+  vatType: z.boolean().default(true),
+  vatPercent: z.number().optional(),
   date: z.preprocess((arg) => {
     if (typeof arg === "string" || arg instanceof Date) return new Date(arg);
     return arg;

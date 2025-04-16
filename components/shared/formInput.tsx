@@ -14,7 +14,7 @@ import { Control } from "react-hook-form";
 type PaymentsKeys = `payments.${number}.${"paySum"}`;
 type TopLevelKeys = keyof Omit<
   FormValues,
-  "date" | "accountsList" | "payments" | "is_auto_payment"
+  "date" | "accountsList" | "payments" | "is_auto_payment" | "vatType"
 >;
 
 type Props = {

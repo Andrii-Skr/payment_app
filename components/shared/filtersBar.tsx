@@ -36,6 +36,21 @@ export const FiltersBar: React.FC<FiltersBarProps> = ({
   entityNames,
   dateRange,
 }) => {
+  const [formattedRange, setFormattedRange] = React.useState("");
+
+  React.useEffect(() => {
+    if (typeof window !== "undefined" && dateRange.length >= period) {
+      const formatter = new Intl.DateTimeFormat("ru-RU", {
+        timeZone: "Europe/Kyiv",
+      });
+      setFormattedRange(
+        `${formatter.format(dateRange[0])} - ${formatter.format(
+          dateRange[period - 1]
+        )}`
+      );
+    }
+  }, [dateRange, period]);
+
   const handlePrev = () => {
     const newDate = new Date(startDate);
     newDate.setDate(newDate.getDate() - 1);
@@ -61,6 +76,7 @@ export const FiltersBar: React.FC<FiltersBarProps> = ({
         />
         <Button onClick={handleNext}>→</Button>
       </div>
+
       <div className="flex justify-start items-center space-x-2">
         {[7, 14, 30].map((d) => (
           <Button
@@ -97,15 +113,8 @@ export const FiltersBar: React.FC<FiltersBarProps> = ({
           className="border rounded p-1"
         />
       </div>
-      <div className="text-sm text-gray-600">
-        {dateRange[0].toLocaleDateString("ru-RU", {
-          timeZone: "Europe/Kyiv",
-        })}{" "}
-        -{" "}
-        {dateRange[period - 1].toLocaleDateString("ru-RU", {
-          timeZone: "Europe/Kyiv",
-        })}
-      </div>
+
+      <div className="text-sm text-gray-600">{formattedRange}</div>
     </div>
   );
 };

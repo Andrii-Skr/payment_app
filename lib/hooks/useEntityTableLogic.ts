@@ -1,5 +1,6 @@
-import { useMemo } from "react";
+import { useMemo, useEffect, useState } from "react";
 import { DocumentType } from "@/types/types";
+
 export const useEntityTableLogic = ({
   documents,
   startDate,
@@ -22,6 +23,15 @@ export const useEntityTableLogic = ({
       return d;
     });
   }, [startDate, period]);
+
+  const [formattedDateRange, setFormattedDateRange] = useState<string[]>([]);
+
+  useEffect(() => {
+    const formatter = new Intl.DateTimeFormat("ru-RU", {
+      timeZone: "Europe/Kyiv",
+    });
+    setFormattedDateRange(dateRange.map((d) => formatter.format(d)));
+  }, [dateRange]);
 
   const partnersMap = useMemo(() => {
     return documents.reduce((acc, doc) => {
@@ -63,6 +73,7 @@ export const useEntityTableLogic = ({
 
   return {
     dateRange,
+    formattedDateRange,
     groupedByEntity,
   };
 };

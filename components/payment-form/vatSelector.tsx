@@ -18,9 +18,9 @@ export const VatSelector: React.FC<{ control: Control<FormValues> }> = ({
       <Container className="mt-[-10px] justify-start items-center gap-2">
         <Button
           type="button"
-          onClick={() => setValue("vatType", "with")}
+          onClick={() => setValue("vatType", true)}
           className={`px-4 py-1 rounded-full border text-sm transition ${
-            vatType === "with"
+            vatType === true
               ? "bg-blue-600 text-white border-blue-600"
               : "bg-white text-gray-700 border-gray-300 hover:border-gray-500"
           }`}
@@ -31,18 +31,18 @@ export const VatSelector: React.FC<{ control: Control<FormValues> }> = ({
         <FormInput
           control={control}
           name="vatPercent"
+          className="no-spin w-14"
           label=""
           placeholder="%"
-          type="text"
-          className="w-14"
-          disabled={vatType !== "with"}
+          type="number"
+          disabled={vatType !== true}
         />
 
         <Button
           type="button"
-          onClick={() => setValue("vatType", "without")}
+          onClick={() => setValue("vatType", false)}
           className={`px-4 py-1 rounded-full border text-sm transition ${
-            vatType === "without"
+            vatType === false
               ? "bg-blue-600 text-white border-blue-600"
               : "bg-white text-gray-700 border-gray-300 hover:border-gray-500"
           }`}

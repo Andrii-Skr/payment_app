@@ -14,22 +14,28 @@ function getRandomDate() {
 
 async function clearData() {
   const tables = [
-    "spec_doc", "documents", "partner_account_number",
-    "partners", "users_partners", "users_entities",
-    "user", "role", "entity"
+    "spec_doc",
+    "documents",
+    "partner_account_number",
+    "partners",
+    "users_partners",
+    "users_entities",
+    "user",
+    "role",
+    "entity",
+    "template",
   ];
 
   for (const table of tables) {
-    await prisma.$executeRawUnsafe(`TRUNCATE TABLE "${table}" RESTART IDENTITY CASCADE;`);
+    await prisma.$executeRawUnsafe(
+      `TRUNCATE TABLE "${table}" RESTART IDENTITY CASCADE;`
+    );
   }
 }
 
 async function seedRoles() {
   await prisma.role.createMany({
-    data: [
-      { name: "admin" },
-      { name: "user" },
-    ],
+    data: [{ name: "admin" }, { name: "user" }],
   });
 }
 
@@ -50,24 +56,33 @@ async function seedUsers() {
     { login: "testuser", password: "testuser", role_id: 2, name: "test user" },
   ];
 
-  await Promise.all(users.map(async (user) => {
-    const hashed = await bcrypt.hash(user.password, 10);
-    await prisma.user.create({
-      data: { ...user, password: hashed },
-    });
-  }));
+  await Promise.all(
+    users.map(async (user) => {
+      const hashed = await bcrypt.hash(user.password, 10);
+      await prisma.user.create({
+        data: { ...user, password: hashed },
+      });
+    })
+  );
 }
 
 async function seedUserAccess() {
   const admin = await prisma.user.findUnique({ where: { login: "admin" } });
   const user = await prisma.user.findUnique({ where: { login: "user" } });
-  const testuser = await prisma.user.findUnique({ where: { login: "testuser" } });
+  const testuser = await prisma.user.findUnique({
+    where: { login: "testuser" },
+  });
 
   if (!admin || !user || !testuser) return;
 
   // user -> Выбор (entity 1)
-  await prisma.users_entities.create({ data: { user_id: user.id, entity_id: 1 } });
-  const userPartners = [5, 6, 7].map((id) => ({ user_id: user.id, partner_id: id }));
+  await prisma.users_entities.create({
+    data: { user_id: user.id, entity_id: 1 },
+  });
+  const userPartners = [5, 6, 7].map((id) => ({
+    user_id: user.id,
+    partner_id: id,
+  }));
   await prisma.users_partners.createMany({ data: userPartners });
 
   // testuser -> Выбор + Зенит
@@ -124,8 +139,18 @@ async function seedSpecs() {
   const specDocs = [];
   for (let i = 1; i <= 36; i++) {
     specDocs.push(
-      { documents_id: i, pay_sum: 1000 + i * 10, expected_date: getRandomDate(), dead_line_date: getRandomDate() },
-      { documents_id: i, pay_sum: 800 + i * 10, expected_date: null, dead_line_date: getRandomDate() },
+      {
+        documents_id: i,
+        pay_sum: 1000 + i * 10,
+        expected_date: getRandomDate(),
+        dead_line_date: getRandomDate(),
+      },
+      {
+        documents_id: i,
+        pay_sum: 800 + i * 10,
+        expected_date: null,
+        dead_line_date: getRandomDate(),
+      }
     );
   }
   await prisma.spec_doc.createMany({ data: specDocs });
@@ -139,6 +164,8 @@ async function seedDocuments() {
     date: new Date(),
     account_sum: 1000 + i * 100,
     account_sum_expression: "",
+    vat_type: true,
+    vat_percent: 20,
     purpose_of_payment: "Оплата услуг",
     bank_account: `IBAN ${i + 1} 12345678901234567890`,
     mfo: "1234",
@@ -154,6 +181,8 @@ async function seedDocuments() {
     date: new Date(),
     account_sum: 3000 + i * 200,
     account_sum_expression: "",
+    vat_type: true,
+    vat_percent: 20,
     purpose_of_payment: "Оплата по договору",
     bank_account: `IBAN ${26 + i + 1} 12345678901234567890`,
     mfo: "3234",

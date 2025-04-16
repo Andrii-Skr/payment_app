@@ -16,12 +16,19 @@ import { EntityGroupRow } from "./entityGroupRow";
 import { useEntityTableLogic } from "@/lib/hooks/useEntityTableLogic";
 import { usePendingPayments } from "@/lib/hooks/usePendingPayments";
 import { apiClient } from "@/services/api-client";
+import { useAccessControl } from "@/lib/hooks/useAccessControl";
+import { Role, Roles } from "@/constants/roles";
 
 export const EntityTable: React.FC<{
   documents: DocumentType[];
   entityNames: Record<number, string>;
   reloadDocuments: () => Promise<void>;
 }> = ({ documents, entityNames, reloadDocuments }) => {
+  const { canAccess } = useAccessControl();
+
+  const canSeeDetailsModal = canAccess([Roles.ADMIN]);
+  const canUseBottomPanel = canAccess(Roles.ADMIN);
+
   const initialDate = new Date(
     new Date().toLocaleString("en-US", { timeZone: "Europe/Kyiv" })
   );
@@ -42,14 +49,15 @@ export const EntityTable: React.FC<{
     sensitivity: "base",
   });
 
-  const { dateRange, groupedByEntity } = useEntityTableLogic({
-    documents,
-    startDate,
-    period,
-    selectedEntity,
-    partnerFilter,
-    collator,
-  });
+  const { dateRange, groupedByEntity, formattedDateRange } =
+    useEntityTableLogic({
+      documents,
+      startDate,
+      period,
+      selectedEntity,
+      partnerFilter,
+      collator,
+    });
 
   const {
     pendingPayments,
@@ -60,7 +68,8 @@ export const EntityTable: React.FC<{
   } = usePendingPayments();
 
   const handleCellClick = (cellUnpaid: PaymentEntry[]) => {
-    if (cellUnpaid.length === 0) return;
+    if (!canSeeDetailsModal || cellUnpaid.length === 0) return;
+
     const paymentDetails: PaymentDetail[] = cellUnpaid.map((entry) => ({
       doc_id: entry.document.id,
       entity_id: entry.document.entity_id,
@@ -73,6 +82,7 @@ export const EntityTable: React.FC<{
       date: entry.document.date,
       pay_sum: entry.spec_doc.pay_sum,
     }));
+
     setModalPaymentDetails(paymentDetails);
     setModalTitle(`Документы для партнёра ${paymentDetails[0].partner_name}`);
     setModalOpen(true);
@@ -125,13 +135,17 @@ export const EntityTable: React.FC<{
       <Table containerClassName="overflow-y-auto max-h-[89vh]">
         <TableHeader className="bg-white sticky top-0 z-40">
           <TableRow>
-            <TableHead className="sticky left-0 z-[30] bg-white w-10">💼</TableHead>
-            <TableHead className="sticky left-10 z-[30] bg-white min-w-[180px]">Контрагент</TableHead>
-            <TableHead className="sticky left-[220px] z-[30] bg-white min-w-[100px]">Остаток</TableHead>
-            {dateRange.map((d, i) => (
-              <TableHead key={i}>
-                {d.toLocaleDateString("ru-RU", { timeZone: "Europe/Kyiv" })}
-              </TableHead>
+            <TableHead className="sticky left-0 z-[30] bg-white w-10">
+              💼
+            </TableHead>
+            <TableHead className="sticky left-10 z-[30] bg-white min-w-[180px]">
+              Контрагент
+            </TableHead>
+            <TableHead className="sticky left-[220px] z-[30] bg-white min-w-[100px]">
+              Остаток
+            </TableHead>
+            {formattedDateRange.map((d, i) => (
+              <TableHead key={i}>{d}</TableHead>
             ))}
           </TableRow>
         </TableHeader>
@@ -151,7 +165,7 @@ export const EntityTable: React.FC<{
         </TableBody>
       </Table>
 
-      {modalOpen && (
+      {modalOpen && canSeeDetailsModal && (
         <PaymentDetailsModal
           isOpen={modalOpen}
           onClose={() => setModalOpen(false)}
@@ -170,13 +184,15 @@ export const EntityTable: React.FC<{
         />
       )}
 
-      <PaymentBottomPanel
-        pendingPayments={pendingPayments}
-        groupedPayments={groupedPayments}
-        overallTotal={overallTotal}
-        onFinalize={finalizePayments}
-        onPay={onPay}
-      />
+      {canUseBottomPanel && (
+        <PaymentBottomPanel
+          pendingPayments={pendingPayments}
+          groupedPayments={groupedPayments}
+          overallTotal={overallTotal}
+          onFinalize={finalizePayments}
+          onPay={onPay}
+        />
+      )}
     </div>
   );
 };

@@ -1,3 +1,4 @@
+"use client";
 import { Combobox } from "@/components/shared";
 import { FormValues } from "@/types/formTypes";
 import { apiClient } from "@/services/api-client";

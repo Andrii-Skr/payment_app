@@ -4,7 +4,7 @@ import * as React from "react";
 import { Combobox } from "@/components/shared";
 import { partner_account_number } from "@prisma/client";
 import { Control, useFormContext } from "react-hook-form";
-import { FormValues } from "@/components/shared/paymentForm";
+import { FormValues } from "@/types/formTypes";
 import { useAccountListStore } from "@/store/store";
 
 type Props = {
@@ -19,7 +19,6 @@ type Props = {
 };
 
 export const AccountsCombobox: React.FC<Props> = ({
-  id,
   name,
   label,
   description,
@@ -54,7 +53,6 @@ export const AccountsCombobox: React.FC<Props> = ({
       placeholder={placeholder}
       empty={empty}
       onChange={onChange}
-      id={id}
       list={list}
     />
   );

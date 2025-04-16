@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { entity, partner_account_number } from "@prisma/client";
-import { FormValues } from "@/components/shared/paymentForm";
+import { FormValues } from "@/types/formTypes";
 import { PaymentDetail } from "../types/types";
 
 type entityState = {

@@ -1,12 +1,39 @@
-import prisma from "@/prisma/prisma-client";
-import { Prisma } from "@prisma/client";
-
 import { NextRequest, NextResponse } from "next/server";
+import prisma from "@/prisma/prisma-client";
+import { apiRoute } from "@/utils/apiRoute";
+import type { Session } from "next-auth";
+import { Roles } from "@/constants/roles";
 
-export async function POST(request: NextRequest) {
+type UpdateDocumentBody = {
+  doc_id: number;
+  entity_id: number;
+  partner_id: number;
+  accountNumber: string;
+  date: string;
+  accountSum: number;
+  accountSumExpression: string;
+  selectedAccount: string;
+  mfo: string;
+  purposeOfPayment: string;
+  payments: {
+    paySum: number;
+    expectedDate: string;
+    deadLineDate: string;
+    isPaid: boolean;
+  }[];
+};
+
+const handler = async (
+  _req: NextRequest,
+  body: UpdateDocumentBody,
+  _params: {},
+  user: Session["user"] | null
+) => {
+  if (!user) {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  }
+
   try {
-    const body = await request.json();
-
     const result = await prisma.documents.update({
       where: { id: body.doc_id },
       data: {
@@ -19,18 +46,18 @@ export async function POST(request: NextRequest) {
         bank_account: body.selectedAccount,
         mfo: body.mfo,
         purpose_of_payment: body.purposeOfPayment,
-        user_id: 1,
+        user_id: parseInt(user.id, 10),
         is_saved: true,
         spec_doc: {
-          // Удаляем старые записи
-          deleteMany: {},
-          // Создаем новые связанные записи для платежей
+          deleteMany: {}, // удаляем старые
           create: body.payments.map(
-            ({ paySum, expectedDate, deadLineDate, isPaid }:{paySum:number,expectedDate:string, deadLineDate:string, isPaid:boolean}) => ({
+            ({ paySum, expectedDate, deadLineDate, isPaid }) => ({
               pay_sum: paySum,
               expected_date: expectedDate
                 ? new Date(expectedDate)
-                : (!deadLineDate ? new Date(body.date) : null),
+                : !deadLineDate
+                ? new Date(body.date)
+                : null,
               dead_line_date: deadLineDate ? new Date(deadLineDate) : null,
               is_paid: isPaid,
             })
@@ -40,7 +67,7 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json(
-      { success: true, message: "Data processed successfully." },
+      { success: true, message: "Data processed successfully.", result },
       { status: 200 }
     );
   } catch (error) {
@@ -50,4 +77,12 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
+};
+
+// ✅ Правильный экспорт с учётом Next.js 15.3.0
+export async function POST(req: NextRequest, context: any) {
+  return apiRoute<UpdateDocumentBody>(handler, {
+    requireAuth: true,
+    roles: [Roles.ADMIN, Roles.MANAGER],
+  })(req, context);
 }

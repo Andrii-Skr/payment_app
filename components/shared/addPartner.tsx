@@ -1,3 +1,4 @@
+"use client";
 import { Container, FormInput, PartnerInput } from "@/components/shared";
 import {
   Button,
@@ -8,13 +9,10 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  Form,
-  Input,
-  Label,
+  Form
 } from "@/components/ui";
 import { cn } from "@/lib/utils";
 import { apiClient } from "@/services/api-client";
-import { useEntityStore } from "@/store/store";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CirclePlus } from "lucide-react";
 import { useForm } from "react-hook-form";

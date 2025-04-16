@@ -1,6 +1,6 @@
 export { Container } from "./container";
 export { Main } from "../main";
-export { EntityLIst } from "./entityList";
+export { EntityList } from "./entityList";
 export { PaymentForm } from "./paymentForm";
 export { TabTitle } from "./tabTitle";
 export { TabsList } from "./tabsList";
@@ -27,3 +27,4 @@ export { AsidePaymentForm } from "./asidePaymentForm";
 export { AutoPaymentTable } from "./autoPaymentTable";
 export { LogoutDropdown } from "./logoutDropdown";
 export { FiltersBar } from "./filtersBar";
+export { AddForm } from "./addForm";

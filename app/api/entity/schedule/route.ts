@@ -1,20 +1,26 @@
+import { NextRequest, NextResponse } from "next/server";
+import { apiRoute } from "@/utils/apiRoute";
+import { hasRole } from "@/lib/access/hasRole";
+import { Roles } from "@/constants/roles";
 import prisma from "@/prisma/prisma-client";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { NextResponse } from "next/server";
+import { fullEntitySelect } from "@/prisma/data/entity";
+import { fullDocumentSelect } from "@/prisma/data/documents";
+import type { Session } from "next-auth";
 
-export async function GET() {
-  const session = await getServerSession(authOptions);
-
-  if (!session || !session.user) {
+const handler = async (
+  _req: NextRequest,
+  _body: null,
+  _params: {},
+  user: Session["user"] | null
+) => {
+  if (!user) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
-  const userId = Number(session.user.id);
-  const role = session.user.role;
+  const userId = Number(user.id);
 
-  if (role === "admin") {
-    // Admin получает всё
+  // 👑 Админ — получает все entity
+  if (hasRole(user.role, Roles.ADMIN)) {
     const entities = await prisma.entity.findMany({
       where: { is_deleted: false },
       select: fullEntitySelect(),
@@ -22,8 +28,8 @@ export async function GET() {
     return NextResponse.json(entities);
   }
 
-  // Получаем связи
-  const user = await prisma.user.findUnique({
+  // 👤 Остальные — по доступным партнёрам / организациям
+  const dbUser = await prisma.user.findUnique({
     where: { id: userId },
     include: {
       users_partners: true,
@@ -31,10 +37,9 @@ export async function GET() {
     },
   });
 
-  const partnerIds = user?.users_partners.map(p => p.partner_id) ?? [];
-  const entityIds = user?.users_entities.map(e => e.entity_id) ?? [];
+  const partnerIds = dbUser?.users_partners.map((p) => p.partner_id) ?? [];
+  const entityIds = dbUser?.users_entities.map((e) => e.entity_id) ?? [];
 
-  // Если есть доступ по партнёрам — отдаём только связанные с ними документы
   if (partnerIds.length > 0) {
     const entities = await prisma.entity.findMany({
       where: { is_deleted: false },
@@ -52,12 +57,10 @@ export async function GET() {
       },
     });
 
-    // Отфильтровываем entity без документов (чтобы не было пустых блоков)
-    const filtered = entities.filter(e => e.documents.length > 0);
+    const filtered = entities.filter((e) => e.documents.length > 0);
     return NextResponse.json(filtered);
   }
 
-  // Если партнёров нет, но есть entity-доступ
   if (entityIds.length > 0) {
     const entities = await prisma.entity.findMany({
       where: {
@@ -80,35 +83,13 @@ export async function GET() {
     return NextResponse.json(entities);
   }
 
-  // Нет доступа ни к чему
   return NextResponse.json([]);
-}
+};
 
-function fullDocumentSelect() {
-  return {
-    id: true,
-    entity_id: true,
-    partner_id: true,
-    account_number: true,
-    account_sum: true,
-    purpose_of_payment: true,
-    bank_account: true,
-    date: true,
-    partners: true,
-    spec_doc: true,
-  };
-}
-
-function fullEntitySelect() {
-  return {
-    id: true,
-    name: true,
-    documents: {
-      where: {
-        is_paid: false,
-        is_deleted: false,
-      },
-      select: fullDocumentSelect(),
-    },
-  };
+// ✅ Совместимая сигнатура для Next.js 15.3.0
+export async function GET(req: NextRequest, context: any) {
+  return apiRoute<null, {}>(handler, {
+    requireAuth: true,
+    roles: [Roles.ADMIN, Roles.MANAGER, Roles.USER],
+  })(req, context);
 }

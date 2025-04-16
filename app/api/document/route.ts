@@ -1,7 +1,9 @@
+import { NextRequest, NextResponse } from "next/server";
+import { apiRoute } from "@/utils/apiRoute";
 import prisma from "@/prisma/prisma-client";
 import { Prisma } from "@prisma/client";
-
-import { NextRequest, NextResponse } from "next/server";
+import { Roles } from "@/constants/roles";
+import type { Session } from "next-auth";
 
 export type DocumentWithRelations = Prisma.documentsGetPayload<{
   include: {
@@ -15,10 +17,17 @@ export type DocumentWithRelations = Prisma.documentsGetPayload<{
   };
 }>;
 
-export async function GET(
-  req: NextRequest
-): Promise<NextResponse<DocumentWithRelations[]>> {
-  const document: DocumentWithRelations[] = await prisma.documents.findMany({
+const handler = async (
+  _req: NextRequest,
+  _body: null,
+  _params: {},
+  user: Session["user"] | null
+) => {
+  if (!user) {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  }
+
+  const documents: DocumentWithRelations[] = await prisma.documents.findMany({
     include: {
       spec_doc: true,
       partners: {
@@ -30,5 +39,13 @@ export async function GET(
     },
   });
 
-  return NextResponse.json(document);
+  return NextResponse.json(documents);
+};
+
+// ✅ Совместимо с App Router + строго типизировано
+export async function GET(req: NextRequest, context: any) {
+  return apiRoute<null, {}>(handler, {
+    requireAuth: true,
+    roles: [Roles.ADMIN, Roles.MANAGER],
+  })(req, context);
 }

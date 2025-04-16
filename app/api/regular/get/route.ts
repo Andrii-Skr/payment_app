@@ -1,7 +1,10 @@
-import prisma from "@/prisma/prisma-client";
-import { auto_payment } from "@prisma/client";
-
 import { NextRequest, NextResponse } from "next/server";
+import prisma from "@/prisma/prisma-client";
+import { apiRoute } from "@/utils/apiRoute";
+import { Roles } from "@/constants/roles";
+import { hasRole } from "@/lib/access/hasRole";
+import { auto_payment } from "@prisma/client";
+import type { Session } from "next-auth";
 
 export type AutoPaymentWithDocs = auto_payment & {
   documents: {
@@ -19,7 +22,23 @@ export type AutoPaymentWithDocs = auto_payment & {
   };
 };
 
-export async function GET(req: NextRequest) {
+const handler = async (
+  _req: NextRequest,
+  _body: null,
+  _params: {},
+  user: Session["user"] | null
+) => {
+  if (!user) {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  }
+
+  if (!hasRole(user.role, Roles.ADMIN)) {
+    return NextResponse.json(
+      { message: "Forbidden: Admins only" },
+      { status: 403 }
+    );
+  }
+
   const result: AutoPaymentWithDocs[] = await prisma.auto_payment.findMany({
     where: { is_deleted: false },
     include: {
@@ -46,4 +65,12 @@ export async function GET(req: NextRequest) {
   });
 
   return NextResponse.json(result);
+};
+
+// ✅ Совместимая сигнатура для App Router (Next.js 15.3.0)
+export async function GET(req: NextRequest, context: any) {
+  return apiRoute<null, {}>(handler, {
+    requireAuth: true,
+    roles: [Roles.ADMIN, Roles.MANAGER],
+  })(req, context);
 }

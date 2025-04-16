@@ -1,26 +1,27 @@
-
-import prisma from "@/prisma/prisma-client";
-
 import { NextRequest, NextResponse } from "next/server";
+import { apiRoute } from "@/utils/apiRoute";
+import type { Session } from "next-auth";
 
-export async function GET(req: NextRequest, { params }: { params: { doc_id: string } }) {
-  const docId = parseInt(params.doc_id, 10);
+type Params = { id: string };
 
-  const document = await prisma.documents.findUnique({
-    where: {
-      id: docId,
-    },
-    include: {
-      spec_doc: true,
-      partners: {
-        select: {
-          name: true,
-          edrpou: true,
-        },
-      },
-    },
-  });
+const handler = async (
+  _req: NextRequest,
+  _body: null,
+  params: Params,
+  _user: Session["user"] | null
+): Promise<NextResponse> => {
+  const entityId = parseInt(params.id, 10);
 
-  return NextResponse.json(document)
+  if (isNaN(entityId)) {
+    return NextResponse.json({ error: "Invalid ID" }, { status: 400 });
+  }
+
+  return NextResponse.json({ entityId });
+};
+
+export async function GET(
+  req: NextRequest,
+  context: { params: Promise<Params> } // ✅ нужно в 15.3.0
+) {
+  return apiRoute<null, Params>(handler)(req, context);
 }
-

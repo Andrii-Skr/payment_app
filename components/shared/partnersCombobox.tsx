@@ -1,5 +1,6 @@
+"use client";
 import { Combobox } from "@/components/shared";
-import { FormValues } from "@/components/shared/paymentForm";
+import { FormValues } from "@/types/formTypes";
 import { apiClient } from "@/services/api-client";
 import { PartnersWithAccounts } from "@/services/partners";
 import { useAccountListStore } from "@/store/store";

@@ -1,6 +1,7 @@
-import { FormValues } from "@/components/shared/paymentForm";
+import { FormValues } from "@/types/formTypes";
 
 export const TransformedObject = (data: any): FormValues => {
+  console.log("data", data);
   return {
     doc_id: data.id ?? undefined,
     entity_id: data.entity_id ?? undefined,
@@ -8,6 +9,8 @@ export const TransformedObject = (data: any): FormValues => {
     date: data.date ?? undefined,
     accountSum: data.account_sum ?? "0",
     accountSumExpression: data.account_sum_expression ?? "",
+    vatType: data.vat_type ?? false,
+    vatPercent: data.vat_percent ?? 0,
     edrpou: data.partners?.edrpou ?? "",
     is_auto_payment: data.is_auto_payment ?? false,
     payments:

@@ -3,7 +3,10 @@ import { apiClient } from "@/services/api-client";
 import { entity } from "@prisma/client";
 import { useEffect, useState } from "react";
 
-const addForm = () => {
+
+type Props = {};
+
+export const AddForm:React.FC<Props> = () => {
   const [entityList, setEntityList] = useState<entity[] | undefined>([]);
 
   useEffect(() => {
@@ -36,4 +39,4 @@ const addForm = () => {
   );
 };
 
-export default addForm;
+

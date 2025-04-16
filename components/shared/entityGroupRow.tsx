@@ -33,7 +33,6 @@ export const EntityGroupRow: React.FC<EntityGroupRowProps> = ({
 }) => {
   const renderRows = rows.map((row, rowIndex) => {
     const { partner, documents } = row;
-    console.log(partner);
     const unpaidEntries: PaymentEntry[] = [];
     const paidEntries: PaymentEntry[] = [];
 
@@ -44,7 +43,7 @@ export const EntityGroupRow: React.FC<EntityGroupRowProps> = ({
         spec.is_paid ? paidEntries.push(entry) : unpaidEntries.push(entry);
       });
     });
-    console.log(getColorForEntity(partner.entity_id))
+
     const totalRemaining = documents.reduce((acc, doc) => {
       const totalAccount = Number(doc.account_sum);
       const totalSpec = doc.spec_doc.reduce(
@@ -63,7 +62,9 @@ export const EntityGroupRow: React.FC<EntityGroupRowProps> = ({
         {rowIndex === 0 && (
           <TableCell
             rowSpan={rows.length}
-            className={`sticky left-0 top-0 z-[20] w-10 border-r bg-red-300 ${getColorForEntity(entityId)} `}
+            className={`sticky left-0 top-0 z-[20] w-10 border-r bg-red-300 ${getColorForEntity(
+              entityId
+            )} `}
             style={{
               writingMode: "vertical-rl",
               transform: "rotate(180deg)",
@@ -76,7 +77,11 @@ export const EntityGroupRow: React.FC<EntityGroupRowProps> = ({
         )}
 
         {/* Контрагент — sticky слева */}
-            <TableCell className={`sticky left-10 z-[10] min-w-[180px] ${getColorForEntity(entityId)} transition-colors group-hover:bg-muted/50`}>
+        <TableCell
+          className={`sticky left-10 z-[10] min-w-[180px] ${getColorForEntity(
+            entityId
+          )} transition-colors group-hover:bg-muted/50`}
+        >
           <button
             className="text-blue-500 hover:underline"
             onClick={() => onPartnerClick(partner, documents)}
@@ -86,7 +91,11 @@ export const EntityGroupRow: React.FC<EntityGroupRowProps> = ({
         </TableCell>
 
         {/* Остаток — тоже sticky */}
-        <TableCell className={`sticky left-[220px] z-[10]  min-w-[100px] ${getColorForEntity(entityId)} transition-colors group-hover:bg-muted/50`}>
+        <TableCell
+          className={`sticky left-[220px] z-[10]  min-w-[100px] ${getColorForEntity(
+            entityId
+          )} transition-colors group-hover:bg-muted/50`}
+        >
           {formatMoney(totalRemaining)}
         </TableCell>
 

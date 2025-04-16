@@ -1,10 +1,6 @@
 import { Main } from "../../components/main";
 
-type Props = {
-  className?: string;
-};
-
-const Tabs: React.FC<Props> = ({ className }) => {
+const Tabs = () => {
   return <Main />;
 };
 

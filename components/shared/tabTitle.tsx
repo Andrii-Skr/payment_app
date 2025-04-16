@@ -2,33 +2,54 @@
 import { Tabs, TabsList, TabsTrigger } from "../ui/tabs";
 import { Container } from "../shared/";
 import { usePathname, useRouter } from "next/navigation";
+import { useAccessControl } from "@/lib/hooks/useAccessControl";
+import { Roles } from "@/constants/roles";
 
 type Props = {
   className?: string;
 };
 
+const tabs = [
+  {
+    value: "/create",
+    label: "Создать Платеж",
+  },
+  {
+    value: "/view",
+    label: "Просмотр графика оплат",
+  },
+  {
+    value: "/regular",
+    label: "Регулярные платежи",
+    allowedRoles: [Roles.ADMIN],
+  },
+  {
+    value: "/add",
+    label: "Админка",
+    allowedRoles: [Roles.ADMIN],
+  },
+];
+
 export const TabTitle: React.FC<Props> = ({ className }) => {
   const router = useRouter();
   const pathname = usePathname();
+  const { canAccess } = useAccessControl();
 
   const handleClick = (value: string) => {
-    router.push(`${value}`);
+    router.push(value);
   };
 
   const getActiveTabValue = () => {
-    if (pathname.startsWith("/create")) {
-      return "/create";
-    } else if (pathname.startsWith("/view")) {
-      return "/view";
-    } else if (pathname.startsWith("/add")) {
-      return "/add";
-    } else if (pathname.startsWith("/regular")) {
-      return "/regular";
-    }
-    return "/create";
+    const active = tabs.find((tab) => pathname.startsWith(tab.value));
+    return active?.value || "/create";
   };
 
   const activeTabValue = getActiveTabValue();
+
+  const visibleTabs = tabs.filter((tab) => {
+    if (!tab.allowedRoles) return true;
+    return canAccess(tab.allowedRoles);
+  });
 
   return (
     <Container className={className}>
@@ -38,12 +59,11 @@ export const TabTitle: React.FC<Props> = ({ className }) => {
         onValueChange={handleClick}
       >
         <TabsList>
-          <TabsTrigger value="/create">Создать Платеж</TabsTrigger>
-          <TabsTrigger value="/view">Просмотр графика оплат</TabsTrigger>
-          <TabsTrigger value="/regular">
-            Регулярные платежи
-          </TabsTrigger>
-          <TabsTrigger value="/add">Админка</TabsTrigger>
+          {visibleTabs.map((tab) => (
+            <TabsTrigger key={tab.value} value={tab.value}>
+              {tab.label}
+            </TabsTrigger>
+          ))}
         </TabsList>
       </Tabs>
     </Container>

@@ -21,14 +21,14 @@ export const PaymentSchedule: React.FC<Props> = ({ className }) => {
     fetchEntities();
   }, []);
 
-  const mergedDocs = entities.flatMap((entity) => entity.documents);
+  const mergedDocs = (entities ?? []).flatMap((entity) => entity.documents ?? []);
   mergedDocs.sort((a, b) => {
     const diff = a.partners.entity_id - b.partners.entity_id;
     if (diff !== 0) return diff;
     return a.partners.name.localeCompare(b.partners.name);
   });
 
-  const entityNames = entities.reduce((acc, entity) => {
+  const entityNames = (entities ?? []).reduce((acc, entity) => {
     acc[entity.id] = entity.name;
     return acc;
   }, {} as Record<number, string>);

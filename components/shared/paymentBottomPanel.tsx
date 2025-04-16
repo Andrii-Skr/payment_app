@@ -52,7 +52,7 @@ export const PaymentBottomPanel: React.FC<PaymentBottomPanelProps> = ({
           >
             <div className="flex justify-end mb-2 font-bold text-lg">
               Общая сумма:{" "}
-              {overallTotal.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, " ")} ₴
+              {overallTotal.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, " ")}
             </div>
             <div className="flex justify-end items-center space-x-2 mt-2">
               <AlertDialog>
