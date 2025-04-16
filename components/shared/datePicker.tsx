@@ -17,7 +17,7 @@ export function DatePicker({
   disabled,
   className,
 }: {
-  selected: Date | null | undefined;
+  selected: Date | undefined;
   onChange: (day: Date | undefined) => void;
   disabled?: boolean;
   className?: string;

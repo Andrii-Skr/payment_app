@@ -9,7 +9,9 @@
       "./node_modules/@types",
       "./types"
     ],
-    "types": ["next-auth"],
+    "types": [
+      "next-auth"
+    ],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
