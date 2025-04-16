@@ -63,9 +63,6 @@ model auto_payment {
     expected_date  DateTime? @db.Timestamp()
     dead_line_date DateTime? @db.Timestamp()
 
-    vat_type Boolean
-    vat_percent Decimal
-
     user_id Int
 
     created_at DateTime? @default(now()) @db.Timestamp()

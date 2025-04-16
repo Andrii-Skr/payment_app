@@ -33,8 +33,6 @@ const handler = async (
       dead_line_date: body.deadLineDate
         ? new Date(body.deadLineDate)
         : undefined,
-      vat_type: body.vatType,
-      vat_percent: body.vatPercent,
       user_id: parseInt(user.id, 10),
     },
   });

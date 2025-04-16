@@ -1,11 +1,12 @@
-// components/payment-form/PurposeAndNoteForm.tsx
 import React from "react";
 import { Container, FormInput } from "@/components/shared";
 import { Control } from "react-hook-form";
 import { FormValues } from "@/types/formTypes";
 import { VatSelector } from "@/components/payment-form/vatSelector";
 
-export const PurposeAndNoteForm: React.FC<{ control: Control<FormValues> }> = ({ control }) => (
+export const PurposeAndNoteForm: React.FC<{ control: Control<FormValues> }> = ({
+  control,
+}) => (
   <Container className="justify-start items-start gap-5">
     <VatSelector control={control} />
     <FormInput

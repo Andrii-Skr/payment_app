@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import { Combobox } from "@/components/shared";
-import { partner_account_number } from "@prisma/client";
 import { Control, useFormContext } from "react-hook-form";
 import { FormValues } from "@/types/formTypes";
 import { useAccountListStore } from "@/store/store";
@@ -15,7 +14,6 @@ type Props = {
   id?: number | undefined;
   placeholder: string;
   empty: string;
-  //accountHandleChange: (id:partner_account_number) => void
 };
 
 export const AccountsCombobox: React.FC<Props> = ({
@@ -25,7 +23,6 @@ export const AccountsCombobox: React.FC<Props> = ({
   control,
   placeholder,
   empty,
-  //accountHandleChange
 }) => {
   const currentAccountList = useAccountListStore(
     (state) => state.currentAccountList
