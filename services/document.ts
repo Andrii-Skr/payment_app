@@ -11,9 +11,9 @@ export const create = async (data: FormValues) => {
   }
 };
 
-type TopLevelKeys = keyof Omit<FormValues, "payments">;
+type TemplateData = Omit<FormValues, "payments">;
 
-export const createTemplate = async (data: TopLevelKeys) => {
+export const createTemplate = async (data: TemplateData) => {
   try {
     await axiosInstance.post("/document/create/template", data);
   } catch (error) {

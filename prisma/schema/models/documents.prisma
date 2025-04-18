@@ -18,6 +18,7 @@ model documents {
     account_sum        Decimal  @db.Decimal(10, 2)
     account_sum_expression String?
     bank_account       String
+    bank_name         String?
     mfo                String?
     purpose_of_payment String
     note String?
@@ -83,6 +84,10 @@ model template {
     date               DateTime @db.Timestamp()
     account_sum        Decimal  @db.Decimal(10, 2)
     account_sum_expression String?
+
+    vat_type Boolean
+    vat_percent Decimal
+
     bank_account       String
     mfo                String
     purpose_of_payment String

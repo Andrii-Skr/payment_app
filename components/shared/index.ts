@@ -28,3 +28,4 @@ export { AutoPaymentTable } from "./autoPaymentTable";
 export { LogoutDropdown } from "./logoutDropdown";
 export { FiltersBar } from "./filtersBar";
 export { AddForm } from "./addForm";
+export { FormTextarea } from "./formTextarea";

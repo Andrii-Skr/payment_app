@@ -5,13 +5,17 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { SaveTemplateDialog, ReplaceTemplateDialog, SumAndDateForm, AsidePaymentForm } from "@/components/shared";
+import {
+  SaveTemplateDialog,
+  ReplaceTemplateDialog,
+  SumAndDateForm,
+  AsidePaymentForm,
+} from "@/components/shared";
 import { formSchema, FormValues } from "@/types/formTypes";
 import { usePaymentFormLogic } from "@/lib/hooks/usePaymentFormLogic";
 import { useTemplateManager } from "@/lib/hooks/useTemplateManager";
 import { parseExpression } from "@/lib/math/parseExpression";
-import {TransformedObject} from "@/lib/transformData/doc";
-
+import { TransformedObject } from "@/lib/transformData/doc";
 
 import {
   TemplateSelector,
@@ -49,7 +53,9 @@ const defaultValues: FormValues = {
   mfo: "",
 };
 
-export const PaymentForm: React.FC<{ className?: string }> = ({ className }) => {
+export const PaymentForm: React.FC<{ className?: string }> = ({
+  className,
+}) => {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues,
@@ -75,11 +81,8 @@ export const PaymentForm: React.FC<{ className?: string }> = ({ className }) => 
     setTemplatesList,
   } = usePaymentFormLogic({ reset, setValue, getValues, defaultValues });
 
-  const {
-    handleSampleChange,
-    handleSaveTemplate,
-    confirmTemplateReplace,
-  } = useTemplateManager({ reset, getValues, entityIdNum, setTemplatesList });
+  const { handleSampleChange, handleSaveTemplate, confirmTemplateReplace } =
+    useTemplateManager({ reset, getValues, entityIdNum, setTemplatesList });
 
   const handleAccountSumBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -111,8 +114,8 @@ export const PaymentForm: React.FC<{ className?: string }> = ({ className }) => 
 
       <Form {...form}>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-1 w-auto">
-          <Alert>
-            <AlertDescription className="w-auto p-1">
+          <Alert className="p-2">
+            <AlertDescription className="w-auto p-0">
               Наименование Плательщика: {entity?.name || "Загрузка..."}
             </AlertDescription>
           </Alert>
@@ -121,7 +124,12 @@ export const PaymentForm: React.FC<{ className?: string }> = ({ className }) => 
             control={control}
             templatesList={templatesList}
             onSampleChange={(i) =>
-              handleSampleChange(i, templatesList, setSelectedTemplate, setIsReplaceDialogOpen)
+              handleSampleChange(
+                i,
+                templatesList,
+                setSelectedTemplate,
+                setIsReplaceDialogOpen
+              )
             }
             onSaveClick={() => setTemplateDialogOpen(true)}
           />
@@ -132,7 +140,7 @@ export const PaymentForm: React.FC<{ className?: string }> = ({ className }) => 
             onDoubleClick={handleAccountSumDoubleClick}
           />
 
-          <PurposeAndNoteForm control={control} />
+          <PurposeAndNoteForm />
 
           <PartnerBlock control={control} entityIdNum={entityIdNum} />
 

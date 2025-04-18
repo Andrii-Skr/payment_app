@@ -17,6 +17,8 @@ import {
   useFormContext,
   useWatch,
 } from "react-hook-form";
+import { useAccessControl } from "@/lib/hooks/useAccessControl";
+import { Roles } from "@/constants/roles";
 
 type Props = {
   control: Control<FormValues>;
@@ -30,17 +32,16 @@ const SumAndDateForm: React.FC<Props> = ({ control, onBlur }) => {
   });
   const { setValue, getValues } = useFormContext<FormValues>();
 
-  // Состояния для AlertDialog
+  const { canAccess } = useAccessControl();
+
   const [alertOpen, setAlertOpen] = React.useState(false);
   const [selectedPaymentIndex, setSelectedPaymentIndex] = React.useState<
     number | null
   >(null);
 
-  // Отслеживаем значения accountSum и payments для вычисления остатка
   const accountSum = useWatch({ control, name: "accountSum" });
   const payments = useWatch({ control, name: "payments" });
 
-  // Суммируем все платежи
   const totalPayments = (payments || []).reduce(
     (acc: number, curr: any) => acc + (Number(curr.paySum) || 0),
     0
@@ -50,7 +51,6 @@ const SumAndDateForm: React.FC<Props> = ({ control, onBlur }) => {
   const rawRemainder = cleanedAccountSum - Number(totalPayments);
   const remainder = Number(rawRemainder.toFixed(2));
 
-  // Обработчик для поля paySum при потере фокуса
   const handlePaySumBlur = (
     e: React.FocusEvent<HTMLInputElement>,
     index: number
@@ -64,7 +64,6 @@ const SumAndDateForm: React.FC<Props> = ({ control, onBlur }) => {
     }
   };
 
-  // Функция для обработки подтверждения в диалоге
   const handleConfirmRegular = () => {
     if (selectedPaymentIndex !== null) {
       const currentPayment = getValues(`payments.${selectedPaymentIndex}`);
@@ -92,10 +91,11 @@ const SumAndDateForm: React.FC<Props> = ({ control, onBlur }) => {
         >
           Добавить платеж
         </Button>
-        <Button type="submit" tabIndex={-1}>Сохранить</Button>
+        <Button type="submit" tabIndex={-1}>
+          Сохранить
+        </Button>
       </Container>
 
-      {/* Вывод вычисленного остатка */}
       <div>
         {fields.map((field, index) => {
           const payment = payments && payments[index];
@@ -150,7 +150,8 @@ const SumAndDateForm: React.FC<Props> = ({ control, onBlur }) => {
                     readOnly={isPaid}
                   />
                 ) : getValues(`payments.${index}.documents_id`) &&
-                  !getValues(`is_auto_payment`) ? (
+                  !getValues(`is_auto_payment`) &&
+                  canAccess(Roles.ADMIN) ? (
                   <Button
                     type="button"
                     tabIndex={-1}
@@ -198,7 +199,6 @@ const SumAndDateForm: React.FC<Props> = ({ control, onBlur }) => {
         })}
       </div>
 
-      {/* Использование вынесенного компонента для AlertDialog */}
       <RegularPaymentDialog
         open={alertOpen}
         paySum={

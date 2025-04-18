@@ -28,6 +28,7 @@ type SaveTemplateDialogProps = {
           <DialogDescription>Введите название шаблона</DialogDescription>
           <Input
             value={sample}
+            className="w-[350px]"
             onChange={(e) => setSample(e.target.value)}
             placeholder="Введите название шаблона"
           />

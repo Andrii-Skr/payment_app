@@ -9,14 +9,32 @@ export type PartnersWithAccounts = partners & {
 
 export const partnersService = async (
   id: number
-): Promise<PartnersWithAccounts[] | undefined> => {
+): Promise<PartnersWithAccounts[] | null> => {
   try {
-    const { data } = await axiosInstance.get<PartnersWithAccounts[]>(
+    const { data } = await axiosInstance.get<PartnersWithAccounts[] | null>(
       `/partners/${id}/`
     );
     return data;
   } catch (error) {
     console.log(error);
+    return null;
+  }
+};
+
+export const getByEdrpou = async (
+  edrpou: string,
+  entity_id: number
+): Promise<partners | null> => {
+  try {
+    const { data } = await axiosInstance.get<partners | null>(
+      `/partners/check-edrpou`,
+      { params: { edrpou, entity_id } }
+    );
+
+    return data;
+  } catch (error) {
+    console.log("Ошибка при проверке ЕДРПОУ:", error);
+    return null;
   }
 };
 export const createPartner = async (data: PartnerValues) => {

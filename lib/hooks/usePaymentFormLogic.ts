@@ -6,6 +6,7 @@ import { TransformedObject } from "@/lib/transformData/doc";
 import type { entity, template } from "@prisma/client";
 import { DocumentWithPartner } from "@/app/api/document/entity/[entity_id]/route";
 import { FormValues } from "@/types/formTypes";
+import { toast } from "@/lib/hooks/use-toast";
 
 export function usePaymentFormLogic({
   reset,
@@ -53,15 +54,23 @@ export function usePaymentFormLogic({
   }, [docIdQuery, reset]);
 
   const onSubmit = async (data: FormValues) => {
-    if (!data.doc_id) {
-      await apiClient.document.create(data);
-      const updatedDocs = await apiClient.document.getByEntity(entityIdNum);
-      if (updatedDocs) setDocs(updatedDocs);
-    } else {
-      await apiClient.document.update(data);
-      router.push(`/create/payment-form/${entityIdNum}`);
+    try {
+      if (!data.doc_id) {
+        await apiClient.document.create(data);
+        const updatedDocs = await apiClient.document.getByEntity(entityIdNum);
+        if (updatedDocs) setDocs(updatedDocs);
+        toast.success("Документ создан успешно.");
+      } else {
+        await apiClient.document.update(data);
+        toast.success("Документ обновлён.");
+        router.push(`/create/payment-form/${entityIdNum}`);
+      }
+
+      reset({ ...defaultValues, entity_id: entityIdNum });
+    } catch (error) {
+      console.error("Ошибка при сохранении документа:", error);
+      toast.error("Ошибка при сохранении документа.");
     }
-    reset({ ...defaultValues, entity_id: entityIdNum });
   };
 
   return {

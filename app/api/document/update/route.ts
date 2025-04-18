@@ -12,6 +12,8 @@ type UpdateDocumentBody = {
   date: string;
   accountSum: number;
   accountSumExpression: string;
+  vatType: boolean;
+  vatPercent: number;
   selectedAccount: string;
   mfo: string;
   purposeOfPayment: string;
@@ -43,6 +45,8 @@ const handler = async (
         date: new Date(body.date),
         account_sum: body.accountSum,
         account_sum_expression: body.accountSumExpression,
+        vat_type: body.vatType,
+        vat_percent: body.vatType ? body.vatPercent : 0,
         bank_account: body.selectedAccount,
         mfo: body.mfo,
         purpose_of_payment: body.purposeOfPayment,

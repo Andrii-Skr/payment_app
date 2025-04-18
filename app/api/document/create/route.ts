@@ -45,7 +45,7 @@ const handler = async (
       account_sum_expression: body.accountSumExpression,
       bank_account: body.selectedAccount,
       vat_type: body.vatType,
-      vat_percent: body.vatPercent,
+      vat_percent: body.vatType ? body.vatPercent : 0,
       mfo: body.mfo,
       purpose_of_payment: body.purposeOfPayment,
       user_id: parseInt(user.id, 10),
@@ -70,7 +70,6 @@ const handler = async (
   );
 };
 
-// ✅ Обёртка, чтобы билд прошёл
 export async function POST(req: NextRequest, context: any) {
   return apiRoute<CreateDocumentBody>(handler, {
     requireAuth: true,

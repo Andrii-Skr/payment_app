@@ -11,6 +11,7 @@ import {
   DialogTrigger,
   Form
 } from "@/components/ui";
+import { toast } from "@/lib/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { apiClient } from "@/services/api-client";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -46,12 +47,29 @@ export const AddPartner: React.FC<Props> = ({ className, entityIdNum }) => {
   });
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
-    console.log("Форма отправлена:", data);
-    await apiClient.partners.createPartner(data);
+    try {
+      const existing = await apiClient.partners.getByEdrpou(data.edrpou, data.entity_id);
+
+      if (existing) {
+        toast.error("Контрагент с таким ЕДРПОУ уже существует.");
+        return;
+      }
+
+      await apiClient.partners.createPartner(data);
+      toast.success("Контрагент добавлен.");
+      form.reset(defaultValues); // сброс после успешного добавления
+    } catch (err) {
+      console.error("Ошибка при создании контрагента:", err);
+      toast.error("Произошла ошибка при добавлении.");
+    }
   };
 
   return (
-    <Dialog>
+    <Dialog
+      onOpenChange={(isOpen) => {
+        if (isOpen) form.reset(defaultValues); // сброс при открытии
+      }}
+    >
       <DialogTrigger asChild>
         <Button type="button" variant="ghost" tabIndex={-1} className={cn("", className)}>
           <CirclePlus className="mr-2" />
@@ -66,7 +84,6 @@ export const AddPartner: React.FC<Props> = ({ className, entityIdNum }) => {
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          {/* Обработчик onSubmit останавливает всплытие события, чтобы избежать триггера валидации родительской формы */}
           <form
             onSubmit={(e) => {
               e.stopPropagation();
@@ -90,7 +107,7 @@ export const AddPartner: React.FC<Props> = ({ className, entityIdNum }) => {
                 placeholder="Введите ЕДРПОУ"
               />
             </Container>
-            <Container className="justify-start gap-2">
+            <Container className="justify-start ml-12 gap-2">
               <PartnerInput
                 control={form.control}
                 name="accountNumber"

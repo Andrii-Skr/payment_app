@@ -11,6 +11,8 @@ type TemplateBody = {
   partnerName: string;
   edrpou: string;
   accountNumber: string;
+  vatPercent: number;
+  vatType: boolean;
   date: string;
   accountSum: number;
   accountSumExpression: string;
@@ -38,6 +40,8 @@ const handler = async (
       partner_name: body.partnerName,
       edrpou: body.edrpou,
       account_number: body.accountNumber,
+      vat_percent: Number(body.vatPercent),
+      vat_type: body.vatType,
       date: new Date(body.date),
       account_sum: body.accountSum,
       account_sum_expression: body.accountSumExpression,

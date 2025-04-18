@@ -12,8 +12,10 @@ export const VatSelector: React.FC<{ control: Control<FormValues> }> = ({
   const vatType = useWatch({ control, name: "vatType" });
 
   return (
-    <div className="flex flex-col gap-3 pl-1">
-      <FormLabel className="text-sm font-medium">Тип налогообложения</FormLabel>
+    <div className="flex flex-col gap-3 pl-1 mr-5">
+      <FormLabel className="mt-[2px] text-sm font-medium">
+        Тип налогообложения
+      </FormLabel>
 
       <Container className="mt-[-10px] justify-start items-center gap-2">
         <Button
@@ -28,15 +30,20 @@ export const VatSelector: React.FC<{ control: Control<FormValues> }> = ({
           НДС
         </Button>
 
-        <FormInput
-          control={control}
-          name="vatPercent"
-          className="no-spin w-14"
-          label=""
-          placeholder="%"
-          type="number"
-          disabled={vatType !== true}
-        />
+        <div className="relative">
+          <FormInput
+            control={control}
+            name="vatPercent"
+            className="no-spin w-14 pr-5 pl-0 text-right"
+            label=""
+            placeholder="0"
+            type="number"
+            disabled={vatType !== true}
+          />
+          <span className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 text-sm pointer-events-none">
+            %
+          </span>
+        </div>
 
         <Button
           type="button"

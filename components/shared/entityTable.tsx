@@ -6,7 +6,7 @@ import {
   TableRow,
   TableHead,
   TableBody,
-} from "@/components/ui/table";
+} from "@/components/ui/";
 import { PaymentDetailsModal } from "./paymentDetailsModal";
 import { PartnerDocumentsModal } from "./partnerDocumentsModal";
 import { PaymentBottomPanel } from "./paymentBottomPanel";
@@ -17,7 +17,8 @@ import { useEntityTableLogic } from "@/lib/hooks/useEntityTableLogic";
 import { usePendingPayments } from "@/lib/hooks/usePendingPayments";
 import { apiClient } from "@/services/api-client";
 import { useAccessControl } from "@/lib/hooks/useAccessControl";
-import { Role, Roles } from "@/constants/roles";
+import { Roles } from "@/constants/roles";
+import { toast } from "@/lib/hooks/use-toast";
 
 export const EntityTable: React.FC<{
   documents: DocumentType[];
@@ -37,10 +38,16 @@ export const EntityTable: React.FC<{
   const [period, setPeriod] = useState<number>(14);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalTitle, setModalTitle] = useState("");
-  const [modalPaymentDetails, setModalPaymentDetails] = useState<PaymentDetail[]>([]);
+  const [modalPaymentDetails, setModalPaymentDetails] = useState<
+    PaymentDetail[]
+  >([]);
   const [partnerModalOpen, setPartnerModalOpen] = useState(false);
-  const [selectedPartner, setSelectedPartner] = useState<DocumentType["partners"] | null>(null);
-  const [selectedPartnerDocuments, setSelectedPartnerDocuments] = useState<DocumentType[]>([]);
+  const [selectedPartner, setSelectedPartner] = useState<
+    DocumentType["partners"] | null
+  >(null);
+  const [selectedPartnerDocuments, setSelectedPartnerDocuments] = useState<
+    DocumentType[]
+  >([]);
   const [selectedEntity, setSelectedEntity] = useState<number | "all">("all");
   const [partnerFilter, setPartnerFilter] = useState("");
 
@@ -104,17 +111,29 @@ export const EntityTable: React.FC<{
   };
 
   const finalizePayments = async () => {
-    const toUpdate = pendingPayments.map((p) => p.spec_doc_id);
-    await apiClient.specDoc.updatePaymentsById({ specDocIds: toUpdate });
-    clearPendingPayments();
-    await reloadDocuments();
+    try {
+      const toUpdate = pendingPayments.map((p) => p.spec_doc_id);
+      await apiClient.specDoc.updatePaymentsById({ specDocIds: toUpdate });
+      clearPendingPayments();
+      await reloadDocuments();
+      toast.success("Платежи успешно завершены.");
+    } catch (error) {
+      console.error("Ошибка при завершении платежей:", error);
+      toast.error("Ошибка при завершении платежей.");
+    }
   };
 
   const onPay = async () => {
-    const toUpdate = pendingPayments.map((p) => p.spec_doc_id);
-    await apiClient.specDoc.updatePaymentsById({ specDocIds: toUpdate });
-    clearPendingPayments();
-    await reloadDocuments();
+    try {
+      const toUpdate = pendingPayments.map((p) => p.spec_doc_id);
+      await apiClient.specDoc.updatePaymentsById({ specDocIds: toUpdate });
+      clearPendingPayments();
+      await reloadDocuments();
+      toast.success("Платежи успешно оплачены.");
+    } catch (error) {
+      console.error("Ошибка при оплате платежей:", error);
+      toast.error("Ошибка при оплате платежей.");
+    }
   };
 
   return (
