@@ -1,4 +1,4 @@
-import { PartnerValues } from "@/components/shared/addPartner";
+import { PartnerValues } from "@/components/payment-form/addPartner";
 import axiosInstance from "@/services/instance";
 import { partners } from "@prisma/client";
 import { partner_account_number } from "@prisma/client";

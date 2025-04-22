@@ -42,9 +42,30 @@ async function seedRoles() {
 async function seedEntities() {
   await prisma.entity.createMany({
     data: [
-      { name: "Выбор", type: 1, edrpou: "12345678" },
-      { name: "Зенит", type: 1, edrpou: "22345678" },
-      { name: "Аврора", type: 1, edrpou: "32345678" },
+      {
+        name: "Выбор",
+        type: 1,
+        edrpou: "12345678",
+        bank_account: "UA123456780000000000000001",
+        bank_name: "Ощадбанк",
+        mfo: "300465",
+      },
+      {
+        name: "Зенит",
+        type: 1,
+        edrpou: "22345678",
+        bank_account: "UA123456780000000000000002",
+        bank_name: "ПриватБанк",
+        mfo: "305299",
+      },
+      {
+        name: "Аврора",
+        type: 1,
+        edrpou: "32345678",
+        bank_account: "UA123456780000000000000003",
+        bank_name: "ПУМБ",
+        mfo: "334851",
+      },
     ],
   });
 }
@@ -64,41 +85,6 @@ async function seedUsers() {
       });
     })
   );
-}
-
-async function seedUserAccess() {
-  const admin = await prisma.user.findUnique({ where: { login: "admin" } });
-  const user = await prisma.user.findUnique({ where: { login: "user" } });
-  const testuser = await prisma.user.findUnique({
-    where: { login: "testuser" },
-  });
-
-  if (!admin || !user || !testuser) return;
-
-  // user -> Выбор (entity 1)
-  await prisma.users_entities.create({
-    data: { user_id: user.id, entity_id: 1 },
-  });
-  const userPartners = [5, 6, 7].map((id) => ({
-    user_id: user.id,
-    partner_id: id,
-  }));
-  await prisma.users_partners.createMany({ data: userPartners });
-
-  // testuser -> Выбор + Зенит
-  await prisma.users_entities.createMany({
-    data: [
-      { user_id: testuser.id, entity_id: 1 },
-      { user_id: testuser.id, entity_id: 2 },
-    ],
-  });
-
-  const testuserPartners = [8, 9, 10, 1, 2, 3, 4].map((id) => ({
-    user_id: testuser.id,
-    partner_id: id,
-  }));
-
-  await prisma.users_partners.createMany({ data: testuserPartners });
 }
 
 async function seedPartners() {
@@ -126,13 +112,61 @@ async function seedPartners() {
   const allPartners = [...zenitPartners, ...viborPartners, ...auroraPartners];
   await prisma.partners.createMany({ data: allPartners });
 
-  const bankAccounts = allPartners.map((_, i) => ({
+  const partnerAccounts = allPartners.map((_, i) => ({
     partner_id: i + 1,
-    bank_account: `IBAN ${i + 1} 12345678901234567890`,
-    mfo: "3234",
+    bank_account: `UA00000${i + 1}1234567890123456`,
+    bank_name: `Bank ${i + 1}`,
+    mfo: `3000${(i % 10) + 1}`,
+    is_default: true,
   }));
 
-  await prisma.partner_account_number.createMany({ data: bankAccounts });
+  await prisma.partner_account_number.createMany({ data: partnerAccounts });
+}
+
+async function seedDocuments() {
+  const allAccounts = await prisma.partner_account_number.findMany();
+  const getAccountByPartnerId = (partner_id: number) =>
+    allAccounts.find((acc) => acc.partner_id === partner_id)?.id || 1;
+
+  const baseDocs = Array.from({ length: 31 }, (_, i) => {
+    const partner_id = i + 1;
+    return {
+      entity_id: i < 4 ? 2 : 1,
+      partner_id,
+      account_number: `Счет № ${i + 1}`,
+      date: new Date(),
+      account_sum: 1000 + i * 100,
+      account_sum_expression: "",
+      vat_type: true,
+      vat_percent: 20,
+      purpose_of_payment: "Оплата услуг",
+      partner_account_number_id: getAccountByPartnerId(partner_id),
+      is_saved: true,
+      is_paid: false,
+      user_id: 1,
+    };
+  });
+
+  const auroraDocs = Array.from({ length: 5 }, (_, i) => {
+    const partner_id = 26 + i + 1;
+    return {
+      entity_id: 3,
+      partner_id,
+      account_number: `Счет Аврора № ${i + 1}`,
+      date: new Date(),
+      account_sum: 3000 + i * 200,
+      account_sum_expression: "",
+      vat_type: true,
+      vat_percent: 20,
+      purpose_of_payment: "Оплата по договору",
+      partner_account_number_id: getAccountByPartnerId(partner_id),
+      is_saved: true,
+      is_paid: false,
+      user_id: 1,
+    };
+  });
+
+  await prisma.documents.createMany({ data: [...baseDocs, ...auroraDocs] });
 }
 
 async function seedSpecs() {
@@ -156,43 +190,28 @@ async function seedSpecs() {
   await prisma.spec_doc.createMany({ data: specDocs });
 }
 
-async function seedDocuments() {
-  const baseDocs = Array.from({ length: 31 }, (_, i) => ({
-    entity_id: i < 4 ? 2 : 1,
-    partner_id: i + 1,
-    account_number: `Счет № ${i + 1}`,
-    date: new Date(),
-    account_sum: 1000 + i * 100,
-    account_sum_expression: "",
-    vat_type: true,
-    vat_percent: 20,
-    purpose_of_payment: "Оплата услуг",
-    bank_account: `IBAN ${i + 1} 12345678901234567890`,
-    mfo: "1234",
-    is_saved: true,
-    is_paid: false,
-    user_id: 1,
-  }));
+async function seedUserAccess() {
+  const admin = await prisma.user.findUnique({ where: { login: "admin" } });
+  const user = await prisma.user.findUnique({ where: { login: "user" } });
+  const testuser = await prisma.user.findUnique({ where: { login: "testuser" } });
+  if (!admin || !user || !testuser) return;
 
-  const auroraDocs = Array.from({ length: 5 }, (_, i) => ({
-    entity_id: 3,
-    partner_id: 26 + i + 1,
-    account_number: `Счет Аврора № ${i + 1}`,
-    date: new Date(),
-    account_sum: 3000 + i * 200,
-    account_sum_expression: "",
-    vat_type: true,
-    vat_percent: 20,
-    purpose_of_payment: "Оплата по договору",
-    bank_account: `IBAN ${26 + i + 1} 12345678901234567890`,
-    mfo: "3234",
-    is_saved: true,
-    is_paid: false,
-    user_id: 1,
-  }));
+  await prisma.users_entities.create({ data: { user_id: user.id, entity_id: 1 } });
+  const userPartners = [5, 6, 7].map((id) => ({ user_id: user.id, partner_id: id }));
+  await prisma.users_partners.createMany({ data: userPartners });
 
-  const allDocs = [...baseDocs, ...auroraDocs];
-  await prisma.documents.createMany({ data: allDocs });
+  await prisma.users_entities.createMany({
+    data: [
+      { user_id: testuser.id, entity_id: 1 },
+      { user_id: testuser.id, entity_id: 2 },
+    ],
+  });
+
+  const testuserPartners = [8, 9, 10, 1, 2, 3, 4].map((id) => ({
+    user_id: testuser.id,
+    partner_id: id,
+  }));
+  await prisma.users_partners.createMany({ data: testuserPartners });
 }
 
 async function main() {

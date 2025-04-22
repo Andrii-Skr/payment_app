@@ -23,11 +23,14 @@ model partner_account_number {
     partner_id Int
 
     partners partners @relation(fields: [partner_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+    documents              documents[]
+    template template[]
 
 
     bank_account String
-    bank_name   String?
+    bank_name   String
     mfo          String
+
     is_default   Boolean @default(false)
 
     created_at DateTime? @default(now()) @db.Timestamp()
