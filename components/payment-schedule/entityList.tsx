@@ -8,7 +8,6 @@ import { apiClient } from "@/services/api-client";
 import { entity } from "@prisma/client";
 import React from "react";
 
-
 type Props = {
   className?: string;
 };
@@ -18,10 +17,9 @@ export const EntityList: React.FC<Props> = ({ className }) => {
   //const updateCurrentEntity = useEntityStore((state ) => state.updateCurrentEntity)
   const router = useRouter();
 
-
   React.useEffect(() => {
     apiClient.entity.entityService().then((data) => {
-      setEntityList(data);
+      if (data) setEntityList(data);
     });
   }, []);
   const handleClick = (entity: entity) => {

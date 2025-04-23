@@ -1,3 +1,4 @@
+import { partner_account_number } from '@prisma/client';
 import prisma from "@/prisma/prisma-client";
 import { NextRequest, NextResponse } from "next/server";
 import { apiRoute } from "@/utils/apiRoute";
@@ -13,14 +14,13 @@ type Payment = {
 type CreateDocumentBody = {
   entity_id: number;
   partner_id: number;
+  partner_account_number_id: number;
   accountNumber: string;
   date: string;
   accountSum: number;
   accountSumExpression: string;
   vatType: boolean;
   vatPercent: number;
-  selectedAccount: string;
-  mfo: string;
   purposeOfPayment: string;
   payments: Payment[];
 };
@@ -43,10 +43,9 @@ const handler = async (
       date: new Date(body.date),
       account_sum: body.accountSum,
       account_sum_expression: body.accountSumExpression,
-      bank_account: body.selectedAccount,
+      partner_account_number_id: body.partner_account_number_id,
       vat_type: body.vatType,
       vat_percent: body.vatType ? body.vatPercent : 0,
-      mfo: body.mfo,
       purpose_of_payment: body.purposeOfPayment,
       user_id: parseInt(user.id, 10),
       is_saved: true,

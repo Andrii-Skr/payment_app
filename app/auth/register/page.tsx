@@ -9,7 +9,8 @@ import {
     Button,
     Label,
 } from "@/components/ui";
-import { toast } from "sonner"; // по желанию, если хочешь всплывающие уведомления
+import { toast } from "@/lib/hooks/use-toast";
+
 
 export default function Register() {
   const [login, setLogin] = useState("");

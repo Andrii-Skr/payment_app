@@ -1,5 +1,4 @@
-// hooks/usePaymentFormLogic.ts
-import { useEffect, useState } from "react";
+import React from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { apiClient } from "@/services/api-client";
 import { TransformedObject } from "@/lib/transformData/doc";
@@ -7,6 +6,7 @@ import type { entity, template } from "@prisma/client";
 import { DocumentWithPartner } from "@/app/api/document/entity/[entity_id]/route";
 import { FormValues } from "@/types/formTypes";
 import { toast } from "@/lib/hooks/use-toast";
+import { TemplateWithBankDetails } from "@/app/api/document/get/template/[entity_id]/route";
 
 export function usePaymentFormLogic({
   reset,
@@ -25,15 +25,16 @@ export function usePaymentFormLogic({
   const docIdQuery = searchParams.get("doc_id");
   const entityIdNum = Number(entity_id);
 
-  const [entity, setEntity] = useState<entity | null>(null);
-  const [templatesList, setTemplatesList] = useState<template[]>([]);
-  const [docs, setDocs] = useState<DocumentWithPartner[]>([]);
+  const [entity, setEntity] = React.useState<entity | null>(null);
+  const [templatesList, setTemplatesList] = React.useState<TemplateWithBankDetails[]>([]);
+  const [docs, setDocs] = React.useState<DocumentWithPartner[]>([]);
 
-  const [isTemplateDialogOpen, setTemplateDialogOpen] = useState(false);
-  const [isReplaceDialogOpen, setIsReplaceDialogOpen] = useState(false);
-  const [selectedTemplate, setSelectedTemplate] = useState<template | null>(null);
+  const [isTemplateDialogOpen, setTemplateDialogOpen] = React.useState(false);
+  const [isReplaceDialogOpen, setIsReplaceDialogOpen] = React.useState(false);
+  const [selectedTemplate, setSelectedTemplate] =
+    React.useState<TemplateWithBankDetails | null>(null);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (entityIdNum) {
       apiClient.entity.getEntityById(entityIdNum).then(setEntity);
       apiClient.document.getTemplateById(entityIdNum).then(setTemplatesList);
@@ -41,16 +42,21 @@ export function usePaymentFormLogic({
     }
   }, [entityIdNum]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     setValue("entity_id", entityIdNum);
   }, [entityIdNum, setValue]);
 
-  useEffect(() => {
-    if (docIdQuery) {
-      apiClient.document.getById(Number(docIdQuery)).then((data) => {
-        if (data) reset(TransformedObject(data));
-      });
-    }
+  React.useEffect(() => {
+    const fetchDocument = async () => {
+      if (!docIdQuery) return;
+
+      const data = await apiClient.document.getById(Number(docIdQuery));
+      if (data != null) {
+        reset(TransformedObject(data!));
+      }
+    };
+
+    fetchDocument();
   }, [docIdQuery, reset]);
 
   const onSubmit = async (data: FormValues) => {

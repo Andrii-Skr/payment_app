@@ -1,21 +1,26 @@
+import { EntityWithAll } from "@/app/api/entity/schedule/route";
 import axiosInstance from "@/services/instance";
 import { entity } from "@prisma/client";
 
-export const entityService = async (): Promise<entity[] | undefined> => {
+
+
+export const entityService = async (): Promise<entity[] | null> => {
   try {
     const { data } = await axiosInstance.get<entity[]>("/entity");
     return data;
   } catch (error) {
     console.log(error);
+    return null;
   }
 };
 
-export const entitySchedule = async () => {
+export const entitySchedule = async ():Promise<EntityWithAll[] | null>  => {
   try {
-    const { data } = await axiosInstance.get(`/entity/schedule`);
+    const { data } = await axiosInstance.get<EntityWithAll[]>(`/entity/schedule`);
     return data;
   } catch (error) {
     console.log(error);
+    return null;
   }
 };
 

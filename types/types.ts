@@ -1,53 +1,14 @@
-// Тип для отдельного платежного документа (специфического платежа)
-export type SpecDocType = {
-  id: number;
-  pay_sum: number;
-  // Если задан, то отображается в первую очередь. Если отсутствует, используется dead_line_date
-  expected_date?: string; // ISO-формат даты (опционально)
-  dead_line_date?: string; // ISO-формат даты (опционально)
-  paid_date?: string; // ISO-формат даты (опционально)
-  is_paid: boolean;
-};
+import { EntityWithAll } from "@/app/api/entity/schedule/route";
 
-// Тип для информации о контрагенте
-export type PartnerType = {
-  id: number;
-  name: string;
-  type: string;
-  edrpou: string;
-  group: any[];
-  entity_id: number; // идентификатор сущности, к которой принадлежит контрагент
-  created_at: string;
-  updated_at: string;
-  is_deleted: boolean;
-};
+export type DocumentType = EntityWithAll["documents"][number];
 
-// Тип для документа (счёта)
-export type DocumentType = {
-  id: number;
-  entity_id: number;
-  partner_id: number;
-  account_number: string;
-  purpose_of_payment: string;
-  date: string;
-  bank_account: string;
-  account_sum: number;
-  partners: PartnerType;
-  spec_doc: SpecDocType[];
-};
+export type PartnerType = DocumentType["partners"];
 
-// Тип для сущности, которая содержит документы
-export type EntityType = {
-  id: number;
-  name: string;
-  documents: DocumentType[];
-};
+export type SpecDocType = DocumentType["spec_doc"][number];;
 
-// Тип для записи платежей, используемый в таблице EntityTable.
-// Поле isExpected показывает, используется ли expected_date (true) или применяется dead_line_date (false)
 export type PaymentEntry = {
-  spec_doc: SpecDocType;
   document: DocumentType;
+  spec_doc: DocumentType["spec_doc"][number];
   isExpected: boolean;
 };
 
@@ -56,11 +17,19 @@ export type PaymentDetail = {
   doc_id: number;
   entity_id: number;
   spec_doc_id: number;
+  partner_entity_id: number;
+
   partner_id: number;
   partner_name: string;
+
+  partner_account_number: string;
+  partner_account_bank_name: string;
+  partner_account_mfo: string;
+
   account_number: string;
   purpose_of_payment: string;
-  date: string;
-  dead_line_date?: string;
+
+  dead_line_date: Date | null;
+  date: Date;
   pay_sum: number;
 };

@@ -27,7 +27,8 @@ import { apiClient } from "@/services/api-client";
 
 const defaultValues: FormValues = {
   doc_id: undefined,
-  entity_id: 0,
+  entity_id: undefined,
+  partner_account_number_id: undefined,
   sample: "",
   accountNumber: "",
   accountSum: "0",
@@ -46,11 +47,12 @@ const defaultValues: FormValues = {
     },
   ],
   selectedAccount: "",
-  partner_id: 0,
+  mfo: "",
+  bank_name: "",
+  partner_id: undefined,
   partnerName: "",
   purposeOfPayment: "",
   note: "",
-  mfo: "",
 };
 
 export const PaymentForm: React.FC<{ className?: string }> = ({
@@ -102,10 +104,11 @@ export const PaymentForm: React.FC<{ className?: string }> = ({
     if (expr) setValue("accountSum", expr);
   };
 
-  const handleDocRowClick = (docId: number) => {
-    apiClient.document.getById(docId).then((data) => {
-      if (data) reset(TransformedObject(data));
-    });
+  const handleDocRowClick = async (docId: number) => {
+    const data = await apiClient.document.getById(docId);
+    if (data != null) {
+      reset(TransformedObject(data));
+    }
   };
 
   return (

@@ -1,41 +1,37 @@
+import { DocumentWithIncludes } from "@/app/api/document/[doc_id]/route";
 import { FormValues } from "@/types/formTypes";
 
-export const TransformedObject = (data: any): FormValues => {
-  console.log("data", data);
+export const TransformedObject = (data: DocumentWithIncludes): FormValues => {
+  
   return {
-    doc_id: data.id ?? undefined,
-    entity_id: data.entity_id ?? undefined,
+    doc_id: data.id,
+    entity_id: data.entity_id,
     accountNumber: data.account_number ?? "",
-    date: data.date ?? undefined,
-    accountSum: data.account_sum ?? "0",
+    date: data.date,
+    accountSum: data.account_sum?.toString() ?? "0",
     accountSumExpression: data.account_sum_expression ?? "",
-    vatType: data.vat_type ?? false,
-    vatPercent: data.vat_percent ?? 0,
+    vatType: data.vat_type,
+    vatPercent: data.vat_percent != null ? Number(data.vat_percent) : undefined,
     edrpou: data.partners?.edrpou ?? "",
-    is_auto_payment: data.is_auto_payment ?? false,
-    payments:
-      data.spec_doc?.map(
-        (specDoc: {
-          documents_id: number;
-          pay_sum: number;
-          expected_date: string;
-          dead_line_date: string;
-          is_paid: boolean;
-          paid_date: string;
-        }) => ({
-          documents_id: specDoc.documents_id ?? undefined,
-          paySum: specDoc.pay_sum ?? 0,
-          expectedDate: specDoc.expected_date ?? undefined,
-          deadLineDate: specDoc.dead_line_date ?? undefined,
-          isPaid: specDoc.is_paid ?? false,
-          paidDate: specDoc.paid_date ?? undefined,
-        })
-      ) ?? [],
-    selectedAccount: data.bank_account ?? "",
-    partner_id: data.partner_id != null ? Number(data.partner_id) : 0,
+    is_auto_payment: data.is_auto_payment,
+
+    payments: data.spec_doc?.map((specDoc) => ({
+      documents_id: specDoc.documents_id,
+      paySum: Number(specDoc.pay_sum),
+      expectedDate: specDoc.expected_date,
+      deadLineDate: specDoc.dead_line_date,
+      isPaid: specDoc.is_paid,
+      paidDate: specDoc.paid_date,
+    })) ?? [],
+
+    partner_account_number_id: data.partner_account_number_id ?? undefined,
+    selectedAccount: data.partner_account_number?.bank_account ?? "",
+    mfo: data.partner_account_number?.mfo ?? "",
+    bank_name: data.partner_account_number?.bank_name ?? "",
+
+    partner_id: data.partner_id ?? undefined,
     partnerName: data.partners?.name ?? "",
     purposeOfPayment: data.purpose_of_payment ?? "",
-    mfo: data.mfo ?? "",
     note: data.note ?? "",
   };
 };

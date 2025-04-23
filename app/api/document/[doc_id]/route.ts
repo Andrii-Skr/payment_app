@@ -5,6 +5,31 @@ import type { Session } from "next-auth";
 
 type Params = { doc_id: string };
 
+const getDocument = async (docId: number) => {
+  return await prisma.documents.findUnique({
+    where: { id: docId },
+    include: {
+      spec_doc: true,
+      partners: {
+        select: {
+          name: true,
+          edrpou: true,
+        },
+      },
+      partner_account_number: {
+        select: {
+          bank_account: true,
+          bank_name: true,
+          mfo: true,
+        },
+      },
+    },
+  });
+};
+
+export type DocumentWithIncludesNullable = Awaited<ReturnType<typeof getDocument>>;
+export type DocumentWithIncludes = NonNullable<DocumentWithIncludesNullable>;
+
 const handler = async (
   _req: NextRequest,
   _body: null,
@@ -17,18 +42,7 @@ const handler = async (
     return NextResponse.json({ error: "Invalid document ID" }, { status: 400 });
   }
 
-  const document = await prisma.documents.findUnique({
-    where: { id: docId },
-    include: {
-      spec_doc: true,
-      partners: {
-        select: {
-          name: true,
-          edrpou: true,
-        },
-      },
-    },
-  });
+  const document: DocumentWithIncludesNullable = await getDocument(docId);
 
   if (!document) {
     return NextResponse.json({ error: "Document not found" }, { status: 404 });

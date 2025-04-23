@@ -2,6 +2,7 @@ import { apiClient } from "@/services/api-client";
 import { FormValues } from "@/types/formTypes";
 import { template } from "@prisma/client";
 import { toast } from "@/lib/hooks/use-toast";
+import { TemplateWithBankDetails } from "@/app/api/document/get/template/[entity_id]/route";
 
 export function useTemplateManager({
   reset,
@@ -12,12 +13,12 @@ export function useTemplateManager({
   reset: (values: FormValues) => void;
   getValues: () => FormValues;
   entityIdNum: number;
-  setTemplatesList: (templates: template[]) => void;
+  setTemplatesList: (templates: TemplateWithBankDetails[]) => void;
 }) {
   const handleSampleChange = (
     i: number,
-    templatesList: template[],
-    setSelectedTemplate: (t: template | null) => void,
+    templatesList: TemplateWithBankDetails[],
+    setSelectedTemplate: (t: TemplateWithBankDetails | null) => void,
     setDialogOpen: (v: boolean) => void
   ) => {
     const foundTemplate = templatesList[i];
@@ -57,7 +58,7 @@ export function useTemplateManager({
     toast.success("Шаблон успешно сохранён.");
   };
 
-  const confirmTemplateReplace = (template: template) => {
+  const confirmTemplateReplace = (template: TemplateWithBankDetails) => {
     return {
       doc_id: undefined,
       entity_id: template.entity_id,
@@ -70,9 +71,11 @@ export function useTemplateManager({
       purposeOfPayment: template.purpose_of_payment,
       note: template.note || "",
       edrpou: template.edrpou,
-      mfo: template.mfo,
+      mfo: template.partner_account_number?.mfo || "",
+      bank_name: template.partner_account_number?.bank_name || "",
+      partner_account_number_id: template.partner_account_number_id,
       partnerName: template.partner_name,
-      selectedAccount: template.bank_account,
+      selectedAccount: template.partner_account_number?.bank_account || "",
       accountSumExpression: "",
       payments: [
         {

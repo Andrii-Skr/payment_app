@@ -10,6 +10,10 @@ type CreateEntityBody = {
   name: string;
   type: number;
   edrpou: string;
+  bank_name: string;
+  bank_account: string;
+  mfo: string;
+  is_deleted: boolean;
 };
 
 // 🔹 GET: Получение всех entities (с фильтрацией по роли)

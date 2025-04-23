@@ -5,10 +5,11 @@ import { Save } from "lucide-react";
 import { template } from "@prisma/client";
 import { Control } from "react-hook-form";
 import { FormValues } from "@/types/formTypes";
+import { TemplateWithBankDetails } from "@/app/api/document/get/template/[entity_id]/route";
 
 type Props = {
   control: Control<FormValues>;
-  templatesList: template[];
+  templatesList: TemplateWithBankDetails[];
   onSampleChange: (index: number) => void;
   onSaveClick: () => void;
 };

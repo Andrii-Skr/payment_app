@@ -3,17 +3,18 @@
 import { EntityTable } from "@/components/shared";
 import { apiClient } from "@/services/api-client";
 import React from "react";
-import { EntityType } from "../../types/types";
+import { EntityWithAll } from "@/app/api/entity/schedule/route";
 
 type Props = {
   className?: string;
 };
 
 export const PaymentSchedule: React.FC<Props> = ({ className }) => {
-  const [entities, setEntities] = React.useState<EntityType[]>([]);
+  const [entities, setEntities] = React.useState<EntityWithAll[]>([]);
 
   const fetchEntities = async () => {
     const data = await apiClient.entity.entitySchedule();
+    if (!data) return;
     setEntities(data);
   };
 

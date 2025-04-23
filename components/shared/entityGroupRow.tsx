@@ -1,6 +1,11 @@
 import React from "react";
 import { TableRow, TableCell } from "@/components/ui/table";
-import { DocumentType, PaymentEntry, PaymentDetail } from "../../types/types";
+import {
+  DocumentType,
+  PaymentEntry,
+  PaymentDetail,
+  PartnerType,
+} from "../../types/types";
 import {
   getColorForEntity,
   isSameDay,
@@ -11,15 +16,12 @@ import { cn } from "@/lib/utils";
 
 type EntityGroupRowProps = {
   entityId: number;
-  rows: { partner: DocumentType["partners"]; documents: DocumentType[] }[];
+  rows: { partner: PartnerType; documents: DocumentType[] }[];
   dateRange: Date[];
   entityNames: Record<number, string>;
   pendingPayments: PaymentDetail[];
   onCellClick: (entries: PaymentEntry[]) => void;
-  onPartnerClick: (
-    partner: DocumentType["partners"],
-    documents: DocumentType[]
-  ) => void;
+  onPartnerClick: (partner: PartnerType, documents: DocumentType[]) => void;
 };
 
 export const EntityGroupRow: React.FC<EntityGroupRowProps> = ({
@@ -62,7 +64,7 @@ export const EntityGroupRow: React.FC<EntityGroupRowProps> = ({
         {rowIndex === 0 && (
           <TableCell
             rowSpan={rows.length}
-            className={`sticky left-0 top-0 z-[20] w-10 border-r bg-red-300 ${getColorForEntity(
+            className={`sticky left-0 top-0 z-[20] w-[30px] border-r bg-red-300 ${getColorForEntity(
               entityId
             )} `}
             style={{
@@ -78,7 +80,7 @@ export const EntityGroupRow: React.FC<EntityGroupRowProps> = ({
 
         {/* Контрагент — sticky слева */}
         <TableCell
-          className={`sticky left-10 z-[10] min-w-[180px] ${getColorForEntity(
+          className={`sticky left-10 z-[10] w-[180px] ${getColorForEntity(
             entityId
           )} transition-colors group-hover:bg-muted/50`}
         >
@@ -92,7 +94,7 @@ export const EntityGroupRow: React.FC<EntityGroupRowProps> = ({
 
         {/* Остаток — тоже sticky */}
         <TableCell
-          className={`sticky left-[220px] z-[10]  min-w-[100px] ${getColorForEntity(
+          className={`sticky left-[220px] z-[10]  w-[120px] ${getColorForEntity(
             entityId
           )} transition-colors group-hover:bg-muted/50`}
         >

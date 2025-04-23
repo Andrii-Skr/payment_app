@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React from "react";
 import {
   Table,
   TableHeader,
@@ -10,7 +10,12 @@ import {
 import { PaymentDetailsModal } from "./paymentDetailsModal";
 import { PartnerDocumentsModal } from "./partnerDocumentsModal";
 import { PaymentBottomPanel } from "./paymentBottomPanel";
-import { DocumentType, PaymentDetail, PaymentEntry } from "../../types/types";
+import {
+  DocumentType,
+  PartnerType,
+  PaymentDetail,
+  PaymentEntry,
+} from "../../types/types";
 import { FiltersBar } from "../shared/filtersBar";
 import { EntityGroupRow } from "../shared/entityGroupRow";
 import { useEntityTableLogic } from "@/lib/hooks/useEntityTableLogic";
@@ -19,6 +24,8 @@ import { apiClient } from "@/services/api-client";
 import { useAccessControl } from "@/lib/hooks/useAccessControl";
 import { Roles } from "@/constants/roles";
 import { toast } from "@/lib/hooks/use-toast";
+import { buildPaymentsCsv, downloadBlob } from "@/utils/paymentsCsv";
+import { format } from "date-fns";
 
 export const EntityTable: React.FC<{
   documents: DocumentType[];
@@ -34,22 +41,22 @@ export const EntityTable: React.FC<{
     new Date().toLocaleString("en-US", { timeZone: "Europe/Kyiv" })
   );
 
-  const [startDate, setStartDate] = useState<Date>(initialDate);
-  const [period, setPeriod] = useState<number>(14);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [modalTitle, setModalTitle] = useState("");
-  const [modalPaymentDetails, setModalPaymentDetails] = useState<
+  const [startDate, setStartDate] = React.useState<Date>(initialDate);
+  const [period, setPeriod] = React.useState<number>(14);
+  const [modalOpen, setModalOpen] = React.useState(false);
+  const [modalTitle, setModalTitle] = React.useState("");
+  const [modalPaymentDetails, setModalPaymentDetails] = React.useState<
     PaymentDetail[]
   >([]);
-  const [partnerModalOpen, setPartnerModalOpen] = useState(false);
-  const [selectedPartner, setSelectedPartner] = useState<
-    DocumentType["partners"] | null
-  >(null);
-  const [selectedPartnerDocuments, setSelectedPartnerDocuments] = useState<
-    DocumentType[]
-  >([]);
-  const [selectedEntity, setSelectedEntity] = useState<number | "all">("all");
-  const [partnerFilter, setPartnerFilter] = useState("");
+  const [partnerModalOpen, setPartnerModalOpen] = React.useState(false);
+  const [selectedPartner, setSelectedPartner] =
+    React.useState<PartnerType | null>(null);
+  const [selectedPartnerDocuments, setSelectedPartnerDocuments] =
+    React.useState<DocumentType[]>([]);
+  const [selectedEntity, setSelectedEntity] = React.useState<number | "all">(
+    "all"
+  );
+  const [partnerFilter, setPartnerFilter] = React.useState("");
 
   const collator = new Intl.Collator(undefined, {
     numeric: true,
@@ -83,11 +90,20 @@ export const EntityTable: React.FC<{
       spec_doc_id: entry.spec_doc.id,
       partner_id: entry.document.partner_id,
       partner_name: entry.document.partners.name,
+      partner_entity_id: entry.document.partners.entity_id,
+
+      partner_account_name: entry.document.partner_account_number.bank_name,
+      partner_account_mfo: entry.document.partner_account_number.mfo,
+      partner_account_number:
+        entry.document.partner_account_number.bank_account,
+      partner_account_bank_name:
+        entry.document.partner_account_number.bank_name,
+
       account_number: entry.document.account_number,
       purpose_of_payment: entry.document.purpose_of_payment,
       dead_line_date: entry.spec_doc.dead_line_date,
       date: entry.document.date,
-      pay_sum: entry.spec_doc.pay_sum,
+      pay_sum: Number(entry.spec_doc.pay_sum),
     }));
 
     setModalPaymentDetails(paymentDetails);
@@ -96,7 +112,7 @@ export const EntityTable: React.FC<{
   };
 
   const handlePartnerNameClick = (
-    partner: DocumentType["partners"],
+    partner: PartnerType,
     docs: DocumentType[]
   ) => {
     setSelectedPartner(partner);
@@ -112,14 +128,25 @@ export const EntityTable: React.FC<{
 
   const finalizePayments = async () => {
     try {
-      const toUpdate = pendingPayments.map((p) => p.spec_doc_id);
-      await apiClient.specDoc.updatePaymentsById({ specDocIds: toUpdate });
+      /* ---------- 0. Нечего выгружать ---------- */
+
+      /* ---------- 1. Генерируем CSV ---------- */
+      const blob = await buildPaymentsCsv(pendingPayments);
+      const filename = `payments_${format(new Date(), "yyyyMMdd_HHmm")}.csv`;
+      downloadBlob(blob, filename);
+
+      /* ---------- 2. Обновляем статусы платежей ---------- */
+      const idsForUpdate = pendingPayments.map(p => p.spec_doc_id);
+      await apiClient.specDoc.updatePaymentsById({ specDocIds: idsForUpdate });
+
+      /* ---------- 3. Очищаем стейт и перезагружаем таблицу ---------- */
       clearPendingPayments();
       await reloadDocuments();
-      toast.success("Платежи успешно завершены.");
+
+      toast.success("Платежи завершены и CSV сохранён.");
     } catch (error) {
       console.error("Ошибка при завершении платежей:", error);
-      toast.error("Ошибка при завершении платежей.");
+      toast.error("Не удалось завершить платежи.");
     }
   };
 
@@ -160,7 +187,7 @@ export const EntityTable: React.FC<{
             <TableHead className="sticky left-10 z-[30] bg-white min-w-[180px]">
               Контрагент
             </TableHead>
-            <TableHead className="sticky left-[220px] z-[30] bg-white min-w-[100px]">
+            <TableHead className="self-start sticky left-[220px] z-[30] bg-white min-w-[100px] ">
               Остаток
             </TableHead>
             {formattedDateRange.map((d, i) => (

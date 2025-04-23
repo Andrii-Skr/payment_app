@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React from "react";
 import { Modal } from "@/components/ui/modal";
 import {
   Table,
@@ -32,8 +32,8 @@ export const PartnerDocumentsModal: React.FC<PartnerDocumentsModalProps> = ({
 
   const router = useRouter();
   // Фильтр по дате документа и по сумме
-  const [filterDate, setFilterDate] = useState("");
-  const [filterSum, setFilterSum] = useState("");
+  const [filterDate, setFilterDate] = React.useState("");
+  const [filterSum, setFilterSum] = React.useState("");
 
   // Фильтрация документов по дате и сумме
   const filteredDocuments = documents.filter((doc) => {
@@ -118,7 +118,7 @@ export const PartnerDocumentsModal: React.FC<PartnerDocumentsModalProps> = ({
                   <TableCell>
                     {new Date(doc.date).toLocaleDateString("ru-RU")}
                   </TableCell>
-                  <TableCell>{doc.account_sum}</TableCell>
+                  <TableCell>{Number(doc.account_sum)}</TableCell>
                   <TableCell>{balance}</TableCell>
                   <TableCell>{doc.purpose_of_payment}</TableCell>
                   <TableCell>
@@ -144,7 +144,7 @@ export const PartnerDocumentsModal: React.FC<PartnerDocumentsModalProps> = ({
                         return (
                           <div key={spec.id} className="flex flex-col">
                             <div>{displayDate.toLocaleDateString("ru-RU")}</div>
-                            <div className={amountClass}>{spec.pay_sum}</div>
+                            <div className={amountClass}>{Number(spec.pay_sum)}</div>
                           </div>
                         );
                       })}

@@ -38,6 +38,7 @@ export const AccountsCombobox: React.FC<Props> = ({
 
   const onChange = (i: number) => {
     const bankAccount = currentAccountList[i];
+    setValue("partner_account_number_id", bankAccount?.id || undefined);
     setValue("mfo", bankAccount?.mfo || "");
   };
 

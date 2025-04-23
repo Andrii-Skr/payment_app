@@ -37,19 +37,4 @@ export async function getDocumentsForPartners(
   });
 }
 
-export function fullDocumentSelect() {
-    return {
-      id: true,
-      entity_id: true,
-      partner_id: true,
-      account_number: true,
-      account_sum: true,
-      purpose_of_payment: true,
-      bank_account: true,
-      date: true,
-      partners: true,
-      spec_doc: true,
-    };
-  }
-
 

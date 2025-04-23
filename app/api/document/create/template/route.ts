@@ -16,8 +16,7 @@ type TemplateBody = {
   date: string;
   accountSum: number;
   accountSumExpression: string;
-  selectedAccount: string;
-  mfo: string;
+  partner_account_number_id: number;
   purposeOfPayment: string;
   note: string;
 };
@@ -45,8 +44,7 @@ const handler = async (
       date: new Date(body.date),
       account_sum: body.accountSum,
       account_sum_expression: body.accountSumExpression,
-      bank_account: body.selectedAccount,
-      mfo: body.mfo,
+      partner_account_number_id: body.partner_account_number_id,
       purpose_of_payment: body.purposeOfPayment,
       note: body.note,
       user_id: parseInt(user.id, 10),

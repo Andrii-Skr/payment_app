@@ -2,6 +2,8 @@ import axiosInstance from "@/services/instance";
 import { FormValues } from "@/types/formTypes";
 import { documents, template } from "@prisma/client";
 import { DocumentWithPartner } from "@/app/api/document/entity/[entity_id]/route";
+import { DocumentWithIncludes, DocumentWithIncludesNullable } from "@/app/api/document/[doc_id]/route";
+import { TemplateWithBankDetails } from "@/app/api/document/get/template/[entity_id]/route";
 
 export const create = async (data: FormValues) => {
   try {
@@ -23,9 +25,9 @@ export const createTemplate = async (data: TemplateData) => {
 
 export const getTemplateById = async (
   entity_id: number
-): Promise<template[]> => {
+): Promise<TemplateWithBankDetails[]> => {
   try {
-    const { data } = await axiosInstance.get<template[]>(
+    const { data } = await axiosInstance.get<TemplateWithBankDetails[]>(
       `/document/get/template/${entity_id}`
     );
     return data;
@@ -57,16 +59,15 @@ export const getByEntity = async (
   }
 };
 
-export const getById = async (
-  doc_id: number
-): Promise<documents[] | undefined> => {
+export const getById = async (doc_id: number): Promise<DocumentWithIncludesNullable> => {
   try {
-    const { data } = await axiosInstance.get<documents[]>(
+    const { data } = await axiosInstance.get<DocumentWithIncludes>(
       `/document/${doc_id}`
     );
     return data;
   } catch (error) {
     console.log(error);
+    return null;
   }
 };
 

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,18 +23,20 @@ export type PaymentDetailsModalProps = {
   paymentDetails: PaymentDetail[];
 };
 
-export const PaymentDetailsModal = ({
+export const PaymentDetailsModal: React.FC<PaymentDetailsModalProps> = ({
   isOpen,
   onClose,
   onSave,
   title,
   paymentDetails,
-}: PaymentDetailsModalProps) => {
-  const [selectedRows, setSelectedRows] = useState<Record<number, boolean>>({});
+}) => {
+  const [selectedRows, setSelectedRows] = React.useState<
+    Record<number, boolean>
+  >({});
   const pendingPayments = usePaymentStore.getState().pendingPayments;
   const router = useRouter();
 
-  useEffect(() => {
+  React.useEffect(() => {
     const updated: Record<number, boolean> = {};
     paymentDetails.forEach((detail) => {
       updated[detail.spec_doc_id] = pendingPayments.some(

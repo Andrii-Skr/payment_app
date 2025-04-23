@@ -4,6 +4,7 @@ import { Control } from "react-hook-form";
 import { template } from "@prisma/client";
 import { Combobox } from "@/components/ui";
 import { FormValues } from "@/types/formTypes";
+import { TemplateWithBankDetails } from "@/app/api/document/get/template/[entity_id]/route";
 
 type Props = {
   control: Control<FormValues>;
@@ -13,7 +14,7 @@ type Props = {
   id?: number;
   placeholder: string;
   empty: string;
-  data: template[];
+  data: TemplateWithBankDetails[];
   onChange: (id: number) => void;
 };
 
