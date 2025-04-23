@@ -38,6 +38,8 @@ export const EntityGroupRow: React.FC<EntityGroupRowProps> = ({
     const unpaidEntries: PaymentEntry[] = [];
     const paidEntries: PaymentEntry[] = [];
 
+    const color = getColorForEntity(partner.entity_id);
+
     documents.forEach((doc) => {
       doc.spec_doc.forEach((spec) => {
         const isExpected = !!spec.expected_date;
@@ -56,23 +58,17 @@ export const EntityGroupRow: React.FC<EntityGroupRowProps> = ({
     }, 0);
 
     return (
-      <TableRow
-        key={partner.id}
-        className={cn("group", getColorForEntity(partner.entity_id))}
-      >
+      <TableRow key={partner.id} className={cn("group", color)}>
         {/* 💼 Юрлицо — sticky по вертикали и горизонтали */}
         {rowIndex === 0 && (
           <TableCell
             rowSpan={rows.length}
-            className={`sticky left-0 top-0 z-[20] w-[30px] border-r bg-red-300 ${getColorForEntity(
-              entityId
-            )} `}
-            style={{
-              writingMode: "vertical-rl",
-              transform: "rotate(180deg)",
-            }}
+            className={`sticky left-0 top-0 z-[20] w-[30px] border-r ${color} `}
           >
-            <div className="font-bold text-2xl text-center">
+            <div
+              className="font-bold text-2xl text-center rotate-180
+            [writing-mode:vertical-rl] [-webkit-writing-mode:vertical-rl]"
+            >
               {entityNames[entityId]}
             </div>
           </TableCell>
@@ -80,9 +76,7 @@ export const EntityGroupRow: React.FC<EntityGroupRowProps> = ({
 
         {/* Контрагент — sticky слева */}
         <TableCell
-          className={`sticky left-10 z-[10] w-[180px] ${getColorForEntity(
-            entityId
-          )} transition-colors group-hover:bg-muted/50`}
+          className={`sticky left-10 z-[10] w-[180px] ${color} transition-colors group-hover:bg-muted/50`}
         >
           <button
             className="text-blue-500 hover:underline"
@@ -94,9 +88,7 @@ export const EntityGroupRow: React.FC<EntityGroupRowProps> = ({
 
         {/* Остаток — тоже sticky */}
         <TableCell
-          className={`sticky left-[220px] z-[10]  w-[120px] ${getColorForEntity(
-            entityId
-          )} transition-colors group-hover:bg-muted/50`}
+          className={`sticky left-[220px] z-[10]  w-[120px] ${color} transition-colors group-hover:bg-muted/50`}
         >
           {formatMoney(totalRemaining)}
         </TableCell>
