@@ -2,8 +2,8 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import prisma from "@/prisma/prisma-client";
-import { Roles } from "@/constants/roles";
 import { apiRoute } from "@/utils/apiRoute";
+import { Roles } from "@/constants/roles";
 import { hasRole } from "@/lib/access/hasRole";
 import type { Session } from "next-auth";
 
@@ -11,14 +11,16 @@ import type { Session } from "next-auth";
 /*                                  helpers                                   */
 /* -------------------------------------------------------------------------- */
 
+/** Преобразует строку в числовой ID либо возвращает null, если строка не число */
 function toEntityId(raw: string): number | null {
   return /^\d+$/.test(raw) ? Number(raw) : null;
 }
 
+/** Загружает шаблоны: менеджеры/админы видят все, обычные пользователи — только свои */
 async function fetchTemplates(
   userId: number,
   role: Session["user"]["role"],
-  entityId: number
+  entityId: number,
 ) {
   const isPrivileged = hasRole(role, [Roles.ADMIN, Roles.MANAGER]);
 
@@ -36,28 +38,31 @@ async function fetchTemplates(
   });
 }
 
-export type TemplateWithBankDetails = Awaited<ReturnType<typeof fetchTemplates>>[number];
+export type TemplateWithBankDetails = Awaited<
+  ReturnType<typeof fetchTemplates>
+>[number];
 
 /* -------------------------------------------------------------------------- */
-/*                                   handler                                  */
+/*                                  handler                                   */
 /* -------------------------------------------------------------------------- */
 
 const handler = async (
   _req: NextRequest,
   _body: null,
-  params: { entity_id: string },
-  user: Session["user"] | null
+  { entity_id }: { entity_id: string },
+  user: Session["user"] | null,
 ) => {
+  /* -------------------------- basic auth checks -------------------------- */
   if (!user) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
-  const entityId = toEntityId(params.entity_id);
+  const entityId = toEntityId(entity_id);
   if (entityId === null) {
     return NextResponse.json({ message: "Invalid entity ID" }, { status: 400 });
   }
 
-  /* -------- проверка принадлежности к entity через users_entities -------- */
+  /* --- ACL: обычные пользователи видят только свои организации --- */
   if (!hasRole(user.role, [Roles.ADMIN, Roles.MANAGER])) {
     const belongs = await prisma.users_entities.count({
       where: { user_id: Number(user.id), entity_id: entityId },
@@ -67,25 +72,24 @@ const handler = async (
     }
   }
 
+  /* --------------------------- main business ---------------------------- */
   try {
     const templates = await fetchTemplates(Number(user.id), user.role, entityId);
     return NextResponse.json(templates);
   } catch (e) {
     console.error("Template fetch error:", e);
-    return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json(
+      { message: "Internal Server Error" },
+      { status: 500 },
+    );
   }
 };
 
 /* -------------------------------------------------------------------------- */
-/*                                    route                                   */
+/*                                   route                                    */
 /* -------------------------------------------------------------------------- */
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: Promise<{ entity_id: string }> }
-) {
-  return apiRoute<null, { entity_id: string }>(handler, {
-    requireAuth: true,
-    roles: [Roles.ADMIN, Roles.MANAGER, Roles.USER],
-  })(req, { params: await params });
-}
+export const GET = apiRoute<null, { entity_id: string }>(handler, {
+  requireAuth: true,
+  roles: [Roles.ADMIN, Roles.MANAGER, Roles.USER],
+});

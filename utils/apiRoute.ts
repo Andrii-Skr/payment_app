@@ -1,10 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession, User } from "next-auth";
+import { getServerSession, type User } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
 import type { ZodSchema } from "zod";
 
+export type RouteContext<T extends Record<string, string> = {}> = {
+  params: Promise<T>;
+};
+
 export type ApiHandler<
-  TBody = any,
+  TBody = unknown,
   TParams extends Record<string, string> = {}
 > = (
   req: NextRequest,
@@ -13,26 +17,29 @@ export type ApiHandler<
   user: User | null
 ) => Promise<NextResponse>;
 
-export type ApiRouteOptions<TBody = any> = {
+export type ApiRouteOptions<TBody = unknown> = {
   requireAuth?: boolean;
   roles?: string[];
   schema?: ZodSchema<TBody>;
 };
 
 export function apiRoute<
-  TBody = any,
+  TBody = unknown,
   TParams extends Record<string, string> = {}
 >(handler: ApiHandler<TBody, TParams>, options: ApiRouteOptions<TBody> = {}) {
   return async function route(
     req: NextRequest,
-    context: { params: TParams | Promise<TParams> }
+    { params }: RouteContext<TParams>
   ): Promise<NextResponse> {
     try {
-      const params = await context.params;
-      const isBodyAllowed = !["GET", "DELETE"].includes(req.method);
-      let bodyRaw = isBodyAllowed ? await req.json() : null;
+      const resolvedParams = await params;
 
-      if (options.schema && bodyRaw) {
+      const needsBody = !["GET", "DELETE", "HEAD", "OPTIONS"].includes(
+        req.method
+      );
+      let bodyRaw: unknown = needsBody ? await req.json() : null;
+
+      if (options.schema && bodyRaw !== null) {
         const parsed = options.schema.safeParse(bodyRaw);
         if (!parsed.success) {
           return NextResponse.json(
@@ -47,6 +54,7 @@ export function apiRoute<
         bodyRaw = parsed.data;
       }
 
+      /* 3. auth / ACL */
       const session = await getServerSession(authOptions);
       const user = session?.user as User | null;
 
@@ -56,15 +64,15 @@ export function apiRoute<
           { status: 401 }
         );
       }
-
       if (options.roles && user && !options.roles.includes(user.role)) {
         return NextResponse.json(
-          { success: false, message: "Forbidden: insufficient role" },
+          { success: false, message: "Forbidden" },
           { status: 403 }
         );
       }
 
-      return await handler(req, bodyRaw as TBody, params, user);
+      /* 4. передаём в бизнес-обработчик */
+      return handler(req, bodyRaw as TBody, resolvedParams, user);
     } catch (err) {
       console.error("API Error:", err);
       return NextResponse.json(

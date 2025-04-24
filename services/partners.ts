@@ -38,6 +38,7 @@ export const getByEdrpou = async (
   }
 };
 export const createPartner = async (data: PartnerValues) => {
+  console.log("data", data);
   try {
     await axiosInstance.post("/document/create/partner", data);
   } catch (error) {
