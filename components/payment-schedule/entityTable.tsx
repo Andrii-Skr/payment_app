@@ -17,7 +17,7 @@ import {
   PaymentEntry,
 } from "../../types/types";
 import { FiltersBar } from "../shared/filtersBar";
-import { EntityGroupRow } from "../shared/entityGroupRow";
+import { EntityGroupRow } from "./entityGroupRow";
 import { useEntityTableLogic } from "@/lib/hooks/useEntityTableLogic";
 import { usePendingPayments } from "@/lib/hooks/usePendingPayments";
 import { apiClient } from "@/services/api-client";

@@ -28,7 +28,7 @@ export function usePaymentFormLogic({
   const [entity, setEntity] = React.useState<entity | null>(null);
   const [templatesList, setTemplatesList] = React.useState<TemplateWithBankDetails[]>([]);
   const [docs, setDocs] = React.useState<DocumentWithPartner[]>([]);
-console.log(docs, 'docs')
+
   const [isTemplateDialogOpen, setTemplateDialogOpen] = React.useState(false);
   const [isReplaceDialogOpen, setIsReplaceDialogOpen] = React.useState(false);
   const [selectedTemplate, setSelectedTemplate] =

@@ -6,10 +6,9 @@ import type { Session } from "next-auth";
 type Params = { doc_id: string };
 
 const getDocument = async (docId: number) => {
-  return await prisma.documents.findUnique({
+  const document = await prisma.documents.findUnique({
     where: { id: docId },
     include: {
-      spec_doc: true,
       partners: {
         select: {
           name: true,
@@ -25,9 +24,23 @@ const getDocument = async (docId: number) => {
       },
     },
   });
+
+  if (!document) return null;
+
+  const spec_doc = await prisma.spec_doc.findMany({
+    where: { documents_id: docId },
+    orderBy: { id: "desc" },
+  });
+
+  return {
+    ...document,
+    spec_doc,
+  };
 };
 
-export type DocumentWithIncludesNullable = Awaited<ReturnType<typeof getDocument>>;
+export type DocumentWithIncludesNullable = Awaited<
+  ReturnType<typeof getDocument>
+>;
 export type DocumentWithIncludes = NonNullable<DocumentWithIncludesNullable>;
 
 const handler = async (

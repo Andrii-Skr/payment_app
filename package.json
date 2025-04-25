@@ -10,7 +10,8 @@
     "prisma:generate": "prisma generate",
     "prisma:push": "prisma db push",
     "prisma:seed": "prisma db seed",
-    "prisma:studio": "BROWSER=none prisma studio"
+    "prisma:studio": "BROWSER=none prisma studio",
+    "cron": "tsx --env-file=.env scripts/cronJob.ts"
   },
   "prisma": {
     "schema": "prisma/schema",
@@ -38,17 +39,18 @@
     "clsx": "^2.1.1",
     "cmdk": "1.0.0",
     "date-fns": "^4.1.0",
+    "date-fns-tz": "^3.2.0",
     "framer-motion": "^12.6.3",
     "input-otp": "^1.4.1",
     "lucide-react": "^0.447.0",
     "mathjs": "^14.4.0",
     "next": "15.3.0",
     "next-auth": "^4.24.11",
+    "node-cron": "^3.0.3",
     "react": "^18",
     "react-day-picker": "8.10.1",
     "react-dom": "^18",
     "react-hook-form": "^7.53.0",
-    
     "tailwind-merge": "^2.5.2",
     "tailwindcss-animate": "^1.0.7",
     "ts-node": "^10.9.2",
@@ -57,13 +59,15 @@
   },
   "devDependencies": {
     "@prisma/client": "^6.6.0",
-    "prisma": "^6.6.0",
     "@types/jest": "^29.5.14",
     "@types/node": "^20",
+    "@types/node-cron": "^3.0.11",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "postcss": "^8",
+    "prisma": "^6.6.0",
     "tailwindcss": "^3.4.1",
+    "tsx": "^4.19.3",
     "typescript": "^5"
   },
   "packageManager": "pnpm@10.8.0+sha512.0e82714d1b5b43c74610193cb20734897c1d00de89d0e18420aebc5977fa13d780a9cb05734624e81ebd81cc876cd464794850641c48b9544326b5622ca29971"

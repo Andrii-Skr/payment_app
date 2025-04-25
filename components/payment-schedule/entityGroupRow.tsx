@@ -66,7 +66,7 @@ export const EntityGroupRow: React.FC<EntityGroupRowProps> = ({
             className={`sticky left-0 top-0 z-[20] w-[30px] border-r ${color} `}
           >
             <div
-              className="font-bold text-2xl text-center rotate-180
+              className="font-bold text-lg text-center rotate-180
             [writing-mode:vertical-rl] [-webkit-writing-mode:vertical-rl]"
             >
               {entityNames[entityId]}

@@ -2,16 +2,17 @@
 import prisma from "./prisma-client";
 import bcrypt from "bcrypt";
 
+/* ───────── helpers ───────── */
 function getRandomOffset() {
   return Math.floor(Math.random() * 5) + 1;
 }
-
 function getRandomDate() {
-  const date = new Date();
-  date.setDate(date.getDate() + getRandomOffset());
-  return date;
+  const d = new Date();
+  d.setDate(d.getDate() + getRandomOffset());
+  return d;
 }
 
+/* ───────── clear DB ───────── */
 async function clearData() {
   const tables = [
     "spec_doc",
@@ -25,30 +26,28 @@ async function clearData() {
     "entity",
     "template",
   ];
-
-  for (const table of tables) {
+  for (const t of tables) {
     await prisma.$executeRawUnsafe(
-      `TRUNCATE TABLE "${table}" RESTART IDENTITY CASCADE;`
+      `TRUNCATE TABLE "${t}" RESTART IDENTITY CASCADE;`,
     );
   }
 }
 
+/* ───────── roles / entities / users ───────── */
 async function seedRoles() {
-  await prisma.role.createMany({
-    data: [{ name: "admin" }, { name: "user" }],
-  });
+  await prisma.role.createMany({ data: [{ name: "admin" }, { name: "user" }] });
 }
 
 async function seedEntities() {
   await prisma.entity.createMany({
     data: [
       {
-        name: "Выбор",
+        name: `ТОВ "ВД "ЄВРОПЕЙСЬКИЙ ВИБІР"`,
         type: 1,
-        edrpou: "12345678",
-        bank_account: "UA123456780000000000000001",
-        bank_name: "Ощадбанк",
-        mfo: "300465",
+        edrpou: "41361788",
+        bank_account: "UA293348510000000002600436228",
+        bank_name: `АТ "ПУМБ"`,
+        mfo: "334851",
       },
       {
         name: "Зенит",
@@ -76,18 +75,17 @@ async function seedUsers() {
     { login: "user", password: "user", role_id: 2, name: "user" },
     { login: "testuser", password: "testuser", role_id: 2, name: "test user" },
   ];
-
   await Promise.all(
-    users.map(async (user) => {
-      const hashed = await bcrypt.hash(user.password, 10);
-      await prisma.user.create({
-        data: { ...user, password: hashed },
-      });
-    })
+    users.map(async u => {
+      const hashed = await bcrypt.hash(u.password, 10);
+      await prisma.user.create({ data: { ...u, password: hashed } });
+    }),
   );
 }
 
+/* ───────── partners & accounts ───────── */
 async function seedPartners() {
+  /* test-контрагенты */
   const zenitPartners = Array.from({ length: 4 }, (_, i) => ({
     name: `partner${i + 1}Зенит`,
     type: 2,
@@ -109,24 +107,54 @@ async function seedPartners() {
     entity_id: 3,
   }));
 
-  const allPartners = [...zenitPartners, ...viborPartners, ...auroraPartners];
+  /* реальный контрагент */
+  const viborPartnersReal = {
+    id: 500,
+    name: 'ТОВ "Фактор-Друк"',
+    type: 1,
+    edrpou: "20030635",
+    entity_id: 1,
+  };
+
+  const allPartners = [
+    ...zenitPartners,
+    ...viborPartners,
+    ...auroraPartners,
+    viborPartnersReal,
+  ];
   await prisma.partners.createMany({ data: allPartners });
 
-  const partnerAccounts = allPartners.map((_, i) => ({
-    partner_id: i + 1,
-    bank_account: `UA00000${i + 1}1234567890123456`,
-    bank_name: `Bank ${i + 1}`,
-    mfo: `3000${(i % 10) + 1}`,
-    is_default: true,
-  }));
+  /* банковские счета */
+  const testAccounts = allPartners
+    //@ts-ignore
+    .filter(p => p.id !== 500) // пропускаем «Фактор-Друк»
+    .map((_, i) => ({
+      partner_id: i + 1, // id 1-31
+      bank_account: `UA00000${i + 1}1234567890123456`,
+      bank_name: `Bank ${i + 1}`,
+      mfo: `3000${(i % 10) + 1}`,
+      is_default: true,
+    }));
 
-  await prisma.partner_account_number.createMany({ data: partnerAccounts });
+  const partnerAccountReal = {
+    id: 500,
+    partner_id: 500,
+    bank_account: "UA933515330000026000052247108",
+    bank_name: 'Харківське ГРУ АТ КБ "ПриватБанк"',
+    mfo: "351533",
+    is_default: true,
+  };
+
+  await prisma.partner_account_number.createMany({
+    data: [...testAccounts, partnerAccountReal],
+  });
 }
 
+/* ───────── documents ───────── */
 async function seedDocuments() {
   const allAccounts = await prisma.partner_account_number.findMany();
   const getAccountByPartnerId = (partner_id: number) =>
-    allAccounts.find((acc) => acc.partner_id === partner_id)?.id || 1;
+    allAccounts.find(acc => acc.partner_id === partner_id)?.id ?? 1;
 
   const baseDocs = Array.from({ length: 31 }, (_, i) => {
     const partner_id = i + 1;
@@ -166,39 +194,67 @@ async function seedDocuments() {
     };
   });
 
-  await prisma.documents.createMany({ data: [...baseDocs, ...auroraDocs] });
+  /* документы для Фактор-Друк */
+  const viborRealDocs = Array.from({ length: 5 }, (_, i) => ({
+    entity_id: 1,
+    partner_id: 500,
+    account_number: `ФД-${i + 1}`,
+    date: new Date(),
+    account_sum: 5000 + i * 500,
+    account_sum_expression: "",
+    vat_type: true,
+    vat_percent: 20,
+    purpose_of_payment: "Оплата поліграфічних послуг",
+    partner_account_number_id: getAccountByPartnerId(500),
+    is_saved: true,
+    is_paid: false,
+    user_id: 1,
+  }));
+
+  await prisma.documents.createMany({
+    data: [...baseDocs, ...auroraDocs, ...viborRealDocs],
+  });
 }
 
+/* ───────── spec_doc ───────── */
 async function seedSpecs() {
+  const totalDocs = await prisma.documents.count();
   const specDocs = [];
-  for (let i = 1; i <= 36; i++) {
+
+  for (let docId = 1; docId <= totalDocs; docId++) {
     specDocs.push(
       {
-        documents_id: i,
-        pay_sum: 1000 + i * 10,
+        documents_id: docId,
+        pay_sum: 1000 + docId * 10,
         expected_date: getRandomDate(),
         dead_line_date: getRandomDate(),
       },
       {
-        documents_id: i,
-        pay_sum: 800 + i * 10,
+        documents_id: docId,
+        pay_sum: 800 + docId * 10,
         expected_date: null,
         dead_line_date: getRandomDate(),
-      }
+      },
     );
   }
   await prisma.spec_doc.createMany({ data: specDocs });
 }
 
+/* ───────── user ↔ access ───────── */
 async function seedUserAccess() {
   const admin = await prisma.user.findUnique({ where: { login: "admin" } });
   const user = await prisma.user.findUnique({ where: { login: "user" } });
-  const testuser = await prisma.user.findUnique({ where: { login: "testuser" } });
+  const testuser = await prisma.user.findUnique({
+    where: { login: "testuser" },
+  });
   if (!admin || !user || !testuser) return;
 
-  await prisma.users_entities.create({ data: { user_id: user.id, entity_id: 1 } });
-  const userPartners = [5, 6, 7].map((id) => ({ user_id: user.id, partner_id: id }));
-  await prisma.users_partners.createMany({ data: userPartners });
+  await prisma.users_entities.create({
+    data: { user_id: user.id, entity_id: 1 },
+  });
+  await prisma.users_partners.createMany({
+    data: [5, 6, 7].map(id => ({ user_id: user.id, partner_id: id })),
+  });
 
   await prisma.users_entities.createMany({
     data: [
@@ -206,14 +262,15 @@ async function seedUserAccess() {
       { user_id: testuser.id, entity_id: 2 },
     ],
   });
-
-  const testuserPartners = [8, 9, 10, 1, 2, 3, 4].map((id) => ({
-    user_id: testuser.id,
-    partner_id: id,
-  }));
-  await prisma.users_partners.createMany({ data: testuserPartners });
+  await prisma.users_partners.createMany({
+    data: [8, 9, 10, 1, 2, 3, 4].map(id => ({
+      user_id: testuser.id,
+      partner_id: id,
+    })),
+  });
 }
 
+/* ───────── main ───────── */
 async function main() {
   try {
     await clearData();
@@ -224,8 +281,8 @@ async function main() {
     await seedDocuments();
     await seedSpecs();
     await seedUserAccess();
-  } catch (error) {
-    console.error(error);
+  } catch (e) {
+    console.error(e);
   } finally {
     await prisma.$disconnect();
   }

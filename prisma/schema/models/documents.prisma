@@ -43,6 +43,9 @@ model spec_doc {
     documents_id Int
     documents    documents @relation(fields: [documents_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
+    auto_payment_id  Int?
+    auto_payment     auto_payment?  @relation(fields: [auto_payment_id], references: [id])
+
     pay_sum        Decimal  @db.Decimal(10, 2)
     expected_date  DateTime? @db.Timestamp()
     dead_line_date DateTime? @db.Timestamp()
@@ -53,6 +56,8 @@ model spec_doc {
     created_at DateTime? @default(now()) @db.Timestamp()
     updated_at DateTime? @updatedAt @db.Timestamp()
     is_deleted Boolean   @default(false)
+
+    @@unique([auto_payment_id, expected_date, is_deleted], name: "spec_auto_date_key")
 }
 
 model auto_payment {
@@ -70,6 +75,8 @@ model auto_payment {
     created_at DateTime? @default(now()) @db.Timestamp()
     updated_at DateTime? @updatedAt @db.Timestamp()
     is_deleted Boolean   @default(false)
+
+    spec_docs    spec_doc[]
 }
 
 model template {
