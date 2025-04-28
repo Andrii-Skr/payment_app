@@ -34,7 +34,7 @@ export const EntityList: React.FC<Props> = ({ className }) => {
           <Button
             variant="outline"
             key={e.id}
-            className={cn("flex items-center", className)}
+            className={cn("flex items-center w-80", className)}
             onClick={() => handleClick(e)}
           >
             <FilePlus2 />
