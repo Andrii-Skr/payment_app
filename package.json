@@ -3,8 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbo",
+    "build:scripts": "tsc -p tsconfig.scripts.json",
     "build": "next build",
+    "build:full": "pnpm build && pnpm build:scripts",
+    "dev": "next dev --turbo",
     "start": "next start",
     "lint": "next lint",
     "prisma:generate": "prisma generate",
