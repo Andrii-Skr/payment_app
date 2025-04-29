@@ -15,6 +15,13 @@
     "prisma:studio": "BROWSER=none prisma studio",
     "cron": "tsx --env-file=.env scripts/cronJob.ts"
   },
+  "pnpm": {
+    "overrides": {
+      "cross-spawn": "^7.0.5",
+      "nanoid": "^3.3.8",
+      "@babel/runtime": "^7.26.10"
+    }
+  },
   "prisma": {
     "schema": "prisma/schema",
     "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
@@ -72,5 +79,5 @@
     "tsx": "^4.19.3",
     "typescript": "^5"
   },
-  "packageManager": "pnpm@10.8.0+sha512.0e82714d1b5b43c74610193cb20734897c1d00de89d0e18420aebc5977fa13d780a9cb05734624e81ebd81cc876cd464794850641c48b9544326b5622ca29971"
+  "packageManager": "pnpm@10.10.0+sha512.d615db246fe70f25dcfea6d8d73dee782ce23e2245e3c4f6f888249fb568149318637dca73c2c5c8ef2a4ca0d5657fb9567188bfab47f566d1ee6ce987815c39"
 }
