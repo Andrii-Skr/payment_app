@@ -1,10 +1,10 @@
-import { EntityWithAll } from "@/app/api/entity/schedule/route";
+import { EntityWithAll } from "@/app/api/(v1)/(protected)/documents/entities/route";
 
 export type DocumentType = EntityWithAll["documents"][number];
 
 export type PartnerType = DocumentType["partners"];
 
-export type SpecDocType = DocumentType["spec_doc"][number];;
+export type SpecDocType = DocumentType["spec_doc"][number];
 
 export type PaymentEntry = {
   document: DocumentType;

@@ -136,8 +136,8 @@ export const EntityTable: React.FC<{
       downloadBlob(blob, filename);
 
       /* ---------- 2. Обновляем статусы платежей ---------- */
-      const idsForUpdate = pendingPayments.map(p => p.spec_doc_id);
-      await apiClient.specDoc.updatePaymentsById({ specDocIds: idsForUpdate });
+      const idsForUpdate = pendingPayments.map((p) => p.spec_doc_id);
+      await apiClient.specDocs.updatePaymentsById({ specDocIds: idsForUpdate });
 
       /* ---------- 3. Очищаем стейт и перезагружаем таблицу ---------- */
       clearPendingPayments();
@@ -153,7 +153,7 @@ export const EntityTable: React.FC<{
   const onPay = async () => {
     try {
       const toUpdate = pendingPayments.map((p) => p.spec_doc_id);
-      await apiClient.specDoc.updatePaymentsById({ specDocIds: toUpdate });
+      await apiClient.specDocs.updatePaymentsById({ specDocIds: toUpdate });
       clearPendingPayments();
       await reloadDocuments();
       toast.success("Платежи успешно оплачены.");

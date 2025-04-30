@@ -10,7 +10,7 @@ export const AddForm:React.FC<Props> = () => {
   const [entityList, setEntityList] = useState<entity[] | undefined>([]);
 
   useEffect(() => {
-    apiClient.entity.entityService().then((data) => {
+    apiClient.entities.entityService().then((data) => {
       if (data)
       setEntityList(data);
     });

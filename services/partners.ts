@@ -23,12 +23,12 @@ export const partnersService = async (
 
 export const getByEdrpou = async (
   edrpou: string,
-  entity_id: number
+  id: number
 ): Promise<partners | null> => {
   try {
     const { data } = await axiosInstance.get<partners | null>(
       `/partners/check-edrpou`,
-      { params: { edrpou, entity_id } }
+      { params: { edrpou, id } }
     );
 
     return data;
@@ -37,10 +37,11 @@ export const getByEdrpou = async (
     return null;
   }
 };
+
 export const createPartner = async (data: PartnerValues) => {
   console.log("data", data);
   try {
-    await axiosInstance.post("/document/create/partner", data);
+    await axiosInstance.post("/partners", data);
   } catch (error) {
     console.log(error);
   }

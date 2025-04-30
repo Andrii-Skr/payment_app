@@ -2,10 +2,9 @@ import React from "react";
 import { Container, SampleCombobox } from "@/components/shared";
 import { Button } from "@/components/ui/button";
 import { Save } from "lucide-react";
-import { template } from "@prisma/client";
 import { Control } from "react-hook-form";
 import { FormValues } from "@/types/formTypes";
-import { TemplateWithBankDetails } from "@/app/api/document/get/template/[entity_id]/route";
+import { TemplateWithBankDetails } from "@api/templates/[id]/route";
 
 type Props = {
   control: Control<FormValues>;

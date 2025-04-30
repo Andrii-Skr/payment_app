@@ -1,10 +1,9 @@
-// SampleCombobox.tsx
+
 import * as React from "react";
 import { Control } from "react-hook-form";
-import { template } from "@prisma/client";
 import { Combobox } from "@/components/ui";
 import { FormValues } from "@/types/formTypes";
-import { TemplateWithBankDetails } from "@/app/api/document/get/template/[entity_id]/route";
+import { TemplateWithBankDetails } from "@api/templates/[id]/route";
 
 type Props = {
   control: Control<FormValues>;

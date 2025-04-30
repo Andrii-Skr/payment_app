@@ -3,7 +3,7 @@
 import { EntityTable } from "@/components/shared";
 import { apiClient } from "@/services/api-client";
 import React from "react";
-import { EntityWithAll } from "@/app/api/entity/schedule/route";
+import { EntityWithAll } from "@/app/api/(v1)/(protected)/documents/entities/route";
 
 type Props = {
   className?: string;
@@ -13,7 +13,7 @@ export const PaymentSchedule: React.FC<Props> = ({ className }) => {
   const [entities, setEntities] = React.useState<EntityWithAll[]>([]);
 
   const fetchEntities = async () => {
-    const data = await apiClient.entity.entitySchedule();
+    const data = await apiClient.documents.entitySchedule();
     if (!data) return;
     setEntities(data);
   };
@@ -22,7 +22,9 @@ export const PaymentSchedule: React.FC<Props> = ({ className }) => {
     fetchEntities();
   }, []);
 
-  const mergedDocs = (entities ?? []).flatMap((entity) => entity.documents ?? []);
+  const mergedDocs = (entities ?? []).flatMap(
+    (entity) => entity.documents ?? []
+  );
   mergedDocs.sort((a, b) => {
     const diff = a.partners.entity_id - b.partners.entity_id;
     if (diff !== 0) return diff;

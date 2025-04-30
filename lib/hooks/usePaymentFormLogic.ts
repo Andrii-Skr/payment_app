@@ -3,10 +3,10 @@ import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { apiClient } from "@/services/api-client";
 import { TransformedObject } from "@/lib/transformData/doc";
 import type { entity, template } from "@prisma/client";
-import { DocumentWithPartner } from "@/app/api/document/entity/[entity_id]/route";
+import { DocumentWithPartner } from "@/app/api/(v1)/(protected)/documents/payments-list/[id]/route";
 import { FormValues } from "@/types/formTypes";
 import { toast } from "@/lib/hooks/use-toast";
-import { TemplateWithBankDetails } from "@/app/api/document/get/template/[entity_id]/route";
+import { TemplateWithBankDetails } from "@api/templates/[id]/route";
 
 export function usePaymentFormLogic({
   reset,
@@ -26,7 +26,9 @@ export function usePaymentFormLogic({
   const entityIdNum = Number(entity_id);
 
   const [entity, setEntity] = React.useState<entity | null>(null);
-  const [templatesList, setTemplatesList] = React.useState<TemplateWithBankDetails[]>([]);
+  const [templatesList, setTemplatesList] = React.useState<
+    TemplateWithBankDetails[]
+  >([]);
   const [docs, setDocs] = React.useState<DocumentWithPartner[]>([]);
 
   const [isTemplateDialogOpen, setTemplateDialogOpen] = React.useState(false);
@@ -36,9 +38,9 @@ export function usePaymentFormLogic({
 
   React.useEffect(() => {
     if (entityIdNum) {
-      apiClient.entity.getEntityById(entityIdNum).then(setEntity);
-      apiClient.document.getTemplateById(entityIdNum).then(setTemplatesList);
-      apiClient.document.getByEntity(entityIdNum).then(setDocs);
+      apiClient.entities.getEntityById(entityIdNum).then(setEntity);
+      apiClient.templates.getTemplateById(entityIdNum).then(setTemplatesList);
+      apiClient.documents.getByEntity(entityIdNum).then(setDocs);
     }
   }, [entityIdNum]);
 
@@ -50,7 +52,7 @@ export function usePaymentFormLogic({
     const fetchDocument = async () => {
       if (!docIdQuery) return;
 
-      const data = await apiClient.document.getById(Number(docIdQuery));
+      const data = await apiClient.documents.getById(Number(docIdQuery));
       if (data != null) {
         reset(TransformedObject(data!));
       }
@@ -62,12 +64,13 @@ export function usePaymentFormLogic({
   const onSubmit = async (data: FormValues) => {
     try {
       if (!data.doc_id) {
-        await apiClient.document.create(data);
-        const updatedDocs = await apiClient.document.getByEntity(entityIdNum);
+        await apiClient.documents.create(data);
+        const updatedDocs = await apiClient.documents.getByEntity(entityIdNum);
         if (updatedDocs) setDocs(updatedDocs);
         toast.success("Документ создан успешно.");
       } else {
-        await apiClient.document.update(data);
+        console.log("Обновление документа:", data);
+        await apiClient.documents.update(data);
         toast.success("Документ обновлён.");
         router.push(`/create/payment-form/${entityIdNum}`);
       }

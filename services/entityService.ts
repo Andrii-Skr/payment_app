@@ -1,4 +1,4 @@
-import { getEntityById } from "@/services/entity";
+import { getEntityById } from "@/services/entities";
 import { entity } from "@prisma/client";
 
 const cache = new Map<number, entity>();

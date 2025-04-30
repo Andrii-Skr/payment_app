@@ -105,7 +105,7 @@ export const PaymentForm: React.FC<{ className?: string }> = ({
   };
 
   const handleDocRowClick = async (docId: number) => {
-    const data = await apiClient.document.getById(docId);
+    const data = await apiClient.documents.getById(docId);
     if (data != null) {
       reset(TransformedObject(data));
     }

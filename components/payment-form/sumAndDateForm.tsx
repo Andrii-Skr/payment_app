@@ -68,7 +68,7 @@ const SumAndDateForm: React.FC<Props> = ({ control, onBlur }) => {
     if (selectedPaymentIndex !== null) {
       const currentPayment = getValues(`payments.${selectedPaymentIndex}`);
       setValue(`is_auto_payment`, true);
-      apiClient.autoPayment.create(currentPayment);
+      apiClient.autoPayments.create(currentPayment);
     }
     setAlertOpen(false);
     setSelectedPaymentIndex(null);

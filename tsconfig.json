@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "baseUrl": ".",
     "lib": [
       "dom",
       "dom.iterable",
@@ -10,7 +11,8 @@
       "./types"
     ],
     "types": [
-      "next-auth"
+      "next-auth",
+      "jest"
     ],
     "allowJs": true,
     "skipLibCheck": true,
@@ -31,6 +33,9 @@
     "paths": {
       "@/*": [
         "./*"
+      ],
+      "@api/*": [
+        "app/api/(v1)/(protected)/*"
       ]
     },
     "target": "ES2017"
@@ -43,6 +48,7 @@
     "types"
   ],
   "exclude": [
+    ".next",
     "node_modules"
   ]
 }

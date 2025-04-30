@@ -1,14 +1,16 @@
 
-import * as entity from './entity';
+import * as entities from './entities';
 import * as partners from './partners';
-import * as document from './document';
-import * as specDoc from './specDoc';
-import * as autoPayment from './autoPayment';
+import * as documents from './documents';
+import * as specDocs from './specDocs';
+import * as autoPayments from './autoPayments';
+import * as templates from './templates';
 
 export const apiClient = {
-    entity,
+    entities,
     partners,
-    document,
-    specDoc,
-    autoPayment
+    documents,
+    specDocs,
+    autoPayments,
+    templates
 }

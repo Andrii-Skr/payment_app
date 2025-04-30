@@ -10,14 +10,14 @@ import {
   TableHead,
   TableCell,
 } from "@/components/ui/";
-import type { AutoPaymentWithDocs } from "@/app/api/regular/get/route";
+import type { AutoPaymentWithDocs } from "@api/regular-payments/route";
 
 export const AutoPaymentTable: React.FC = () => {
   const [autoPayments, setAutoPayments] = useState<AutoPaymentWithDocs[]>([]);
   const [expandedGroups, setExpandedGroups] = useState<Set<number>>(new Set());
 
   useEffect(() => {
-    apiClient.autoPayment
+    apiClient.autoPayments
       .get()
       .then((data: AutoPaymentWithDocs[] | undefined) => {
         if (!data) return;
@@ -42,9 +42,9 @@ export const AutoPaymentTable: React.FC = () => {
 
   const handleCancel = async (id: number) => {
     try {
-      await apiClient.autoPayment.cancel(id);
+      await apiClient.autoPayments.deleteById(id);
       // Повторно загружаем список автооплат
-      const updatedData = await apiClient.autoPayment.get();
+      const updatedData = await apiClient.autoPayments.get();
       if (updatedData) {
         setAutoPayments(updatedData);
       }

@@ -1,4 +1,4 @@
-import { DocumentWithPartner } from "@/app/api/document/entity/[entity_id]/route";
+import { DocumentWithPartner } from "@/app/api/(v1)/(protected)/documents/payments-list/[id]/route";
 import prisma from "@/prisma/prisma-client";
 
 export async function getDocumentsForEntity(
@@ -36,5 +36,3 @@ export async function getDocumentsForPartners(
     orderBy: { date: "desc" },
   });
 }
-
-

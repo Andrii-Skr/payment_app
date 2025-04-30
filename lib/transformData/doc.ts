@@ -1,8 +1,8 @@
-import { DocumentWithIncludes } from "@/app/api/document/[doc_id]/route";
+import { DocumentWithIncludes } from "@api/documents/[id]/route";
 import { FormValues } from "@/types/formTypes";
 
 export const TransformedObject = (data: DocumentWithIncludes): FormValues => {
-  
+
   return {
     doc_id: data.id,
     entity_id: data.entity_id,

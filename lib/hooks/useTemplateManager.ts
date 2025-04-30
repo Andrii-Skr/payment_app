@@ -2,7 +2,7 @@ import { apiClient } from "@/services/api-client";
 import { FormValues } from "@/types/formTypes";
 import { template } from "@prisma/client";
 import { toast } from "@/lib/hooks/use-toast";
-import { TemplateWithBankDetails } from "@/app/api/document/get/template/[entity_id]/route";
+import { TemplateWithBankDetails } from "@api/templates/[id]/route";
 
 export function useTemplateManager({
   reset,
@@ -32,7 +32,7 @@ export function useTemplateManager({
     sampleValue: string,
     setValue: (name: keyof FormValues, value: any) => void
   ) => {
-    const existingTemplates = await apiClient.document.getTemplateById(entityIdNum);
+    const existingTemplates = await apiClient.templates.getTemplateById(entityIdNum);
 
     const isDuplicate = existingTemplates?.some(
       (template) =>
@@ -49,10 +49,10 @@ export function useTemplateManager({
 
     if (formData.partner_id) {
       const { payments, ...dataToSend } = formData;
-      await apiClient.document.createTemplate(dataToSend as Omit<FormValues, "payments">);
+      await apiClient.templates.createTemplate(dataToSend as Omit<FormValues, "payments">);
     }
 
-    const updated = await apiClient.document.getTemplateById(entityIdNum);
+    const updated = await apiClient.templates.getTemplateById(entityIdNum);
     if (updated) setTemplatesList(updated);
 
     toast.success("Шаблон успешно сохранён.");
