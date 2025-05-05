@@ -1,8 +1,8 @@
 import cron from "node-cron";
 import { rolloverAutoPayments } from "./rolloverAutoPayments";
-import { updateBankInfo } from "@/scripts/updateBankInfo";
-import prisma from "@/prisma/prisma-client";
-import cronLogger from "@/lib/logs/cron-logger";
+import { updateBankInfo } from "./updateBankInfo";
+import prisma from "../prisma/prisma-client";
+import cronLogger from "../lib/logs/cron-logger";
 
 const KYIV_TZ = "Europe/Kyiv";
 

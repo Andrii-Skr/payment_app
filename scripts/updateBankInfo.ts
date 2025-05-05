@@ -1,6 +1,5 @@
 /**
  * Обновляет таблицу `bank_info` актуальными данными НБУ.
- * Запускать из корня проекта командой `pnpm ts-node scripts/updateBankInfo.ts`
  */
 
 import axios from "axios";
