@@ -1,0 +1,182 @@
+"use client";
+
+import { useEffect, useState, useCallback, useMemo } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+import { entitySchema, InfoFormValues, Row } from "@/types/infoTypes";
+import { useAutoFillBankDetails } from "@/lib/hooks/useAutoFillBankDetails";
+
+import { Form, Button, LoadingMessage } from "@/components/ui";
+import EntityTable from "./EntityTable";
+import { Container, FormInput } from "@/components/shared";
+import { apiClient } from "@/services/api-client";
+
+/**
+ * EntitySection
+ * ─────────────
+ * • По-умолчанию показывает только is_deleted === false
+ * • Чекбокс «Показать удалённые» переключает режим фильтрации
+ * • Сортировка оставляет активные записи выше удалённых
+ */
+export default function EntitySection() {
+  /* ───────── состояния компонента ───────── */
+  const [rows, setRows] = useState<Row[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [showDeleted, setShowDeleted] = useState(false); // ← чекбокс
+
+  /* ───────── React-Hook-Form ───────── */
+  const form = useForm<InfoFormValues>({
+    resolver: zodResolver(entitySchema),
+    defaultValues: {
+      name: "",
+      edrpou: "",
+      bank_account: "",
+      bank_name: "",
+      mfo: "",
+    },
+  });
+
+  /* ───────── автозаполнение МФО/банка ───────── */
+  const bankAccountValue = form.watch("bank_account");
+  const { mfo, bankName } = useAutoFillBankDetails(bankAccountValue);
+
+  useEffect(() => {
+    if (mfo) form.setValue("mfo", mfo);
+    if (bankName) form.setValue("bank_name", bankName);
+  }, [mfo, bankName, form]);
+
+  /* ───────── загрузка / обновление данных ───────── */
+  const loadEntities = useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await apiClient.entities.getAll();
+
+      // активные сверху, удалённые снизу
+      data.sort(
+        (a: Row, b: Row) => Number(a.is_deleted) - Number(b.is_deleted)
+      );
+
+      setRows(data);
+      setError(null);
+    } catch (err) {
+      setError(String(err));
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadEntities();
+  }, [loadEntities]);
+
+  /* ───────── CRUD операции ───────── */
+  const handleCreate = async (data: InfoFormValues) => {
+    try {
+      await apiClient.entities.create(data);
+      form.reset();
+      await loadEntities();
+    } catch (err) {
+      setError(String(err));
+    }
+  };
+
+  const handleUpdate = async (data: Partial<Row>) => {
+    try {
+      await apiClient.entities.update(data);
+      await loadEntities();
+    } catch (err) {
+      setError(String(err));
+    }
+  };
+
+  const handleRemove = async (id: number, data: boolean) => {
+    try {
+      await apiClient.entities.remove(id, data);
+      await loadEntities();
+    } catch (err) {
+      setError(String(err));
+    }
+  };
+
+  /* ───────── фильтрация для таблицы ───────── */
+  const filteredRows = useMemo(
+    () => (showDeleted ? rows : rows.filter((r) => !r.is_deleted)),
+    [rows, showDeleted]
+  );
+
+  /* ───────── JSX ───────── */
+  return (
+    <Container className="flex-col items-start gap-5">
+      {/* ───── форма создания контрагента ───── */}
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(handleCreate)}
+          className="grid gap-4 md:grid-cols-4 lg:grid-cols-4 items-end"
+        >
+          <FormInput
+            control={form.control}
+            name="name"
+            label="Название"
+            placeholder='ТОВ "Ромашка"'
+          />
+          <FormInput
+            control={form.control}
+            name="edrpou"
+            label="ЕДРПОУ"
+            placeholder="12345678"
+          />
+          <FormInput
+            control={form.control}
+            name="bank_account"
+            className="w-[260px]"
+            label="р/с"
+            placeholder="UA12345678..."
+          />
+          {/* пустая ячейка для выравнивания сетки */}
+          <div className="hidden md:block" />
+          <FormInput
+            control={form.control}
+            name="bank_name"
+            label="Банк"
+            readOnly
+          />
+          <FormInput control={form.control} name="mfo" label="МФО" readOnly />
+          <div className="hidden md:block" />
+          <Button
+            type="submit"
+            className="flex self-end leading-none mb-1"
+            disabled={form.formState.isSubmitting}
+          >
+            {form.formState.isSubmitting ? "Сохраняю…" : "Создать"}
+          </Button>
+        </form>
+      </Form>
+
+      {/* ───── чекбокс «Показать удалённые» ───── */}
+      <label className="flex items-center gap-2 select-none text-sm">
+        <input
+          type="checkbox"
+          checked={showDeleted}
+          onChange={(e) => setShowDeleted(e.target.checked)}
+          className="h-4 w-4 accent-primary"
+        />
+        Показать удалённые
+      </label>
+
+      {/* ───── контент (таблица / лоадер / ошибка) ───── */}
+      {loading ? (
+        <LoadingMessage />
+      ) : error ? (
+        <p className="text-destructive">{error}</p>
+      ) : (
+        <EntityTable
+          rows={filteredRows}
+          onRemove={handleRemove}
+          onUpdate={handleUpdate}
+        />
+      )}
+    </Container>
+  );
+}

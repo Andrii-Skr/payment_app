@@ -1,0 +1,4 @@
+model bank_info {
+    mfo        String @unique @db.VarChar(6) @id
+    bank_name String @db.VarChar
+}
