@@ -55,3 +55,4 @@ export {
 export { RadioGroup, RadioGroupItem } from "./radio-group";
 
 export { Modal } from "./modal";
+export { LoadingMessage } from "./loadingMessage";

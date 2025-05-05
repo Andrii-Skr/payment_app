@@ -7,7 +7,7 @@ model entity {
     edrpou     String    @db.VarChar(8) @unique
     bank_account String
     bank_name   String?
-    mfo        String
+    mfo        String?
 
     partners partners[]
     documents documents[]

@@ -168,7 +168,7 @@ const SumAndDateForm: React.FC<Props> = ({ control, onBlur }) => {
                   </Button>
                 ) : null}
               </Container>
-              <Container className="justify-start gap-5">
+              <Container className="flex justify-start items-center gap-5">
                 <FormDatePicker
                   control={control}
                   name={`payments.${index}.expectedDate`}
@@ -186,7 +186,7 @@ const SumAndDateForm: React.FC<Props> = ({ control, onBlur }) => {
                 <Button
                   type="button"
                   tabIndex={-1}
-                  className="text-red-500 mt-[29]"
+                  className="flex items-center gap-2 text-red-500 leading-none mt-1"
                   variant="ghost"
                   disabled={isPaid}
                   onClick={() => remove(index)}

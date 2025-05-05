@@ -18,7 +18,7 @@ export const EntityList: React.FC<Props> = ({ className }) => {
   const router = useRouter();
 
   React.useEffect(() => {
-    apiClient.entities.entityService().then((data) => {
+    apiClient.entities.getAll().then((data) => {
       if (data) setEntityList(data);
     });
   }, []);

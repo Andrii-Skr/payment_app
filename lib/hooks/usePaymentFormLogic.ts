@@ -38,7 +38,7 @@ export function usePaymentFormLogic({
 
   React.useEffect(() => {
     if (entityIdNum) {
-      apiClient.entities.getEntityById(entityIdNum).then(setEntity);
+      apiClient.entities.getById(entityIdNum).then(setEntity);
       apiClient.templates.getTemplateById(entityIdNum).then(setTemplatesList);
       apiClient.documents.getByEntity(entityIdNum).then(setDocs);
     }

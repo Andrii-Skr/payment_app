@@ -1,4 +1,3 @@
-
 import { NextRequest, NextResponse } from "next/server";
 import { apiRoute } from "@/utils/apiRoute";
 import { hasRole } from "@/lib/access/hasRole";
@@ -7,7 +6,12 @@ import prisma from "@/prisma/prisma-client";
 import type { Session } from "next-auth";
 import { Prisma } from "@prisma/client";
 
+/* ──────────────────────── Prisma helpers ──────────────────────── */
 
+/** Фильтр для «активных» документов */
+const UNPAID_DOC_WHERE = { is_paid: false, is_deleted: false } as const;
+
+/** Общий SELECT/INCLUDE для сущностей */
 const entityQuery = Prisma.validator<Prisma.entityFindManyArgs>()({
   select: {
     id: true,
@@ -17,7 +21,7 @@ const entityQuery = Prisma.validator<Prisma.entityFindManyArgs>()({
     bank_name: true,
     mfo: true,
     documents: {
-      where: { is_paid: false, is_deleted: false },
+      where: UNPAID_DOC_WHERE,
       include: {
         partners: true,
         spec_doc: true,
@@ -28,63 +32,59 @@ const entityQuery = Prisma.validator<Prisma.entityFindManyArgs>()({
     },
   },
 });
-
-
 export type EntityWithAll = Prisma.entityGetPayload<typeof entityQuery>;
 
-const getEntities = (where: Prisma.entityWhereInput) =>
-  prisma.entity.findMany({
-    where,
-    ...entityQuery,
-  });
+/* ──────────────────────── Utils ──────────────────────────────── */
 
+/** Короткий alias для JSON-ответа */
+const json = (data: unknown, init?: ResponseInit) =>
+  NextResponse.json(data, init);
+
+/** Единая функция чтения сущностей с учётом entityQuery */
+const fetchEntities = (where: Prisma.entityWhereInput) =>
+  prisma.entity.findMany({ ...entityQuery, where });
+
+/* ──────────────────────── Handler ─────────────────────────────── */
 
 const getHandler = async (
-  req: NextRequest,
+  _req: NextRequest,
   _body: null,
   _params: {},
-  user: Session["user"] | null,
+  user: Session["user"] | null
 ) => {
-  if (!user) {
-    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-  }
+  /* Авторизация */
+  if (!user) return json({ message: "Unauthorized" }, { status: 401 });
 
-  /* Безопасно приводим id к number */
-  const userId = Number.parseInt(String(user.id), 10);
-  if (Number.isNaN(userId)) {
-    return NextResponse.json({ message: "Invalid user id" }, { status: 400 });
-  }
+  /* Надёжно приводим id к числу */
+  const userId = Number(user.id);
+  if (!Number.isFinite(userId))
+    return json({ message: "Invalid user id" }, { status: 400 });
 
   try {
-    /* ──────────────────────── Admin ──────────────────────── */
+    /* ─────────────────────── ADMIN ─────────────────────── */
     if (hasRole(user.role, Roles.ADMIN)) {
-      const entities = await getEntities({ is_deleted: false });
-      return NextResponse.json(entities);
+      return json(await fetchEntities({ is_deleted: false }));
     }
 
-    /* ─────────────── Пользователь/менеджер ──────────────── */
+    /* ──────────────── MANAGER / USER ───────────────────── */
     const dbUser = await prisma.user.findUnique({
       where: { id: userId },
-      include: {
-        users_partners: true,
-        users_entities: true,
+      select: {
+        users_partners: { select: { partner_id: true } },
+        users_entities: { select: { entity_id: true } },
       },
     });
-
-    if (!dbUser) {
-      return NextResponse.json({ message: "User not found" }, { status: 404 });
-    }
+    if (!dbUser) return json({ message: "User not found" }, { status: 404 });
 
     const partnerIds = dbUser.users_partners.map((p) => p.partner_id);
-    const entityIds  = dbUser.users_entities.map((e) => e.entity_id);
+    const entityIds = dbUser.users_entities.map((e) => e.entity_id);
 
     /* Нет привязок — пустой ответ */
     if (partnerIds.length === 0 && entityIds.length === 0) {
-      return NextResponse.json([]);
+      return json([]);
     }
 
-    /* Общее условие: либо явное владение entity, либо документы с нужными партнёрами */
-    const entities = await getEntities({
+    const entities = await fetchEntities({
       is_deleted: false,
       OR: [
         { id: { in: entityIds } },
@@ -92,25 +92,22 @@ const getHandler = async (
           documents: {
             some: {
               partner_id: { in: partnerIds },
-              is_paid: false,
-              is_deleted: false,
+              ...UNPAID_DOC_WHERE,
             },
           },
         },
       ],
     });
 
-    return NextResponse.json(entities);
+    return json(entities);
   } catch (err) {
-    // TODO: Подключите свой логгер (Sentry, Datadog, etc.)
+    // TODO: подключить Sentry / Datadog и т.д.
     console.error(err);
-    return NextResponse.json(
-      { message: "Internal Server Error" },
-      { status: 500 },
-    );
+    return json({ message: "Internal Server Error" }, { status: 500 });
   }
 };
 
+/* ─────────────────────── export ──────────────────────────────── */
 
 export const GET = apiRoute(getHandler, {
   requireAuth: true,

@@ -26,7 +26,10 @@ export type ApiRouteOptions<TBody = unknown> = {
 export function apiRoute<
   TBody = unknown,
   TParams extends Record<string, string> = {}
->(handler: ApiHandler<TBody, TParams>, options: ApiRouteOptions<TBody> = {}) {
+>(
+  handler: ApiHandler<TBody, TParams>,
+  options: ApiRouteOptions<TBody> = {}
+) {
   return async function route(
     req: NextRequest,
     { params }: RouteContext<TParams>
@@ -34,27 +37,40 @@ export function apiRoute<
     try {
       const resolvedParams = await params;
 
-      const needsBody = !["GET", "DELETE", "HEAD", "OPTIONS"].includes(
+      /* ---------- Чтение тела запроса ---------- */
+      const needsBody = !["GET", "HEAD", "OPTIONS", "DELETE"].includes(
         req.method
       );
-      let bodyRaw: unknown = needsBody ? await req.json() : null;
+      let bodyRaw: unknown = null;
 
-      if (options.schema && bodyRaw !== null) {
-        const parsed = options.schema.safeParse(bodyRaw);
-        if (!parsed.success) {
+      if (needsBody) {
+        try {
+          bodyRaw = await req.json(); // здесь падаем, если тело не JSON
+        } catch {
           return NextResponse.json(
-            {
-              success: false,
-              message: "Validation error",
-              errors: parsed.error.format(),
-            },
+            { success: false, message: "Invalid JSON body" },
             { status: 400 }
           );
         }
-        bodyRaw = parsed.data;
+
+        // ----------- Валидация по схеме -----------
+        if (options.schema) {
+          const parsed = options.schema.safeParse(bodyRaw);
+          if (!parsed.success) {
+            return NextResponse.json(
+              {
+                success: false,
+                message: "Validation error",
+                errors: parsed.error.format(),
+              },
+              { status: 400 }
+            );
+          }
+          bodyRaw = parsed.data; // после успешной валидации используем парс-данные
+        }
       }
 
-      /* 3. auth / ACL */
+      /* ---------- Аутентификация / авторизация ---------- */
       const session = await getServerSession(authOptions);
       const user = session?.user as User | null;
 
@@ -64,6 +80,7 @@ export function apiRoute<
           { status: 401 }
         );
       }
+
       if (options.roles && user && !options.roles.includes(user.role)) {
         return NextResponse.json(
           { success: false, message: "Forbidden" },
@@ -71,7 +88,7 @@ export function apiRoute<
         );
       }
 
-      /* 4. передаём в бизнес-обработчик */
+      /* ---------- Передаём управление хендлеру ---------- */
       return handler(req, bodyRaw as TBody, resolvedParams, user);
     } catch (err) {
       console.error("API Error:", err);

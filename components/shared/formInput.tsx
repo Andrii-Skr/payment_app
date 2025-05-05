@@ -1,4 +1,4 @@
-import { FormValues } from "@/types/formTypes";
+import { InfoFormValues } from "@/types/infoTypes";
 import {
   FormControl,
   FormDescription,
@@ -9,17 +9,11 @@ import {
   Input,
 } from "@/components/ui";
 import React from "react";
-import { Control } from "react-hook-form";
+import { Control, FieldValues, Path } from "react-hook-form";
 
-type PaymentsKeys = `payments.${number}.${"paySum"}`;
-type TopLevelKeys = keyof Omit<
-  FormValues,
-  "date" | "accountsList" | "payments" | "is_auto_payment" | "vatType"
->;
-
-type Props = {
-  control: Control<FormValues>;
-  name: PaymentsKeys | TopLevelKeys;
+type FormInputProps<T extends FieldValues> = {
+  control: Control<T>;
+  name: Path<T>;
   label: string;
   placeholder?: string;
   description?: string;
@@ -27,7 +21,7 @@ type Props = {
   className?: string;
 } & React.InputHTMLAttributes<HTMLInputElement>;
 
-const FormInput: React.FC<Props> = ({
+const FormInput = <T extends FieldValues>({
   control,
   name,
   label,
@@ -36,7 +30,7 @@ const FormInput: React.FC<Props> = ({
   type,
   className,
   ...rest
-}) => {
+}: FormInputProps<T>) => {
   return (
     <FormField
       control={control}

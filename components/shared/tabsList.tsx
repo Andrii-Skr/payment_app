@@ -1,5 +1,5 @@
 "use client";
-import { AddInfoList } from "@/components/shared/addInfoList";
+import { AddInfoList } from "@/components/add-info/addInfoList";
 import { Tabs, TabsContent } from "../ui/tabs";
 import { Container } from "./container";
 import { EntityList } from "../payment-schedule/entityList";

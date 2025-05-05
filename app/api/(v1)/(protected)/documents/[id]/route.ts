@@ -69,15 +69,6 @@ const getHandler = async (
   return NextResponse.json(document);
 };
 
-
-
-// export async function GET(
-//   req: NextRequest,
-//   context: { params: Promise<Params> }
-// ) {
-//   return apiRoute<null, Params>(handler)(req, context);
-// }
-
 export const GET = apiRoute(getHandler, {
   requireAuth: true,
   roles: [Roles.ADMIN, Roles.MANAGER],

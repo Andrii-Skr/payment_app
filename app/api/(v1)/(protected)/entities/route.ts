@@ -5,7 +5,8 @@ import { Roles } from "@/constants/roles";
 import prisma from "@/prisma/prisma-client";
 import type { Session } from "next-auth";
 
-type CreateEntityBody = {
+export type CreateEntityBody = {
+  id?: number;
   name: string;
   type: number;
   edrpou: string;
@@ -67,12 +68,37 @@ const postHandler = async (
   return NextResponse.json({ entity });
 };
 
-// export async function POST(req: NextRequest, context: any ) {
-//   return apiRoute<CreateEntityBody, {}>(postHandler, {
-//     requireAuth: true,
-//     roles: [Roles.ADMIN, Roles.MANAGER, Roles.USER],
-//   })(req, context);
-// }
+const patchHandler = async (
+  _req: NextRequest,
+  body: CreateEntityBody,
+  _params: {},
+  user: Session["user"] | null
+) => {
+  if (!user) {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  }
+  console.log("body", body);
+  const { id } = body;
+  if (!id || typeof id !== "number") {
+    return NextResponse.json({ message: "Invalid ID" }, { status: 400 });
+  }
+
+  try {
+    const entity = await prisma.entity.update({
+      where: { id: id },
+      data: body,
+    });
+
+    return NextResponse.json(entity);
+  } catch (error) {
+    return NextResponse.json({ message: "Entity not found" }, { status: 404 });
+  }
+};
+
+export const PATCH = apiRoute<CreateEntityBody>(patchHandler, {
+  requireAuth: true,
+  roles: [Roles.ADMIN],
+});
 
 export const POST = apiRoute<CreateEntityBody>(postHandler, {
   requireAuth: true,

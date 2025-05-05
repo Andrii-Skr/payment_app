@@ -1,4 +1,4 @@
-import { getEntityById } from "@/services/entities";
+import { getById } from "@/services/entities";
 import { entity } from "@prisma/client";
 
 const cache = new Map<number, entity>();
@@ -6,7 +6,7 @@ const cache = new Map<number, entity>();
 /** Берём сущность из кэша или подгружаем из API */
 export const fetchEntity = async (id: number): Promise<entity | null> => {
   if (cache.has(id)) return cache.get(id)!;
-  const data = await getEntityById(id);
+  const data = await getById(id);
   if (data) cache.set(id, data);
   return data;
 };
