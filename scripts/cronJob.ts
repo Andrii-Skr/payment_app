@@ -1,39 +1,38 @@
-// scripts/cronJob.ts
 import cron from "node-cron";
 import { rolloverAutoPayments } from "./rolloverAutoPayments";
 import { updateBankInfo } from "@/scripts/updateBankInfo";
 import prisma from "@/prisma/prisma-client";
+import cronLogger from "@/lib/logs/cron-logger";
 
 const KYIV_TZ = "Europe/Kyiv";
 
-console.log("⏰  Auto-payment cron started…");
+cronLogger.info({ msg: "⏰ Cron jobs started", tag: "cron" });
 
 cron.schedule(
-  //"* * * * *",               // каждую минуту
-  "0 3 * * *", // каждый день в 03:00
+  "0 3 * * *",
   async () => {
-    console.log(`[${new Date().toISOString()}] ➜ Rollover started`);
+    cronLogger.info({ msg: "➜ Rollover started", tag: "rollover" });
     try {
       await rolloverAutoPayments();
-      console.log(`[${new Date().toISOString()}] ✔ Rollover done`);
+      cronLogger.info({ msg: "✔ Rollover done", tag: "rollover" });
     } catch (e) {
-      console.error(`[${new Date().toISOString()}] ✖ Rollover failed`, e);
+      cronLogger.error({ msg: "✖ Rollover failed", error: e, tag: "rollover" });
     }
   },
   { timezone: KYIV_TZ }
 );
 
-console.log("⏰  Bank info cron started…");
+cronLogger.info({ msg: "⏰ Bank info cron scheduled", tag: "bank_update" });
 
 cron.schedule(
   "0 4 * * *",
   async () => {
-    console.log(`[${new Date().toISOString()}] ➜ Bank update started`);
+    cronLogger.info({ msg: "➜ Bank update started", tag: "bank_update" });
     try {
       await updateBankInfo();
-      console.log(`[${new Date().toISOString()}] ✔ Bank update done`);
+      cronLogger.info({ msg: "✔ Bank update done", tag: "bank_update" });
     } catch (e) {
-      console.error(`[${new Date().toISOString()}] ✖ Bank update failed`, e);
+      cronLogger.error({ msg: "✖ Bank update failed", error: e, tag: "bank_update" });
     } finally {
       await prisma.$disconnect();
     }
