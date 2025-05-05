@@ -11,12 +11,11 @@ if (!process.env.NBU_BANKS_URL) {
   console.error("✖  Не задана переменная окружения NBU_BANKS_URL");
   process.exit(1);
 }
-console.log(process.env.NBU_BANKS_URL);
 const NBU_BANKS_URL = process.env.NBU_BANKS_URL;
 
 const normalizeMfo = (mfo: unknown) => String(mfo).padStart(6, "0");
 
-async function main() {
+export async function updateBankInfo() {
   const { data } = await axios.get(NBU_BANKS_URL, { timeout: 15_000 });
 
   const ops = (data as Array<Record<string, unknown>>).map((item) =>
@@ -37,11 +36,4 @@ async function main() {
   );
 }
 
-main()
-  .catch((err) => {
-    console.error("✖  Ошибка обновления bank_info", err);
-    process.exitCode = 1;
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
+
