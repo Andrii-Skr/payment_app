@@ -1,6 +1,6 @@
 import { NextResponse, after } from "next/server"
 import type { NextRequest }   from "next/server"
-import logger from "@/lib/logs/logger"
+import logger from "@/lib/logs/api-logger"
 
 /**
  * Извлекаем IP из стандартных прокси-заголовков.
