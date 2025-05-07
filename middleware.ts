@@ -27,6 +27,6 @@ export default withAuth(
 // 💡 Авторизацию пускаем на весь сайт (кроме явных исключений)
 export const config = {
   matcher: [
-    "/((?!auth/signin|auth/register|api/auth|_next/static|_next/image|favicon.ico).*)",
+    "/((?!auth/signin|auth/register|api/log-test|api/auth|_next/static|_next/image|favicon.ico).*)",
   ],
 }

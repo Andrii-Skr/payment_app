@@ -1,8 +1,12 @@
+// src/utils/apiRoute.ts
+
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession, type User } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
+import { logApiRequest } from "@/lib/logs/logApiRequest"; // ← добавили
 import type { ZodSchema } from "zod";
 
+/* ---------- Типы (без изменений) ---------- */
 export type RouteContext<T extends Record<string, string> = {}> = {
   params: Promise<T>;
 };
@@ -23,21 +27,23 @@ export type ApiRouteOptions<TBody = unknown> = {
   schema?: ZodSchema<TBody>;
 };
 
+/* ---------- Обёртка ---------- */
 export function apiRoute<
   TBody = unknown,
   TParams extends Record<string, string> = {}
->(
-  handler: ApiHandler<TBody, TParams>,
-  options: ApiRouteOptions<TBody> = {}
-) {
+>(handler: ApiHandler<TBody, TParams>, options: ApiRouteOptions<TBody> = {}) {
   return async function route(
     req: NextRequest,
     { params }: RouteContext<TParams>
   ): Promise<NextResponse> {
+    const started = performance.now(); // ⬅️ точка старта
+    let status = 200;
+    let user: User | null = null;
+
     try {
       const resolvedParams = await params;
 
-      /* ---------- Чтение тела запроса ---------- */
+      /* ---------- Чтение тела ---------- */
       const needsBody = !["GET", "HEAD", "OPTIONS", "DELETE"].includes(
         req.method
       );
@@ -45,57 +51,67 @@ export function apiRoute<
 
       if (needsBody) {
         try {
-          bodyRaw = await req.json(); // здесь падаем, если тело не JSON
+          bodyRaw = await req.json();
         } catch {
+          status = 400;
           return NextResponse.json(
             { success: false, message: "Invalid JSON body" },
-            { status: 400 }
+            { status }
           );
         }
 
-        // ----------- Валидация по схеме -----------
+        /* ---------- Валидация ---------- */
         if (options.schema) {
           const parsed = options.schema.safeParse(bodyRaw);
           if (!parsed.success) {
+            status = 400;
             return NextResponse.json(
               {
                 success: false,
                 message: "Validation error",
                 errors: parsed.error.format(),
               },
-              { status: 400 }
+              { status }
             );
           }
-          bodyRaw = parsed.data; // после успешной валидации используем парс-данные
+          bodyRaw = parsed.data;
         }
       }
 
-      /* ---------- Аутентификация / авторизация ---------- */
+      /* ---------- Аутентификация / роли ---------- */
       const session = await getServerSession(authOptions);
-      const user = session?.user as User | null;
+      user = session?.user as User | null;
 
       if (options.requireAuth && !user?.id) {
+        status = 401;
         return NextResponse.json(
           { success: false, message: "Unauthorized" },
-          { status: 401 }
+          { status }
         );
       }
 
       if (options.roles && user && !options.roles.includes(user.role)) {
+        status = 403;
         return NextResponse.json(
           { success: false, message: "Forbidden" },
-          { status: 403 }
+          { status }
         );
       }
 
       /* ---------- Передаём управление хендлеру ---------- */
-      return handler(req, bodyRaw as TBody, resolvedParams, user);
+      const res = await handler(req, bodyRaw as TBody, resolvedParams, user);
+      status = res.status;
+      return res;
     } catch (err) {
       console.error("API Error:", err);
+      status = 500;
       return NextResponse.json(
         { success: false, message: "Internal server error." },
-        { status: 500 }
+        { status }
       );
+    } finally {
+      // 🔥 Записываем лог независимо от результата
+      logApiRequest(req, user, status, started);
     }
   };
 }

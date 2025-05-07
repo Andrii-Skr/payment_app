@@ -1,0 +1,18 @@
+
+model api_request_log{
+  id        Int   @id @default(autoincrement())
+  user_id    Int?
+  ip        String?  @db.VarChar(45)
+  route     String
+  method    String
+  status    Int
+  duration  Int
+  user_agent String?    @db.Text
+  created_at DateTime   @default(now())
+
+  user user? @relation(fields: [user_id], references: [id])
+
+  @@index([route, created_at])
+  @@index([user_id, created_at])
+  @@map("api_request_log")
+}

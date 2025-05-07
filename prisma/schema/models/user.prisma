@@ -10,9 +10,10 @@ model user {
 
 
     users_partners  users_partners[]
-  users_entities  users_entities[]
+    users_entities  users_entities[]
 
     documens documents[]
+    api_request_log api_request_log[]
 
     created_at DateTime? @default(now()) @db.Timestamp()
     updated_at DateTime? @updatedAt @db.Timestamp()

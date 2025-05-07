@@ -58,6 +58,7 @@ model spec_doc {
     is_deleted Boolean   @default(false)
 
     @@unique([auto_payment_id, expected_date, is_deleted], name: "spec_auto_date_key")
+    @@map("spec_doc")
 }
 
 model auto_payment {
