@@ -1,13 +1,15 @@
 "use client";
 
 import * as React from "react";
-import { Combobox } from "@/components/shared";
-import { Control, useFormContext } from "react-hook-form";
+import { useEffect } from "react";
+import { useFormContext } from "react-hook-form";
 import { FormValues } from "@/types/formTypes";
 import { useAccountListStore } from "@/store/store";
+import { Combobox } from "@/components/shared";
+import { useAutoFillBankDetails } from "@/lib/hooks/useAutoFillBankDetails";
 
 type Props = {
-  control: Control<FormValues>;
+  control: any;
   name: keyof Omit<FormValues, "expectedDate" | "deadLineDate" | "date">;
   label: string;
   description?: string;
@@ -29,18 +31,48 @@ export const AccountsCombobox: React.FC<Props> = ({
   );
 
   const list = currentAccountList
-    ? currentAccountList.map((e) => {
-        return { key: String(e.id), value: e.bank_account };
-      })
+    ? currentAccountList.map((e) => ({
+        key: String(e.id),
+        value: e.bank_account,
+      }))
     : [];
 
-  const { setValue } = useFormContext();
+  const { setValue, watch } = useFormContext<FormValues>();
 
+  // Обработка выбора в Combobox
   const onChange = (i: number) => {
-    const bankAccount = currentAccountList[i];
-    setValue("partner_account_number_id", bankAccount?.id || undefined);
-    setValue("mfo", bankAccount?.mfo || "");
+    const selected = currentAccountList[i];
+
+    if (!selected) {
+      setValue("partner_account_number_id", undefined);
+      setValue("selectedAccount", "");
+      setValue("mfo", "");
+      setValue("bank_name", "");
+      return;
+    }
+
+    setValue("partner_account_number_id", selected.id);
+    setValue("selectedAccount", selected.bank_account);
   };
+
+  // Получение bank_account из выбранного ID
+  const selectedId = watch("partner_account_number_id");
+  const selectedAccount = currentAccountList.find((a) => a.id === selectedId);
+  const bankAccount = selectedAccount?.bank_account;
+
+  // Автозаполнение MFO и bank_name
+  const { mfo, bankName } = useAutoFillBankDetails(bankAccount);
+
+  useEffect(() => {
+    if (!bankAccount) {
+      setValue("mfo", "");
+      setValue("bank_name", "");
+      return;
+    }
+
+    setValue("mfo", mfo || "");
+    setValue("bank_name", bankName || "");
+  }, [bankAccount, mfo, bankName, setValue]);
 
   return (
     <Combobox

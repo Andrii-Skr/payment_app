@@ -19,7 +19,7 @@ export async function updateBankInfo() {
 
   const ops = (data as Array<Record<string, unknown>>).map((item) =>
     prisma.bank_info.upsert({
-      where: { mfo: normalizeMfo(item.mfo) },
+      where: { mfo: normalizeMfo(item.mfo), not_update: false },
       update: { bank_name: String(item.txt ?? "") },
       create: {
         mfo: normalizeMfo(item.mfo),
@@ -34,5 +34,4 @@ export async function updateBankInfo() {
     `✔  Обновлено / добавлено ${ops.length} банковских записей в bank_info`
   );
 }
-
-
+// updateBankInfo()

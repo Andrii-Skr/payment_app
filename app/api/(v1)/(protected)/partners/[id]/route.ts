@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { apiRoute } from "@/utils/apiRoute";
 import type { Session } from "next-auth";
 import { hasRole } from "@/lib/access/hasRole";
+import { Roles } from "@/constants/roles";
 
 type Params = { id: string };
 
@@ -75,15 +76,12 @@ const postHandler = async (
   return NextResponse.json({ entity });
 };
 
-// ---------- Экспорт ----------
-export async function GET(req: NextRequest, context: { params: Promise<Params> }) {
-  return apiRoute<null, Params>(getHandler, {
-    requireAuth: true,
-  })(req, context);
-}
+export const GET = apiRoute(getHandler, {
+  requireAuth: true,
+  roles: [Roles.ADMIN, Roles.MANAGER],
+});
 
-export async function POST(req: NextRequest, context: any) {
-  return apiRoute(postHandler, {
-    requireAuth: true,
-  })(req, context);
-}
+export const POST = apiRoute(postHandler, {
+  requireAuth: true,
+  roles: [Roles.ADMIN, Roles.MANAGER],
+});

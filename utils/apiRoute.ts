@@ -39,6 +39,7 @@ export function apiRoute<
     const started = performance.now(); // ⬅️ точка старта
     let status = 200;
     let user: User | null = null;
+    let bodyRaw: unknown | undefined;
 
     try {
       const resolvedParams = await params;
@@ -47,7 +48,6 @@ export function apiRoute<
       const needsBody = !["GET", "HEAD", "OPTIONS", "DELETE"].includes(
         req.method
       );
-      let bodyRaw: unknown = null;
 
       if (needsBody) {
         try {
@@ -110,8 +110,7 @@ export function apiRoute<
         { status }
       );
     } finally {
-      // 🔥 Записываем лог независимо от результата
-      logApiRequest(req, user, status, started);
+      logApiRequest(req, user, status, started, bodyRaw);
     }
   };
 }

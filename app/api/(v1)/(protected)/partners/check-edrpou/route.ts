@@ -4,7 +4,7 @@ import prisma from "@/prisma/prisma-client";
 import { Roles } from "@/constants/roles";
 import type { Session } from "next-auth";
 
-const handler = async (
+const getHandler = async (
   _req: NextRequest,
   _body: null,
   _params: {},
@@ -15,8 +15,9 @@ const handler = async (
   }
 
   const { searchParams } = new URL(_req.url);
+
   const edrpou = searchParams.get("edrpou");
-  const entity_id = searchParams.get("entity_id");
+  const entity_id = searchParams.get("id");
 
   if (!edrpou || !entity_id) {
     return NextResponse.json({ error: "Missing parameters" }, { status: 400 });
@@ -36,9 +37,7 @@ const handler = async (
   return NextResponse.json(partner);
 };
 
-export async function GET(req: NextRequest, context: any) {
-  return apiRoute<null, {}>(handler, {
-    requireAuth: true,
-    roles: [Roles.ADMIN, Roles.MANAGER],
-  })(req, context);
-}
+export const GET = apiRoute(getHandler, {
+  requireAuth: true,
+  roles: [Roles.ADMIN, Roles.MANAGER],
+});

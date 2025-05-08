@@ -17,7 +17,9 @@ import { apiClient } from "@/services/api-client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CirclePlus } from "lucide-react";
 import { useForm } from "react-hook-form";
+import { useAutoFillBankDetails } from "@/lib/hooks/useAutoFillBankDetails";
 import { z } from "zod";
+import React from "react";
 
 type Props = {
   entityIdNum: number;
@@ -26,11 +28,11 @@ type Props = {
 
 const formSchema = z.object({
   entity_id: z.number(),
-  name: z.string().nonempty("Имя обязательно"),
-  edrpou: z.string().nonempty("ЕДРПОУ обязательно"),
-  bank_account: z.string().nonempty("Номер счета обязателен"),
-  mfo: z.string().nonempty("Номер счета обязателен"),
-  bank_name: z.string().nonempty("Номер счета обязателен"),
+  name: z.string().min(3, "Контрагент обязателен"),
+  edrpou: z.string().length(8, "ЕДРПОУ должен состоять из 8 цифр"),
+  bank_account: z.string().min(29, "Счет должен состоять из 29 символов"),
+  mfo: z.string(),
+  bank_name: z.string(),
 });
 
 export type PartnerValues = z.infer<typeof formSchema>;
@@ -50,13 +52,21 @@ export const AddPartner: React.FC<Props> = ({ className, entityIdNum }) => {
     defaultValues,
   });
 
+  const bankAccountValue = form.watch("bank_account");
+  const { mfo, bankName } = useAutoFillBankDetails(bankAccountValue);
+
+  React.useEffect(() => {
+    if (mfo) form.setValue("mfo", mfo);
+    if (bankName) form.setValue("bank_name", bankName);
+  }, [mfo, bankName, form]);
+
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
     try {
       const existing = await apiClient.partners.getByEdrpou(
         data.edrpou,
         data.entity_id
       );
-
+      console.log("existing", existing);
       if (existing) {
         toast.error("Контрагент с таким ЕДРПОУ уже существует.");
         return;
@@ -118,25 +128,28 @@ export const AddPartner: React.FC<Props> = ({ className, entityIdNum }) => {
                 label="ЕДРПОУ"
                 placeholder="Введите ЕДРПОУ"
               />
-            </Container>
-            <Container className="justify-start gap-2">
               <PartnerInput
                 control={form.control}
                 name="bank_account"
                 label="Номер счета"
-                placeholder="Введите номер счета"
+                className="w-[260px]"
+                placeholder="UA1234..."
               />
+            </Container>
+            <Container className="justify-start gap-2">
               <PartnerInput
                 control={form.control}
                 name="mfo"
                 label="МФО"
                 placeholder="Введите МФО"
+                readOnly
               />
               <PartnerInput
                 control={form.control}
                 name="bank_name"
                 label="Название банка"
                 placeholder="Введите название банка"
+                readOnly
               />
             </Container>
             <DialogFooter>

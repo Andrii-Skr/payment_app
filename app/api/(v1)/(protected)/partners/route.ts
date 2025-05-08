@@ -30,6 +30,7 @@ const handler = async (
   _req: NextRequest,
   body: PartnerBody
 ): Promise<NextResponse> => {
+  console.log("body", body);
   const { name, edrpou, entity_id, bank_account, mfo, bank_name } = body;
 
   const partner = await prisma.partners.create({

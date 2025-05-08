@@ -1,13 +1,15 @@
 
 import type { NextRequest } from "next/server";
 import type { User } from "next-auth";
+import { redactBody } from "./redactBody";
 import prisma from "@/prisma/prisma-client";
 
 export async function logApiRequest(
   req: NextRequest,
   user: User | null,
   status: number,
-  startedAt: number
+  startedAt: number,
+  bodyRaw?: unknown                // ← NEW
 ) {
   const ip =
     (req as any).ip ??
@@ -19,6 +21,18 @@ export async function logApiRequest(
       ? Number(user.id)
       : null;
 
+  // сериализуем тело, редактируя чувствительные поля; ограничиваем 8 KiB
+  let body_json: any = null;
+  if (bodyRaw !== undefined) {
+    try {
+      const redacted = redactBody(bodyRaw);
+      const str = JSON.stringify(redacted);
+      body_json = str.length <= 8192 ? redacted : { truncated: true };
+    } catch {
+      /* ignore serialization errors */
+    }
+  }
+
   prisma.api_request_log
     .create({
       data: {
@@ -29,6 +43,7 @@ export async function logApiRequest(
         status,
         duration: Math.round(performance.now() - startedAt),
         user_agent: req.headers.get("user-agent") ?? null,
+        body_json,
       },
     })
     .catch(console.error);

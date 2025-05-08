@@ -50,7 +50,16 @@ export const PartnerBlock: React.FC<Props> = ({ control, entityIdNum }) => (
         className="no-spin"
         name="mfo"
         label="МФО"
-        type="number"
+        type="text"
+        readOnly
+      />
+      <FormInput
+        control={control}
+        className="no-spin"
+        name="bank_name"
+        label="Название банка"
+        type="text"
+        readOnly
       />
     </Container>
   </div>

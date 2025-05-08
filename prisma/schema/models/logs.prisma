@@ -8,6 +8,7 @@ model api_request_log{
   status    Int
   duration  Int
   user_agent String?    @db.Text
+  body_json    Json?    @db.JsonB
   created_at DateTime   @default(now())
 
   user user? @relation(fields: [user_id], references: [id])
