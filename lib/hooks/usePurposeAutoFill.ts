@@ -12,12 +12,24 @@ export function usePurposeAutoFill<T extends FieldValues>(
   control: Control<T>,
   setValue: UseFormSetValue<T>
 ) {
-  const accountNumber = useWatch({ control, name: "accountNumber" as Path<T> }) as string;
+  const accountNumber = useWatch({
+    control,
+    name: "accountNumber" as Path<T>,
+  }) as string;
   const date = useWatch({ control, name: "date" as Path<T> }) as Date | null;
-  const accountSum = useWatch({ control, name: "accountSum" as Path<T> }) as string;
-  const vatPercent = useWatch({ control, name: "vatPercent" as Path<T> }) as number;
+  const accountSum = useWatch({
+    control,
+    name: "accountSum" as Path<T>,
+  }) as string;
+  const vatPercent = useWatch({
+    control,
+    name: "vatPercent" as Path<T>,
+  }) as number;
   const vatType = useWatch({ control, name: "vatType" as Path<T> }) as boolean;
-  const purpose = useWatch({ control, name: "purposeOfPayment" as Path<T> }) as string;
+  const purpose = useWatch({
+    control,
+    name: "purposeOfPayment" as Path<T>,
+  }) as string;
 
   useEffect(() => {
     if (!accountNumber || !date || !accountSum || vatType === undefined) return;
@@ -25,9 +37,12 @@ export function usePurposeAutoFill<T extends FieldValues>(
     const parsedSum = parseFloat(accountSum.toString());
     const formattedDate = format(new Date(date), "dd.MM.yyyy");
 
-    let autoNote = `№ ${accountNumber} від ${formattedDate}, на суму ${parsedSum.toFixed(2)},`;
+    let autoNote = `№ ${accountNumber} від ${formattedDate},`;
     if (vatType === true && vatPercent != null) {
-      const vatAmount = +(parsedSum - parsedSum / (1 + vatPercent / 100)).toFixed(2);
+      const vatAmount = +(
+        parsedSum -
+        parsedSum / (1 + vatPercent / 100)
+      ).toFixed(2);
       autoNote += ` в т.ч. ПДВ ${vatAmount.toFixed(2)}`;
     } else {
       autoNote += ` без ПДВ`;
@@ -47,7 +62,9 @@ export function usePurposeAutoFill<T extends FieldValues>(
     if (currentAutoExists) return;
 
     const key = "purposeOfPayment" as Path<T>;
-    const updated = userPart ? `${userPart} ${marker} ${autoNote}` : `${marker} ${autoNote}`;
+    const updated = userPart
+      ? `${userPart} ${marker} ${autoNote}`
+      : `${marker} ${autoNote}`;
     setValue(key, updated as unknown as T[typeof key]);
   }, [accountNumber, date, accountSum, vatPercent, vatType, purpose, setValue]);
 }
