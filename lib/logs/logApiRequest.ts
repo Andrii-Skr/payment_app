@@ -1,15 +1,15 @@
-
 import type { NextRequest } from "next/server";
 import type { User } from "next-auth";
 import { redactBody } from "./redactBody";
 import prisma from "@/prisma/prisma-client";
+import { Prisma } from "@prisma/client";
 
 export async function logApiRequest(
   req: NextRequest,
   user: User | null,
   status: number,
   startedAt: number,
-  bodyRaw?: unknown                // ← NEW
+  bodyRaw?: unknown // ← NEW
 ) {
   const ip =
     (req as any).ip ??
@@ -43,7 +43,7 @@ export async function logApiRequest(
         status,
         duration: Math.round(performance.now() - startedAt),
         user_agent: req.headers.get("user-agent") ?? null,
-        body_json,
+        body_json: body_json as Prisma.InputJsonValue, // 👈 явное указание типа
       },
     })
     .catch(console.error);
