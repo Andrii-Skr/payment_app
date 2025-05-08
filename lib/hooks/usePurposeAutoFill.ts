@@ -37,18 +37,20 @@ export function usePurposeAutoFill<T extends FieldValues>(
     const parsedSum = parseFloat(accountSum.toString());
     const formattedDate = format(new Date(date), "dd.MM.yyyy");
 
-    let autoNote = `№ ${accountNumber} від ${formattedDate},`;
+    let autoNote = `${accountNumber} від ${formattedDate},`;
     if (vatType === true && vatPercent != null) {
       const vatAmount = +(
         parsedSum -
         parsedSum / (1 + vatPercent / 100)
       ).toFixed(2);
-      autoNote += ` в т.ч. ПДВ ${vatAmount.toFixed(2)}`;
+      autoNote += ` у т.ч. ПДВ ${vatPercent}% = ${vatAmount
+        .toFixed(2)
+        .replace(".", ",")}`;
     } else {
       autoNote += ` без ПДВ`;
     }
 
-    const marker = "—";
+    const marker = "№";
     const hasMarker = purpose?.includes(marker);
 
     // всегда разбиваем по маркеру
