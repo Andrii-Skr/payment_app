@@ -5,16 +5,25 @@ import prisma from "../prisma/prisma-client";
 import cronLogger from "../lib/logs/cron-logger";
 
 const KYIV_TZ = "Europe/Kyiv";
+const isTestMode = process.env.TEST_MODE === "true";
 
-cronLogger.info({ msg: "⏰ Cron jobs started", tag: "cron" });
+// ⏰ Расписания
+const ROLLOVER_SCHEDULE = isTestMode ? "* * * * *" : "0 3 * * *";
+const BANK_UPDATE_SCHEDULE = isTestMode ? "* * * * *" : "0 4 * * *";
 
+cronLogger.info({ msg: `⏰ Cron service started in ${isTestMode ? "TEST" : "PROD"} mode`, tag: "init" });
+
+/** 🔁 Автопролонгация */
 cron.schedule(
-  "0 3 * * *",
+  ROLLOVER_SCHEDULE,
   async () => {
+    const startedAt = Date.now();
     cronLogger.info({ msg: "➜ Rollover started", tag: "rollover" });
+
     try {
       await rolloverAutoPayments();
-      cronLogger.info({ msg: "✔ Rollover done", tag: "rollover" });
+      const duration = Date.now() - startedAt;
+      cronLogger.info({ msg: `✔ Rollover done (${duration}ms)`, tag: "rollover" });
     } catch (e) {
       cronLogger.error({ msg: "✖ Rollover failed", error: e, tag: "rollover" });
     }
@@ -22,15 +31,17 @@ cron.schedule(
   { timezone: KYIV_TZ }
 );
 
-cronLogger.info({ msg: "⏰ Bank info cron scheduled", tag: "bank_update" });
-
+/** 🏦 Обновление банков */
 cron.schedule(
-  "0 4 * * *",
+  BANK_UPDATE_SCHEDULE,
   async () => {
+    const startedAt = Date.now();
     cronLogger.info({ msg: "➜ Bank update started", tag: "bank_update" });
+
     try {
       await updateBankInfo();
-      cronLogger.info({ msg: "✔ Bank update done", tag: "bank_update" });
+      const duration = Date.now() - startedAt;
+      cronLogger.info({ msg: `✔ Bank update done (${duration}ms)`, tag: "bank_update" });
     } catch (e) {
       cronLogger.error({ msg: "✖ Bank update failed", error: e, tag: "bank_update" });
     } finally {
@@ -38,4 +49,16 @@ cron.schedule(
     }
   },
   { timezone: KYIV_TZ }
+);
+
+// Удержание процесса
+setInterval(() => {}, 1000 * 60 * 60);
+
+// Завершение по сигналу
+["SIGINT", "SIGTERM"].forEach((signal) =>
+  process.on(signal, async () => {
+    cronLogger.info({ msg: `🔻 Shutting down cron (${signal})`, tag: "cron" });
+    await prisma.$disconnect();
+    process.exit(0);
+  })
 );

@@ -1,0 +1,18 @@
+# Папки, которые не нужны в образе
+node_modules
+.next
+dist
+coverage
+
+# Конфиги окружения
+.env*
+*.log
+
+# Системные файлы
+.DS_Store
+*.swp
+*.swo
+.idea
+.vscode
+*.tsbuildinfo
+

@@ -4,10 +4,13 @@
   "private": true,
   "scripts": {
     "test": "jest",
-    "sync:bank-info": "tsx --env-file=.env scripts/updateBankInfo.ts",
+    "oldsync:bank-info": "tsx --env-file=.env scripts/updateBankInfo.ts",
+    "oldcron": "tsx --env-file=.env scripts/cronJob.ts",
+    "sync:bank-info": "tsc dist/scripts/updateBankInfo.ts",
+    "cron": "node dist/scripts/cronJob.js",
     "build:scripts": "tsc -p tsconfig.scripts.json",
-    "build": "next build",
-    "build:full": "pnpm build && pnpm build:scripts",
+    "build:web": "next build",
+    "build:full": "pnpm build:web && pnpm build:scripts",
     "dev": "next dev --turbo",
     "start": "next start",
     "lint": "next lint",
@@ -15,8 +18,7 @@
     "prisma:migrate": "prisma migrate dev",
     "prisma:push": "prisma db push",
     "prisma:seed": "prisma db seed",
-    "prisma:studio": "BROWSER=none prisma studio",
-    "cron": "tsx --env-file=.env scripts/cronJob.ts"
+    "prisma:studio": "BROWSER=none prisma studio"
   },
   "pnpm": {
     "overrides": {
@@ -30,7 +32,8 @@
       "core-js",
       "esbuild",
       "prisma",
-      "sharp"
+      "sharp",
+      "bcrypt"
     ]
   },
   "prisma": {
@@ -77,10 +80,10 @@
     "tailwindcss-animate": "^1.0.7",
     "ts-node": "^10.9.2",
     "zod": "^3.23.8",
+    "@prisma/client": "^6.6.0",
     "zustand": "^5.0.1"
   },
   "devDependencies": {
-    "@prisma/client": "^6.6.0",
     "@types/jest": "^29.5.14",
     "@types/node": "^20",
     "@types/node-cron": "^3.0.11",
