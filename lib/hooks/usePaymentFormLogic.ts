@@ -1,8 +1,10 @@
+"use client";
+
 import React from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { apiClient } from "@/services/api-client";
 import { TransformedObject } from "@/lib/transformData/doc";
-import type { entity, template } from "@prisma/client";
+import type { entity} from "@prisma/client";
 import { DocumentWithPartner } from "@/app/api/(v1)/(protected)/documents/payments-list/[id]/route";
 import { FormValues } from "@/types/formTypes";
 import { toast } from "@/lib/hooks/use-toast";

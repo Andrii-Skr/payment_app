@@ -45,7 +45,7 @@ export function usePurposeAutoFill<T extends FieldValues>(
       ).toFixed(2);
       autoNote += ` у т.ч. ПДВ ${vatPercent}% = ${vatAmount
         .toFixed(2)
-        .replace(".", ",")}`;
+        .replace(".", ",")} грн.`;
     } else {
       autoNote += ` без ПДВ`;
     }

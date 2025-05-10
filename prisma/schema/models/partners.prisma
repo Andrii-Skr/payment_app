@@ -2,7 +2,7 @@ model partners {
     id     Int     @id @default(autoincrement())
     name   String  @db.VarChar
     type   Decimal? @db.Decimal(1, 0)
-    edrpou String  @unique @db.VarChar(8)
+    edrpou String  @unique @db.VarChar(10)
     group  Int[]   @db.SmallInt
 
     entity_id Int

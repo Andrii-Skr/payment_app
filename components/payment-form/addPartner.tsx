@@ -29,7 +29,7 @@ type Props = {
 const formSchema = z.object({
   entity_id: z.number(),
   name: z.string().min(3, "Контрагент обязателен"),
-  edrpou: z.string().length(8, "ЕДРПОУ должен состоять из 8 цифр"),
+  edrpou: z.string().min(8,"ЕДРПОУ должен состоять из 8 или 10 символов").max(10, "ЕДРПОУ должен состоять из 8 или 10 символов"),
   bank_account: z.string().min(29, "Счет должен состоять из 29 символов"),
   mfo: z.string(),
   bank_name: z.string(),

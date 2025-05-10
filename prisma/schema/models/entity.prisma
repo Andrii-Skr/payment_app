@@ -4,7 +4,7 @@ model entity {
 
     type       Decimal?   @db.Decimal(1, 0)
 
-    edrpou     String    @db.VarChar(8) @unique
+    edrpou     String    @db.VarChar(10) @unique
     bank_account String
     bank_name   String?
     mfo        String?

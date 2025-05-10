@@ -78,6 +78,7 @@ export default function EntitySection() {
       form.reset();
       await loadEntities();
     } catch (err) {
+      console.log(err);
       setError(String(err));
     }
   };
@@ -96,6 +97,7 @@ export default function EntitySection() {
       await apiClient.entities.remove(id, data);
       await loadEntities();
     } catch (err) {
+      console.log(err);
       setError(String(err));
     }
   };
@@ -112,7 +114,9 @@ export default function EntitySection() {
       {/* ───── форма создания контрагента ───── */}
       <Form {...form}>
         <form
-          onSubmit={form.handleSubmit(handleCreate)}
+          onSubmit={form.handleSubmit(handleCreate, (errors) =>
+            console.warn("Zod validation errors:", errors)
+          )}
           className="grid gap-4 md:grid-cols-4 lg:grid-cols-4 items-end"
         >
           <FormInput
