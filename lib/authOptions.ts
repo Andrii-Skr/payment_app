@@ -21,9 +21,11 @@ export const authOptions: NextAuthOptions = {
           req?.headers?.["x-real-ip"] ??
           "unknown";
 
-        const limit = rateLimit(ip.toString());
+        const login = credentials?.login ?? "unknown";
+        const limit = rateLimit(ip.toString(), login);
+
         if (!limit.allowed) {
-          console.warn(`[AUTH RATE LIMIT] IP ${ip} — too many attempts`);
+          console.warn(`[AUTH RATE LIMIT] ${limit.reason?.toUpperCase()} — ${login} @ ${ip}`);
           return null;
         }
 

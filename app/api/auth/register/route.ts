@@ -4,20 +4,27 @@ import prisma from "@/prisma/prisma-client";
 import { apiRoute } from "@/utils/apiRoute";
 import { registerSchema, RegisterBody } from "@/types/registerSchema";
 import { rateLimit } from "@/utils/rateLimiter";
+import { Roles } from "@/constants/roles";
 
-const handler = async (req: NextRequest, body: RegisterBody) => {
+const postHandler = async (req: NextRequest, body: RegisterBody) => {
   const ip =
     req.headers.get("x-forwarded-for") ||
     req.headers.get("x-real-ip") ||
     "unknown";
 
-  const limit = rateLimit(ip);
+  const { login, password, name } = body;
+
+  // 💡 Теперь rateLimit требует и login, и ip
+  const limit = rateLimit(ip, login);
 
   if (!limit.allowed) {
     return NextResponse.json(
       {
         success: false,
-        message: `Слишком много попыток. Повторите через ${limit.retryAfter} сек.`,
+        message:
+          limit.reason === "ip"
+            ? `Слишком много попыток с IP. Подождите ${limit.retryAfter} сек.`
+            : `Слишком много попыток для логина "${login}". Повторите через ${limit.retryAfter} сек.`,
       },
       {
         status: 429,
@@ -25,8 +32,6 @@ const handler = async (req: NextRequest, body: RegisterBody) => {
       }
     );
   }
-
-  const { login, password, name } = body;
 
   const existingUser = await prisma.user.findUnique({ where: { login } });
 
@@ -44,7 +49,7 @@ const handler = async (req: NextRequest, body: RegisterBody) => {
       login,
       password: hashedPassword,
       name,
-      role: { connect: { id: 2 } }, // можно вынести в константы (например, Roles.USER)
+      role: { connect: { id: 2 } }, // можно вынести в enum
     },
   });
 
@@ -54,9 +59,7 @@ const handler = async (req: NextRequest, body: RegisterBody) => {
   );
 };
 
-// ✅ Совместим с Next.js 15
-export async function POST(req: NextRequest, context: any) {
-  return apiRoute<RegisterBody>(handler, {
-    schema: registerSchema,
-  })(req, context);
-}
+export const POST = apiRoute<RegisterBody>(postHandler, {
+  requireAuth: true,
+  roles: [Roles.ADMIN, Roles.MANAGER],
+});
