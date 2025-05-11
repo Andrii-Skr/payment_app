@@ -1,15 +1,16 @@
-# docker-compose.yml
 services:
   app:
     build:
       context: .
-      target: app                       # 👈 финальная стадия для web
+      target: runtime
       args:
-        DATABASE_URL:       ${DATABASE_URL}
+        DATABASE_URL: ${DATABASE_URL}
         NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
-        NEXTAUTH_URL:       ${NEXTAUTH_URL}
-        NBU_BANKS_URL:      ${NBU_BANKS_URL}
-    image: payment_app:app
+        NEXTAUTH_URL: ${NEXTAUTH_URL}
+        NBU_BANKS_URL: ${NBU_BANKS_URL}
+    image: payment_app:local
+    pull_policy: never
+    command: ["pnpm", "start"]
     env_file: .env
     ports:
       - "3000:3000"
@@ -17,26 +18,29 @@ services:
       - logs:/app/logs
     restart: unless-stopped
     healthcheck:
-      test: ["CMD","wget","--no-verbose","--tries=1","--spider","http://localhost:3000"]
+      test:
+        [
+          "CMD",
+          "wget",
+          "--no-verbose",
+          "--tries=1",
+          "--spider",
+          "http://localhost:3000",
+        ]
       interval: 30s
       timeout: 5s
       retries: 3
 
-  cron:
-    build:
-      context: .
-      target: cron                      # 👈 финальная стадия для cron
-      args:
-        DATABASE_URL:  ${DATABASE_URL}
-        NEXTAUTH_URL:  ${NEXTAUTH_URL}
-        NBU_BANKS_URL: ${NBU_BANKS_URL}
-    image: payment_app:cron
+  cron: # фоновые задания
+    image: payment_app:local
+    pull_policy: never
+    command: ["node", "dist/scripts/cronJob.js"]
     env_file: .env
-    command: ["node","dist/scripts/cronJob.js"]
-    depends_on: [app]
+    depends_on:
+      - app
     volumes:
       - logs:/app/logs
     restart: on-failure
 
 volumes:
-  logs:                                 # 👈 единый том для логов
+  logs: 

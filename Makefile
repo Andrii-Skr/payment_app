@@ -2,50 +2,57 @@
 COMPOSE = docker compose
 
 # ───── СБОРКА ─────
-.PHONY: build rebuild clean
-build:
-	$(COMPOSE) build          # первый build
+.PHONY: build rebuild clean down
+build:                         ## Первый билд (runtime-слой app)
+	$(COMPOSE) build app
 
-rebuild:
-	$(COMPOSE) build --no-cache
+rebuild:                       ## Полный ребилд без кэша
+	$(COMPOSE) build --no-cache app
 
-clean:
+clean:                         ## Остановка + удаление томов
 	$(COMPOSE) down -v --remove-orphans
 
-# ───── ЗАПУСК ─────
-.PHONY: up run-all run-all-build run-all-fg stop restart logs cron-logs logs-all shell cron-shell
-up:
-	$(COMPOSE) up -d          # без сборки
+down:                          ## Только остановка и удаление контейнеров
+	$(COMPOSE) down --remove-orphans
 
-run-all:            ## Сборка образа при первом запуске, далее просто up
+# ───── ЗАПУСК ─────
+.PHONY: up up-app run-all run-all-build run-all-fg stop restart \
+        logs cron-logs logs-all shell cron-shell
+up:                            ## Поднять app + cron (без билда)
 	$(COMPOSE) up -d app cron
 
-run-all-build:      ## Принудительно билд + up (на случай изменений)
-	$(COMPOSE) up --build -d app cron
+up-app:                        ## Поднять только веб-часть
+	$(COMPOSE) up -d app
 
-run-all-fg:         ## Запуск в foreground (без rebuild)
+run-all:                       ## Первый запуск с автоматической сборкой
+	$(COMPOSE) up -d --build app cron
+
+run-all-build:                 ## Принудительный билд + запуск
+	$(COMPOSE) up -d --build app cron
+
+run-all-fg:                    ## Запуск в foreground
 	$(COMPOSE) up app cron
 
-stop:
+stop:                          ## Пауза без удаления контейнеров
 	$(COMPOSE) stop
 
-restart:            ## Быстрый перезапуск без rebuild
+restart:                       ## Быстрый рестарт (без ребилда)
 	$(COMPOSE) restart app cron
 
-logs:
+logs:                          ## Логи веб-сервиса
 	$(COMPOSE) logs -f app
 
-cron-logs:
+cron-logs:                     ## Логи cron-процесса
 	$(COMPOSE) logs -f cron
 
-logs-all:
+logs-all:                      ## Общие логи
 	$(COMPOSE) logs -f app cron
 
-shell:
-	$(COMPOSE) exec app sh
+shell:                         ## Оболочка в app
+	$(COMPOSE) exec app /bin/sh
 
-cron-shell:
-	$(COMPOSE) exec cron sh
+cron-shell:                    ## Оболочка в cron
+	$(COMPOSE) exec cron /bin/sh
 
 # ───── PRISMA ─────
 .PHONY: db-generate db-push db-migrate db-seed studio
