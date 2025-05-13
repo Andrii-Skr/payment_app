@@ -23,7 +23,7 @@ const FormDatePicker: React.FC<Props> = ({ control, name, label, description,rea
             control={control}
             name={name}
             render={( {field }) => (
-              <FormItem className="flex flex-col justify-between space-y-1">
+              <FormItem className="flex flex-col space-y-1">
             <FormLabel className="mt-1 mb-1.5">{label}</FormLabel>
             <FormControl>
                   <DatePicker selected={field.value} onChange={field.onChange} disabled={readOnly} />

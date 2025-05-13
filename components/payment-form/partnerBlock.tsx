@@ -6,6 +6,7 @@ import {
   PartnersCombobox,
   FormInput,
   AddPartner,
+  ContainerGrid,
 } from "@/components/shared";
 import { Control } from "react-hook-form";
 import { FormValues } from "@/types/formTypes";
@@ -16,8 +17,8 @@ type Props = {
 };
 
 export const PartnerBlock: React.FC<Props> = ({ control, entityIdNum }) => (
-  <div className="w-auto rounded-3xl border-gray-200 border-2 ml-[-20px] p-3">
-    <Container className="justify-start gap-5 pb-2">
+  <div className="w-auto rounded-3xl border-gray-200 border-2 ml-[-20px] p-3 space-y-1">
+    <ContainerGrid className="">
       <EdrpouCombobox
         control={control}
         name="edrpou"
@@ -29,14 +30,15 @@ export const PartnerBlock: React.FC<Props> = ({ control, entityIdNum }) => (
       <AccountsCombobox
         control={control}
         name="selectedAccount"
+        className="min-w-[270px]"
         empty="Счета не найдены =("
         label="Номер счета"
         placeholder="Выберите номер счета..."
       />
-      <AddPartner entityIdNum={entityIdNum} className="self-end" />
-    </Container>
+      <AddPartner entityIdNum={entityIdNum} className="self-end justify-start" />
+    </ContainerGrid>
 
-    <Container className="justify-start items-center gap-5">
+    <ContainerGrid className="">
       <PartnersCombobox
         control={control}
         name="partnerName"
@@ -45,7 +47,7 @@ export const PartnerBlock: React.FC<Props> = ({ control, entityIdNum }) => (
         placeholder="Выберите Контрагента..."
         id={entityIdNum}
       />
-      <FormInput
+      {/* <FormInput
         control={control}
         className="no-spin"
         name="mfo"
@@ -60,7 +62,7 @@ export const PartnerBlock: React.FC<Props> = ({ control, entityIdNum }) => (
         label="Название банка"
         type="text"
         readOnly
-      />
-    </Container>
+      /> */}
+    </ContainerGrid>
   </div>
 );

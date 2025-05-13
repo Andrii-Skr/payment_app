@@ -1,5 +1,5 @@
 import React from "react";
-import { Container } from "@/components/shared";
+import { ContainerGrid } from "@/components/shared";
 import { useFormContext } from "react-hook-form";
 import { FormValues } from "@/types/formTypes";
 import { VatSelector } from "@/components/payment-form/vatSelector";
@@ -12,20 +12,21 @@ export const PurposeAndNoteForm: React.FC = () => {
   usePurposeAutoFill<FormValues>(control, setValue);
 
   return (
-    <Container className="justify-start items-start gap-5">
-      <VatSelector control={control} />
-
+    <>
       <FormTextarea
         control={control}
         name="purposeOfPayment"
         label="Назначение платежа"
       />
+      <ContainerGrid className="sm:grid-cols-2 lg:grid-cols-[1fr_2fr]">
+        <VatSelector control={control} />
 
-      <FormTextarea
-        control={control}
-        name="note"
-        label="Комментарий к платежу"
-      />
-    </Container>
+        <FormTextarea
+          control={control}
+          name="note"
+          label="Комментарий к платежу"
+        />
+      </ContainerGrid>
+    </>
   );
 };

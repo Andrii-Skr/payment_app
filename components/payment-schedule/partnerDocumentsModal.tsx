@@ -1,6 +1,11 @@
 "use client";
+
 import React from "react";
+import { useRouter } from "next/navigation";
+import { format, isSameDay } from "date-fns";
+
 import { Modal } from "@/components/ui/modal";
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableHeader,
@@ -9,9 +14,16 @@ import {
   TableBody,
   TableCell,
 } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+
 import { DocumentType, SpecDocType } from "../../types/types";
-import { useRouter } from "next/navigation";
 
 type Partner = DocumentType["partners"];
 
@@ -31,21 +43,25 @@ export const PartnerDocumentsModal: React.FC<PartnerDocumentsModalProps> = ({
   if (!isOpen) return null;
 
   const router = useRouter();
-  // Фильтр по дате документа и по сумме
-  const [filterDate, setFilterDate] = React.useState("");
+
+  // DatePicker хранит выбранную дату как объект Date | undefined
+  const [filterDate, setFilterDate] = React.useState<Date | undefined>();
   const [filterSum, setFilterSum] = React.useState("");
 
-  // Фильтрация документов по дате и сумме
+  /* ---------- фильтрация ---------- */
   const filteredDocuments = documents.filter((doc) => {
-    const docDateStr = new Date(doc.date).toISOString().split("T")[0];
-    const matchesDate = filterDate ? docDateStr === filterDate : true;
+    const matchesDate = filterDate
+      ? isSameDay(new Date(doc.date), filterDate)
+      : true;
+
     const matchesSum = filterSum
       ? doc.account_sum.toString().includes(filterSum)
       : true;
+
     return matchesDate && matchesSum;
   });
 
-  // Сортировка документов по дате (новые документы сначала)
+  /* ---------- сортировка по дате (новые выше) ---------- */
   const sortedDocuments = [...filteredDocuments].sort(
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
   );
@@ -53,38 +69,54 @@ export const PartnerDocumentsModal: React.FC<PartnerDocumentsModalProps> = ({
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <div className="max-h-screen overflow-y-auto p-4">
-        <div className="flex justify-between items-center border-b pb-2">
+        {/* Заголовок */}
+        <div className="flex items-center justify-between border-b pb-2">
           <h2 className="text-lg font-bold">Счета по {partner.name}</h2>
           <Button variant="ghost" onClick={onClose}>
             Закрыть
           </Button>
         </div>
-        <div className="flex gap-4 mb-4">
-          <div className="flex-1">
-            <label className="block text-sm font-medium text-gray-700">
-              Фильтр по дате
-            </label>
-            <input
-              type="date"
-              value={filterDate}
-              onChange={(e) => setFilterDate(e.target.value)}
-              placeholder="Выберите дату"
-              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-1"
-            />
+
+        {/* Фильтры */}
+        <div className="mb-4 flex gap-4">
+          {/* DatePicker */}
+          <div className="flex-1 space-y-1">
+            <Label className="text-sm">Фильтр по дате</Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="w-full justify-start text-left font-normal"
+                >
+                  {filterDate
+                    ? format(filterDate, "dd.MM.yyyy")
+                    : "Выберите дату"}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={filterDate}
+                  onSelect={setFilterDate}
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
           </div>
-          <div className="flex-1">
-            <label className="block text-sm font-medium text-gray-700">
-              Фильтр по сумме
-            </label>
-            <input
+
+          {/* Input для суммы */}
+          <div className="flex-1 space-y-1">
+            <Label className="text-sm">Фильтр по сумме</Label>
+            <Input
               type="text"
               value={filterSum}
               onChange={(e) => setFilterSum(e.target.value)}
               placeholder="Введите сумму"
-              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-1"
             />
           </div>
         </div>
+
+        {/* Таблица */}
         <Table>
           <TableHeader>
             <TableRow>
@@ -97,7 +129,6 @@ export const PartnerDocumentsModal: React.FC<PartnerDocumentsModalProps> = ({
           </TableHeader>
           <TableBody>
             {sortedDocuments.map((doc) => {
-              // Подсчёт остатка: вычитаем сумму всех spec.pay_sum и округляем до 2 знаков
               const totalSpecSum = doc.spec_doc.reduce(
                 (sum, spec: SpecDocType) => sum + Number(spec.pay_sum),
                 0
@@ -105,10 +136,11 @@ export const PartnerDocumentsModal: React.FC<PartnerDocumentsModalProps> = ({
               const balance = (Number(doc.account_sum) - totalSpecSum).toFixed(
                 2
               );
+
               return (
                 <TableRow
                   key={doc.id}
-                  className="hover:bg-gray-100"
+                  className="hover:bg-muted"
                   onDoubleClick={() =>
                     router.push(
                       `/create/payment-form/${doc.entity_id}?doc_id=${doc.id}`
@@ -122,18 +154,14 @@ export const PartnerDocumentsModal: React.FC<PartnerDocumentsModalProps> = ({
                   <TableCell>{balance}</TableCell>
                   <TableCell>{doc.purpose_of_payment}</TableCell>
                   <TableCell>
-                    <div className="flex flex-row gap-4">
+                    <div className="flex gap-4">
                       {doc.spec_doc.map((spec: SpecDocType) => {
-                        // Выбираем expected_date, если он существует, иначе dead_line_date
                         const displayDate = spec.expected_date
                           ? new Date(spec.expected_date)
                           : spec.dead_line_date
                           ? new Date(spec.dead_line_date)
                           : new Date();
-                        // Определяем класс для суммы:
-                        // Если is_paid === true, используем зеленый;
-                        // Если не оплачен и expected_date существует, красный;
-                        // Если не оплачен и только dead_line_date, красный жирный.
+
                         const amountClass = spec.is_paid
                           ? "text-green-500"
                           : spec.expected_date
@@ -141,10 +169,15 @@ export const PartnerDocumentsModal: React.FC<PartnerDocumentsModalProps> = ({
                           : spec.dead_line_date
                           ? "text-red-500 font-bold"
                           : "";
+
                         return (
                           <div key={spec.id} className="flex flex-col">
-                            <div>{displayDate.toLocaleDateString("ru-RU")}</div>
-                            <div className={amountClass}>{Number(spec.pay_sum)}</div>
+                            <span>
+                              {displayDate.toLocaleDateString("ru-RU")}
+                            </span>
+                            <span className={amountClass}>
+                              {Number(spec.pay_sum)}
+                            </span>
                           </div>
                         );
                       })}

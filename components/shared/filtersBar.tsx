@@ -10,6 +10,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { DatePicker } from "@/components/shared/datePicker";
+import { Input } from "@/components/ui";
 
 type FiltersBarProps = {
   startDate: Date;
@@ -93,11 +94,11 @@ export const FiltersBar: React.FC<FiltersBarProps> = ({
             setSelectedEntity(value === "all" ? "all" : Number(value))
           }
         >
-          <SelectTrigger className="w-[180px]">
+          <SelectTrigger className="w-[300px] h-[32px] text-xs">
             <SelectValue placeholder="Все ЮрЛица" />
           </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Все ЮрЛица</SelectItem>
+          <SelectContent >
+            <SelectItem  value="all">Все ЮрЛица</SelectItem>
             {Object.entries(entityNames).map(([id, name]) => (
               <SelectItem key={id} value={id}>
                 {name}
@@ -105,7 +106,7 @@ export const FiltersBar: React.FC<FiltersBarProps> = ({
             ))}
           </SelectContent>
         </Select>
-        <input
+        <Input
           type="text"
           placeholder="Фильтр по Контрагенту"
           value={partnerFilter}

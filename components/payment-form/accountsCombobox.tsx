@@ -16,6 +16,7 @@ type Props = {
   id?: number | undefined;
   placeholder: string;
   empty: string;
+  className?: string;
 };
 
 export const AccountsCombobox: React.FC<Props> = ({
@@ -25,6 +26,7 @@ export const AccountsCombobox: React.FC<Props> = ({
   control,
   placeholder,
   empty,
+  className
 }) => {
   const currentAccountList = useAccountListStore(
     (state) => state.currentAccountList
@@ -84,6 +86,7 @@ export const AccountsCombobox: React.FC<Props> = ({
       empty={empty}
       onChange={onChange}
       list={list}
+      className={className}
     />
   );
 };

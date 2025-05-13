@@ -32,29 +32,29 @@ cron.schedule(
 );
 
 /** 🏦 Обновление банков */
-cron.schedule(
-  BANK_UPDATE_SCHEDULE,
-  async () => {
-    const startedAt = Date.now();
-    cronLogger.info({ msg: "➜ Bank update started", tag: "bank_update" });
+// cron.schedule(
+//   BANK_UPDATE_SCHEDULE,
+//   async () => {
+//     const startedAt = Date.now();
+//     cronLogger.info({ msg: "➜ Bank update started", tag: "bank_update" });
 
-    try {
-      await updateBankInfo();
-      const duration = Date.now() - startedAt;
-      cronLogger.info({ msg: `✔ Bank update done (${duration}ms)`, tag: "bank_update" });
-    } catch (e) {
-      cronLogger.error({ msg: "✖ Bank update failed", error: e, tag: "bank_update" });
-    } finally {
-      await prisma.$disconnect();
-    }
-  },
-  { timezone: KYIV_TZ }
-);
+//     try {
+//       await updateBankInfo();
+//       const duration = Date.now() - startedAt;
+//       cronLogger.info({ msg: `✔ Bank update done (${duration}ms)`, tag: "bank_update" });
+//     } catch (e) {
+//       cronLogger.error({ msg: "✖ Bank update failed", error: e, tag: "bank_update" });
+//     } finally {
+//       await prisma.$disconnect();
+//     }
+//   },
+//   { timezone: KYIV_TZ }
+// );
 
 // Удержание процесса
 setInterval(() => {}, 1000 * 60 * 60);
 
-// Завершение по сигналу
+
 ["SIGINT", "SIGTERM"].forEach((signal) =>
   process.on(signal, async () => {
     cronLogger.info({ msg: `🔻 Shutting down cron (${signal})`, tag: "cron" });

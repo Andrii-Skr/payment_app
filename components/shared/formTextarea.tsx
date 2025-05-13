@@ -44,7 +44,7 @@ const FormTextarea: React.FC<Props> = ({
           <FormLabel>{label}</FormLabel>
           <FormControl>
             <Textarea
-              className={cn("w-[250px] min-h-[78px] p-2 rounded-lg", className)}
+              className={cn("textarea-size p-2 rounded-lg", className)}
               placeholder={placeholder}
               {...field}
               {...rest}

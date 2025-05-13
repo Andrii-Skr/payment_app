@@ -83,6 +83,27 @@ body {
   -moz-appearance: textfield;
 }
 
+.textarea-size {
+  @apply w-full h-[38px];
+}
+
+.input-size {
+  @apply w-full  h-8;
+}
+
+.vat-input-size {
+  @apply w-[50px];
+}
+
+
+.date-picker-size {
+  @apply w-full  h-8;
+}
+
+.combobox-size {
+  @apply w-full  h-8;
+}
+
 @layer base {
   * {
     @apply border-border;
@@ -91,3 +112,4 @@ body {
     @apply bg-background text-foreground;
   }
 }
+

@@ -34,7 +34,7 @@ export const VatSelector: React.FC<{ control: Control<FormValues> }> = ({
           <FormInput
             control={control}
             name="vatPercent"
-            className="no-spin w-14 pr-5 pl-0 text-right"
+            className="no-spin vat-input-size pr-5 pl-0 text-right"
             label=""
             placeholder="0"
             type="number"

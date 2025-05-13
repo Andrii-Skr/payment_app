@@ -5,6 +5,7 @@ import {
   FormInput,
   ComputedFormInput,
   RegularPaymentDialog,
+  ContainerGrid,
 } from "@/components/shared";
 import { FormValues } from "@/types/formTypes";
 import { Button } from "@/components/ui";
@@ -86,6 +87,7 @@ const SumAndDateForm: React.FC<Props> = ({ control, onBlur }) => {
               expectedDate: null,
               deadLineDate: null,
               isPaid: false,
+              purposeOfPayment: "",
             })
           }
         >
@@ -105,12 +107,7 @@ const SumAndDateForm: React.FC<Props> = ({ control, onBlur }) => {
               key={field.id}
               className="w-auto rounded-3xl border-gray-200 border-2 ml-[-20px] p-3"
             >
-              <Container className="justify-start items-start gap-5 pb-2">
-                <ComputedFormInput
-                  label="Остаток"
-                  description="Сумма счета минус сумма платежей"
-                  value={remainder}
-                />
+              <ContainerGrid className="">
                 <div className="relative">
                   <FormInput
                     className="no-spin pr-12"
@@ -141,6 +138,11 @@ const SumAndDateForm: React.FC<Props> = ({ control, onBlur }) => {
                     MAX
                   </Button>
                 </div>
+                <ComputedFormInput
+                  label="Остаток"
+                  description="Сумма счета минус сумма платежей"
+                  value={remainder}
+                />
                 {isPaid ? (
                   <FormDatePicker
                     control={control}
@@ -155,7 +157,7 @@ const SumAndDateForm: React.FC<Props> = ({ control, onBlur }) => {
                   <Button
                     type="button"
                     tabIndex={-1}
-                    className="mt-7"
+                    className=" justify-start mt-7"
                     variant="ghost"
                     disabled={isPaid}
                     onClick={() => {
@@ -167,8 +169,8 @@ const SumAndDateForm: React.FC<Props> = ({ control, onBlur }) => {
                     Сделать регулярным
                   </Button>
                 ) : null}
-              </Container>
-              <Container className="flex justify-start items-center gap-5">
+              </ContainerGrid>
+              <ContainerGrid className="">
                 <FormDatePicker
                   control={control}
                   name={`payments.${index}.expectedDate`}
@@ -186,14 +188,14 @@ const SumAndDateForm: React.FC<Props> = ({ control, onBlur }) => {
                 <Button
                   type="button"
                   tabIndex={-1}
-                  className="flex items-center gap-2 text-red-500 leading-none mt-1"
+                  className="flex items-center justify-start text-red-500 self-center mt-2"
                   variant="ghost"
                   disabled={isPaid}
                   onClick={() => remove(index)}
                 >
                   <CircleX className="mr-2" /> Удалить
                 </Button>
-              </Container>
+              </ContainerGrid>
             </div>
           );
         })}

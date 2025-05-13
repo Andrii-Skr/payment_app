@@ -46,6 +46,8 @@ model spec_doc {
     auto_payment_id  Int?
     auto_payment     auto_payment?  @relation(fields: [auto_payment_id], references: [id])
 
+    purpose_of_payment String?
+
     pay_sum        Decimal  @db.Decimal(10, 2)
     expected_date  DateTime? @db.Timestamp()
     dead_line_date DateTime? @db.Timestamp()
@@ -89,9 +91,9 @@ model template {
     partner_name String
 
     edrpou String
-    account_number     String
-    date               DateTime @db.Timestamp()
-    account_sum        Decimal  @db.Decimal(10, 2)
+    account_number     String?
+    date               DateTime? @db.Timestamp()
+    account_sum        Decimal?  @db.Decimal(10, 2)
     account_sum_expression String?
 
     vat_type Boolean

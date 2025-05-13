@@ -3,7 +3,7 @@
 import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Form } from "@/components/ui";
+import { Button, Form } from "@/components/ui";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   SaveTemplateDialog,
@@ -24,6 +24,7 @@ import {
   PartnerBlock,
 } from "@/components/payment-form";
 import { apiClient } from "@/services/api-client";
+import { Trash2 } from "lucide-react";
 
 const defaultValues: FormValues = {
   doc_id: undefined,
@@ -44,6 +45,7 @@ const defaultValues: FormValues = {
       expectedDate: null,
       deadLineDate: null,
       paidDate: null,
+      purposeOfPayment: "",
     },
   ],
   selectedAccount: "",
@@ -65,8 +67,6 @@ export const PaymentForm: React.FC<{ className?: string }> = ({
   });
 
   const { setValue, getValues, reset, control, watch, handleSubmit } = form;
-
-  // const partner_id = watch("partner_id");
 
   const {
     entity,
@@ -117,10 +117,11 @@ export const PaymentForm: React.FC<{ className?: string }> = ({
 
       <Form {...form}>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-1 w-auto">
-          <Alert className="p-2">
+          <Alert className="flex justify-between items-center p-2">
             <AlertDescription className="w-auto p-0">
               Наименование Плательщика: {entity?.name || "Загрузка..."}
             </AlertDescription>
+            <Button variant={"ghost"} className="flex self-end gap-2 h-6 text-red-500 p-0"><Trash2 /> Удалить Документ</Button>
           </Alert>
 
           <TemplateSelector

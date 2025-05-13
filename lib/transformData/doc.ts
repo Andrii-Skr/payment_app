@@ -20,6 +20,7 @@ export const TransformedObject = (data: DocumentWithIncludes): FormValues => {
       paySum: Number(specDoc.pay_sum),
       expectedDate: specDoc.expected_date,
       deadLineDate: specDoc.dead_line_date,
+      purposeOfPayment: specDoc.purpose_of_payment ?? "",
       isPaid: specDoc.is_paid,
       paidDate: specDoc.paid_date,
     })) ?? [],

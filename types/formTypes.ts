@@ -8,6 +8,9 @@ export const paymentSchema = z.object({
     return value === "" ? 0 : Number(value);
   }, z.number().min(0.1, "Сумма должна быть больше 0")),
   isPaid: z.boolean().optional(),
+  purposeOfPayment: z.string().max(420, {
+    message: "Примечание должно быть не более 420 символов.",
+  }),
   paidDate: z.preprocess((arg) => {
     if (typeof arg === "string" || arg instanceof Date) return new Date(arg);
     return arg;

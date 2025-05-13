@@ -1,4 +1,5 @@
 export { Container } from "./container";
+export { ContainerGrid } from "./containerGrid";
 export { Main } from "../main";
 export { EntityList } from "../payment-schedule/entityList";
 export { PaymentForm } from "../payment-form/paymentForm";

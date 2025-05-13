@@ -1,5 +1,5 @@
 import React from "react";
-import { Container, SampleCombobox } from "@/components/shared";
+import { Container, ContainerGrid, SampleCombobox } from "@/components/shared";
 import { Button } from "@/components/ui/button";
 import { Save } from "lucide-react";
 import { Control } from "react-hook-form";
@@ -19,7 +19,7 @@ export const TemplateSelector: React.FC<Props> = ({
   onSampleChange,
   onSaveClick,
 }) => (
-  <Container className="justify-start items-start gap-5">
+  <ContainerGrid className="">
     <SampleCombobox
       control={control}
       name="sample"
@@ -32,11 +32,11 @@ export const TemplateSelector: React.FC<Props> = ({
     <Button
       type="button"
       tabIndex={-1}
-      className="mt-[18px]"
+      className="justify-start self-end"
       variant="ghost"
       onClick={onSaveClick}
     >
       <Save className="mr-2" /> Сохранить шаблон
     </Button>
-  </Container>
+  </ContainerGrid>
 );
