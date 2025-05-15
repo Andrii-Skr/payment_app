@@ -15,8 +15,9 @@ export type Document = {
   id: number;
   account_number: string;
   date: Date;
-  partners: {
-    name: string;
+  partner: {
+    short_name: string;
+    full_name: string;
   };
 };
 
@@ -55,8 +56,8 @@ export const AsidePaymentForm: React.FC<AsideProps> = ({
       case "partner":
         sorted.sort((a, b) =>
           sortOrder === "asc"
-            ? collator.compare(a.partners.name, b.partners.name)
-            : collator.compare(b.partners.name, a.partners.name)
+            ? collator.compare(a.partner.short_name, b.partner.short_name)
+            : collator.compare(b.partner.short_name, a.partner.short_name)
         );
         break;
       case "purpose":
@@ -92,8 +93,8 @@ export const AsidePaymentForm: React.FC<AsideProps> = ({
         <div className="p-2">
           <Table>
             <TableHeader className="bg-white sticky top-0 z-10">
-              <TableRow>
-                <TableHead>
+              <TableRow className="">
+                <TableHead >
                   <Button variant="ghost" onClick={() => handleSort("partner")}>
                     Контрагент{" "}
                     {sortedColumn === "partner"
@@ -125,10 +126,10 @@ export const AsidePaymentForm: React.FC<AsideProps> = ({
                 </TableHead>
               </TableRow>
             </TableHeader>
-            <TableBody>
+            <TableBody className="">
               {sortedDocs.map((doc) => (
                 <TableRow key={doc.id} onClick={() => onRowClick(doc.id)}>
-                  <TableCell >{doc.partners.name}</TableCell>
+                  <TableCell >{doc.partner.short_name}</TableCell>
                   <TableCell >{doc.account_number}</TableCell>
                   <TableCell className="text-center">
                     {new Date(doc.date).toLocaleDateString("ru-RU", {

@@ -2,7 +2,7 @@ import { EntityWithAll } from "@/app/api/(v1)/(protected)/documents/entities/rou
 
 export type DocumentType = EntityWithAll["documents"][number];
 
-export type PartnerType = DocumentType["partners"];
+export type PartnerType = DocumentType["partner"];
 
 export type SpecDocType = DocumentType["spec_doc"][number];
 
@@ -23,8 +23,8 @@ export type PaymentDetail = {
   partner_name: string;
 
   partner_account_number: string;
-  partner_account_bank_name: string;
-  partner_account_mfo: string;
+  partner_account_bank_name?: string;
+  partner_account_mfo?: string;
 
   account_number: string;
   purpose_of_payment: string;

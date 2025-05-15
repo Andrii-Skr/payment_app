@@ -9,6 +9,7 @@ type Payment = {
   paySum: number;
   expectedDate?: string;
   deadLineDate?: string;
+  purposeOfPayment: string;
 };
 
 type CreateDocumentBody = {
@@ -51,15 +52,18 @@ const postHandler = async (
       user_id: parseInt(user.id, 10),
       is_saved: true,
       spec_doc: {
-        create: body.payments.map(({ paySum, expectedDate, deadLineDate }) => ({
-          pay_sum: paySum,
-          expected_date: expectedDate
-            ? new Date(expectedDate)
-            : !deadLineDate
-            ? new Date(body.date)
-            : null,
-          dead_line_date: deadLineDate ? new Date(deadLineDate) : null,
-        })),
+        create: body.payments.map(
+          ({ paySum, expectedDate, deadLineDate, purposeOfPayment }) => ({
+            pay_sum: paySum,
+            expected_date: expectedDate
+              ? new Date(expectedDate)
+              : !deadLineDate
+              ? new Date()
+              : null,
+            dead_line_date: deadLineDate ? new Date(deadLineDate) : null,
+            purpose_of_payment: purposeOfPayment ?? "",
+          })
+        ),
       },
     },
   });
@@ -72,42 +76,43 @@ const postHandler = async (
 
 // GET handler (example)
 export type DocumentWithRelations = Prisma.documentsGetPayload<{
-    include: {
-      spec_doc: true;
-      partners: {
-        select: {
-          name: true;
-          edrpou: true;
-        };
+  include: {
+    spec_doc: true;
+    partner: {
+      select: {
+        short_name: true;
+        full_name: true;
+        edrpou: true;
       };
     };
-  }>;
+  };
+}>;
 
-  const getHandler = async (
-    _req: NextRequest,
-    _body: null,
-    _params: {},
-    user: Session["user"] | null
-  ) => {
-    if (!user) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-    }
+const getHandler = async (
+  _req: NextRequest,
+  _body: null,
+  _params: {},
+  user: Session["user"] | null
+) => {
+  if (!user) {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  }
 
-    const documents: DocumentWithRelations[] = await prisma.documents.findMany({
-      include: {
-        spec_doc: true,
-        partners: {
-          select: {
-            name: true,
-            edrpou: true,
-          },
+  const documents: DocumentWithRelations[] = await prisma.documents.findMany({
+    include: {
+      spec_doc: true,
+      partner: {
+        select: {
+          short_name: true,
+          full_name: true,
+          edrpou: true,
         },
       },
-    });
+    },
+  });
 
-    return NextResponse.json(documents);
-  };
-
+  return NextResponse.json(documents);
+};
 
 export const POST = apiRoute<CreateDocumentBody>(postHandler, {
   requireAuth: true,

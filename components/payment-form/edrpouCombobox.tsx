@@ -1,9 +1,8 @@
 "use client";
 import { Combobox } from "@/components/shared";
 import { FormValues } from "@/types/formTypes";
-import { apiClient } from "@/services/api-client";
-import { PartnersWithAccounts } from "@/services/partners";
 import { useAccountListStore } from "@/store/store";
+import { usePartnersStore } from "@/store/partnersStore";
 import React from "react";
 import { Control, useFormContext } from "react-hook-form";
 
@@ -17,7 +16,7 @@ type Props = {
   empty: string;
 };
 
-const EdrpouCombobox: React.FC<Props> = ({
+export const EdrpouCombobox: React.FC<Props> = ({
   id,
   control,
   name,
@@ -26,43 +25,34 @@ const EdrpouCombobox: React.FC<Props> = ({
   placeholder,
   empty,
 }) => {
-  const [partnersList, setPartnersList] = React.useState<
-    PartnersWithAccounts[]
-  >([]);
-  const [list, setList] = React.useState<{ key: string; value: string }[]>([]);
-  const updateAccountList = useAccountListStore((state ) => state.updateAccountList);
-
+  const { partners, fetchPartners } = usePartnersStore();
+  const updateAccountList = useAccountListStore((s) => s.updateAccountList);
   const { setValue, watch } = useFormContext();
   const edrpou = watch("edrpou");
 
   React.useEffect(() => {
-    if (!id) return;
-    apiClient.partners.partnersService(id).then((data) => {
-      setList(
-        data
-          ? data.map((e) => {
-              return { key: String(e.id), value: e.edrpou };
-            })
-          : []
-      );
-      setPartnersList(data ? data : []);
-    });
+    if (id) fetchPartners(id);
   }, [id]);
 
-
-
   React.useEffect(() => {
-    const partner = partnersList.find((p) => p.edrpou === edrpou);
+    const partner = partners.find((p) => p.edrpou === edrpou);
     if (partner) {
       updateAccountList(partner.partner_account_number);
     }
-  }, [edrpou, partnersList]);
+  }, [edrpou, partners]);
 
-    const onChange = (i: number) => {
-      const partner = partnersList[i];
-      setValue("partner_id", partner.id);
-      setValue("partnerName", partner.name);
-    }
+  const onChange = (index: number) => {
+    const partner = partners[index];
+    setValue("partner_id", partner.id);
+    setValue("short_name", partner.short_name);
+    setValue("full_name", partner.full_name);
+  };
+
+  const list = partners.map((p) => ({
+    key: String(p.id),
+    value: p.edrpou,
+  }));
+
   return (
     <Combobox
       control={control}
@@ -75,7 +65,3 @@ const EdrpouCombobox: React.FC<Props> = ({
     />
   );
 };
-
-export { EdrpouCombobox };
-
-

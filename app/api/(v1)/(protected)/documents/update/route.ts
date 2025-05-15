@@ -23,6 +23,7 @@ type UpdateDocumentBody = {
     expectedDate: string;
     deadLineDate: string;
     isPaid: boolean;
+    purposeOfPayment: string;
   }[];
 };
 
@@ -55,14 +56,21 @@ const patchHandler = async (
         spec_doc: {
           deleteMany: {}, // удаляем старые
           create: body.payments.map(
-            ({ paySum, expectedDate, deadLineDate, isPaid }) => ({
+            ({
+              paySum,
+              expectedDate,
+              deadLineDate,
+              isPaid,
+              purposeOfPayment,
+            }) => ({
               pay_sum: paySum,
               expected_date: expectedDate
                 ? new Date(expectedDate)
                 : !deadLineDate
-                ? new Date(body.date)
+                ? new Date()
                 : null,
               dead_line_date: deadLineDate ? new Date(deadLineDate) : null,
+              purpose_of_payment: purposeOfPayment ?? "",
               is_paid: isPaid,
             })
           ),

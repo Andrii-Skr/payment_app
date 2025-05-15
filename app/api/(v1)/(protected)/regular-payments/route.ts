@@ -59,10 +59,12 @@ export type AutoPaymentWithDocs = auto_payment & {
     purpose_of_payment: string;
     entity: {
       id: number;
-      name: string;
+      short_name: string;
+      full_name: string;
     };
-    partners: {
-      name: string;
+    partner: {
+      short_name: string;
+      full_name: string;
     };
   };
 };
@@ -96,12 +98,14 @@ const getHandler = async (
           entity: {
             select: {
               id: true,
-              name: true,
+              short_name: true,
+              full_name: true,
             },
           },
-          partners: {
+          partner: {
             select: {
-              name: true,
+              short_name: true,
+              full_name: true,
             },
           },
         },

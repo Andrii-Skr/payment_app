@@ -7,29 +7,30 @@ import {
   Path,
 } from "react-hook-form";
 import { format } from "date-fns";
+import { FormValues } from "@/types/formTypes";
 
 export function usePurposeAutoFill<T extends FieldValues>(
-  control: Control<T>,
-  setValue: UseFormSetValue<T>
+  control: Control<FormValues>,
+  setValue: UseFormSetValue<FormValues>
 ) {
   const accountNumber = useWatch({
     control,
-    name: "accountNumber" as Path<T>,
-  }) as string;
-  const date = useWatch({ control, name: "date" as Path<T> }) as Date | null;
+    name: "accountNumber",
+  });
+  const date = useWatch({ control, name: "date" });
   const accountSum = useWatch({
     control,
-    name: "accountSum" as Path<T>,
-  }) as string;
+    name: "accountSum",
+  });
   const vatPercent = useWatch({
     control,
-    name: "vatPercent" as Path<T>,
-  }) as number;
-  const vatType = useWatch({ control, name: "vatType" as Path<T> }) as boolean;
+    name: "vatPercent",
+  });
+  const vatType = useWatch({ control, name: "vatType" });
   const purpose = useWatch({
     control,
-    name: "purposeOfPayment" as Path<T>,
-  }) as string;
+    name: "purposeOfPayment",
+  });
 
   useEffect(() => {
     if (!accountNumber || !date || !accountSum || vatType === undefined) return;
@@ -63,10 +64,10 @@ export function usePurposeAutoFill<T extends FieldValues>(
     // если шаблон уже актуален — ничего не меняем
     if (currentAutoExists) return;
 
-    const key = "purposeOfPayment" as Path<T>;
+    const key = "purposeOfPayment";
     const updated = userPart
       ? `${userPart} ${marker} ${autoNote}`
       : `${marker} ${autoNote}`;
-    setValue(key, updated as unknown as T[typeof key]);
+    setValue(key, updated);
   }, [accountNumber, date, accountSum, vatPercent, vatType, purpose, setValue]);
 }

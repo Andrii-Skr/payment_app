@@ -1,11 +1,8 @@
-
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/prisma/prisma-client";
 import { apiRoute } from "@/utils/apiRoute";
 import type { Session } from "next-auth";
 import { Roles } from "@/constants/roles";
-
-
 
 // GET handler
 type Params = { id: string };
@@ -14,9 +11,10 @@ const getDocument = async (docId: number) => {
   const document = await prisma.documents.findUnique({
     where: { id: docId },
     include: {
-      partners: {
+      partner: {
         select: {
-          name: true,
+          short_name: true,
+          full_name: true,
           edrpou: true,
         },
       },
@@ -73,4 +71,3 @@ export const GET = apiRoute(getHandler, {
   requireAuth: true,
   roles: [Roles.ADMIN, Roles.MANAGER],
 });
-

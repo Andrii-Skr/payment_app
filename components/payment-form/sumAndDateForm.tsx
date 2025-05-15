@@ -20,6 +20,7 @@ import {
 } from "react-hook-form";
 import { useAccessControl } from "@/lib/hooks/useAccessControl";
 import { Roles } from "@/constants/roles";
+import { useAutoFillPaymentsPurpose } from "@/lib/hooks/useAutoFillPaymentsPurpose";
 
 type Props = {
   control: Control<FormValues>;
@@ -32,6 +33,7 @@ const SumAndDateForm: React.FC<Props> = ({ control, onBlur }) => {
     name: "payments",
   });
   const { setValue, getValues } = useFormContext<FormValues>();
+  useAutoFillPaymentsPurpose(control, setValue);
 
   const { canAccess } = useAccessControl();
 

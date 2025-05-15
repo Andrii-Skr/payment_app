@@ -30,7 +30,8 @@ export default function EntitySection() {
   const form = useForm<InfoFormValues>({
     resolver: zodResolver(entitySchema),
     defaultValues: {
-      name: "",
+      short_name: "",
+      full_name: "",
       edrpou: "",
       bank_account: "",
       bank_name: "",
@@ -110,20 +111,26 @@ export default function EntitySection() {
 
   /* ───────── JSX ───────── */
   return (
-    <Container className="flex-col items-start gap-5">
+    <Container className="flex-col items-start gap-5 w-full">
       {/* ───── форма создания контрагента ───── */}
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(handleCreate, (errors) =>
             console.warn("Zod validation errors:", errors)
           )}
-          className="grid gap-4 md:grid-cols-4 lg:grid-cols-4 items-end"
+          className="grid gap-4 md:grid-cols-4 lg:grid-cols-5 items-end w-full"
         >
           <FormInput
             control={form.control}
-            name="name"
+            name="full_name"
             label="Название"
             placeholder='ТОВ "Ромашка"'
+          />
+          <FormInput
+            control={form.control}
+            name="short_name"
+            label="Название"
+            placeholder='Ромашка'
           />
           <FormInput
             control={form.control}
@@ -139,18 +146,18 @@ export default function EntitySection() {
             placeholder="UA12345678..."
           />
           {/* пустая ячейка для выравнивания сетки */}
-          <div className="hidden md:block" />
-          <FormInput
+
+          {/* <FormInput
             control={form.control}
             name="bank_name"
             label="Банк"
             readOnly
           />
-          <FormInput control={form.control} name="mfo" label="МФО" readOnly />
-          <div className="hidden md:block" />
+          <FormInput control={form.control} name="mfo" label="МФО" readOnly /> */}
+
           <Button
             type="submit"
-            className="flex self-end leading-none mb-1"
+            className="flex self-end leading-none mb-1 w-[145px]"
             disabled={form.formState.isSubmitting}
           >
             {form.formState.isSubmitting ? "Сохраняю…" : "Создать"}

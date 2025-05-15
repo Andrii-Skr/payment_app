@@ -5,7 +5,7 @@ model documents {
     entity    entity @relation(fields: [entity_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
     partner_id Int
-    partners   partners @relation(fields: [partner_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+    partner   partners @relation(fields: [partner_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
     spec_doc spec_doc[]
     auto_payment auto_payment[]
@@ -88,7 +88,8 @@ model template {
     entity_id Int
 
     partner_id Int
-    partner_name String
+    full_name       String    @db.VarChar
+    short_name       String    @db.VarChar
 
     edrpou String
     account_number     String?

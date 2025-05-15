@@ -50,9 +50,12 @@ export const formSchema = z.object({
   payments: z.array(paymentSchema),
   edrpou: z.string().length(8, { message: "ЕДРПОУ должен быть 8 цифр" }),
   selectedAccount: z.string().nonempty("Выберите номер счета"),
-  mfo: z.string(),
-  bank_name: z.string(),
-  partnerName: z.string(),
+
+  mfo: z.string().optional(),
+  bank_name: z.string().optional(),
+
+  short_name: z.string(),
+  full_name: z.string(),
   purposeOfPayment: z.string().max(420, {
     message: "Примечание должно быть не более 420 символов.",
   }),

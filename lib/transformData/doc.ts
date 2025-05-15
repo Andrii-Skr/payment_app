@@ -2,7 +2,7 @@ import { DocumentWithIncludes } from "@api/documents/[id]/route";
 import { FormValues } from "@/types/formTypes";
 
 export const TransformedObject = (data: DocumentWithIncludes): FormValues => {
-
+  console.log("TransformedObject", data);
   return {
     doc_id: data.id,
     entity_id: data.entity_id,
@@ -12,18 +12,19 @@ export const TransformedObject = (data: DocumentWithIncludes): FormValues => {
     accountSumExpression: data.account_sum_expression ?? "",
     vatType: data.vat_type,
     vatPercent: data.vat_percent != null ? Number(data.vat_percent) : undefined,
-    edrpou: data.partners?.edrpou ?? "",
+    edrpou: data.partner?.edrpou ?? "",
     is_auto_payment: data.is_auto_payment,
 
-    payments: data.spec_doc?.map((specDoc) => ({
-      documents_id: specDoc.documents_id,
-      paySum: Number(specDoc.pay_sum),
-      expectedDate: specDoc.expected_date,
-      deadLineDate: specDoc.dead_line_date,
-      purposeOfPayment: specDoc.purpose_of_payment ?? "",
-      isPaid: specDoc.is_paid,
-      paidDate: specDoc.paid_date,
-    })) ?? [],
+    payments:
+      data.spec_doc?.map((specDoc) => ({
+        documents_id: specDoc.documents_id,
+        paySum: Number(specDoc.pay_sum),
+        expectedDate: specDoc.expected_date,
+        deadLineDate: specDoc.dead_line_date,
+        purposeOfPayment: specDoc.purpose_of_payment ?? "",
+        isPaid: specDoc.is_paid,
+        paidDate: specDoc.paid_date,
+      })) ?? [],
 
     partner_account_number_id: data.partner_account_number_id ?? undefined,
     selectedAccount: data.partner_account_number?.bank_account ?? "",
@@ -31,7 +32,8 @@ export const TransformedObject = (data: DocumentWithIncludes): FormValues => {
     bank_name: data.partner_account_number?.bank_name ?? "",
 
     partner_id: data.partner_id ?? undefined,
-    partnerName: data.partners?.name ?? "",
+    short_name: data.partner?.short_name ?? "",
+    full_name: data.partner?.full_name ?? "",
     purposeOfPayment: data.purpose_of_payment ?? "",
     note: data.note ?? "",
   };

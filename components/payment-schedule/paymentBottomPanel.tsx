@@ -37,6 +37,7 @@ export const PaymentBottomPanel: React.FC<PaymentBottomPanelProps> = ({
   const expandPanel = usePaymentStore((state) => state.expandPaymentPanel);
   const collapsePanel = usePaymentStore((state) => state.collapsePaymentPanel);
 
+
   if (pendingPayments.length === 0) return null;
 
   return (
@@ -76,7 +77,33 @@ export const PaymentBottomPanel: React.FC<PaymentBottomPanelProps> = ({
                 </AlertDialogContent>
               </AlertDialog>
 
-              <Button onClick={onFinalize}>Сформировать</Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button>Сформировать</Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent className="sm:max-w-[630px]">
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Формирование платежей</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Выберите способ формирования CSV:
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter className="flex flex-col gap-2 items-stretch">
+                    <AlertDialogAction
+                      onClick={() => {
+                        // 👇 тут можешь вызвать другой обработчик (например: onFinalizeGrouped())
+                        console.log("Группировать — TODO");
+                      }}
+                    >
+                      📦 Группировать по получателю
+                    </AlertDialogAction>
+                    <AlertDialogAction onClick={onFinalize}>
+                      📄 Не группировать
+                    </AlertDialogAction>
+                    <AlertDialogCancel>Я ещё подумаю</AlertDialogCancel>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
               <Button variant="secondary" onClick={collapsePanel}>
                 Скрыть
               </Button>

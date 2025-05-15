@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import { TableRow, TableCell } from "@/components/ui/table";
 import {
@@ -13,6 +15,7 @@ import {
   formatMoney,
 } from "../../lib/helpers";
 import { cn } from "@/lib/utils";
+import { usePendingPayments } from "@/lib/hooks/usePendingPayments";
 
 type EntityGroupRowProps = {
   entityId: number;
@@ -33,12 +36,14 @@ export const EntityGroupRow: React.FC<EntityGroupRowProps> = ({
   onCellClick,
   onPartnerClick,
 }) => {
+  const { update, setPendingPayments } = usePendingPayments();
+
   const renderRows = rows.map((row, rowIndex) => {
     const { partner, documents } = row;
     const unpaidEntries: PaymentEntry[] = [];
     const paidEntries: PaymentEntry[] = [];
 
-    const color = getColorForEntity(partner.entity_id);
+    const color = getColorForEntity(entityId);
 
     documents.forEach((doc) => {
       doc.spec_doc.forEach((spec) => {
@@ -59,14 +64,13 @@ export const EntityGroupRow: React.FC<EntityGroupRowProps> = ({
 
     return (
       <TableRow key={partner.id} className={cn("group", color)}>
-        {/* 💼 Юрлицо — sticky по вертикали и горизонтали */}
         {rowIndex === 0 && (
           <TableCell
             rowSpan={rows.length}
-            className={`sticky left-0 top-[-50] z-[20] w-[30px] border-r ${color} `}
+            className={`sticky left-0 top-[-50] z-[20] w-[30px] border-r ${color}`}
           >
             <div
-              className="font-bold  text-center rotate-180
+              className="font-bold text-center rotate-180
             [writing-mode:vertical-rl] [-webkit-writing-mode:vertical-rl]"
             >
               {entityNames[entityId]}
@@ -74,7 +78,6 @@ export const EntityGroupRow: React.FC<EntityGroupRowProps> = ({
           </TableCell>
         )}
 
-        {/* Контрагент — sticky слева */}
         <TableCell
           className={`sticky left-10 z-[10] w-[180px] ${color} transition-colors group-hover:bg-muted/50`}
         >
@@ -82,18 +85,16 @@ export const EntityGroupRow: React.FC<EntityGroupRowProps> = ({
             className="text-blue-500 hover:underline"
             onClick={() => onPartnerClick(partner, documents)}
           >
-            {partner.name}
+            {partner.short_name}
           </button>
         </TableCell>
 
-        {/* Остаток — тоже sticky */}
         <TableCell
-          className={`sticky left-[220px] z-[10]  w-[120px] ${color} transition-colors group-hover:bg-muted/50`}
+          className={`sticky left-[220px] z-[10] w-[120px] ${color} transition-colors group-hover:bg-muted/50`}
         >
           {formatMoney(totalRemaining)}
         </TableCell>
 
-        {/* Динамические ячейки по датам */}
         {dateRange.map((date, idx) => {
           const cellUnpaid = unpaidEntries.filter((e) =>
             isSameDay(date, getDisplayDate(e.spec_doc))
@@ -102,6 +103,11 @@ export const EntityGroupRow: React.FC<EntityGroupRowProps> = ({
             isSameDay(date, getDisplayDate(e.spec_doc))
           );
           const cellAll = [...cellUnpaid, ...cellPaid];
+
+          const specDocIds = cellUnpaid.map((e) => e.spec_doc.id);
+          const hasPendingInCell = specDocIds.every((id) =>
+            pendingPayments.some((p) => p.spec_doc_id === id)
+          );
 
           const pendingSum = cellAll
             .filter((e) =>
@@ -135,9 +141,55 @@ export const EntityGroupRow: React.FC<EntityGroupRowProps> = ({
           return (
             <TableCell
               key={idx}
-              onClick={() => cellUnpaid.length > 0 && onCellClick(cellUnpaid)}
+              onClick={(e) => {
+                if (cellUnpaid.length === 0) return;
+
+                const specDocIds = cellUnpaid.map((e) => e.spec_doc.id);
+                const hasAllPending = specDocIds.every((id) =>
+                  pendingPayments.some((p) => p.spec_doc_id === id)
+                );
+
+                if (e.ctrlKey || e.metaKey) {
+                  if (hasAllPending) {
+                    const remaining = pendingPayments.filter(
+                      (p) => !specDocIds.includes(p.spec_doc_id)
+                    );
+                    setPendingPayments(remaining);
+                  } else {
+                    const newDetails: PaymentDetail[] = cellUnpaid.map(
+                      (entry) => ({
+                        doc_id: entry.document.id,
+                        entity_id: entry.document.entity_id,
+                        spec_doc_id: entry.spec_doc.id,
+                        partner_id: entry.document.partner_id,
+                        partner_name: entry.document.partner.full_name,
+                        partner_entity_id: entry.document.entity_id,
+
+                        partner_account_mfo:
+                          entry.document.partner_account_number.mfo ??
+                          undefined,
+                        partner_account_number:
+                          entry.document.partner_account_number.bank_account,
+                        partner_account_bank_name:
+                          entry.document.partner_account_number.bank_name ??
+                          undefined,
+                        account_number: entry.document.account_number,
+                        purpose_of_payment: entry.document.purpose_of_payment,
+                        dead_line_date: entry.spec_doc.dead_line_date,
+                        date: entry.document.date,
+                        pay_sum: Number(entry.spec_doc.pay_sum),
+                      })
+                    );
+
+                    update(newDetails, []);
+                  }
+                } else {
+                  onCellClick(cellUnpaid);
+                }
+              }}
+              className="cursor-pointer"
             >
-              <div className="flex flex-col items-start ">
+              <div className="flex flex-col items-start">
                 {expectedSum + deadlineSum > 0 && (
                   <span className="text-red-500">
                     {formatMoney(expectedSum + deadlineSum)}

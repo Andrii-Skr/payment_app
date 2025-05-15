@@ -2,10 +2,10 @@ import { Container, PaymentForm } from "@/components/shared";
 
 const Form = () => {
   return (
-    <Container>
+    <Container className="w-full">
       <div
         className={
-          "w-[90dvw] h-[80dvh] mt-2 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          "w-full h-[80dvh] px-5 mt-2 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         }
       >
         <PaymentForm />

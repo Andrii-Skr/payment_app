@@ -1,7 +1,7 @@
 import axiosInstance from "@/services/instance";
 import { FormValues } from "@/types/formTypes";
-import { documents, template } from "@prisma/client";
-import { DocumentWithPartner } from "@/app/api/(v1)/(protected)/documents/payments-list/[id]/route";
+import { documents } from "@prisma/client";
+import { DocumentWithPartner } from "@/prisma/data/documents";
 import {
   DocumentWithIncludes,
   DocumentWithIncludesNullable,
@@ -28,6 +28,14 @@ export const getAll = async (): Promise<documents[] | undefined> => {
 export const update = async (data: FormValues) => {
   try {
     await axiosInstance.patch("/documents/update", data);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const remove = async (id: number) => {
+  try {
+    await axiosInstance.patch("/documents/delete", { id });
   } catch (error) {
     console.log(error);
   }
@@ -65,11 +73,12 @@ export const getByEntity = async (
 ): Promise<DocumentWithPartner[]> => {
   try {
     const { data } = await axiosInstance.get<DocumentWithPartner[]>(
-      `/documents/payments-list/${id}`
+      `/documents/payments-list`,
+      { params: { id } }
     );
     return data;
   } catch (error) {
-    console.log(error);
+    console.error("getByEntity error:", error);
     return [];
   }
 };

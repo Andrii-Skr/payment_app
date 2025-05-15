@@ -7,7 +7,8 @@ import type { Session } from "next-auth";
 
 export type CreateEntityBody = {
   id?: number;
-  name: string;
+  short_name: string;
+  full_name: string;
   type: number;
   edrpou: string;
   bank_name: string;

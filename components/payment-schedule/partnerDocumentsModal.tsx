@@ -25,7 +25,7 @@ import { Label } from "@/components/ui/label";
 
 import { DocumentType, SpecDocType } from "../../types/types";
 
-type Partner = DocumentType["partners"];
+type Partner = DocumentType["partner"];
 
 type PartnerDocumentsModalProps = {
   isOpen: boolean;
@@ -71,7 +71,7 @@ export const PartnerDocumentsModal: React.FC<PartnerDocumentsModalProps> = ({
       <div className="max-h-screen overflow-y-auto p-4">
         {/* Заголовок */}
         <div className="flex items-center justify-between border-b pb-2">
-          <h2 className="text-lg font-bold">Счета по {partner.name}</h2>
+          <h2 className="text-lg font-bold">Счета по {partner.short_name}</h2>
           <Button variant="ghost" onClick={onClose}>
             Закрыть
           </Button>

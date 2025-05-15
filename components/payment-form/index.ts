@@ -1,4 +1,5 @@
-import { VatSelector } from './vatSelector';
+import { PartnerAccountsList } from "./partnerAccountsList";
+import { VatSelector } from "./vatSelector";
 export { TemplateSelector } from "./templateSelector";
 export { AccountDetailsForm } from "./accountDetailsForm";
 export { PurposeAndNoteForm } from "./purposeAndNoteForm";
@@ -11,4 +12,4 @@ export { PartnersCombobox } from "./partnersCombobox";
 export { EdrpouCombobox } from "./edrpouCombobox";
 export { AddPartner } from "./addPartner";
 export { PartnerInput } from "./partnerInput";
-
+export { PartnerAccountsList } from "./partnerAccountsList";

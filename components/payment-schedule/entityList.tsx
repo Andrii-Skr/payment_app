@@ -38,7 +38,7 @@ export const EntityList: React.FC<Props> = ({ className }) => {
             onClick={() => handleClick(e)}
           >
             <FilePlus2 />
-            <span className="flex-grow text-center">{e.name}</span>
+            <span className="flex-grow text-center">{e.short_name}</span>
           </Button>
         );
       })}

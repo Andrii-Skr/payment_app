@@ -1,12 +1,11 @@
 import React from "react";
 import {
-  Container,
   EdrpouCombobox,
   AccountsCombobox,
   PartnersCombobox,
-  FormInput,
   AddPartner,
   ContainerGrid,
+  FormInput,
 } from "@/components/shared";
 import { Control } from "react-hook-form";
 import { FormValues } from "@/types/formTypes";
@@ -30,18 +29,21 @@ export const PartnerBlock: React.FC<Props> = ({ control, entityIdNum }) => (
       <AccountsCombobox
         control={control}
         name="selectedAccount"
-        className="min-w-[270px]"
+        className="bank-account-size"
         empty="Счета не найдены =("
         label="Номер счета"
         placeholder="Выберите номер счета..."
       />
-      <AddPartner entityIdNum={entityIdNum} className="self-end justify-start" />
+      <AddPartner
+        entityIdNum={entityIdNum}
+        className="self-end justify-start"
+      />
     </ContainerGrid>
 
     <ContainerGrid className="">
       <PartnersCombobox
         control={control}
-        name="partnerName"
+        name="short_name"
         label="Имя контрагента"
         empty="Контрагенты не найдены =("
         placeholder="Выберите Контрагента..."
@@ -54,8 +56,8 @@ export const PartnerBlock: React.FC<Props> = ({ control, entityIdNum }) => (
         label="МФО"
         type="text"
         readOnly
-      />
-      <FormInput
+      /> */}
+      {/* <FormInput
         control={control}
         className="no-spin"
         name="bank_name"

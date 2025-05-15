@@ -15,6 +15,7 @@ export const PaymentSchedule: React.FC<Props> = ({ className }) => {
   const fetchEntities = async () => {
     const data = await apiClient.documents.entitySchedule();
     if (!data) return;
+    console.log("data", data);
     setEntities(data);
   };
 
@@ -25,14 +26,15 @@ export const PaymentSchedule: React.FC<Props> = ({ className }) => {
   const mergedDocs = (entities ?? []).flatMap(
     (entity) => entity.documents ?? []
   );
+  console.log("mergedDocs", mergedDocs);
   mergedDocs.sort((a, b) => {
-    const diff = a.partners.entity_id - b.partners.entity_id;
+    const diff = a.entity_id - b.entity_id;
     if (diff !== 0) return diff;
-    return a.partners.name.localeCompare(b.partners.name);
+    return a.partner.full_name.localeCompare(b.partner.full_name);
   });
 
   const entityNames = (entities ?? []).reduce((acc, entity) => {
-    acc[entity.id] = entity.name;
+    acc[entity.id] = entity.short_name ?? entity.full_name
     return acc;
   }, {} as Record<number, string>);
 

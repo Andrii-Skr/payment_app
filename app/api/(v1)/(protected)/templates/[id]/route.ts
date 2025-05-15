@@ -1,6 +1,5 @@
 // app/api/templates/[entity_id]/route.ts
 import { NextRequest, NextResponse } from "next/server";
-
 import prisma from "@/prisma/prisma-client";
 import { apiRoute } from "@/utils/apiRoute";
 import { Roles } from "@/constants/roles";
@@ -16,19 +15,10 @@ function toEntityId(raw: string): number | null {
   return /^\d+$/.test(raw) ? Number(raw) : null;
 }
 
-/** Загружает шаблоны: менеджеры/админы видят все, обычные пользователи — только свои */
-async function fetchTemplates(
-  userId: number,
-  role: Session["user"]["role"],
-  id: number
-) {
-  const isPrivileged = hasRole(role, [Roles.ADMIN, Roles.MANAGER]);
-
+/** Загружает все шаблоны по entity_id */
+async function fetchTemplates(entityId: number) {
   return prisma.template.findMany({
-    where: {
-      entity_id: id,
-      ...(isPrivileged ? {} : { user_id: userId }),
-    },
+    where: { entity_id: entityId },
     orderBy: { date: "desc" },
     include: {
       partner_account_number: {
@@ -52,7 +42,6 @@ const handler = async (
   params: { id: string },
   user: Session["user"] | null
 ) => {
-  /* -------------------------- basic auth checks -------------------------- */
   if (!user) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
@@ -62,7 +51,7 @@ const handler = async (
     return NextResponse.json({ message: "Invalid entity ID" }, { status: 400 });
   }
 
-  /* --- ACL: обычные пользователи видят только свои организации --- */
+  // ACL: обычные пользователи видят только шаблоны своих организаций
   if (!hasRole(user.role, [Roles.ADMIN, Roles.MANAGER])) {
     const belongs = await prisma.users_entities.count({
       where: { user_id: Number(user.id), entity_id: entityId },
@@ -72,13 +61,8 @@ const handler = async (
     }
   }
 
-  /* --------------------------- main business ---------------------------- */
   try {
-    const templates = await fetchTemplates(
-      Number(user.id),
-      user.role,
-      entityId
-    );
+    const templates = await fetchTemplates(entityId);
     return NextResponse.json(templates);
   } catch (e) {
     console.error("Template fetch error:", e);

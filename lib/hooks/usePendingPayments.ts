@@ -1,6 +1,7 @@
 import { usePaymentStore } from "@/store/store";
 import { PaymentDetail } from "@/types/types";
 import { useMemo } from "react";
+import { toast } from "@/lib/hooks/use-toast";
 
 export const usePendingPayments = () => {
   const pendingPayments = usePaymentStore((state) => state.pendingPayments);
@@ -28,7 +29,16 @@ export const usePendingPayments = () => {
     const filtered = pendingPayments.filter(
       (p) => !existingIds.includes(p.spec_doc_id)
     );
-    setPendingPayments([...filtered, ...newDetails]);
+
+    const all = [...filtered, ...newDetails];
+    const uniqueEntityIds = new Set(all.map((p) => p.entity_id));
+
+    if (uniqueEntityIds.size > 1) {
+      toast.error("Нельзя выбрать документы из разных организаций");
+      return;
+    }
+
+    setPendingPayments(all);
   };
 
   return {

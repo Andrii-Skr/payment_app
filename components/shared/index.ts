@@ -27,6 +27,6 @@ export { ReplaceTemplateDialog } from "./replaceTemplateDialog";
 export { AsidePaymentForm } from "../payment-form/asidePaymentForm";
 export { AutoPaymentTable } from "./autoPaymentTable";
 export { LogoutDropdown } from "./logoutDropdown";
-export { FiltersBar } from "./filtersBar";
+export { FiltersBar } from "../payment-schedule/filtersBar";
 export { AddForm } from "./addForm";
 export { FormTextarea } from "./formTextarea";

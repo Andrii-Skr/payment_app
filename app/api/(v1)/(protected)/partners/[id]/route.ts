@@ -4,6 +4,7 @@ import { apiRoute } from "@/utils/apiRoute";
 import type { Session } from "next-auth";
 import { hasRole } from "@/lib/access/hasRole";
 import { Roles } from "@/constants/roles";
+import { z } from "zod";
 
 type Params = { id: string };
 
@@ -29,59 +30,105 @@ const getHandler = async (
   // 👑 Админ → доступ ко всем
   if (hasRole(role, "admin")) {
     const partners = await prisma.partners.findMany({
-      where: { entity_id: entityId },
+      where: {
+        entities: {
+          some: {
+            entity_id: entityId,
+          },
+        },
+      },
       include: { partner_account_number: true },
     });
     return NextResponse.json(partners);
   }
 
   // 👤 Остальные → проверка users_partners и users_entities
-  const userWithRelations = await prisma.user.findUnique({
+  const dbUser = await prisma.user.findUnique({
     where: { id: userId },
-    include: {
-      users_partners: {
-        include: { partners: true },
-      },
-      users_entities: true,
+    select: {
+      users_partners: { select: { partner_id: true } },
+      users_entities: { select: { entity_id: true } },
     },
   });
 
-  if (!userWithRelations) {
+  if (!dbUser) {
     return NextResponse.json({ error: "User not found" }, { status: 404 });
   }
 
-  const entityAccess = userWithRelations.users_entities.some(
-    (e) => e.entity_id === entityId
-  );
+  const entityIds = dbUser.users_entities.map((e) => e.entity_id);
+  const partnerIds = dbUser.users_partners.map((p) => p.partner_id);
 
-  if (entityAccess) {
-    const partners = await prisma.partners.findMany({
-      where: { entity_id: entityId },
-      include: { partner_account_number: true },
-    });
-    return NextResponse.json(partners);
+  const hasEntityAccess = entityIds.includes(entityId);
+
+  if (!hasEntityAccess && partnerIds.length === 0) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  // Получаем всех партнёров, связанных с entityId, но только если
+  // текущий пользователь имеет доступ хотя бы к одному partner
+  const linkedPartnerIds = await prisma.partners_on_entities.findMany({
+    where: {
+      entity_id: entityId,
+      partner_id: partnerIds.length > 0 ? { in: partnerIds } : undefined,
+    },
+    select: { partner_id: true },
+  });
+
+  const visiblePartnerIds = hasEntityAccess
+    ? linkedPartnerIds.map((p) => p.partner_id)
+    : [];
+
+  if (!hasEntityAccess && visiblePartnerIds.length === 0) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  const partners = await prisma.partners.findMany({
+    where: {
+      id: { in: visiblePartnerIds },
+      entities: {
+        some: {
+          entity_id: entityId,
+        },
+      },
+    },
+    include: { partner_account_number: true },
+  });
+
+  return NextResponse.json(partners);
+};
+//----------------------------------------------------------------------------------------------
+const schema = z.object({
+  full_name: z.string().min(1),
+  short_name: z.string().min(1),
+});
+
+type Body = z.infer<typeof schema>;
+
+const patchHandler = async (_req: NextRequest, body: Body, params: Params) => {
+  const id = Number(params.id);
+
+  if (isNaN(id)) {
+    return NextResponse.json({ error: "Invalid ID" }, { status: 400 });
+  }
+
+  const updated = await prisma.partners.update({
+    where: { id },
+    data: {
+      full_name: body.full_name,
+      short_name: body.short_name,
+    },
+  });
+
+  return NextResponse.json({ success: true, updated });
 };
 
-// ---------- POST ----------
-const postHandler = async (
-  _req: NextRequest,
-  body: any,
-  _params: {},
-  _user: Session["user"] | null
-) => {
-  const entity = await prisma.entity.create({ data: body });
-  return NextResponse.json({ entity });
-};
-
-export const GET = apiRoute(getHandler, {
+export const PATCH = apiRoute<Body, Params>(patchHandler, {
+  schema,
   requireAuth: true,
   roles: [Roles.ADMIN, Roles.MANAGER],
 });
 
-export const POST = apiRoute(postHandler, {
+export const GET = apiRoute(getHandler, {
   requireAuth: true,
   roles: [Roles.ADMIN, Roles.MANAGER],
 });

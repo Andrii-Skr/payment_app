@@ -83,7 +83,7 @@ export const AutoPaymentTable: React.FC = () => {
                   onClick={() => toggleGroup(Number(entityId))}
                   className="cursor-pointer hover:bg-gray-100"
                 >
-                  <TableCell>{firstPayment.documents.entity.name}</TableCell>
+                  <TableCell>{firstPayment.documents.entity.short_name}</TableCell>
                 </TableRow>
                 {groupExpanded && (
                   <TableRow>
@@ -102,7 +102,7 @@ export const AutoPaymentTable: React.FC = () => {
                           {payments.map((payment) => (
                             <TableRow key={payment.id}>
                               <TableCell>
-                                {payment.documents.partners.name}
+                                {payment.documents.partner.short_name}
                               </TableCell>
                               <TableCell>
                                 {payment.documents.account_number}

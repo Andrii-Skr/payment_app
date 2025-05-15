@@ -1,5 +1,10 @@
 "use client";
-import { Container, FormInput, PartnerInput } from "@/components/shared";
+import { useEffect, useState } from "react";
+import { useFormContext, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+
+import { PartnerInput, Container } from "@/components/shared";
 import {
   Button,
   Dialog,
@@ -11,82 +16,139 @@ import {
   DialogTrigger,
   Form,
 } from "@/components/ui";
+import { CirclePlus } from "lucide-react";
+
+import {
+  createPartner,
+  updatePartner,
+  getByEdrpou,
+  addBankAccount,
+} from "@/services/partners";
+
+import { useAccountListStore } from "@/store/store";
+import { usePartnersStore } from "@/store/partnersStore";
+import { PartnerAccountsList } from "@/components/payment-form/partnerAccountsList";
+import { FormValues } from "@/types/formTypes";
 import { toast } from "@/lib/hooks/use-toast";
 import { cn } from "@/lib/utils";
-import { apiClient } from "@/services/api-client";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { CirclePlus } from "lucide-react";
-import { useForm } from "react-hook-form";
-import { useAutoFillBankDetails } from "@/lib/hooks/useAutoFillBankDetails";
-import { z } from "zod";
-import React from "react";
+
+const formSchema = z.object({
+  entity_id: z.number(),
+  full_name: z.string().min(3),
+  short_name: z.string().min(3),
+  edrpou: z.string().min(8).max(10),
+  bank_account: z.string().length(29),
+  mfo: z.string().optional(),
+  bank_name: z.string().optional(),
+});
+
+export type PartnerValues = z.infer<typeof formSchema>;
 
 type Props = {
   entityIdNum: number;
   className?: string;
 };
 
-const formSchema = z.object({
-  entity_id: z.number(),
-  name: z.string().min(3, "Контрагент обязателен"),
-  edrpou: z.string().min(8,"ЕДРПОУ должен состоять из 8 или 10 символов").max(10, "ЕДРПОУ должен состоять из 8 или 10 символов"),
-  bank_account: z.string().min(29, "Счет должен состоять из 29 символов"),
-  mfo: z.string(),
-  bank_name: z.string(),
-});
+export const AddPartner: React.FC<Props> = ({ entityIdNum, className }) => {
+  const parentForm = useFormContext<FormValues>();
+  const { fetchPartners } = usePartnersStore();
+  const { updateAccountList } = useAccountListStore();
 
-export type PartnerValues = z.infer<typeof formSchema>;
+  const [open, setOpen] = useState(false);
 
-export const AddPartner: React.FC<Props> = ({ className, entityIdNum }) => {
-  const defaultValues = {
-    entity_id: entityIdNum,
-    name: "",
-    edrpou: "",
-    bank_account: "",
-    mfo: "",
-    bank_name: "",
-  };
-
-  const form = useForm<z.infer<typeof formSchema>>({
+  const internalForm = useForm<PartnerValues>({
     resolver: zodResolver(formSchema),
-    defaultValues,
+    defaultValues: {
+      entity_id: entityIdNum,
+      full_name: "",
+      short_name: "",
+      edrpou: "",
+      bank_account: "",
+      mfo: "",
+      bank_name: "",
+    },
   });
 
-  const bankAccountValue = form.watch("bank_account");
-  const { mfo, bankName } = useAutoFillBankDetails(bankAccountValue);
+  // 🔄 Автозаполнение значений при открытии
+  useEffect(() => {
+    if (!open) return;
 
-  React.useEffect(() => {
-    if (mfo) form.setValue("mfo", mfo);
-    if (bankName) form.setValue("bank_name", bankName);
-  }, [mfo, bankName, form]);
+    const edrpou = parentForm.getValues("edrpou");
+    const short = parentForm.getValues("short_name");
+    const full = parentForm.getValues("full_name");
+    const account = parentForm.getValues("selectedAccount");
 
-  const onSubmit = async (data: z.infer<typeof formSchema>) => {
+    internalForm.setValue("entity_id", entityIdNum);
+    internalForm.setValue("edrpou", edrpou);
+    internalForm.setValue("short_name", short);
+    internalForm.setValue("full_name", full);
+    internalForm.setValue("bank_account", account);
+
+    if (edrpou) {
+      getByEdrpou(edrpou, entityIdNum).then((partner) => {
+        if (!partner) return;
+
+        updateAccountList(partner.partner_account_number);
+
+        const defaultAcc = partner.partner_account_number.find(
+          (a) => a.is_default
+        );
+        if (defaultAcc) {
+          internalForm.setValue("bank_account", defaultAcc.bank_account);
+          internalForm.setValue("mfo", defaultAcc.mfo ?? "");
+          internalForm.setValue("bank_name", defaultAcc.bank_name ?? "");
+        }
+      });
+    }
+  }, [open]);
+
+  const onSubmit = async (data: PartnerValues) => {
     try {
-      const existing = await apiClient.partners.getByEdrpou(
-        data.edrpou,
-        data.entity_id
-      );
-      console.log("existing", existing);
+      const existing = await getByEdrpou(data.edrpou, data.entity_id);
+
       if (existing) {
-        toast.error("Контрагент с таким ЕДРПОУ уже существует.");
-        return;
+        await updatePartner(existing.id, {
+          full_name: data.full_name,
+          short_name: data.short_name,
+        });
+
+        await addBankAccount({
+          partner_id: existing.id,
+          bank_account: data.bank_account,
+          mfo: data.mfo,
+          bank_name: data.bank_name,
+          is_default: false,
+        });
+      } else {
+        await createPartner(data);
       }
 
-      await apiClient.partners.createPartner(data);
-      toast.success("Контрагент добавлен.");
-      form.reset(defaultValues); // сброс после успешного добавления
+      await fetchPartners(data.entity_id);
+
+      // 🧠 Обновление основной формы
+      const updatedPartner = await getByEdrpou(data.edrpou, data.entity_id);
+      if (updatedPartner) {
+        const defaultAcc = updatedPartner.partner_account_number.find(
+          (a) => a.is_default
+        );
+        if (defaultAcc) {
+          parentForm.setValue("partner_id", updatedPartner.id);
+          parentForm.setValue("selectedAccount", defaultAcc.bank_account);
+          parentForm.setValue("partner_account_number_id", defaultAcc.id);
+        }
+      }
+
+      internalForm.reset();
+      setOpen(false);
+      toast.success("Сохранено успешно.");
     } catch (err) {
-      console.error("Ошибка при создании контрагента:", err);
-      toast.error("Произошла ошибка при добавлении.");
+      console.error(err);
+      toast.error("Ошибка при сохранении.");
     }
   };
 
   return (
-    <Dialog
-      onOpenChange={(isOpen) => {
-        if (isOpen) form.reset(defaultValues); // сброс при открытии
-      }}
-    >
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button
           type="button"
@@ -95,21 +157,23 @@ export const AddPartner: React.FC<Props> = ({ className, entityIdNum }) => {
           className={cn("", className)}
         >
           <CirclePlus className="mr-2" />
-          Добавить контрагента
+          Добавить / Изменить
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[815px]">
+
+      <DialogContent className="sm:max-w-[840px]">
         <DialogHeader>
-          <DialogTitle>Добавить контрагента</DialogTitle>
+          <DialogTitle>Контрагент</DialogTitle>
           <DialogDescription>
-            Введите данные контрагента. Нажмите "Добавить", когда закончите.
+            Укажите или обновите данные контрагента и счёт.
           </DialogDescription>
         </DialogHeader>
-        <Form {...form}>
+
+        <Form {...internalForm}>
           <form
             onSubmit={(e) => {
               e.stopPropagation();
-              form.handleSubmit(onSubmit, (errors) => {
+              internalForm.handleSubmit(onSubmit, (errors) => {
                 console.error("Валидация не прошла:", errors);
               })(e);
             }}
@@ -117,44 +181,47 @@ export const AddPartner: React.FC<Props> = ({ className, entityIdNum }) => {
           >
             <Container className="justify-start gap-2">
               <PartnerInput
-                control={form.control}
-                name="name"
-                label="Контрагент"
-                placeholder="Введите название контрагента"
+                control={internalForm.control}
+                name="full_name"
+                label="Полное имя"
+                className="bank-account-size"
               />
               <PartnerInput
-                control={form.control}
+                control={internalForm.control}
+                name="short_name"
+                label="Короткое имя"
+              />
+              <PartnerInput
+                control={internalForm.control}
                 name="edrpou"
                 label="ЕДРПОУ"
-                placeholder="Введите ЕДРПОУ"
-              />
-              <PartnerInput
-                control={form.control}
-                name="bank_account"
-                label="Номер счета"
-                className="w-[260px]"
-                placeholder="UA1234..."
               />
             </Container>
+
             <Container className="justify-start gap-2">
               <PartnerInput
-                control={form.control}
+                control={internalForm.control}
+                name="bank_account"
+                label="Номер счета"
+                className="bank-account-size"
+              />
+              {/* <PartnerInput
+                control={internalForm.control}
                 name="mfo"
                 label="МФО"
-                placeholder="Введите МФО"
-                readOnly
               />
               <PartnerInput
-                control={form.control}
+                control={internalForm.control}
                 name="bank_name"
-                label="Название банка"
-                placeholder="Введите название банка"
-                readOnly
-              />
+                label="Банк"
+              /> */}
             </Container>
+
             <DialogFooter>
-              <Button type="submit">Добавить</Button>
+              <Button type="submit">Сохранить</Button>
             </DialogFooter>
+
+            <PartnerAccountsList />
           </form>
         </Form>
       </DialogContent>

@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/table";
 import { PaymentDetail } from "../../types/types";
 import { usePaymentStore } from "../../store/store";
-import { useRouter } from "next/navigation"; // Импортируем useRouter
+import { useRouter } from "next/navigation";
 
 export type PaymentDetailsModalProps = {
   isOpen: boolean;
@@ -30,9 +30,7 @@ export const PaymentDetailsModal: React.FC<PaymentDetailsModalProps> = ({
   title,
   paymentDetails,
 }) => {
-  const [selectedRows, setSelectedRows] = React.useState<
-    Record<number, boolean>
-  >({});
+  const [selectedRows, setSelectedRows] = React.useState<Record<number, boolean>>({});
   const pendingPayments = usePaymentStore.getState().pendingPayments;
   const router = useRouter();
 
@@ -47,7 +45,10 @@ export const PaymentDetailsModal: React.FC<PaymentDetailsModalProps> = ({
   }, [paymentDetails, pendingPayments]);
 
   const toggleCheckbox = (spec_doc_id: number) => {
-    setSelectedRows((prev) => ({ ...prev, [spec_doc_id]: !prev[spec_doc_id] }));
+    setSelectedRows((prev) => ({
+      ...prev,
+      [spec_doc_id]: !prev[spec_doc_id],
+    }));
   };
 
   const handleSave = () => {
@@ -98,9 +99,7 @@ export const PaymentDetailsModal: React.FC<PaymentDetailsModalProps> = ({
                 </TableCell>
                 <TableCell>
                   {detail.dead_line_date
-                    ? new Date(detail.dead_line_date).toLocaleDateString(
-                        "ru-RU"
-                      )
+                    ? new Date(detail.dead_line_date).toLocaleDateString("ru-RU")
                     : ""}
                 </TableCell>
               </TableRow>

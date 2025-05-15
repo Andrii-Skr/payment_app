@@ -1,21 +1,33 @@
+
 model entity {
-    id         Int       @id() @default(autoincrement())
-    name       String    @db.VarChar
+  id             Int                   @id @default(autoincrement())
 
-    type       Decimal?   @db.Decimal(1, 0)
+      full_name       String    @db.VarChar
+    short_name       String    @db.VarChar
 
-    edrpou     String    @db.VarChar(10) @unique
-    bank_account String
-    bank_name   String?
-    mfo        String?
+  type           Decimal?              @db.Decimal(1, 0)
+  edrpou         String                @db.VarChar(10) @unique
+  bank_account   String
+  bank_name      String?
+  mfo            String?
 
-    partners partners[]
-    documents documents[]
-    users_entities users_entities[]
+documents documents[]
+  partners       partners_on_entities[]
+  users_entities users_entities[]
 
-    created_at DateTime? @default(now()) @db.Timestamp()
-    updated_at DateTime? @updatedAt @db.Timestamp()
-    is_deleted Boolean   @default(false)
+  created_at     DateTime?             @default(now()) @db.Timestamp()
+  updated_at     DateTime?             @updatedAt @db.Timestamp()
+  is_deleted     Boolean               @default(false)
 
-    @@map("entity")
+  @@map("entity")
+}
+
+model partners_on_entities {
+  entity_id  Int
+  partner_id Int
+
+  entity     entity   @relation(fields: [entity_id], references: [id], onDelete: Cascade)
+  partner    partners @relation(fields: [partner_id], references: [id], onDelete: Cascade)
+
+  @@id([entity_id, partner_id])
 }

@@ -16,7 +16,7 @@ import {
   PaymentDetail,
   PaymentEntry,
 } from "../../types/types";
-import { FiltersBar } from "../shared/filtersBar";
+import { FiltersBar } from "./filtersBar";
 import { EntityGroupRow } from "./entityGroupRow";
 import { useEntityTableLogic } from "@/lib/hooks/useEntityTableLogic";
 import { usePendingPayments } from "@/lib/hooks/usePendingPayments";
@@ -37,9 +37,18 @@ export const EntityTable: React.FC<{
   const canSeeDetailsModal = canAccess([Roles.ADMIN]);
   const canUseBottomPanel = canAccess(Roles.ADMIN);
 
-  const initialDate = new Date(
+  const kyivNow = new Date(
     new Date().toLocaleString("en-US", { timeZone: "Europe/Kyiv" })
   );
+
+  // Смещаем к понедельнику (0 - воскресенье, 1 - понедельник, …)
+  const day = kyivNow.getDay();
+  const diff = day === 0 ? -6 : 1 - day;
+
+  kyivNow.setDate(kyivNow.getDate() + diff);
+  kyivNow.setHours(0, 0, 0, 0);
+
+  const initialDate = new Date(kyivNow);
 
   const [startDate, setStartDate] = React.useState<Date>(initialDate);
   const [period, setPeriod] = React.useState<number>(14);
@@ -89,15 +98,15 @@ export const EntityTable: React.FC<{
       entity_id: entry.document.entity_id,
       spec_doc_id: entry.spec_doc.id,
       partner_id: entry.document.partner_id,
-      partner_name: entry.document.partners.name,
-      partner_entity_id: entry.document.partners.entity_id,
+      partner_name: entry.document.partner.full_name,
+      partner_entity_id: entry.document.entity_id,
 
-      partner_account_name: entry.document.partner_account_number.bank_name,
-      partner_account_mfo: entry.document.partner_account_number.mfo,
+      partner_account_mfo:
+        entry.document.partner_account_number.mfo ?? undefined,
       partner_account_number:
         entry.document.partner_account_number.bank_account,
       partner_account_bank_name:
-        entry.document.partner_account_number.bank_name,
+        entry.document.partner_account_number.bank_name ?? undefined,
 
       account_number: entry.document.account_number,
       purpose_of_payment: entry.document.purpose_of_payment,

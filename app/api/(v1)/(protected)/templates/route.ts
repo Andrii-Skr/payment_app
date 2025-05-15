@@ -8,7 +8,8 @@ type TemplateBody = {
   entity_id: number;
   sample: string;
   partner_id: number;
-  partnerName: string;
+  full_name: string;
+  short_name: string;
   edrpou: string;
   accountNumber: string;
   vatPercent: number;
@@ -36,7 +37,8 @@ const postHandler = async (
       entity_id: body.entity_id,
       name: body.sample,
       partner_id: body.partner_id,
-      partner_name: body.partnerName,
+      full_name: body.full_name,
+      short_name: body.short_name,
       edrpou: body.edrpou,
       account_number: body.accountNumber,
       vat_percent: Number(body.vatPercent),
@@ -56,14 +58,6 @@ const postHandler = async (
     { status: 200 }
   );
 };
-
-// // ✅ Совместимо с App Router (Next.js 15.3.0)
-// export async function POST(req: NextRequest, context: any) {
-//   return apiRoute<TemplateBody>(postHandler, {
-//     requireAuth: true,
-//     roles: [Roles.ADMIN, Roles.MANAGER],
-//   })(req, context);
-// }
 
 export const POST = apiRoute<TemplateBody>(postHandler, {
   requireAuth: true,

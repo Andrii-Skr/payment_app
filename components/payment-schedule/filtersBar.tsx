@@ -65,7 +65,7 @@ export const FiltersBar: React.FC<FiltersBarProps> = ({
   };
 
   return (
-    <div className="flex items-center justify-start mb-4 gap-5">
+    <div className="flex items-center justify-start mb-4 gap-5 w-full">
       <div className="flex items-center space-x-2">
         <Button onClick={handlePrev}>←</Button>
         <DatePicker

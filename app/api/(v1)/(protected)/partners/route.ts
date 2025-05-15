@@ -1,4 +1,3 @@
-// app/api/partner/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
@@ -6,12 +5,11 @@ import prisma from "@/prisma/prisma-client";
 import { apiRoute } from "@/utils/apiRoute";
 import { Roles } from "@/constants/roles";
 
-/* -------------------------------------------------------------------------- */
-/*                                    DTO                                     */
-/* -------------------------------------------------------------------------- */
+/* ----------------------------- Zod схема ----------------------------- */
 
 const partnerSchema = z.object({
-  name: z.string(),
+  full_name: z.string(),
+  short_name: z.string(),
   edrpou: z.string(),
   entity_id: z.number(),
   type: z.string().optional(),
@@ -22,38 +20,85 @@ const partnerSchema = z.object({
 
 type PartnerBody = z.infer<typeof partnerSchema>;
 
-/* -------------------------------------------------------------------------- */
-/*                                  handler                                   */
-/* -------------------------------------------------------------------------- */
+/* ---------------------------- POST handler ---------------------------- */
 
 const handler = async (
   _req: NextRequest,
   body: PartnerBody
 ): Promise<NextResponse> => {
-  console.log("body", body);
-  const { name, edrpou, entity_id, bank_account, mfo, bank_name } = body;
+  const {
+    full_name,
+    short_name,
+    edrpou,
+    entity_id,
+    bank_account,
+    mfo,
+    bank_name,
+    type,
+  } = body;
 
+  const existingPartner = await prisma.partners.findUnique({
+    where: { edrpou },
+    include: {
+      entities: true,
+      partner_account_number: true,
+    },
+  });
+
+  if (existingPartner) {
+    // Проверка: уже привязан к entity?
+    const alreadyLinked = existingPartner.entities.some(
+      (e) => e.entity_id === entity_id
+    );
+
+    if (!alreadyLinked) {
+      await prisma.partners_on_entities.create({
+        data: {
+          entity_id,
+          partner_id: existingPartner.id,
+        },
+      });
+    }
+
+    // НЕ создаём банковский счёт повторно, просто возвращаем
+    return NextResponse.json(
+      { success: true, partner: existingPartner, reused: true },
+      { status: 200 }
+    );
+  }
+
+  // Новый партнёр: создаём полностью
   const partner = await prisma.partners.create({
     data: {
-      name,
+      full_name,
+      short_name,
       edrpou,
-      entity_id,
+      type: type ? Number(type) : undefined,
       partner_account_number: {
         create: {
-          bank_account: bank_account,
-          mfo: mfo,
-          bank_name: bank_name,
+          bank_account,
+          mfo,
+          bank_name,
+          is_default: false,
+        },
+      },
+      entities: {
+        create: {
+          entity: {
+            connect: { id: entity_id },
+          },
         },
       },
     },
   });
 
-  return NextResponse.json({ success: true, partner }, { status: 201 });
+  return NextResponse.json(
+    { success: true, partner, reused: false },
+    { status: 201 }
+  );
 };
 
-/* -------------------------------------------------------------------------- */
-/*                                   route                                    */
-/* -------------------------------------------------------------------------- */
+/* ------------------------------ Экспорт ------------------------------ */
 
 export const POST = apiRoute<PartnerBody>(handler, {
   schema: partnerSchema,

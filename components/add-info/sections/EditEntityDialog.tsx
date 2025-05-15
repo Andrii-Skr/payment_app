@@ -17,9 +17,10 @@ import { useEffect } from "react";
 import { Container, FormInput } from "@/components/shared";
 
 const schema = z.object({
-  name: z.string().min(1, "Обязательное поле"),
+  full_name: z.string().min(1, "Обязательное поле"),
+  short_name: z.string().min(1, "Обязательное поле"),
   edrpou: z.string().min(8).max(10),
-  bank_account: z.string().min(1),
+  bank_account: z.string().length(29),
 });
 
 type EditEntityValues = z.infer<typeof schema>;
@@ -33,14 +34,15 @@ type Props = {
 export default function EditEntityDialog({ row, onClose, onSave }: Props) {
   const form = useForm<EditEntityValues>({
     resolver: zodResolver(schema),
-    defaultValues: { name: "", edrpou: "", bank_account: "" },
+    defaultValues: { short_name: "",full_name:"", edrpou: "", bank_account: "" },
   });
 
   /* заполняем при открытии, очищаем при закрытии */
   useEffect(() => {
     if (row) {
       form.reset({
-        name: row.name,
+        short_name: row.short_name,
+        full_name: row.full_name,
         edrpou: row.edrpou,
         bank_account: row.bank_account,
       });
@@ -65,7 +67,8 @@ export default function EditEntityDialog({ row, onClose, onSave }: Props) {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(submit)} className="space-y-4">
             <Container className="gap-2">
-              <FormInput control={form.control} name="name" label="Название" />
+              <FormInput control={form.control} name="full_name" label="Название" />
+              <FormInput control={form.control} name="short_name" label="Название" />
               <FormInput control={form.control} name="edrpou" label="ЕДРПОУ" />
               <FormInput
                 control={form.control}

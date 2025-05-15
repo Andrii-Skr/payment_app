@@ -39,7 +39,8 @@ export default function EntityTable({ rows, onRemove, onUpdate }: Props) {
         <TableBody>
           {rows.map((r) => (
             <TableRow key={r.id}>
-              <TableCell>{r.name}</TableCell>
+              <TableCell>{r.full_name}</TableCell>
+              <TableCell>{r.short_name}</TableCell>
               <TableCell>{r.edrpou}</TableCell>
               <TableCell className="whitespace-nowrap">
                 {r.bank_account}

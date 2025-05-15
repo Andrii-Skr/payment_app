@@ -1,5 +1,17 @@
-import { DocumentWithPartner } from "@/app/api/(v1)/(protected)/documents/payments-list/[id]/route";
+
 import prisma from "@/prisma/prisma-client";
+import { Prisma } from "@prisma/client";
+
+export type DocumentWithPartner = Prisma.documentsGetPayload<{
+  include: {
+    partner: {
+      select: {
+        short_name: true;
+        full_name: true;
+      };
+    };
+  };
+}>;
 
 export async function getDocumentsForEntity(
   entityId: number
@@ -12,7 +24,7 @@ export async function getDocumentsForEntity(
       is_paid: false,
     },
     include: {
-      partners: { select: { name: true } },
+      partner: { select: { short_name: true,full_name:true } },
     },
     orderBy: { date: "desc" },
   });
@@ -31,7 +43,7 @@ export async function getDocumentsForPartners(
       is_paid: false,
     },
     include: {
-      partners: { select: { name: true } },
+      partner: { select: { short_name: true,full_name:true } },
     },
     orderBy: { date: "desc" },
   });

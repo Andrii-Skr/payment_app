@@ -95,13 +95,15 @@ body {
   @apply w-[50px];
 }
 
-
 .date-picker-size {
   @apply w-full  h-8;
 }
 
 .combobox-size {
   @apply w-full  h-8;
+}
+.bank-account-size {
+  @apply min-w-[290px];
 }
 
 @layer base {
@@ -112,4 +114,3 @@ body {
     @apply bg-background text-foreground;
   }
 }
-

@@ -1,5 +1,4 @@
-import { Table } from "@/components/ui/table";
-
+import { Switch } from "@/components/ui/switch";
 export { Button } from "./button";
 export { Tabs, TabsList, TabsTrigger, TabsContent } from "./tabs";
 export {
@@ -45,7 +44,7 @@ export {
   TableCaption,
 } from "./table";
 export { Select } from "./select";
-export { Card, CardContent } from "./card";
+export { Card, CardContent, CardHeader, CardTitle } from "./card";
 export {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -53,6 +52,8 @@ export {
   DropdownMenuItem,
 } from "./dropdown-menu";
 export { RadioGroup, RadioGroupItem } from "./radio-group";
+export { Switch } from "./switch";
+export { ConfirmDialog } from "./confirm-dialog";
 
 export { Modal } from "./modal";
 export { LoadingMessage } from "./loadingMessage";

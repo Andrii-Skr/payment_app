@@ -2,38 +2,26 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/prisma/prisma-client";
 import { apiRoute } from "@/utils/apiRoute";
 import { Roles } from "@/constants/roles";
-import { Prisma } from "@prisma/client";
+import type { Session } from "next-auth";
 import {
   getDocumentsForEntity,
   getDocumentsForPartners,
+  DocumentWithPartner,
 } from "@/prisma/data/documents";
-import type { Session } from "next-auth";
-
-export type DocumentWithPartner = Prisma.documentsGetPayload<{
-  include: {
-    partners: {
-      select: {
-        name: true;
-      };
-    };
-  };
-}>;
-
-type Params = { id: string };
 
 const getHandler = async (
-  _req: NextRequest,
+  req: NextRequest,
   _body: null,
-  params: Params,
+  _params: {},
   user: Session["user"] | null
 ) => {
   if (!user) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
-  const entityId = parseInt(params.id, 10);
-  if (isNaN(entityId)) {
-    return NextResponse.json({ message: "Invalid entity ID" }, { status: 400 });
+  const entityId = Number(req.nextUrl.searchParams.get("id"));
+  if (!entityId || isNaN(entityId)) {
+    return NextResponse.json({ message: "Missing or invalid id" }, { status: 400 });
   }
 
   if (user.role === Roles.ADMIN) {
@@ -42,7 +30,7 @@ const getHandler = async (
   }
 
   const dbUser = await prisma.user.findUnique({
-    where: { id: parseInt(user.id, 10) },
+    where: { id: Number(user.id) },
     include: {
       users_partners: { select: { partner_id: true } },
       users_entities: { select: { entity_id: true } },

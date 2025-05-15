@@ -1,10 +1,16 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button, Form } from "@/components/ui";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+
+import {
+  Button,
+  ConfirmDialog,
+  Form,
+  Alert,
+  AlertDescription,
+} from "@/components/ui";
 import {
   SaveTemplateDialog,
   ReplaceTemplateDialog,
@@ -16,6 +22,10 @@ import { usePaymentFormLogic } from "@/lib/hooks/usePaymentFormLogic";
 import { useTemplateManager } from "@/lib/hooks/useTemplateManager";
 import { parseExpression } from "@/lib/math/parseExpression";
 import { TransformedObject } from "@/lib/transformData/doc";
+import { useDocumentsStore } from "@/store/documentsListStore";
+import { apiClient } from "@/services/api-client";
+import { toast } from "@/lib/hooks/use-toast";
+import { Trash2 } from "lucide-react";
 
 import {
   TemplateSelector,
@@ -23,8 +33,6 @@ import {
   PurposeAndNoteForm,
   PartnerBlock,
 } from "@/components/payment-form";
-import { apiClient } from "@/services/api-client";
-import { Trash2 } from "lucide-react";
 
 const defaultValues: FormValues = {
   doc_id: undefined,
@@ -52,7 +60,8 @@ const defaultValues: FormValues = {
   mfo: "",
   bank_name: "",
   partner_id: undefined,
-  partnerName: "",
+  short_name: "",
+  full_name: "",
   purposeOfPayment: "",
   note: "",
 };
@@ -60,6 +69,8 @@ const defaultValues: FormValues = {
 export const PaymentForm: React.FC<{ className?: string }> = ({
   className,
 }) => {
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues,
@@ -67,6 +78,7 @@ export const PaymentForm: React.FC<{ className?: string }> = ({
   });
 
   const { setValue, getValues, reset, control, watch, handleSubmit } = form;
+  const docId = watch("doc_id");
 
   const {
     entity,
@@ -85,6 +97,8 @@ export const PaymentForm: React.FC<{ className?: string }> = ({
 
   const { handleSampleChange, handleSaveTemplate, confirmTemplateReplace } =
     useTemplateManager({ reset, getValues, entityIdNum, setTemplatesList });
+
+  const { removeDoc } = useDocumentsStore();
 
   const handleAccountSumBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -111,17 +125,50 @@ export const PaymentForm: React.FC<{ className?: string }> = ({
     }
   };
 
+  const handleConfirmDelete = async () => {
+    const docId = getValues("doc_id");
+
+    if (!docId) {
+      toast.error("Документ не выбран");
+      setDeleteDialogOpen(false);
+      return;
+    }
+
+    try {
+      await removeDoc(docId, entityIdNum);
+      reset({ ...defaultValues, entity_id: entityIdNum });
+      toast.success("Документ удалён");
+    } catch (err) {
+      console.error(err);
+      toast.error("Ошибка при удалении");
+    } finally {
+      setDeleteDialogOpen(false);
+    }
+  };
+
   return (
-    <div className="flex flex-row justify-around">
+    <div className="flex justify-around">
       <AsidePaymentForm docs={docs} onRowClick={handleDocRowClick} />
 
       <Form {...form}>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-1 w-auto">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="space-y-1 w-auto min-w-[850px]"
+        >
           <Alert className="flex justify-between items-center p-2">
             <AlertDescription className="w-auto p-0">
-              Наименование Плательщика: {entity?.name || "Загрузка..."}
+              Наименование Плательщика: {entity?.short_name || "Загрузка..."}
             </AlertDescription>
-            <Button variant={"ghost"} className="flex self-end gap-2 h-6 text-red-500 p-0"><Trash2 /> Удалить Документ</Button>
+            <Button
+              type="button"
+              variant="ghost"
+              className="flex self-end gap-2 h-6 text-red-500 p-0"
+              onClick={() => setDeleteDialogOpen(true)}
+              disabled={!docId}
+              title={!docId ? "Документ не выбран" : undefined}
+            >
+              <Trash2 /> Удалить Документ
+            </Button>
           </Alert>
 
           <TemplateSelector
@@ -145,9 +192,7 @@ export const PaymentForm: React.FC<{ className?: string }> = ({
           />
 
           <PurposeAndNoteForm />
-
           <PartnerBlock control={control} entityIdNum={entityIdNum} />
-
           <SumAndDateForm control={control} />
         </form>
       </Form>
@@ -171,6 +216,16 @@ export const PaymentForm: React.FC<{ className?: string }> = ({
             reset(confirmTemplateReplace(selectedTemplate));
           }
         }}
+      />
+
+      <ConfirmDialog
+        open={deleteDialogOpen}
+        title="Удалить документ"
+        description="Вы уверены, что хотите удалить текущий документ?"
+        confirmLabel="Удалить"
+        cancelLabel="Отмена"
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setDeleteDialogOpen(false)}
       />
     </div>
   );

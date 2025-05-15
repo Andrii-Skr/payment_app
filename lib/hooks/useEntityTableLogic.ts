@@ -33,38 +33,55 @@ export const useEntityTableLogic = ({
     setFormattedDateRange(dateRange.map((d) => formatter.format(d)));
   }, [dateRange]);
 
+  // 🧠 группировка по (entity_id, partner_id)
   const partnersMap = useMemo(() => {
     return documents.reduce((acc, doc) => {
-      const partnerId = doc.partners.id;
-      if (!acc[partnerId]) {
-        acc[partnerId] = { partner: doc.partners, documents: [doc] };
+      const key = `${doc.entity_id}:${doc.partner.id}`;
+      if (!acc[key]) {
+        acc[key] = {
+          partner: doc.partner,
+          entity_id: doc.entity_id,
+          documents: [doc],
+        };
       } else {
-        acc[partnerId].documents.push(doc);
+        acc[key].documents.push(doc);
       }
       return acc;
-    }, {} as Record<number, { partner: DocumentType["partners"]; documents: DocumentType[] }>);
+    }, {} as Record<
+      string,
+      {
+        partner: DocumentType["partner"];
+        entity_id: number;
+        documents: DocumentType[];
+      }
+    >);
   }, [documents]);
 
   const partnerRows = useMemo(() => {
     const rows = Object.values(partnersMap);
     rows.sort((a, b) => {
-      const diff = a.partner.entity_id - b.partner.entity_id;
-      return diff !== 0 ? diff : collator.compare(a.partner.name, b.partner.name);
+      const diff = a.entity_id - b.entity_id;
+      return diff !== 0
+        ? diff
+        : collator.compare(a.partner.short_name, b.partner.short_name);
     });
     return rows;
   }, [partnersMap, collator]);
 
   const filteredRows = useMemo(() => {
     return partnerRows.filter((row) => {
-      const entityMatch = selectedEntity === "all" || row.partner.entity_id === selectedEntity;
-      const nameMatch = row.partner.name.toLowerCase().includes(partnerFilter.toLowerCase());
+      const entityMatch =
+        selectedEntity === "all" || row.entity_id === selectedEntity;
+      const nameMatch = row.partner.short_name
+        .toLowerCase()
+        .includes(partnerFilter.toLowerCase());
       return entityMatch && nameMatch;
     });
   }, [partnerRows, selectedEntity, partnerFilter]);
 
   const groupedByEntity = useMemo(() => {
     return filteredRows.reduce((acc, row) => {
-      const entityId = row.partner.entity_id;
+      const entityId = row.entity_id;
       if (!acc[entityId]) acc[entityId] = [];
       acc[entityId].push(row);
       return acc;
