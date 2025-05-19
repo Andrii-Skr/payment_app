@@ -78,7 +78,6 @@ const patchHandler = async (
   if (!user) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
-  console.log("body", body);
   const { id } = body;
   if (!id || typeof id !== "number") {
     return NextResponse.json({ message: "Invalid ID" }, { status: 400 });

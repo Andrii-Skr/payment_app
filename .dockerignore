@@ -1,18 +1,23 @@
-# Папки, которые не нужны в образе
+# ─── 📦 Исключить зависимости, если пересобираются ───
 node_modules
+.pnpm
+
+# ─── 🧱 Артефакты сборки ───
 .next
 dist
 coverage
+build
 
-# Конфиги окружения
-.env*
+# ─── 🔧 Конфигурации и временные файлы ───
+*.tsbuildinfo
 *.log
-
-# Системные файлы
+.env*
+.vscode
+.idea
 .DS_Store
 *.swp
 *.swo
-.idea
-.vscode
-*.tsbuildinfo
 
+# ─── 📁 Git и CI ───
+.git
+.github

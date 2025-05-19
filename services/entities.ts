@@ -37,7 +37,6 @@ export const update = async (data: Partial<Row>) => {
   }
 };
 export const remove = async (id: number, data: boolean) => {
-  console.log("remove", id, data);
   try {
     await axiosInstance.patch(`/entities/${id}`, { is_deleted: data });
   } catch (error) {

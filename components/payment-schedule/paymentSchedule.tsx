@@ -15,7 +15,6 @@ export const PaymentSchedule: React.FC<Props> = ({ className }) => {
   const fetchEntities = async () => {
     const data = await apiClient.documents.entitySchedule();
     if (!data) return;
-    console.log("data", data);
     setEntities(data);
   };
 
@@ -26,7 +25,6 @@ export const PaymentSchedule: React.FC<Props> = ({ className }) => {
   const mergedDocs = (entities ?? []).flatMap(
     (entity) => entity.documents ?? []
   );
-  console.log("mergedDocs", mergedDocs);
   mergedDocs.sort((a, b) => {
     const diff = a.entity_id - b.entity_id;
     if (diff !== 0) return diff;

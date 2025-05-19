@@ -61,9 +61,6 @@ importers:
       '@radix-ui/react-toast':
         specifier: ^1.2.6
         version: 1.2.6(@types/react-dom@18.3.0)(@types/react@18.3.11)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@types/bcrypt':
-        specifier: ^5.0.2
-        version: 5.0.2
       axios:
         specifier: ^1.8.2
         version: 1.8.2
@@ -82,9 +79,6 @@ importers:
       date-fns:
         specifier: ^4.1.0
         version: 4.1.0
-      date-fns-tz:
-        specifier: ^3.2.0
-        version: 3.2.0(date-fns@4.1.0)
       framer-motion:
         specifier: ^12.6.3
         version: 12.6.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -94,9 +88,6 @@ importers:
       lucide-react:
         specifier: ^0.447.0
         version: 0.447.0(react@18.3.1)
-      mathjs:
-        specifier: ^14.4.0
-        version: 14.4.0
       next:
         specifier: 15.3.0
         version: 15.3.0(@babel/core@7.26.10)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -109,9 +100,6 @@ importers:
       pino:
         specifier: ^9.6.0
         version: 9.6.0
-      pino-pretty:
-        specifier: ^13.0.0
-        version: 13.0.0
       react:
         specifier: ^18
         version: 18.3.1
@@ -127,12 +115,6 @@ importers:
       tailwind-merge:
         specifier: ^2.5.2
         version: 2.5.2
-      tailwindcss-animate:
-        specifier: ^1.0.7
-        version: 1.0.7(tailwindcss@3.4.13(ts-node@10.9.2(@types/node@20.16.10)(typescript@5.6.2)))
-      ts-node:
-        specifier: ^10.9.2
-        version: 10.9.2(@types/node@20.16.10)(typescript@5.6.2)
       zod:
         specifier: ^3.23.8
         version: 3.23.8
@@ -140,6 +122,9 @@ importers:
         specifier: ^5.0.1
         version: 5.0.1(@types/react@18.3.11)(react@18.3.1)
     devDependencies:
+      '@types/bcrypt':
+        specifier: ^5.0.2
+        version: 5.0.2
       '@types/jest':
         specifier: ^29.5.14
         version: 29.5.14
@@ -155,15 +140,24 @@ importers:
       '@types/react-dom':
         specifier: ^18
         version: 18.3.0
+      date-fns-tz:
+        specifier: ^3.2.0
+        version: 3.2.0(date-fns@4.1.0)
       jest:
         specifier: ^29.7.0
         version: 29.7.0(@types/node@20.16.10)(ts-node@10.9.2(@types/node@20.16.10)(typescript@5.6.2))
+      mathjs:
+        specifier: ^14.4.0
+        version: 14.4.0
       next-test-api-route-handler:
         specifier: ^4.0.16
         version: 4.0.16(next@15.3.0(@babel/core@7.26.10)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
       node-mocks-http:
         specifier: ^1.17.0
         version: 1.17.0(@types/node@20.16.10)
+      pino-pretty:
+        specifier: ^13.0.0
+        version: 13.0.0
       postcss:
         specifier: ^8
         version: 8.4.47
@@ -173,12 +167,15 @@ importers:
       tailwindcss:
         specifier: ^3.4.1
         version: 3.4.13(ts-node@10.9.2(@types/node@20.16.10)(typescript@5.6.2))
+      tailwindcss-animate:
+        specifier: ^1.0.7
+        version: 1.0.7(tailwindcss@3.4.13(ts-node@10.9.2(@types/node@20.16.10)(typescript@5.6.2)))
       ts-jest:
         specifier: ^29.3.2
         version: 29.3.2(@babel/core@7.26.10)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.26.10))(esbuild@0.25.2)(jest@29.7.0(@types/node@20.16.10)(ts-node@10.9.2(@types/node@20.16.10)(typescript@5.6.2)))(typescript@5.6.2)
-      tsx:
-        specifier: ^4.19.3
-        version: 4.19.3
+      ts-node:
+        specifier: ^10.9.2
+        version: 10.9.2(@types/node@20.16.10)(typescript@5.6.2)
       typescript:
         specifier: ^5
         version: 5.6.2
@@ -2463,9 +2460,6 @@ packages:
     resolution: {integrity: sha512-ts6Wi+2j3jQjqi70w5AlN8DFnkSwC+MqmxEzdEALB2qXZYV3X/b1CTfgPLGJNMeAWxdPfU8FO1ms3NUfaHCPYg==}
     engines: {node: '>=10'}
 
-  get-tsconfig@4.10.0:
-    resolution: {integrity: sha512-kGzZ3LWWQcGIAmg6iWvXn0ei6WDtV26wzHRMwDSzmAbcXrTEXxHy6IehI6/4eT6VRKyMP1eF1VqwrVUmE/LR7A==}
-
   glob-parent@5.1.2:
     resolution: {integrity: sha512-AOIgSQCepiJYwP3ARnGx+5VnTu2HBYdzbGP45eLw1vr3zB3vZLeyed1sC9hnbcOc9/SrMyM5RPQrkGz4aS9Zow==}
     engines: {node: '>= 6'}
@@ -3364,9 +3358,6 @@ packages:
     resolution: {integrity: sha512-qYg9KP24dD5qka9J47d0aVky0N+b4fTU89LN9iDnjB5waksiC49rvMB0PrUJQGoTmH50XPiqOvAjDfaijGxYZw==}
     engines: {node: '>=8'}
 
-  resolve-pkg-maps@1.0.0:
-    resolution: {integrity: sha512-seS2Tj26TBVOC2NIc2rOe2y2ZO7efxITtLZcGSOnHHNOQ7CkiUBfw0Iw2ck6xkIhPwLhKNLS8BO+hEpngQlqzw==}
-
   resolve.exports@2.0.3:
     resolution: {integrity: sha512-OcXjMsGdhL4XnbShKpAcSqPMzQoYkYyhbEaeSko47MjRP9NfEQMhZkXL1DoFlt9LWQn4YttrdnV6X2OiyzBi+A==}
     engines: {node: '>=10'}
@@ -3633,11 +3624,6 @@ packages:
 
   tslib@2.8.1:
     resolution: {integrity: sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w==}
-
-  tsx@4.19.3:
-    resolution: {integrity: sha512-4H8vUNGNjQ4V2EOoGw005+c+dGuPSnhpPBPHBtsZdGZBk/iJb4kguGlPWaZTZ3q5nMtFOEsY0nRDlh9PJyd6SQ==}
-    engines: {node: '>=18.0.0'}
-    hasBin: true
 
   type-detect@4.0.8:
     resolution: {integrity: sha512-0fr/mIH1dlO+x7TlcMy+bIDqKPsw/70tVyeHW787goQjhmqaZe10uwLujubK9q9Lg6Fiho1KUKDYz0Z7k7g5/g==}
@@ -6064,10 +6050,6 @@ snapshots:
 
   get-stream@6.0.1: {}
 
-  get-tsconfig@4.10.0:
-    dependencies:
-      resolve-pkg-maps: 1.0.0
-
   glob-parent@5.1.2:
     dependencies:
       is-glob: 4.0.3
@@ -7101,8 +7083,6 @@ snapshots:
 
   resolve-from@5.0.0: {}
 
-  resolve-pkg-maps@1.0.0: {}
-
   resolve.exports@2.0.3: {}
 
   resolve@1.22.8:
@@ -7387,13 +7367,6 @@ snapshots:
   tslib@2.7.0: {}
 
   tslib@2.8.1: {}
-
-  tsx@4.19.3:
-    dependencies:
-      esbuild: 0.25.2
-      get-tsconfig: 4.10.0
-    optionalDependencies:
-      fsevents: 2.3.3
 
   type-detect@4.0.8: {}
 

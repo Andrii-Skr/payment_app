@@ -36,7 +36,6 @@ const patchHandler = async (
   if (!user) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
-  console.log("body", body);
   try {
     const result = await prisma.documents.update({
       where: { id: body.doc_id },
