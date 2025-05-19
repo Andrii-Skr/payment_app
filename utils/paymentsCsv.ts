@@ -1,7 +1,6 @@
 // utils/paymentsCsv.ts
 import { format } from "date-fns";
 import type { PaymentDetail } from "@/types/types";
-import { entity } from "@prisma/client";
 import { fetchEntitiesBatch } from "@/services/entityService";
 
 type CsvRow = Record<string, string>;
@@ -19,18 +18,16 @@ const CSV_HEADER =
 export const buildPaymentsCsv = async (
   payments: PaymentDetail[],
 ): Promise<Blob> => {
-  /* 1. Собираем id плательщиков и контрагентов */
-  const ids = Array.from(
-    new Set(payments.flatMap(p => [p.entity_id, p.partner_entity_id])),
-  );
+  console.log("payments", payments);
+  // Собираем уникальные entity_id
+  const entityIds = Array.from(new Set(payments.map(p => p.entity_id)));
 
-  /* 2. Тянем реквизиты одним батчем */
-  const entities = await fetchEntitiesBatch(ids); // Map<number, entity>
+  // Загружаем информацию о плательщиках
+  const entities = await fetchEntitiesBatch(entityIds); // Map<number, entity>
 
-  /* 3. Строим строки CSV */
+  // Формируем строки
   const rows: CsvRow[] = payments.map(p => {
-    const payer = entities.get(p.entity_id) as entity | undefined;
-    const partnerEnt = entities.get(p.partner_entity_id) as entity | undefined;
+    const payer = entities.get(p.entity_id);
 
     return {
       DAY: format(new Date(p.date), "yyyy-MM-dd HH:mm:ss"),
@@ -38,7 +35,7 @@ export const buildPaymentsCsv = async (
       A: payer?.full_name ?? "",
       B: p.partner_name,
       OKPO_A: payer?.edrpou ?? "",
-      OKPO_B: partnerEnt?.edrpou ?? "",
+      OKPO_B: p.partner_edrpou ?? "",
       ACCOUNT_A: payer?.bank_account ?? "",
       ACCOUNT_B: p.partner_account_number,
       BANK_A: payer?.bank_name ?? "",
@@ -50,17 +47,16 @@ export const buildPaymentsCsv = async (
     };
   });
 
-  /* 4. Склеиваем контент */
+  // Собираем CSV
   const csvBody = rows.map(r => Object.values(r).join(";")).join("\r\n");
   const csvContent = `${CSV_HEADER}\r\n${csvBody}`;
 
-  /* 5. Возвращаем Blob */
   return new Blob([csvContent], { type: "text/csv;charset=utf-8" });
 };
 
 /**
  * Скачиваем Blob как файл.
- * @param blob   Blob, полученный из buildPaymentsCsv
+ * @param blob Blob, полученный из buildPaymentsCsv
  * @param filename имя файла (например, payments_20250423_1200.csv)
  */
 export const downloadBlob = (blob: Blob, filename: string) => {

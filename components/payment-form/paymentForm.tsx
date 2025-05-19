@@ -6,10 +6,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 import {
   Button,
-  ConfirmDialog,
   Form,
   Alert,
   AlertDescription,
+  ChoiceDialog,
 } from "@/components/ui";
 import {
   SaveTemplateDialog,
@@ -218,14 +218,17 @@ export const PaymentForm: React.FC<{ className?: string }> = ({
         }}
       />
 
-      <ConfirmDialog
+      <ChoiceDialog
         open={deleteDialogOpen}
         title="Удалить документ"
         description="Вы уверены, что хотите удалить текущий документ?"
-        confirmLabel="Удалить"
-        cancelLabel="Отмена"
-        onConfirm={handleConfirmDelete}
         onCancel={() => setDeleteDialogOpen(false)}
+        choices={[
+          {
+            label: "Удалить",
+            onSelect: handleConfirmDelete,
+          },
+        ]}
       />
     </div>
   );

@@ -53,7 +53,7 @@ export {
 } from "./dropdown-menu";
 export { RadioGroup, RadioGroupItem } from "./radio-group";
 export { Switch } from "./switch";
-export { ConfirmDialog } from "./confirm-dialog";
+export { ChoiceDialog } from "./choice-dialog";
 
 export { Modal } from "./modal";
 export { LoadingMessage } from "./loadingMessage";

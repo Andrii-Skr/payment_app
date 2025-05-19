@@ -1,4 +1,5 @@
 "use client";
+
 import React from "react";
 import {
   Table,
@@ -20,12 +21,12 @@ import { FiltersBar } from "./filtersBar";
 import { EntityGroupRow } from "./entityGroupRow";
 import { useEntityTableLogic } from "@/lib/hooks/useEntityTableLogic";
 import { usePendingPayments } from "@/lib/hooks/usePendingPayments";
-import { apiClient } from "@/services/api-client";
 import { useAccessControl } from "@/lib/hooks/useAccessControl";
 import { Roles } from "@/constants/roles";
-import { toast } from "@/lib/hooks/use-toast";
-import { buildPaymentsCsv, downloadBlob } from "@/utils/paymentsCsv";
-import { format } from "date-fns";
+import { apiClient } from "@/services/api-client";
+import { createPaymentDetail } from "@/lib/transformData/paymentDetail";
+import { groupPaymentsByReceiver } from "@/lib/transformData/groupPayments";
+import { finalizePaymentsHandler } from "@/lib/handlers/finalizePaymentsHandler";
 
 export const EntityTable: React.FC<{
   documents: DocumentType[];
@@ -33,54 +34,39 @@ export const EntityTable: React.FC<{
   reloadDocuments: () => Promise<void>;
 }> = ({ documents, entityNames, reloadDocuments }) => {
   const { canAccess } = useAccessControl();
-
   const canSeeDetailsModal = canAccess([Roles.ADMIN]);
   const canUseBottomPanel = canAccess(Roles.ADMIN);
 
   const kyivNow = new Date(
     new Date().toLocaleString("en-US", { timeZone: "Europe/Kyiv" })
   );
-
-  // Смещаем к понедельнику (0 - воскресенье, 1 - понедельник, …)
   const day = kyivNow.getDay();
   const diff = day === 0 ? -6 : 1 - day;
-
   kyivNow.setDate(kyivNow.getDate() + diff);
   kyivNow.setHours(0, 0, 0, 0);
-
   const initialDate = new Date(kyivNow);
 
-  const [startDate, setStartDate] = React.useState<Date>(initialDate);
-  const [period, setPeriod] = React.useState<number>(14);
+  const [startDate, setStartDate] = React.useState(initialDate);
+  const [period, setPeriod] = React.useState(14);
   const [modalOpen, setModalOpen] = React.useState(false);
   const [modalTitle, setModalTitle] = React.useState("");
-  const [modalPaymentDetails, setModalPaymentDetails] = React.useState<
-    PaymentDetail[]
-  >([]);
+  const [modalPaymentDetails, setModalPaymentDetails] = React.useState<PaymentDetail[]>([]);
   const [partnerModalOpen, setPartnerModalOpen] = React.useState(false);
-  const [selectedPartner, setSelectedPartner] =
-    React.useState<PartnerType | null>(null);
-  const [selectedPartnerDocuments, setSelectedPartnerDocuments] =
-    React.useState<DocumentType[]>([]);
-  const [selectedEntity, setSelectedEntity] = React.useState<number | "all">(
-    "all"
-  );
+  const [selectedPartner, setSelectedPartner] = React.useState<PartnerType | null>(null);
+  const [selectedPartnerDocuments, setSelectedPartnerDocuments] = React.useState<DocumentType[]>([]);
+  const [selectedEntity, setSelectedEntity] = React.useState<number | "all">("all");
   const [partnerFilter, setPartnerFilter] = React.useState("");
 
-  const collator = new Intl.Collator(undefined, {
-    numeric: true,
-    sensitivity: "base",
-  });
+  const collator = new Intl.Collator(undefined, { numeric: true, sensitivity: "base" });
 
-  const { dateRange, groupedByEntity, formattedDateRange } =
-    useEntityTableLogic({
-      documents,
-      startDate,
-      period,
-      selectedEntity,
-      partnerFilter,
-      collator,
-    });
+  const { dateRange, groupedByEntity, formattedDateRange } = useEntityTableLogic({
+    documents,
+    startDate,
+    period,
+    selectedEntity,
+    partnerFilter,
+    collator,
+  });
 
   const {
     pendingPayments,
@@ -93,37 +79,13 @@ export const EntityTable: React.FC<{
   const handleCellClick = (cellUnpaid: PaymentEntry[]) => {
     if (!canSeeDetailsModal || cellUnpaid.length === 0) return;
 
-    const paymentDetails: PaymentDetail[] = cellUnpaid.map((entry) => ({
-      doc_id: entry.document.id,
-      entity_id: entry.document.entity_id,
-      spec_doc_id: entry.spec_doc.id,
-      partner_id: entry.document.partner_id,
-      partner_name: entry.document.partner.full_name,
-      partner_entity_id: entry.document.entity_id,
-
-      partner_account_mfo:
-        entry.document.partner_account_number.mfo ?? undefined,
-      partner_account_number:
-        entry.document.partner_account_number.bank_account,
-      partner_account_bank_name:
-        entry.document.partner_account_number.bank_name ?? undefined,
-
-      account_number: entry.document.account_number,
-      purpose_of_payment: entry.document.purpose_of_payment,
-      dead_line_date: entry.spec_doc.dead_line_date,
-      date: entry.document.date,
-      pay_sum: Number(entry.spec_doc.pay_sum),
-    }));
-
+    const paymentDetails: PaymentDetail[] = cellUnpaid.map(createPaymentDetail);
     setModalPaymentDetails(paymentDetails);
     setModalTitle(`Документы для партнёра ${paymentDetails[0].partner_name}`);
     setModalOpen(true);
   };
 
-  const handlePartnerNameClick = (
-    partner: PartnerType,
-    docs: DocumentType[]
-  ) => {
+  const handlePartnerNameClick = (partner: PartnerType, docs: DocumentType[]) => {
     setSelectedPartner(partner);
     setSelectedPartnerDocuments(docs);
     setPartnerModalOpen(true);
@@ -136,27 +98,23 @@ export const EntityTable: React.FC<{
   };
 
   const finalizePayments = async () => {
-    try {
-      /* ---------- 0. Нечего выгружать ---------- */
+    await finalizePaymentsHandler(
+      pendingPayments,
+      reloadDocuments,         // <-- порядок: reloadFn
+      clearPendingPayments,    // <-- потом очистка
+      "plain"
+    );
+  };
 
-      /* ---------- 1. Генерируем CSV ---------- */
-      const blob = await buildPaymentsCsv(pendingPayments);
-      const filename = `payments_${format(new Date(), "yyyyMMdd_HHmm")}.csv`;
-      downloadBlob(blob, filename);
-
-      /* ---------- 2. Обновляем статусы платежей ---------- */
-      const idsForUpdate = pendingPayments.map((p) => p.spec_doc_id);
-      await apiClient.specDocs.updatePaymentsById({ specDocIds: idsForUpdate });
-
-      /* ---------- 3. Очищаем стейт и перезагружаем таблицу ---------- */
-      clearPendingPayments();
-      await reloadDocuments();
-
-      toast.success("Платежи завершены и CSV сохранён.");
-    } catch (error) {
-      console.error("Ошибка при завершении платежей:", error);
-      toast.error("Не удалось завершить платежи.");
-    }
+  const finalizeGroupedPayments = async () => {
+    const grouped = groupPaymentsByReceiver(pendingPayments);
+    await finalizePaymentsHandler(
+      grouped,
+      reloadDocuments,
+      clearPendingPayments,
+      "grouped",
+      pendingPayments        // <-- оригинальный список для обновления статусов
+    );
   };
 
   const onPay = async () => {
@@ -165,10 +123,8 @@ export const EntityTable: React.FC<{
       await apiClient.specDocs.updatePaymentsById({ specDocIds: toUpdate });
       clearPendingPayments();
       await reloadDocuments();
-      toast.success("Платежи успешно оплачены.");
     } catch (error) {
       console.error("Ошибка при оплате платежей:", error);
-      toast.error("Ошибка при оплате платежей.");
     }
   };
 
@@ -190,15 +146,9 @@ export const EntityTable: React.FC<{
       <Table containerClassName="overflow-y-auto max-h-[89vh]">
         <TableHeader className="bg-white sticky top-0 z-40">
           <TableRow>
-            <TableHead className="sticky left-0 z-[30] bg-white w-10">
-              💼
-            </TableHead>
-            <TableHead className="sticky left-10 z-[30] bg-white min-w-[180px]">
-              Контрагент
-            </TableHead>
-            <TableHead className="self-start sticky left-[220px] z-[30] bg-white min-w-[100px] ">
-              Остаток
-            </TableHead>
+            <TableHead className="sticky left-0 z-[30] bg-white w-10">💼</TableHead>
+            <TableHead className="sticky left-10 z-[30] bg-white min-w-[180px]">Контрагент</TableHead>
+            <TableHead className="sticky left-[220px] z-[30] bg-white min-w-[100px]">Остаток</TableHead>
             {formattedDateRange.map((d, i) => (
               <TableHead key={i}>{d}</TableHead>
             ))}
@@ -245,6 +195,7 @@ export const EntityTable: React.FC<{
           groupedPayments={groupedPayments}
           overallTotal={overallTotal}
           onFinalize={finalizePayments}
+          onGroupedFinalize={finalizeGroupedPayments}
           onPay={onPay}
         />
       )}

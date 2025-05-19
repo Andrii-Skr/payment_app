@@ -7,14 +7,8 @@ export function useAutoFillPaymentsPurpose(
   control: Control<FormValues>,
   setValue: UseFormSetValue<FormValues>
 ) {
-  const accountNumber = useWatch({
-    control,
-    name: "accountNumber",
-  });
-  const date = useWatch({
-    control,
-    name: "date",
-  });
+  const accountNumber = useWatch({ control, name: "accountNumber" });
+  const date = useWatch({ control, name: "date" });
   const vatType = useWatch({ control, name: "vatType" });
   const vatPercent = useWatch({ control, name: "vatPercent" });
   const mainPurpose = useWatch({ control, name: "purposeOfPayment" });
@@ -23,33 +17,45 @@ export function useAutoFillPaymentsPurpose(
   const formattedDate = date ? format(date, "dd.MM.yyyy") : "";
 
   useEffect(() => {
-    if (!mainPurpose || !Array.isArray(payments)) return;
+    if (!mainPurpose || !Array.isArray(payments) || payments.length === 0) return;
 
     const [userPart] = mainPurpose.split("№").map((s) => s.trim());
 
-    payments.forEach((payment, index) => {
-      const sum = Number(payment.paySum) || 0;
-
-      const vatText =
-        vatType && vatPercent
-          ? `у т.ч. ПДВ ${vatPercent}% = ${(sum - sum / (1 + vatPercent / 100))
-              .toFixed(2)
-              .replace(".", ",")} грн.`
-          : "без ПДВ";
-
-      const autoPurpose = `${userPart} № ${accountNumber} від ${formattedDate}, ${vatText}`;
-
-      if (payment.purposeOfPayment !== autoPurpose) {
+    if (!vatType || !vatPercent) {
+      // без НДС
+      payments.forEach((_, index) => {
+        const autoPurpose = `${userPart} № ${accountNumber} від ${formattedDate}, без ПДВ`;
         setValue(`payments.${index}.purposeOfPayment`, autoPurpose as any);
-      }
+      });
+      return;
+    }
+
+    // С НДС — рассчитываем точные значения
+    const rawVats = payments.map((p) => {
+      const sum = Number(p.paySum) || 0;
+      return sum - sum / (1 + vatPercent / 100);
     });
-  }, [
-    mainPurpose,
-    payments,
-    vatType,
-    vatPercent,
-    accountNumber,
-    date,
-    setValue,
-  ]);
+
+    const totalVat = rawVats.reduce((acc, v) => acc + v, 0);
+    const totalVatRounded = +totalVat.toFixed(2);
+
+    const roundedVats: number[] = [];
+    let accumulatedRoundedVat = 0;
+
+    payments.forEach((p, i) => {
+      let roundedVat: number;
+
+      if (i < payments.length - 1) {
+        roundedVat = +rawVats[i].toFixed(2);
+        accumulatedRoundedVat += roundedVat;
+      } else {
+        // Последний — компенсируем остаток
+        roundedVat = +(totalVatRounded - accumulatedRoundedVat).toFixed(2);
+      }
+
+      const vatText = `у т.ч. ПДВ ${vatPercent}% = ${roundedVat.toFixed(2).replace(".", ",")} грн.`;
+      const autoPurpose = `${userPart} № ${accountNumber} від ${formattedDate}, ${vatText}`;
+      setValue(`payments.${i}.purposeOfPayment`, autoPurpose as any);
+    });
+  }, [mainPurpose, payments, vatType, vatPercent, accountNumber, date, setValue]);
 }

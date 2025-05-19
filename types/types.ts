@@ -17,10 +17,10 @@ export type PaymentDetail = {
   doc_id: number;
   entity_id: number;
   spec_doc_id: number;
-  partner_entity_id: number;
 
   partner_id: number;
   partner_name: string;
+  partner_edrpou: string;
 
   partner_account_number: string;
   partner_account_bank_name?: string;
@@ -32,4 +32,7 @@ export type PaymentDetail = {
   dead_line_date: Date | null;
   date: Date;
   pay_sum: number;
+
+  vat_type: boolean;
+  vat_percent: number | null;
 };
