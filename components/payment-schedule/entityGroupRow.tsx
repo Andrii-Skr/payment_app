@@ -24,6 +24,7 @@ type EntityGroupRowProps = {
   dateRange: Date[];
   entityNames: Record<number, string>;
   pendingPayments: PaymentDetail[];
+  canUseQuickPayment: boolean;
   onCellClick: (entries: PaymentEntry[]) => void;
   onPartnerClick: (partner: PartnerType, documents: DocumentType[]) => void;
 };
@@ -34,6 +35,7 @@ export const EntityGroupRow: React.FC<EntityGroupRowProps> = ({
   dateRange,
   entityNames,
   pendingPayments,
+  canUseQuickPayment,
   onCellClick,
   onPartnerClick,
 }) => {
@@ -151,6 +153,8 @@ export const EntityGroupRow: React.FC<EntityGroupRowProps> = ({
                 );
 
                 if (e.ctrlKey || e.metaKey) {
+                  if (!canUseQuickPayment) return;
+
                   if (hasAllPending) {
                     const remaining = pendingPayments.filter(
                       (p) => !specDocIds.includes(p.spec_doc_id)

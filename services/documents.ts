@@ -13,6 +13,7 @@ export const create = async (data: FormValues) => {
     await axiosInstance.post("/documents", data);
   } catch (error) {
     console.log(error);
+    throw error;
   }
 };
 

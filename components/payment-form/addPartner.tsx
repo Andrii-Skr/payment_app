@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useFormContext, useForm } from "react-hook-form";
+import { useFormContext, useWatch, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
@@ -53,6 +53,7 @@ export const AddPartner: React.FC<Props> = ({ entityIdNum, className }) => {
   const parentForm = useFormContext<FormValues>();
   const { fetchPartners } = usePartnersStore();
   const { updateAccountList } = useAccountListStore();
+  const docId = useWatch({ control: parentForm.control, name: "doc_id" });
 
   const [open, setOpen] = useState(false);
 
@@ -93,10 +94,12 @@ export const AddPartner: React.FC<Props> = ({ entityIdNum, className }) => {
         const defaultAcc = partner.partner_account_number.find(
           (a) => a.is_default
         );
-        if (defaultAcc) {
-          internalForm.setValue("bank_account", defaultAcc.bank_account);
-          internalForm.setValue("mfo", defaultAcc.mfo ?? "");
-          internalForm.setValue("bank_name", defaultAcc.bank_name ?? "");
+
+        // 🛡️ Только если это редактирование существующего документа
+        if (defaultAcc && docId) {
+          parentForm.setValue("partner_id", partner.id);
+          parentForm.setValue("selectedAccount", defaultAcc.bank_account);
+          parentForm.setValue("partner_account_number_id", defaultAcc.id);
         }
       });
     }
@@ -125,21 +128,22 @@ export const AddPartner: React.FC<Props> = ({ entityIdNum, className }) => {
 
       await fetchPartners(data.entity_id);
 
-      // 🧠 Обновление основной формы
       const updatedPartner = await getByEdrpou(data.edrpou, data.entity_id);
-      if (updatedPartner) {
-        const defaultAcc = updatedPartner.partner_account_number.find(
-          (a) => a.is_default
-        );
-        if (defaultAcc) {
-          parentForm.setValue("partner_id", updatedPartner.id);
-          parentForm.setValue("selectedAccount", defaultAcc.bank_account);
-          parentForm.setValue("partner_account_number_id", defaultAcc.id);
-        }
-      }
+      // if (updatedPartner) {
+      //   const defaultAcc = updatedPartner.partner_account_number.find(
+      //     (a) => a.is_default
+      //   );
+
+      //   // 🛡️ Только если это редактирование существующего документа
+      //   if (defaultAcc && docId) {
+      //     parentForm.setValue("partner_id", updatedPartner.id);
+      //     parentForm.setValue("selectedAccount", defaultAcc.bank_account);
+      //     parentForm.setValue("partner_account_number_id", defaultAcc.id);
+      //   }
+      // }
 
       internalForm.reset();
-      setOpen(false);
+      // setOpen(false);
       toast.success("Сохранено успешно.");
     } catch (err) {
       console.error(err);
@@ -205,16 +209,6 @@ export const AddPartner: React.FC<Props> = ({ entityIdNum, className }) => {
                 label="Номер счета"
                 className="bank-account-size"
               />
-              {/* <PartnerInput
-                control={internalForm.control}
-                name="mfo"
-                label="МФО"
-              />
-              <PartnerInput
-                control={internalForm.control}
-                name="bank_name"
-                label="Банк"
-              /> */}
             </Container>
 
             <DialogFooter>

@@ -11,10 +11,10 @@ model documents {
     auto_payment auto_payment[]
 
     vat_type Boolean
-    vat_percent Decimal
+    vat_percent Decimal @db.Decimal(4, 2)
 
     account_number     String
-    date               DateTime @db.Timestamp()
+    date               DateTime @db.Date
     account_sum        Decimal  @db.Decimal(10, 2)
     account_sum_expression String?
 
@@ -35,13 +35,14 @@ model documents {
     updated_at DateTime? @updatedAt @db.Timestamp()
     is_deleted Boolean   @default(false)
 
+    @@unique([entity_id, partner_id, account_number, date])
 }
 
 model spec_doc {
     id Int @id() @default(autoincrement())
 
     documents_id Int
-    documents    documents @relation(fields: [documents_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+    documents    documents @relation(fields: [documents_id], references: [id])
 
     auto_payment_id  Int?
     auto_payment     auto_payment?  @relation(fields: [auto_payment_id], references: [id])

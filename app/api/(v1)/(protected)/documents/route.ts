@@ -4,6 +4,7 @@ import { apiRoute } from "@/utils/apiRoute";
 import { Roles } from "@/constants/roles";
 import type { Session } from "next-auth";
 import { Prisma } from "@prisma/client";
+import { getSafeDateForPrisma } from "@/lib/date/getSafeDateForPrisma";
 
 type Payment = {
   paySum: number;
@@ -42,7 +43,7 @@ const postHandler = async (
       entity_id: body.entity_id,
       partner_id: body.partner_id,
       account_number: body.accountNumber,
-      date: new Date(body.date),
+      date: getSafeDateForPrisma(body.date),
       account_sum: body.accountSum,
       account_sum_expression: body.accountSumExpression,
       partner_account_number_id: body.partner_account_number_id,

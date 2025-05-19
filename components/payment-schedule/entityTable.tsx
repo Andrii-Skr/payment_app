@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Table,
   TableHeader,
@@ -35,33 +35,34 @@ export const EntityTable: React.FC<{
 }> = ({ documents, entityNames, reloadDocuments }) => {
   const { canAccess } = useAccessControl();
   const canSeeDetailsModal = canAccess([Roles.ADMIN]);
+  const canUseQuickPayment = canAccess([Roles.ADMIN]);
   const canUseBottomPanel = canAccess(Roles.ADMIN);
 
-  const kyivNow = new Date(
-    new Date().toLocaleString("en-US", { timeZone: "Europe/Kyiv" })
-  );
-  const day = kyivNow.getDay();
-  const diff = day === 0 ? -6 : 1 - day;
-  kyivNow.setDate(kyivNow.getDate() + diff);
-  kyivNow.setHours(0, 0, 0, 0);
-  const initialDate = new Date(kyivNow);
+  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [period, setPeriod] = useState(14);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalTitle, setModalTitle] = useState("");
+  const [modalPaymentDetails, setModalPaymentDetails] = useState<PaymentDetail[]>([]);
+  const [partnerModalOpen, setPartnerModalOpen] = useState(false);
+  const [selectedPartner, setSelectedPartner] = useState<PartnerType | null>(null);
+  const [selectedPartnerDocuments, setSelectedPartnerDocuments] = useState<DocumentType[]>([]);
+  const [selectedEntity, setSelectedEntity] = useState<number | "all">("all");
+  const [partnerFilter, setPartnerFilter] = useState("");
 
-  const [startDate, setStartDate] = React.useState(initialDate);
-  const [period, setPeriod] = React.useState(14);
-  const [modalOpen, setModalOpen] = React.useState(false);
-  const [modalTitle, setModalTitle] = React.useState("");
-  const [modalPaymentDetails, setModalPaymentDetails] = React.useState<PaymentDetail[]>([]);
-  const [partnerModalOpen, setPartnerModalOpen] = React.useState(false);
-  const [selectedPartner, setSelectedPartner] = React.useState<PartnerType | null>(null);
-  const [selectedPartnerDocuments, setSelectedPartnerDocuments] = React.useState<DocumentType[]>([]);
-  const [selectedEntity, setSelectedEntity] = React.useState<number | "all">("all");
-  const [partnerFilter, setPartnerFilter] = React.useState("");
+  useEffect(() => {
+    const now = new Date(new Date().toLocaleString("en-US", { timeZone: "Europe/Kyiv" }));
+    const day = now.getDay();
+    const diff = day === 0 ? -6 : 1 - day;
+    now.setDate(now.getDate() + diff);
+    now.setHours(0, 0, 0, 0);
+    setStartDate(new Date(now));
+  }, []);
 
   const collator = new Intl.Collator(undefined, { numeric: true, sensitivity: "base" });
 
   const { dateRange, groupedByEntity, formattedDateRange } = useEntityTableLogic({
     documents,
-    startDate,
+    startDate: startDate ?? new Date(),
     period,
     selectedEntity,
     partnerFilter,
@@ -100,8 +101,8 @@ export const EntityTable: React.FC<{
   const finalizePayments = async () => {
     await finalizePaymentsHandler(
       pendingPayments,
-      reloadDocuments,         // <-- порядок: reloadFn
-      clearPendingPayments,    // <-- потом очистка
+      reloadDocuments,
+      clearPendingPayments,
       "plain"
     );
   };
@@ -113,7 +114,7 @@ export const EntityTable: React.FC<{
       reloadDocuments,
       clearPendingPayments,
       "grouped",
-      pendingPayments        // <-- оригинальный список для обновления статусов
+      pendingPayments
     );
   };
 
@@ -127,6 +128,8 @@ export const EntityTable: React.FC<{
       console.error("Ошибка при оплате платежей:", error);
     }
   };
+
+  if (!startDate) return null; // или Skeleton
 
   return (
     <div>
@@ -165,6 +168,7 @@ export const EntityTable: React.FC<{
               pendingPayments={pendingPayments}
               onCellClick={handleCellClick}
               onPartnerClick={handlePartnerNameClick}
+              canUseQuickPayment={canUseQuickPayment}
             />
           ))}
         </TableBody>

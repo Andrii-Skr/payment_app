@@ -40,21 +40,26 @@ export const AccountsCombobox: React.FC<Props> = ({
   const { setValue, watch } = useFormContext<FormValues>();
 
   const selectedId = watch("partner_account_number_id");
+  const edrpou = watch("edrpou" );
+
   const selectedAccount = currentAccountList?.find((a) => a.id === selectedId);
   const bankAccount = selectedAccount?.bank_account;
 
   // Установка дефолтного счёта при первом получении списка
   useEffect(() => {
-    if (!currentAccountList?.length) return;
+  if (!currentAccountList?.length) return;
 
-    const hasSelected = selectedId !== undefined && selectedId !== null;
-    const defaultAccount = currentAccountList.find((a) => a.is_default);
+  const hasSelected = selectedId !== undefined && selectedId !== null;
+  const defaultAccount = currentAccountList.find((a) => a.is_default);
 
-    if (!hasSelected && defaultAccount) {
-      setValue("partner_account_number_id", defaultAccount.id);
-      setValue("selectedAccount", defaultAccount.bank_account);
-    }
-  }, [currentAccountList, selectedId, setValue]);
+  // ⛔ Не подставляем дефолтный, если создаём новый документ
+  if (!edrpou) return;
+
+  if (!hasSelected && defaultAccount) {
+    setValue("partner_account_number_id", defaultAccount.id);
+    setValue("selectedAccount", defaultAccount.bank_account);
+  }
+}, [currentAccountList, selectedId, setValue, edrpou]);
 
   // Автозаполнение MFO и bank_name
   const { mfo, bankName } = useAutoFillBankDetails(bankAccount);

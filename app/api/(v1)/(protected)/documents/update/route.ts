@@ -1,4 +1,5 @@
 import { Roles } from "@/constants/roles";
+import { getSafeDateForPrisma } from "@/lib/date/getSafeDateForPrisma";
 import prisma from "@/prisma/prisma-client";
 import { apiRoute } from "@/utils/apiRoute";
 import { Session } from "next-auth";
@@ -43,7 +44,7 @@ const patchHandler = async (
         entity_id: body.entity_id,
         partner_id: body.partner_id,
         account_number: body.accountNumber,
-        date: new Date(body.date),
+        date: getSafeDateForPrisma(body.date),
         account_sum: body.accountSum,
         account_sum_expression: body.accountSumExpression,
         vat_type: body.vatType,

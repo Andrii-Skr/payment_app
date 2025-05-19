@@ -16,21 +16,18 @@ export function useAutoFillPaymentsPurpose(
 
   const formattedDate = date ? format(date, "dd.MM.yyyy") : "";
 
-  useEffect(() => {
-    if (!mainPurpose || !Array.isArray(payments) || payments.length === 0) return;
+useEffect(() => {
+  if (!mainPurpose || !Array.isArray(payments) || payments.length === 0) return;
 
-    const [userPart] = mainPurpose.split("№").map((s) => s.trim());
+  const [userPart] = mainPurpose.split("№").map((s) => s.trim());
 
-    if (!vatType || !vatPercent) {
-      // без НДС
-      payments.forEach((_, index) => {
-        const autoPurpose = `${userPart} № ${accountNumber} від ${formattedDate}, без ПДВ`;
-        setValue(`payments.${index}.purposeOfPayment`, autoPurpose as any);
-      });
-      return;
-    }
+  const newPurposes: string[] = [];
 
-    // С НДС — рассчитываем точные значения
+  if (!vatType || !vatPercent) {
+    newPurposes.push(
+      ...payments.map(() => `${userPart} № ${accountNumber} від ${formattedDate}, без ПДВ`)
+    );
+  } else {
     const rawVats = payments.map((p) => {
       const sum = Number(p.paySum) || 0;
       return sum - sum / (1 + vatPercent / 100);
@@ -38,24 +35,32 @@ export function useAutoFillPaymentsPurpose(
 
     const totalVat = rawVats.reduce((acc, v) => acc + v, 0);
     const totalVatRounded = +totalVat.toFixed(2);
-
     const roundedVats: number[] = [];
     let accumulatedRoundedVat = 0;
 
     payments.forEach((p, i) => {
       let roundedVat: number;
-
       if (i < payments.length - 1) {
         roundedVat = +rawVats[i].toFixed(2);
         accumulatedRoundedVat += roundedVat;
       } else {
-        // Последний — компенсируем остаток
         roundedVat = +(totalVatRounded - accumulatedRoundedVat).toFixed(2);
       }
 
       const vatText = `у т.ч. ПДВ ${vatPercent}% = ${roundedVat.toFixed(2).replace(".", ",")} грн.`;
-      const autoPurpose = `${userPart} № ${accountNumber} від ${formattedDate}, ${vatText}`;
-      setValue(`payments.${i}.purposeOfPayment`, autoPurpose as any);
+      newPurposes.push(`${userPart} № ${accountNumber} від ${formattedDate}, ${vatText}`);
     });
-  }, [mainPurpose, payments, vatType, vatPercent, accountNumber, date, setValue]);
+  }
+
+  // Только если значения действительно изменились
+  const isSame = payments.every(
+    (p, i) => p.purposeOfPayment === newPurposes[i]
+  );
+
+  if (!isSame) {
+    payments.forEach((_, i) => {
+      setValue(`payments.${i}.purposeOfPayment`, newPurposes[i] as any);
+    });
+  }
+}, [mainPurpose, payments.length, vatType, vatPercent, accountNumber, date]);
 }

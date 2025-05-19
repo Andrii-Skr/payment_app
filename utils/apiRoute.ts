@@ -1,12 +1,11 @@
-// src/utils/apiRoute.ts
-
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession, type User } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
-import { logApiRequest } from "@/lib/logs/logApiRequest"; // ← добавили
+import { logApiRequest } from "@/lib/logs/logApiRequest";
 import type { ZodSchema } from "zod";
+import { Prisma } from "@prisma/client";
 
-/* ---------- Типы (без изменений) ---------- */
+/* ---------- Типы ---------- */
 export type RouteContext<T extends Record<string, string> = {}> = {
   params: Promise<T>;
 };
@@ -36,7 +35,7 @@ export function apiRoute<
     req: NextRequest,
     { params }: RouteContext<TParams>
   ): Promise<NextResponse> {
-    const started = performance.now(); // ⬅️ точка старта
+    const started = performance.now();
     let status = 200;
     let user: User | null = null;
     let bodyRaw: unknown | undefined;
@@ -78,7 +77,7 @@ export function apiRoute<
         }
       }
 
-      /* ---------- Аутентификация / роли ---------- */
+      /* ---------- Аутентификация ---------- */
       const session = await getServerSession(authOptions);
       user = session?.user as User | null;
 
@@ -98,12 +97,39 @@ export function apiRoute<
         );
       }
 
-      /* ---------- Передаём управление хендлеру ---------- */
+      /* ---------- Выполняем основной хендлер ---------- */
       const res = await handler(req, bodyRaw as TBody, resolvedParams, user);
       status = res.status;
       return res;
-    } catch (err) {
+    } catch (err: any) {
       console.error("API Error:", err);
+
+      if (err instanceof Prisma.PrismaClientKnownRequestError) {
+        if (err.code === "P2002") {
+          status = 409;
+          return NextResponse.json(
+            {
+              success: false,
+              message: "Duplicate entry. Resource already exists.",
+              meta: err.meta,
+            },
+            { status }
+          );
+        }
+
+        if (err.code === "P2025") {
+          status = 404;
+          return NextResponse.json(
+            {
+              success: false,
+              message: "Record not found.",
+              meta: err.meta,
+            },
+            { status }
+          );
+        }
+      }
+
       status = 500;
       return NextResponse.json(
         { success: false, message: "Internal server error." },

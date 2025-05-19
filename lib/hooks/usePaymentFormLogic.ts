@@ -10,6 +10,7 @@ import { useDocumentsStore } from "@/store/documentsListStore";
 import type { entity } from "@prisma/client";
 import { FormValues } from "@/types/formTypes";
 import { TemplateWithBankDetails } from "@api/templates/[id]/route";
+import { AxiosError } from "axios";
 
 export function usePaymentFormLogic({
   reset,
@@ -65,25 +66,32 @@ export function usePaymentFormLogic({
     fetchDocument();
   }, [docIdQuery, reset]);
 
-  const onSubmit = async (data: FormValues) => {
-    try {
-      if (!data.doc_id) {
-        await apiClient.documents.create(data);
-        await fetchDocs(entityIdNum);
-        toast.success("Документ создан успешно.");
-      } else {
-        await apiClient.documents.update(data);
-        await fetchDocs(entityIdNum);
-        toast.success("Документ обновлён.");
-        router.push(`/create/payment-form/${entityIdNum}`);
-      }
+const onSubmit = async (data: FormValues) => {
+  try {
+    if (!data.doc_id) {
+      await apiClient.documents.create(data);
+      await fetchDocs(entityIdNum);
+      toast.success("Документ создан успешно.");
+    } else {
+      await apiClient.documents.update(data);
+      await fetchDocs(entityIdNum);
+      toast.success("Документ обновлён.");
+      router.push(`/create/payment-form/${entityIdNum}`);
+    }
 
-      reset({ ...defaultValues, entity_id: entityIdNum });
-    } catch (error) {
-      console.error("Ошибка при сохранении документа:", error);
+    reset({ ...defaultValues, entity_id: entityIdNum });
+  } catch (error) {
+    const err = error as AxiosError;
+
+    if (err.response?.status === 409) {
+      toast.error("Документ с такими номермом и датой уже существует.");
+    } else {
       toast.error("Ошибка при сохранении документа.");
     }
-  };
+
+    console.error("Ошибка при сохранении документа:", err);
+  }
+};
 
   return {
     entity,
