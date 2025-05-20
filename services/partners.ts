@@ -45,9 +45,11 @@ export const getByEdrpou = async (
 /* Создать контрагента */
 export const createPartner = async (data: PartnerValues) => {
   try {
-    await axiosInstance.post("/partners", data);
+    const res = await axiosInstance.post("/partners", data);
+    return res.data.partner;
   } catch (error) {
     console.error("Ошибка при создании партнёра:", error);
+    throw error;
   }
 };
 
@@ -73,14 +75,21 @@ export const addBankAccount = async (data: {
 }) => {
   try {
     await axiosInstance.post("/partners/account", data);
-  } catch (error) {
+  } catch (error: any) {
+    const status = error?.response?.status;
+    const message = error?.response?.data?.message;
+
+    if (status === 409) {
+      throw new Error("Такой счёт уже существует у этого контрагента.");
+    }
+
     console.error("Ошибка при добавлении счёта:", error);
+    throw new Error(message || "Ошибка при добавлении счёта.");
   }
 };
 
 /* Сделать счёт основным */
 export const setDefaultAccount = async (id: number) => {
-  console.log(id);
   try {
     await axiosInstance.patch("/partners/account/default", { id });
   } catch (error) {

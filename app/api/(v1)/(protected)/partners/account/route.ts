@@ -15,6 +15,7 @@ const schema = z.object({
 type Body = z.infer<typeof schema>;
 
 const handler = async (_req: NextRequest, body: Body) => {
+  
   const created = await prisma.partner_account_number.create({
     data: {
       partner_id: body.partner_id,

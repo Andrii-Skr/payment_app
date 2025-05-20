@@ -18,13 +18,7 @@ import {
 } from "@/components/ui";
 import { CirclePlus } from "lucide-react";
 
-import {
-  createPartner,
-  updatePartner,
-  getByEdrpou,
-  addBankAccount,
-} from "@/services/partners";
-
+import { createPartner, addBankAccount } from "@/services/partners";
 import { useAccountListStore } from "@/store/store";
 import { usePartnersStore } from "@/store/partnersStore";
 import { PartnerAccountsList } from "@/components/payment-form/partnerAccountsList";
@@ -52,10 +46,11 @@ type Props = {
 export const AddPartner: React.FC<Props> = ({ entityIdNum, className }) => {
   const parentForm = useFormContext<FormValues>();
   const { fetchPartners } = usePartnersStore();
-  const { updateAccountList } = useAccountListStore();
+  const { currentAccountList } = useAccountListStore();
   const docId = useWatch({ control: parentForm.control, name: "doc_id" });
 
   const [open, setOpen] = useState(false);
+  const [showAccountsList, setShowAccountsList] = useState(false);
 
   const internalForm = useForm<PartnerValues>({
     resolver: zodResolver(formSchema),
@@ -70,80 +65,57 @@ export const AddPartner: React.FC<Props> = ({ entityIdNum, className }) => {
     },
   });
 
-  // 🔄 Автозаполнение значений при открытии
+  // 1️⃣ при открытии — инициализируем и fetch-им
   useEffect(() => {
     if (!open) return;
 
     const edrpou = parentForm.getValues("edrpou");
     const short = parentForm.getValues("short_name");
     const full = parentForm.getValues("full_name");
-    const account = parentForm.getValues("selectedAccount");
 
     internalForm.setValue("entity_id", entityIdNum);
     internalForm.setValue("edrpou", edrpou);
     internalForm.setValue("short_name", short);
     internalForm.setValue("full_name", full);
-    internalForm.setValue("bank_account", account);
 
-    if (edrpou) {
-      getByEdrpou(edrpou, entityIdNum).then((partner) => {
-        if (!partner) return;
-
-        updateAccountList(partner.partner_account_number);
-
-        const defaultAcc = partner.partner_account_number.find(
-          (a) => a.is_default
-        );
-
-        // 🛡️ Только если это редактирование существующего документа
-        if (defaultAcc && docId) {
-          parentForm.setValue("partner_id", partner.id);
-          parentForm.setValue("selectedAccount", defaultAcc.bank_account);
-          parentForm.setValue("partner_account_number_id", defaultAcc.id);
-        }
-      });
-    }
+    setShowAccountsList(!!edrpou);
+    fetchPartners(entityIdNum);
   }, [open]);
+
+  // 2️⃣ после обновления списка — подставляем актуальный основной счёт
+  useEffect(() => {
+    if (!open) return;
+
+    const defaultAcc = currentAccountList.find((a) => a.is_default);
+    if (defaultAcc) {
+      internalForm.setValue("bank_account", defaultAcc.bank_account);
+      parentForm.setValue("selectedAccount", defaultAcc.bank_account);
+      parentForm.setValue("partner_account_number_id", defaultAcc.id);
+    }
+  }, [currentAccountList, open]);
+
+  const edrpou = parentForm.getValues("edrpou");
+  const readonlyEdrpou = !!edrpou;
 
   const onSubmit = async (data: PartnerValues) => {
     try {
-      const existing = await getByEdrpou(data.edrpou, data.entity_id);
+      const partner = await createPartner(data);
 
-      if (existing) {
-        await updatePartner(existing.id, {
-          full_name: data.full_name,
-          short_name: data.short_name,
-        });
-
+      try {
         await addBankAccount({
-          partner_id: existing.id,
+          partner_id: partner.id,
           bank_account: data.bank_account,
           mfo: data.mfo,
           bank_name: data.bank_name,
           is_default: false,
         });
-      } else {
-        await createPartner(data);
+      } catch (err: any) {
+        toast.error(err.message);
+        return;
       }
 
-      await fetchPartners(data.entity_id);
-
-      const updatedPartner = await getByEdrpou(data.edrpou, data.entity_id);
-      // if (updatedPartner) {
-      //   const defaultAcc = updatedPartner.partner_account_number.find(
-      //     (a) => a.is_default
-      //   );
-
-      //   // 🛡️ Только если это редактирование существующего документа
-      //   if (defaultAcc && docId) {
-      //     parentForm.setValue("partner_id", updatedPartner.id);
-      //     parentForm.setValue("selectedAccount", defaultAcc.bank_account);
-      //     parentForm.setValue("partner_account_number_id", defaultAcc.id);
-      //   }
-      // }
-
+      await fetchPartners(data.entity_id); // обновить список после добавления
       internalForm.reset();
-      // setOpen(false);
       toast.success("Сохранено успешно.");
     } catch (err) {
       console.error(err);
@@ -199,6 +171,7 @@ export const AddPartner: React.FC<Props> = ({ entityIdNum, className }) => {
                 control={internalForm.control}
                 name="edrpou"
                 label="ЕДРПОУ"
+                readOnly={readonlyEdrpou}
               />
             </Container>
 
@@ -215,7 +188,13 @@ export const AddPartner: React.FC<Props> = ({ entityIdNum, className }) => {
               <Button type="submit">Сохранить</Button>
             </DialogFooter>
 
-            <PartnerAccountsList />
+            <PartnerAccountsList
+              show={showAccountsList}
+              onDefaultChange={({ bank_account, id }) => {
+                parentForm.setValue("selectedAccount", bank_account);
+                parentForm.setValue("partner_account_number_id", id);
+              }}
+            />
           </form>
         </Form>
       </DialogContent>

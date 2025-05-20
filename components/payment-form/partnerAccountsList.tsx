@@ -1,9 +1,7 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { Trash2 } from "lucide-react";
 import { useAccountListStore } from "@/store/store";
-import { setDefaultAccount, deleteAccount } from "@/services/partners";
-
 import {
   Button,
   Card,
@@ -16,21 +14,45 @@ import {
 } from "@/components/ui/";
 import { toast } from "@/lib/hooks/use-toast";
 import { formatBankAccount } from "@/lib/helpers/formatiban";
+import { apiClient } from "@/services/api-client";
 
-export const PartnerAccountsList: React.FC = () => {
+type Props = {
+  show: boolean;
+  onDefaultChange?: (acc: { bank_account: string; id: number }) => void;
+};
+
+export const PartnerAccountsList: React.FC<Props> = ({ show, onDefaultChange }) => {
   const { currentAccountList, updateAccountList } = useAccountListStore();
   const [loadingId, setLoadingId] = useState<number | null>(null);
+
+  if (!show) return null;
+
+  const visibleAccounts = useMemo(
+    () => currentAccountList.filter((acc) => !acc.is_deleted),
+    [currentAccountList]
+  );
+
+  if (visibleAccounts.length === 0) return null;
 
   const handleSetDefault = async (id: number) => {
     setLoadingId(id);
     try {
-      await setDefaultAccount(id);
+      await apiClient.partners.setDefaultAccount(id);
+
       const updated = currentAccountList.map((acc) => ({
         ...acc,
         is_default: acc.id === id,
       }));
       updateAccountList(updated);
       toast.success("Счёт назначен основным.");
+
+      const newDefault = updated.find((a) => a.id === id);
+      if (newDefault && onDefaultChange) {
+        onDefaultChange({
+          bank_account: newDefault.bank_account,
+          id: newDefault.id,
+        });
+      }
     } catch {
       toast.error("Ошибка при обновлении основного счёта.");
     } finally {
@@ -41,7 +63,7 @@ export const PartnerAccountsList: React.FC = () => {
   const handleDelete = async (id: number) => {
     setLoadingId(id);
     try {
-      await deleteAccount(id);
+      await apiClient.partners.deleteAccount(id);
       updateAccountList(
         currentAccountList.map((acc) =>
           acc.id === id ? { ...acc, is_deleted: true } : acc
@@ -55,26 +77,18 @@ export const PartnerAccountsList: React.FC = () => {
     }
   };
 
-  const visibleAccounts = currentAccountList.filter((acc) => !acc.is_deleted);
-
-  if (visibleAccounts.length === 0) return null;
-
   return (
     <Card className="mt-6">
       <CardHeader>
-        <CardTitle className="text-sm font-semibold">
-          Счета контрагента
-        </CardTitle>
+        <CardTitle className="text-sm font-semibold">Счета контрагента</CardTitle>
       </CardHeader>
-      <CardContent className="">
+      <CardContent>
         {visibleAccounts.map((acc, idx) => (
           <div key={acc.id}>
             {idx > 0 && <Separator />}
             <div className="flex justify-between items-center py-2">
               <div>
-                <p className="text-sm ">
-                  {formatBankAccount(acc.bank_account)}
-                </p>
+                <p className="text-sm">{formatBankAccount(acc.bank_account)}</p>
               </div>
               <div className="flex items-center gap-4">
                 <div className="flex items-center space-x-2">
