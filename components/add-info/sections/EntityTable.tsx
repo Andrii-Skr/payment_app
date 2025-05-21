@@ -29,7 +29,8 @@ export default function EntityTable({ rows, onRemove, onUpdate }: Props) {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Название</TableHead>
+            <TableHead>Полное Имя</TableHead>
+            <TableHead>Короткое Имя</TableHead>
             <TableHead>ЕДРПОУ</TableHead>
             <TableHead>р/с</TableHead>
             <TableHead className="w-24" />

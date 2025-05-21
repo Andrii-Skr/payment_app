@@ -4,13 +4,14 @@
 import SidebarButton from "@/components/add-info/SidebarButton";
 import React from "react";
 
-type SectionKey = "entity" | "partner" | "user";
+type SectionKey = "entity" | "partner" | "user" | "sample";
 
 interface Props {
   children: {
     entity: React.ReactNode;
     partner: React.ReactNode;
     user: React.ReactNode;
+    sample: React.ReactNode;
   };
 }
 
@@ -30,11 +31,17 @@ export default function Sidebar({ children }: Props) {
             active={active === "partner"}
             onClick={() => setActive("partner")}
             label="Контрагент"
+            
           />
           <SidebarButton
             active={active === "user"}
             onClick={() => setActive("user")}
             label="Пользователи"
+          />
+          <SidebarButton
+            active={active === "sample"}
+            onClick={() => setActive("sample")}
+            label="Шаблоны"
           />
         </nav>
       </aside>

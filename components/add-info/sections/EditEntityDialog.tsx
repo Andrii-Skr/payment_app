@@ -15,6 +15,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useEffect } from "react";
 import { Container, FormInput } from "@/components/shared";
+import { toast } from "@/lib/hooks/use-toast";
 
 const schema = z.object({
   full_name: z.string().min(1, "Обязательное поле"),
@@ -34,7 +35,12 @@ type Props = {
 export default function EditEntityDialog({ row, onClose, onSave }: Props) {
   const form = useForm<EditEntityValues>({
     resolver: zodResolver(schema),
-    defaultValues: { short_name: "",full_name:"", edrpou: "", bank_account: "" },
+    defaultValues: {
+      short_name: "",
+      full_name: "",
+      edrpou: "",
+      bank_account: "",
+    },
   });
 
   /* заполняем при открытии, очищаем при закрытии */
@@ -53,27 +59,41 @@ export default function EditEntityDialog({ row, onClose, onSave }: Props) {
 
   async function submit(values: EditEntityValues) {
     if (!row) return;
-    await onSave({ ...values, id: row.id });
-    onClose();
+    try {
+      await onSave({ ...values, id: row.id });
+
+      onClose();
+    } catch (err: any) {}
   }
 
   return (
     <Dialog open={!!row} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-[820px]">
+      <DialogContent className="sm:max-w-[750px]">
         <DialogHeader>
           <DialogTitle>Редактировать контрагента</DialogTitle>
         </DialogHeader>
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(submit)} className="space-y-4">
-            <Container className="gap-2">
-              <FormInput control={form.control} name="full_name" label="Название" />
-              <FormInput control={form.control} name="short_name" label="Название" />
+            <Container className="gap-2 justify-start">
+              <FormInput
+                control={form.control}
+                name="full_name"
+                label="Название"
+                className="bank-account-size"
+              />
+              <FormInput
+                control={form.control}
+                name="short_name"
+                label="Название"
+              />
               <FormInput control={form.control} name="edrpou" label="ЕДРПОУ" />
+            </Container>
+            <Container className="gap-2 justify-start">
               <FormInput
                 control={form.control}
                 name="bank_account"
-                className="w-[260px]"
+                className="bank-account-size"
                 label="р/с"
               />
             </Container>

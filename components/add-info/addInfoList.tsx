@@ -8,7 +8,7 @@ import EntitySection   from './sections/EntitySection';
 // import PartnerSection  from './sections/PartnerSection';
 // import UserSection     from './sections/UserSection';
 
-type Tab = 'entity' | 'partner' | 'user';
+type Tab = 'entity' | 'partner' | 'user' | 'sample';
 
 export const AddInfoList = () => {
   const [tab, setTab] = useState<Tab>('entity');
@@ -38,6 +38,13 @@ export const AddInfoList = () => {
         >
           Пользователи
         </Button>
+        <Button
+          variant={tab === 'sample' ? 'default' : 'ghost'}
+          className="justify-start"
+          onClick={() => setTab('sample')}
+        >
+          Шаблоны
+        </Button>
       </aside>
 
       {/* -------- content -------- */}
@@ -45,6 +52,7 @@ export const AddInfoList = () => {
         {tab === 'entity'  && <EntitySection />}
         {/* {tab === 'partner' && <PartnerSection />}
         {tab === 'user'    && <UserSection />} */}
+        {/* {tab === 'sample'    && <SampleSection />}  */}
       </main>
     </Card>
   );

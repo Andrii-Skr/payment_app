@@ -19,7 +19,7 @@ export type CreateEntityBody = {
 
 // 🔹 GET: Получение всех entities (с фильтрацией по роли)
 const getHandler = async (
-  _req: NextRequest,
+  req: NextRequest,
   _body: null,
   _params: {},
   user: Session["user"] | null
@@ -29,17 +29,27 @@ const getHandler = async (
   }
 
   const userId = Number(user.id);
+  const showDeleted = req.nextUrl.searchParams.get("withDeleted") === "true";
 
   if (hasRole(user.role, Roles.ADMIN)) {
-    const all = await prisma.entity.findMany();
-    return NextResponse.json(all);
+    const entities = await prisma.entity.findMany({
+      where: showDeleted ? {} : { is_deleted: false },
+    });
+    return NextResponse.json(entities);
   }
 
   const userWithEntities = await prisma.user.findUnique({
     where: { id: userId },
     include: {
       users_entities: {
-        include: { entity: true },
+        where: {
+          entity: {
+            is_deleted: false,
+          },
+        },
+        include: {
+          entity: true,
+        },
       },
     },
   });

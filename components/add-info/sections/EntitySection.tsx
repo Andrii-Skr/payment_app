@@ -11,22 +11,14 @@ import { Form, Button, LoadingMessage } from "@/components/ui";
 import EntityTable from "./EntityTable";
 import { Container, FormInput } from "@/components/shared";
 import { apiClient } from "@/services/api-client";
+import { toast } from "@/lib/hooks/use-toast";
 
-/**
- * EntitySection
- * ─────────────
- * • По-умолчанию показывает только is_deleted === false
- * • Чекбокс «Показать удалённые» переключает режим фильтрации
- * • Сортировка оставляет активные записи выше удалённых
- */
 export default function EntitySection() {
-  /* ───────── состояния компонента ───────── */
   const [rows, setRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [showDeleted, setShowDeleted] = useState(false); // ← чекбокс
+  const [showDeleted, setShowDeleted] = useState(false);
 
-  /* ───────── React-Hook-Form ───────── */
   const form = useForm<InfoFormValues>({
     resolver: zodResolver(entitySchema),
     defaultValues: {
@@ -52,9 +44,8 @@ export default function EntitySection() {
   const loadEntities = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await apiClient.entities.getAll();
+      const data = await apiClient.entities.getAll(true);
 
-      // активные сверху, удалённые снизу
       data.sort(
         (a: Row, b: Row) => Number(a.is_deleted) - Number(b.is_deleted)
       );
@@ -76,11 +67,12 @@ export default function EntitySection() {
   const handleCreate = async (data: InfoFormValues) => {
     try {
       await apiClient.entities.create(data);
+      toast.success("Успешно создан.");
       form.reset();
       await loadEntities();
-    } catch (err) {
+    } catch (err: string | any) {
       console.log(err);
-      setError(String(err));
+      toast.error(err.message);
     }
   };
 
@@ -111,57 +103,52 @@ export default function EntitySection() {
 
   /* ───────── JSX ───────── */
   return (
-    <Container className="flex-col items-start gap-5 w-full">
+    <Container className="flex-col items-start gap-5 w-full min-w-[980px]">
       {/* ───── форма создания контрагента ───── */}
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(handleCreate, (errors) =>
             console.warn("Zod validation errors:", errors)
           )}
-          className="grid gap-4 md:grid-cols-4 lg:grid-cols-5 items-end w-full"
+          className="flex gap-4"
         >
-          <FormInput
-            control={form.control}
-            name="full_name"
-            label="Название"
-            placeholder='ТОВ "Ромашка"'
-          />
-          <FormInput
-            control={form.control}
-            name="short_name"
-            label="Название"
-            placeholder='Ромашка'
-          />
-          <FormInput
-            control={form.control}
-            name="edrpou"
-            label="ЕДРПОУ"
-            placeholder="12345678"
-          />
-          <FormInput
-            control={form.control}
-            name="bank_account"
-            className="w-[260px]"
-            label="р/с"
-            placeholder="UA12345678..."
-          />
-          {/* пустая ячейка для выравнивания сетки */}
-
-          {/* <FormInput
-            control={form.control}
-            name="bank_name"
-            label="Банк"
-            readOnly
-          />
-          <FormInput control={form.control} name="mfo" label="МФО" readOnly /> */}
-
-          <Button
-            type="submit"
-            className="flex self-end leading-none mb-1 w-[145px]"
-            disabled={form.formState.isSubmitting}
-          >
-            {form.formState.isSubmitting ? "Сохраняю…" : "Создать"}
-          </Button>
+          <div className="flex gap-4 items-start w-full">
+            <FormInput
+              control={form.control}
+              name="full_name"
+              label="Полное имя"
+              placeholder='ТОВ "Ромашка"'
+              className="bank-account-size"
+            />
+            <FormInput
+              control={form.control}
+              name="short_name"
+              label="Короткое имя"
+              placeholder="Ромашка"
+            />
+            <FormInput
+              control={form.control}
+              name="edrpou"
+              label="ЕДРПОУ"
+              placeholder="12345678"
+            />
+            <FormInput
+              control={form.control}
+              name="bank_account"
+              className="bank-account-size"
+              label="р/с"
+              placeholder="UA12345678..."
+            />
+          </div>
+          <div className="flex items-start">
+            <Button
+              type="submit"
+              className="mt-7 w-[145px]"
+              disabled={form.formState.isSubmitting}
+            >
+              {form.formState.isSubmitting ? "Сохраняю…" : "Создать"}
+            </Button>
+          </div>
         </form>
       </Form>
 

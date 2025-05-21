@@ -2,9 +2,10 @@ import axiosInstance from "@/services/instance";
 import { InfoFormValues, Row } from "@/types/infoTypes";
 import { entity } from "@prisma/client";
 
-export const getAll = async (): Promise<entity[] | []> => {
+export const getAll = async (withDeleted = false): Promise<entity[] | []> => {
   try {
-    const { data } = await axiosInstance.get<entity[]>("/entities");
+    const query = withDeleted ? "?withDeleted=true" : "";
+    const { data } = await axiosInstance.get<entity[]>(`/entities${query}`);
     return data;
   } catch (error) {
     console.log(error);
@@ -25,10 +26,19 @@ export const getById = async (id: number): Promise<entity | null> => {
 export const create = async (data: InfoFormValues) => {
   try {
     await axiosInstance.post("/entities", data);
-  } catch (error) {
-    console.log(error);
+  } catch (error: any) {
+    const status = error?.response?.status;
+    const message = error?.response?.data?.message;
+
+    if (status === 409) {
+      throw new Error("Юрлицо с таким ЕДРПОУ уже есть.");
+    }
+
+    console.error("Ошибка при добавлении:", error);
+    throw new Error(message || "Ошибка при добавлении");
   }
 };
+
 export const update = async (data: Partial<Row>) => {
   try {
     await axiosInstance.patch(`/entities`, data);
