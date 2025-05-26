@@ -12,7 +12,7 @@ import {
   TableRow,
 } from "@/components/ui";
 import { Pencil, Trash2 } from "lucide-react";
-import EditEntityDialog from "@/components/add-info/sections/EditEntityDialog";
+import { EditEntityDialog } from "@/components/add-info";
 
 type Props = {
   rows: Row[];
@@ -21,7 +21,7 @@ type Props = {
   onUpdate: (data: Partial<Row>) => Promise<void>;
 };
 
-export default function EntityTable({ rows, onRemove, onUpdate }: Props) {
+export function EntityTable({ rows, onRemove, onUpdate }: Props) {
   const [editingRow, setEditingRow] = useState<Row | null>(null);
 
   return (
@@ -33,6 +33,7 @@ export default function EntityTable({ rows, onRemove, onUpdate }: Props) {
             <TableHead>Короткое Имя</TableHead>
             <TableHead>ЕДРПОУ</TableHead>
             <TableHead>р/с</TableHead>
+            <TableHead>Сортировка</TableHead>
             <TableHead className="w-24" />
           </TableRow>
         </TableHeader>
@@ -46,6 +47,7 @@ export default function EntityTable({ rows, onRemove, onUpdate }: Props) {
               <TableCell className="whitespace-nowrap">
                 {r.bank_account}
               </TableCell>
+              <TableCell>{r.sort_order}</TableCell>
 
               <TableCell className="flex space-x-2">
                 <Button

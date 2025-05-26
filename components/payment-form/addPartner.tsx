@@ -101,20 +101,18 @@ export const AddPartner: React.FC<Props> = ({ entityIdNum, className }) => {
     try {
       const partner = await createPartner(data);
 
-      try {
-        await addBankAccount({
-          partner_id: partner.id,
-          bank_account: data.bank_account,
-          mfo: data.mfo,
-          bank_name: data.bank_name,
-          is_default: false,
-        });
-      } catch (err: any) {
-        toast.error(err.message);
-        return;
-      }
+      const bankAccount = await addBankAccount({
+        partner_id: partner.id,
+        bank_account: data.bank_account,
+        mfo: data.mfo,
+        bank_name: data.bank_name,
+        is_default: false,
+      });
 
-      await fetchPartners(data.entity_id); // обновить список после добавления
+      parentForm.setValue("selectedAccount", bankAccount.bank_account);
+      parentForm.setValue("partner_account_number_id", bankAccount.id);
+
+      await fetchPartners(data.entity_id);
       internalForm.reset();
       toast.success("Сохранено успешно.");
     } catch (err) {

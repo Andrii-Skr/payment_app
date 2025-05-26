@@ -4,18 +4,9 @@ import { hasRole } from "@/lib/access/hasRole";
 import { Roles } from "@/constants/roles";
 import prisma from "@/prisma/prisma-client";
 import type { Session } from "next-auth";
+import { Prisma } from "@prisma/client";
 
-export type CreateEntityBody = {
-  id?: number;
-  short_name: string;
-  full_name: string;
-  type: number;
-  edrpou: string;
-  bank_name: string;
-  bank_account: string;
-  mfo: string;
-  is_deleted: boolean;
-};
+export type CreateEntityBody = Prisma.entityUncheckedCreateInput;
 
 // 🔹 GET: Получение всех entities (с фильтрацией по роли)
 const getHandler = async (
@@ -34,6 +25,7 @@ const getHandler = async (
   if (hasRole(user.role, Roles.ADMIN)) {
     const entities = await prisma.entity.findMany({
       where: showDeleted ? {} : { is_deleted: false },
+      orderBy: { sort_order: "asc" },
     });
     return NextResponse.json(entities);
   }
@@ -54,7 +46,10 @@ const getHandler = async (
     },
   });
 
-  const entities = userWithEntities?.users_entities.map((e) => e.entity) ?? [];
+  const entities =
+    userWithEntities?.users_entities
+      .map((e) => e.entity)
+      .sort((a, b) => a.sort_order - b.sort_order) ?? [];
   return NextResponse.json(entities);
 };
 

@@ -3,6 +3,7 @@ import { DocumentType } from "@/types/types";
 
 export const useEntityTableLogic = ({
   documents,
+  entities,
   startDate,
   period,
   selectedEntity,
@@ -10,6 +11,7 @@ export const useEntityTableLogic = ({
   collator,
 }: {
   documents: DocumentType[];
+  entities: { id: number; sort_order: number | null }[];
   startDate: Date;
   period: number;
   selectedEntity: number | "all";
@@ -33,7 +35,12 @@ export const useEntityTableLogic = ({
     setFormattedDateRange(dateRange.map((d) => formatter.format(d)));
   }, [dateRange]);
 
-  // 🧠 группировка по (entity_id, partner_id)
+  const entityOrderMap = useMemo(() => {
+    const map = new Map<number, number>();
+    entities.forEach((e) => map.set(e.id, e.sort_order ?? 0));
+    return map;
+  }, [entities]);
+
   const partnersMap = useMemo(() => {
     return documents.reduce((acc, doc) => {
       const key = `${doc.entity_id}:${doc.partner.id}`;
@@ -60,13 +67,14 @@ export const useEntityTableLogic = ({
   const partnerRows = useMemo(() => {
     const rows = Object.values(partnersMap);
     rows.sort((a, b) => {
-      const diff = a.entity_id - b.entity_id;
-      return diff !== 0
-        ? diff
+      const orderA = entityOrderMap.get(a.entity_id) ?? 0;
+      const orderB = entityOrderMap.get(b.entity_id) ?? 0;
+      return orderA !== orderB
+        ? orderA - orderB
         : collator.compare(a.partner.short_name, b.partner.short_name);
     });
     return rows;
-  }, [partnersMap, collator]);
+  }, [partnersMap, collator, entityOrderMap]);
 
   const filteredRows = useMemo(() => {
     return partnerRows.filter((row) => {

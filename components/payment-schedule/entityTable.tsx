@@ -27,12 +27,17 @@ import { apiClient } from "@/services/api-client";
 import { createPaymentDetail } from "@/lib/transformData/paymentDetail";
 import { groupPaymentsByReceiver } from "@/lib/transformData/groupPayments";
 import { finalizePaymentsHandler } from "@/lib/handlers/finalizePaymentsHandler";
+import { EntityWithAll } from "@/app/api/(v1)/(protected)/documents/entities/route";
 
 export const EntityTable: React.FC<{
-  documents: DocumentType[];
-  entityNames: Record<number, string>;
+  entities: EntityWithAll[];
   reloadDocuments: () => Promise<void>;
-}> = ({ documents, entityNames, reloadDocuments }) => {
+}> = ({ entities, reloadDocuments }) => {
+  const documents = entities.flatMap((e) => e.documents ?? []);
+  const entityNames = Object.fromEntries(
+    entities.map((e) => [e.id, e.short_name ?? e.full_name])
+  );
+
   const { canAccess } = useAccessControl();
   const canSeeDetailsModal = canAccess([Roles.ADMIN]);
   const canUseQuickPayment = canAccess([Roles.ADMIN]);
@@ -62,6 +67,7 @@ export const EntityTable: React.FC<{
 
   const { dateRange, groupedByEntity, formattedDateRange } = useEntityTableLogic({
     documents,
+    entities,
     startDate: startDate ?? new Date(),
     period,
     selectedEntity,
@@ -129,7 +135,10 @@ export const EntityTable: React.FC<{
     }
   };
 
-  if (!startDate) return null; // или Skeleton
+  if (!startDate) return null;
+
+  // 🔑 Сортировка по sort_order через entityOrderMap
+  const entityOrderMap = new Map(entities.map((e) => [e.id, e.sort_order ?? 0]));
 
   return (
     <div>
@@ -158,19 +167,24 @@ export const EntityTable: React.FC<{
           </TableRow>
         </TableHeader>
         <TableBody>
-          {Object.entries(groupedByEntity).map(([entityId, rows]) => (
-            <EntityGroupRow
-              key={entityId}
-              entityId={+entityId}
-              rows={rows}
-              dateRange={dateRange}
-              entityNames={entityNames}
-              pendingPayments={pendingPayments}
-              onCellClick={handleCellClick}
-              onPartnerClick={handlePartnerNameClick}
-              canUseQuickPayment={canUseQuickPayment}
-            />
-          ))}
+          {Object.entries(groupedByEntity)
+            .sort(
+              ([idA], [idB]) =>
+                (entityOrderMap.get(+idA) ?? 0) - (entityOrderMap.get(+idB) ?? 0)
+            )
+            .map(([entityId, rows]) => (
+              <EntityGroupRow
+                key={entityId}
+                entityId={+entityId}
+                rows={rows}
+                dateRange={dateRange}
+                entityNames={entityNames}
+                pendingPayments={pendingPayments}
+                onCellClick={handleCellClick}
+                onPartnerClick={handlePartnerNameClick}
+                canUseQuickPayment={canUseQuickPayment}
+              />
+            ))}
         </TableBody>
       </Table>
 

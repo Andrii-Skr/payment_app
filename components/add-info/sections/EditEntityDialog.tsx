@@ -32,7 +32,7 @@ type Props = {
   onSave: (v: EditEntityValues & { id: number }) => Promise<void>;
 };
 
-export default function EditEntityDialog({ row, onClose, onSave }: Props) {
+export function EditEntityDialog({ row, onClose, onSave }: Props) {
   const form = useForm<EditEntityValues>({
     resolver: zodResolver(schema),
     defaultValues: {

@@ -53,3 +53,13 @@ export const remove = async (id: number, data: boolean) => {
     console.log(error);
   }
 };
+
+export const reorder = async (
+  order: { id: number; sort_order: number }[]
+): Promise<void> => {
+  try {
+    await axiosInstance.patch("/entities/reorder", { order });
+  } catch (error) {
+    console.error("Ошибка при сохранении порядка:", error);
+  }
+};

@@ -19,6 +19,7 @@ const entityQuery = Prisma.validator<Prisma.entityFindManyArgs>()({
     bank_account: true,
     bank_name: true,
     mfo: true,
+    sort_order: true,
 
     documents: {
       where: UNPAID_DOC_WHERE,
@@ -51,7 +52,11 @@ const json = (data: unknown, init?: ResponseInit) =>
   NextResponse.json(data, init);
 
 const fetchEntities = (where: Prisma.entityWhereInput) =>
-  prisma.entity.findMany({ ...entityQuery, where });
+  prisma.entity.findMany({
+    ...entityQuery,
+    where,
+    orderBy: { sort_order: "asc" },
+  });
 
 /* ────────────── Handler ────────────── */
 

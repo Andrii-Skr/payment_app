@@ -1,10 +1,10 @@
 import React from "react";
-import { ContainerGrid } from "@/components/shared";
+import { ContainerGrid, FormTextarea } from "@/components/shared";
 import { useFormContext } from "react-hook-form";
 import { FormValues } from "@/types/formTypes";
 import { VatSelector } from "@/components/payment-form/vatSelector";
 import { usePurposeAutoFill } from "@/lib/hooks/usePurposeAutoFill";
-import { FormTextarea } from "@/components/shared";
+
 
 export const PurposeAndNoteForm: React.FC = () => {
   const { control, setValue } = useFormContext<FormValues>();

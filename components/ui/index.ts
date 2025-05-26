@@ -1,4 +1,5 @@
 import { Switch } from "@/components/ui/switch";
+import { e } from "mathjs";
 export { Button } from "./button";
 export { Tabs, TabsList, TabsTrigger, TabsContent } from "./tabs";
 export {
@@ -54,6 +55,7 @@ export {
 export { RadioGroup, RadioGroupItem } from "./radio-group";
 export { Switch } from "./switch";
 export { ChoiceDialog } from "./choice-dialog";
+export { ComboboxUniversal } from "./combobox-universal";
 
 export { Modal } from "./modal";
 export { LoadingMessage } from "./loadingMessage";

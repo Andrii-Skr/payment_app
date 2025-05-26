@@ -2,8 +2,10 @@
 model entity {
   id             Int                   @id @default(autoincrement())
 
-      full_name       String    @db.VarChar
-    short_name       String    @db.VarChar
+  full_name       String    @db.VarChar
+  short_name       String    @db.VarChar
+
+  sort_order      Int               @default(0) @db.SmallInt
 
   type           Decimal?              @db.Decimal(1, 0)
   edrpou         String                @db.VarChar(10) @unique

@@ -8,12 +8,12 @@ import { entitySchema, InfoFormValues, Row } from "@/types/infoTypes";
 import { useAutoFillBankDetails } from "@/lib/hooks/useAutoFillBankDetails";
 
 import { Form, Button, LoadingMessage } from "@/components/ui";
-import EntityTable from "./EntityTable";
+import { EntityTable } from "./EntityTable";
 import { Container, FormInput } from "@/components/shared";
 import { apiClient } from "@/services/api-client";
 import { toast } from "@/lib/hooks/use-toast";
 
-export default function EntitySection() {
+export function EntitySection() {
   const [rows, setRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -28,6 +28,7 @@ export default function EntitySection() {
       bank_account: "",
       bank_name: "",
       mfo: "",
+      sort_order: 0,
     },
   });
 

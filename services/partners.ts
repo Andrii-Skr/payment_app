@@ -74,17 +74,11 @@ export const addBankAccount = async (data: {
   is_default?: boolean;
 }) => {
   try {
-    await axiosInstance.post("/partners/account", data);
+    const res = await axiosInstance.post("/partners/account", data);
+    return res.data.created;
   } catch (error: any) {
-    const status = error?.response?.status;
-    const message = error?.response?.data?.message;
-
-    if (status === 409) {
-      throw new Error("Такой счёт уже существует у этого контрагента.");
-    }
-
     console.error("Ошибка при добавлении счёта:", error);
-    throw new Error(message || "Ошибка при добавлении счёта.");
+    throw new Error("Не удалось добавить счёт.");
   }
 };
 

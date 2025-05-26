@@ -1,3 +1,5 @@
+import { e } from "mathjs";
+
 export { Container } from "./container";
 export { ContainerGrid } from "./containerGrid";
 export { Main } from "../main";
@@ -7,7 +9,7 @@ export { TabTitle } from "./tabTitle";
 export { TabsList } from "./tabsList";
 export { FormInput } from "./formInput";
 export { FormDatePicker } from "./formDatePicker";
-export { AddInfoList } from "../add-info/addInfoList";
+export { AddInfoList } from "../add-info/AddInfoList";
 export { Combobox } from "../ui/combobox";
 export { AccountsCombobox } from "../payment-form/accountsCombobox";
 export { SampleCombobox } from "../payment-form/sampleCombobox";
@@ -29,4 +31,6 @@ export { AutoPaymentTable } from "./autoPaymentTable";
 export { LogoutDropdown } from "./logoutDropdown";
 export { FiltersBar } from "../payment-schedule/filtersBar";
 export { AddForm } from "./addForm";
+export { EntitySelectController } from "./entitySelectController";
 export { FormTextarea } from "./formTextarea";
+e;

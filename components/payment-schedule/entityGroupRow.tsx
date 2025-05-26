@@ -18,7 +18,7 @@ import { cn } from "@/lib/utils";
 import { usePendingPayments } from "@/lib/hooks/usePendingPayments";
 import { createPaymentDetail } from "@/lib/transformData/paymentDetail";
 
-type EntityGroupRowProps = {
+export type EntityGroupRowProps = {
   entityId: number;
   rows: { partner: PartnerType; documents: DocumentType[] }[];
   dateRange: Date[];

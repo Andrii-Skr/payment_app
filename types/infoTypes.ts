@@ -8,6 +8,7 @@ export const entitySchema = z.object({
   bank_account: z.string().length(29, "Счет должен состоять из 29 символов"),
   bank_name: z.string().nullable().optional(),
   mfo: z.string().nullable().optional(),
+  sort_order: z.number().default(0),
   is_deleted: z.boolean().optional()
 });
 

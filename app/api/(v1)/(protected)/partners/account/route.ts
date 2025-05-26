@@ -1,3 +1,5 @@
+// src/app/api/partners/account/route.ts
+
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/prisma/prisma-client";
 import { apiRoute } from "@/utils/apiRoute";
@@ -15,7 +17,21 @@ const schema = z.object({
 type Body = z.infer<typeof schema>;
 
 const handler = async (_req: NextRequest, body: Body) => {
-  
+  const existing = await prisma.partner_account_number.findFirst({
+    where: {
+      partner_id: body.partner_id,
+      bank_account: body.bank_account,
+    },
+  });
+
+  if (existing) {
+    return NextResponse.json({
+      success: true,
+      created: existing,
+      message: "Счёт уже существует у партнёра.",
+    });
+  }
+
   const created = await prisma.partner_account_number.create({
     data: {
       partner_id: body.partner_id,

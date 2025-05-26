@@ -33,6 +33,8 @@ export const PaymentBottomPanel: React.FC<PaymentBottomPanelProps> = ({
   const [payDialogOpen, setPayDialogOpen] = useState(false);
   const [finalizeDialogOpen, setFinalizeDialogOpen] = useState(false);
 
+console.log("Pending Payments:", pendingPayments);
+
   if (pendingPayments.length === 0) return null;
 
   return (
