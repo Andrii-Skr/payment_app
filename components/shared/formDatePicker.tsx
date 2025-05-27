@@ -1,41 +1,61 @@
-"use client"
-import { DatePicker } from '@/components/shared/datePicker';
-import { FormValues } from '@/types/formTypes';
-import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui'
-import React from 'react'
-import { Control, Path } from 'react-hook-form';
+"use client";
+import { DatePicker } from "@/components/shared/datePicker";
+import { FormValues } from "@/types/formTypes";
+import {
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui";
+import React from "react";
+import { Control, Path } from "react-hook-form";
 
-type DateKeys = `payments.${number}.${"expectedDate" | "deadLineDate" | "paidDate"}`
+type DateKeys = `payments.${number}.${
+  | "expectedDate"
+  | "deadLineDate"
+  | "paidDate"}`;
 type TopLevelDateKeys = keyof Pick<FormValues, "date">;
 
 type Props = {
-  control: Control<FormValues>,
-  name: DateKeys | TopLevelDateKeys,
-  label: string,
-  description?: string
-  readOnly?: boolean
+  control: Control<FormValues>;
+  name: DateKeys | TopLevelDateKeys;
+  label: string;
+  description?: string;
+  readOnly?: boolean;
+  preserveDayOnly?: boolean;
 };
 
-const FormDatePicker: React.FC<Props> = ({ control, name, label, description,readOnly  }) => {
+const FormDatePicker: React.FC<Props> = ({
+  control,
+  name,
+  label,
+  description,
+  readOnly,
+  preserveDayOnly = false,
+}) => {
+  return (
+    <FormField
+      control={control}
+      name={name}
+      render={({ field }) => (
+        <FormItem className="flex flex-col space-y-1">
+          <FormLabel className="mt-1 mb-1.5">{label}</FormLabel>
+          <FormControl>
+            <DatePicker
+              selected={field.value}
+              onChange={field.onChange}
+              disabled={readOnly}
+              preserveDayOnly={preserveDayOnly}
+            />
+          </FormControl>
+          <FormDescription className="mb-2">{description}</FormDescription>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
+  );
+};
 
-    return (
-        <FormField
-            control={control}
-            name={name}
-            render={( {field }) => (
-              <FormItem className="flex flex-col space-y-1">
-            <FormLabel className="mt-1 mb-1.5">{label}</FormLabel>
-            <FormControl>
-                  <DatePicker selected={field.value} onChange={field.onChange} disabled={readOnly} />
-            </FormControl>
-             <FormDescription className="mb-2">
-                    {description}
-            </FormDescription>
-            <FormMessage />
-          </FormItem>
-        )}
-          />
-  )
-}
-
-export { FormDatePicker }
+export { FormDatePicker };

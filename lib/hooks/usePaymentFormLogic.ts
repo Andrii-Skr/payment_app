@@ -11,6 +11,7 @@ import type { entity } from "@prisma/client";
 import { FormValues } from "@/types/formTypes";
 import { TemplateWithBankDetails } from "@api/templates/[id]/route";
 import { AxiosError } from "axios";
+import { format } from "date-fns";
 
 export function usePaymentFormLogic({
   reset,
@@ -66,14 +67,23 @@ export function usePaymentFormLogic({
     fetchDocument();
   }, [docIdQuery, reset]);
 
-const onSubmit = async (data: FormValues) => {
+  const onSubmit = async (data: FormValues) => {
+
+     if (!data.date) {
+    toast.error("Пожалуйста, выберите дату");
+    return;
+  }
+    const payload  = {
+    ...data,
+    date: format(data.date, "yyyy-MM-dd"),
+  };
   try {
     if (!data.doc_id) {
-      await apiClient.documents.create(data);
+      await apiClient.documents.create(payload);
       await fetchDocs(entityIdNum);
       toast.success("Документ создан успешно.");
     } else {
-      await apiClient.documents.update(data);
+      await apiClient.documents.update(payload);
       await fetchDocs(entityIdNum);
       toast.success("Документ обновлён.");
       router.push(`/create/payment-form/${entityIdNum}`);

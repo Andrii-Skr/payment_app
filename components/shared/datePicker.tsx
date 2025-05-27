@@ -11,29 +11,40 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
+type Props = {
+  selected: Date | undefined | null;
+  onChange: (day: Date | undefined) => void;
+  disabled?: boolean;
+  className?: string;
+  preserveDayOnly?: boolean; // если true — устанавливает 00:00, иначе 12:00
+};
+
 export function DatePicker({
   selected,
   onChange,
   disabled,
   className,
-}: {
-  selected: Date | undefined | null;
-  onChange: (day: Date | undefined) => void;
-  disabled?: boolean;
-  className?: string;
-}) {
+  preserveDayOnly = false,
+}: Props) {
   const [open, setOpen] = React.useState(false);
 
   const handleSelect = (day: Date | undefined) => {
+    if (day) {
+      // 💡 Фикс: избегаем смещения дат при сохранении в timestamp with time zone
+      preserveDayOnly
+        ? day.setHours(0, 0, 0, 0)   // безопасно для @db.Date
+        : day.setHours(12, 0, 0, 0); // безопасно для @db.Timestamptz
+    }
+
     onChange(day);
-    setOpen(false); // Закрываем календарь после выбора даты
+    setOpen(false);
   };
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
-          variant={"outline"}
+          variant="outline"
           disabled={disabled}
           className={cn(
             "date-picker-size justify-start text-left font-normal px-3 py-1",

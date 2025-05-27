@@ -44,7 +44,7 @@ const defaultValues: FormValues = {
   vatType: true,
   vatPercent: 20,
   accountSumExpression: "",
-  date: null,
+  date: undefined ,
   edrpou: "",
   payments: [
     {

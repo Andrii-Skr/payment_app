@@ -15,13 +15,19 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useEffect } from "react";
 import { Container, FormInput } from "@/components/shared";
-import { toast } from "@/lib/hooks/use-toast";
 
 const schema = z.object({
   full_name: z.string().min(1, "Обязательное поле"),
   short_name: z.string().min(1, "Обязательное поле"),
   edrpou: z.string().min(8).max(10),
   bank_account: z.string().length(29),
+  sort_order: z
+    .union([z.string(), z.number()])
+    .transform((val) => (val === "" ? undefined : Number(val)))
+    .refine((val) => val === undefined || !isNaN(val), {
+      message: "Введите число",
+    })
+    .optional(),
 });
 
 type EditEntityValues = z.infer<typeof schema>;
@@ -40,6 +46,7 @@ export function EditEntityDialog({ row, onClose, onSave }: Props) {
       full_name: "",
       edrpou: "",
       bank_account: "",
+      sort_order: 0,
     },
   });
 
@@ -51,6 +58,7 @@ export function EditEntityDialog({ row, onClose, onSave }: Props) {
         full_name: row.full_name,
         edrpou: row.edrpou,
         bank_account: row.bank_account,
+        sort_order: row.sort_order ?? 0,
       });
     } else {
       form.reset(); // возвращаем defaultValues
@@ -95,6 +103,12 @@ export function EditEntityDialog({ row, onClose, onSave }: Props) {
                 name="bank_account"
                 className="bank-account-size"
                 label="р/с"
+              />
+              <FormInput
+                control={form.control}
+                name="sort_order"
+                label="Сортировка"
+                type="number"
               />
             </Container>
 

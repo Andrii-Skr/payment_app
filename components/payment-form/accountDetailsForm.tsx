@@ -1,6 +1,11 @@
 // components/payment-form/AccountDetailsForm.tsx
 import React from "react";
-import { Container, FormInput, FormDatePicker, ContainerGrid } from "@/components/shared";
+import {
+  Container,
+  FormInput,
+  FormDatePicker,
+  ContainerGrid,
+} from "@/components/shared";
 import { Control } from "react-hook-form";
 import { FormValues } from "@/types/formTypes";
 
@@ -39,6 +44,7 @@ export const AccountDetailsForm: React.FC<Props> = ({
         name="date"
         label="Дата счета/договора"
         description="Дата, указанная в счете"
+        preserveDayOnly={true}
       />
     </ContainerGrid>
   </>

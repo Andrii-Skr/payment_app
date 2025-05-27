@@ -8,7 +8,9 @@ import {
 } from "@api/documents/[id]/route";
 import { EntityWithAll } from "@api/documents/entities/route";
 
-export const create = async (data: FormValues) => {
+export type CreateDocumentPayload = Omit<FormValues, "date"> & { date: string };
+
+export const create = async (data: CreateDocumentPayload) => {
   try {
     await axiosInstance.post("/documents", data);
   } catch (error) {
@@ -17,18 +19,18 @@ export const create = async (data: FormValues) => {
   }
 };
 
-export const getAll = async (): Promise<documents[] | undefined> => {
+export const update = async (data: CreateDocumentPayload) => {
   try {
-    const { data } = await axiosInstance.get<documents[]>(`/documents`);
-    return data;
+    await axiosInstance.patch("/documents/update", data);
   } catch (error) {
     console.log(error);
   }
 };
 
-export const update = async (data: FormValues) => {
+export const getAll = async (): Promise<documents[] | undefined> => {
   try {
-    await axiosInstance.patch("/documents/update", data);
+    const { data } = await axiosInstance.get<documents[]>(`/documents`);
+    return data;
   } catch (error) {
     console.log(error);
   }

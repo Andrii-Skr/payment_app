@@ -37,6 +37,15 @@ const patchHandler = async (
   if (!user) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
+
+  const parsedDate = getSafeDateForPrisma(body.date);
+  if (!parsedDate) {
+    return NextResponse.json(
+      { message: "Invalid date format" },
+      { status: 400 }
+    );
+  }
+
   try {
     const result = await prisma.documents.update({
       where: { id: body.doc_id },
@@ -44,7 +53,7 @@ const patchHandler = async (
         entity_id: body.entity_id,
         partner_id: body.partner_id,
         account_number: body.accountNumber,
-        date: getSafeDateForPrisma(body.date),
+        date: parsedDate,
         account_sum: body.accountSum,
         account_sum_expression: body.accountSumExpression,
         vat_type: body.vatType,
