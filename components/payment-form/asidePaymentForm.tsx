@@ -93,13 +93,13 @@ export const AsidePaymentForm: React.FC<AsideProps> = ({
   return (
     <aside
       className={cn(
-        "w-[30dvw] h-[94dvh] space-y-2 rounded-3xl border-gray-200 border-2 mr-[30px] p-2",
+        "w-[30dvw] h-[94dvh] space-y-2 rounded-3xl border-gray-200 border-2 mr-[30px]",
         className
       )}
     >
       <div className="w-auto h-[90dvh] overflow-y-scroll">
-        <div className="p-2">
-          <Table>
+        <div className="p-1">
+          <Table className="">
             <TableHeader className="bg-white sticky top-0 z-10">
               <TableRow className="">
                 <TableHead>

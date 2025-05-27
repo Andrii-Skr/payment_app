@@ -36,6 +36,7 @@ export const EdrpouCombobox: React.FC<Props> = ({
 
   React.useEffect(() => {
     const partner = partners.find((p) => p.edrpou === edrpou);
+    
     if (partner) {
       updateAccountList(partner.partner_account_number);
     }
@@ -46,6 +47,7 @@ export const EdrpouCombobox: React.FC<Props> = ({
     setValue("partner_id", partner.id);
     setValue("short_name", partner.short_name);
     setValue("full_name", partner.full_name);
+    setValue("edrpou", partner.edrpou);
   };
 
   const list = partners.map((p) => ({

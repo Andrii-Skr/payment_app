@@ -1,3 +1,4 @@
+"use client";
 import { useEffect, useState } from "react";
 import { useMfoFromIban } from "@/lib/hooks/useMfoFromIban";
 import { apiClient } from "@/services/api-client";

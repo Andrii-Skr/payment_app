@@ -8,7 +8,10 @@ import {
 } from "@api/documents/[id]/route";
 import { EntityWithAll } from "@api/documents/entities/route";
 
-export type CreateDocumentPayload = Omit<FormValues, "date"> & { date: string };
+export type CreateDocumentPayload = Omit<FormValues, "date"> & {
+  date: string;
+  allowDuplicate?: boolean;
+};
 
 export const create = async (data: CreateDocumentPayload) => {
   try {

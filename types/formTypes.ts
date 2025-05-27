@@ -3,22 +3,24 @@ import { z } from "zod";
 // ────────── вспомогательный валидатор строки вида YYYY-MM-DD ──────────
 const dateOnlyString = z
   .string()
-  .regex(
-    /^\d{4}-\d{2}-\d{2}$/,
-    "Дата должна быть в формате YYYY-MM-DD"
-  );
+  .regex(/^\d{4}-\d{2}-\d{2}$/, "Дата должна быть в формате YYYY-MM-DD");
 
 // ────────── общий «коэрсер»: string | Date  →  Date ──────────
-const dateCoerce = z.preprocess(
-  (arg) => {
+const dateCoerce = z
+  .preprocess((arg) => {
     if (arg instanceof Date) return arg;
-    if (typeof arg === "string" && /^\d{4}-\d{2}-\d{2}$/.test(arg)) {
-      return new Date(arg + "T00:00:00");
+    if (typeof arg === "string") {
+      if (/^\d{4}-\d{2}-\d{2}$/.test(arg)) {
+        return new Date(arg + "T00:00:00");
+      }
+      // поддержка ISO-строк (например, из базы или fetch)
+      if (/^\d{4}-\d{2}-\d{2}T/.test(arg)) {
+        return new Date(arg);
+      }
     }
-    return arg;                                 // пусть Zod проверит дальше
-  },
-  z.date({ required_error: "Пожалуйста, выберите дату" })
-).nullish();
+    return arg;
+  }, z.date({ required_error: "Пожалуйста, выберите дату" }))
+  .nullish();
 
 // ────────── Схема платежа ──────────
 export const paymentSchema = z.object({
@@ -29,7 +31,7 @@ export const paymentSchema = z.object({
   ),
   isPaid: z.boolean().optional(),
   purposeOfPayment: z.string().max(420),
-  paidDate: dateCoerce.nullish(),       // Date | string | null
+  paidDate: dateCoerce.nullish(), // Date | string | null
   expectedDate: dateCoerce.nullish(),
   deadLineDate: dateCoerce.nullish(),
 });
@@ -42,7 +44,9 @@ export const formSchema = z.object({
   partner_account_number_id: z.number().optional(),
   sample: z.string().optional(),
 
-  accountNumber: z.string().min(2, "Номер счета должен быть не менее 2 символов."),
+  accountNumber: z
+    .string()
+    .min(2, "Номер счета должен быть не менее 2 символов."),
   vatType: z.boolean().default(true),
   vatPercent: z.preprocess(
     (v) => (v !== undefined ? Number(v) : v),
@@ -74,4 +78,4 @@ export const formSchema = z.object({
 });
 
 export type PaymentValues = z.infer<typeof paymentSchema>;
-export type FormValues   = z.infer<typeof formSchema>;
+export type FormValues = z.infer<typeof formSchema>;

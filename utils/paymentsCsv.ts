@@ -16,17 +16,16 @@ const CSV_HEADER =
  * @returns Blob с text/csv
  */
 export const buildPaymentsCsv = async (
-  payments: PaymentDetail[],
+  payments: PaymentDetail[]
 ): Promise<Blob> => {
-  console.log("payments", payments);
   // Собираем уникальные entity_id
-  const entityIds = Array.from(new Set(payments.map(p => p.entity_id)));
+  const entityIds = Array.from(new Set(payments.map((p) => p.entity_id)));
 
   // Загружаем информацию о плательщиках
   const entities = await fetchEntitiesBatch(entityIds); // Map<number, entity>
 
   // Формируем строки
-  const rows: CsvRow[] = payments.map(p => {
+  const rows: CsvRow[] = payments.map((p) => {
     const payer = entities.get(p.entity_id);
 
     return {
@@ -48,7 +47,7 @@ export const buildPaymentsCsv = async (
   });
 
   // Собираем CSV
-  const csvBody = rows.map(r => Object.values(r).join(";")).join("\r\n");
+  const csvBody = rows.map((r) => Object.values(r).join(";")).join("\r\n");
   const csvContent = `${CSV_HEADER}\r\n${csvBody}`;
 
   return new Blob([csvContent], { type: "text/csv;charset=utf-8" });

@@ -12,6 +12,14 @@ import { FormValues } from "@/types/formTypes";
 import { TemplateWithBankDetails } from "@api/templates/[id]/route";
 import { AxiosError } from "axios";
 import { format } from "date-fns";
+import { CreateDocumentPayload } from "@/services/documents";
+import { useAccountListStore } from "@/store/store";
+
+type DuplicateCheckResponse = {
+  success: false;
+  message: string;
+  allowDuplicate?: boolean;
+};
 
 export function usePaymentFormLogic({
   reset,
@@ -26,9 +34,14 @@ export function usePaymentFormLogic({
 }) {
   const { entity_id } = useParams();
   const router = useRouter();
+  const updateAccountList = useAccountListStore((s) => s.updateAccountList);
   const searchParams = useSearchParams();
   const docIdQuery = searchParams.get("doc_id");
   const entityIdNum = Number(entity_id);
+
+  const [isDuplicateDialogOpen, setDuplicateDialogOpen] = React.useState(false);
+  const [pendingDocData, setPendingDocData] =
+    React.useState<CreateDocumentPayload | null>(null);
 
   const [entity, setEntity] = React.useState<entity | null>(null);
   const [templatesList, setTemplatesList] = React.useState<
@@ -68,40 +81,47 @@ export function usePaymentFormLogic({
   }, [docIdQuery, reset]);
 
   const onSubmit = async (data: FormValues) => {
-
-     if (!data.date) {
-    toast.error("Пожалуйста, выберите дату");
-    return;
-  }
-    const payload  = {
-    ...data,
-    date: format(data.date, "yyyy-MM-dd"),
-  };
-  try {
-    if (!data.doc_id) {
-      await apiClient.documents.create(payload);
-      await fetchDocs(entityIdNum);
-      toast.success("Документ создан успешно.");
-    } else {
-      await apiClient.documents.update(payload);
-      await fetchDocs(entityIdNum);
-      toast.success("Документ обновлён.");
-      router.push(`/create/payment-form/${entityIdNum}`);
+    if (!data.date) {
+      toast.error("Пожалуйста, выберите дату");
+      return;
     }
 
-    reset({ ...defaultValues, entity_id: entityIdNum });
-  } catch (error) {
-    const err = error as AxiosError;
+    const payload: CreateDocumentPayload = {
+      ...data,
+      date: format(data.date, "yyyy-MM-dd"),
+    };
 
-    if (err.response?.status === 409) {
-      toast.error("Документ с такими номермом и датой уже существует.");
-    } else {
+    try {
+      if (!data.doc_id) {
+        await apiClient.documents.create(payload);
+        await fetchDocs(entityIdNum);
+        toast.success("Документ создан успешно.");
+      } else {
+        await apiClient.documents.update(payload);
+        await fetchDocs(entityIdNum);
+        toast.success("Документ обновлён.");
+        router.push(`/create/payment-form/${entityIdNum}`);
+      }
+
+      reset({
+        ...defaultValues,
+        entity_id: entityIdNum,
+        partner_account_number_id: undefined,
+      });
+      updateAccountList([]);
+    } catch (error) {
+      const err = error as AxiosError<DuplicateCheckResponse>;
+
+      if (err.response?.status === 409 && err.response?.data?.allowDuplicate) {
+        setPendingDocData(payload);
+        setDuplicateDialogOpen(true);
+        return;
+      }
+
       toast.error("Ошибка при сохранении документа.");
+      console.error("Ошибка при сохранении документа:", err);
     }
-
-    console.error("Ошибка при сохранении документа:", err);
-  }
-};
+  };
 
   return {
     entity,
@@ -116,5 +136,10 @@ export function usePaymentFormLogic({
     setSelectedTemplate,
     setTemplatesList,
     onSubmit,
+    isDuplicateDialogOpen,
+    setDuplicateDialogOpen,
+    pendingDocData,
+    setPendingDocData,
+    fetchDocs,
   };
 }

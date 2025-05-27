@@ -44,7 +44,7 @@ const defaultValues: FormValues = {
   vatType: true,
   vatPercent: 20,
   accountSumExpression: "",
-  date: undefined ,
+  date: undefined,
   edrpou: "",
   payments: [
     {
@@ -86,6 +86,7 @@ export const PaymentForm: React.FC<{ className?: string }> = ({
     templatesList,
     entityIdNum,
     onSubmit,
+    fetchDocs,
     selectedTemplate,
     isTemplateDialogOpen,
     isReplaceDialogOpen,
@@ -93,6 +94,10 @@ export const PaymentForm: React.FC<{ className?: string }> = ({
     setIsReplaceDialogOpen,
     setSelectedTemplate,
     setTemplatesList,
+    isDuplicateDialogOpen,
+    setDuplicateDialogOpen,
+    pendingDocData,
+    setPendingDocData,
   } = usePaymentFormLogic({ reset, setValue, getValues, defaultValues });
 
   const { handleSampleChange, handleSaveTemplate, confirmTemplateReplace } =
@@ -227,6 +232,38 @@ export const PaymentForm: React.FC<{ className?: string }> = ({
           {
             label: "Удалить",
             onSelect: handleConfirmDelete,
+          },
+        ]}
+      />
+      <ChoiceDialog
+        open={isDuplicateDialogOpen}
+        title="Документ уже существует"
+        description="Документ с такими данными уже есть. Добавить дубликат?"
+        onCancel={() => {
+          setDuplicateDialogOpen(false);
+          setPendingDocData(null);
+        }}
+        choices={[
+          {
+            label: "Добавить дубликат",
+            onSelect: async () => {
+              if (!pendingDocData) return;
+
+              try {
+                await apiClient.documents.create({
+                  ...pendingDocData,
+                  allowDuplicate: true,
+                });
+                await fetchDocs(entityIdNum);
+                toast.success("Дубликат создан.");
+                reset({ ...defaultValues, entity_id: entityIdNum });
+              } catch (e) {
+                toast.error("Ошибка при добавлении дубликата.");
+              } finally {
+                setDuplicateDialogOpen(false);
+                setPendingDocData(null);
+              }
+            },
           },
         ]}
       />

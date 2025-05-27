@@ -66,60 +66,60 @@ export const AddPartner: React.FC<Props> = ({ entityIdNum, className }) => {
   });
 
   // 1️⃣ при открытии — инициализируем и fetch-им
-  useEffect(() => {
-    if (!open) return;
+  // useEffect(() => {
+  //   if (!open) return;
 
-    const edrpou = parentForm.getValues("edrpou");
-    const short = parentForm.getValues("short_name");
-    const full = parentForm.getValues("full_name");
+  //   const edrpou = parentForm.getValues("edrpou");
+  //   const short = parentForm.getValues("short_name");
+  //   const full = parentForm.getValues("full_name");
 
-    internalForm.setValue("entity_id", entityIdNum);
-    internalForm.setValue("edrpou", edrpou);
-    internalForm.setValue("short_name", short);
-    internalForm.setValue("full_name", full);
+  //   internalForm.setValue("entity_id", entityIdNum);
+  //   internalForm.setValue("edrpou", edrpou);
+  //   internalForm.setValue("short_name", short);
+  //   internalForm.setValue("full_name", full);
 
-    setShowAccountsList(!!edrpou);
-    fetchPartners(entityIdNum);
-  }, [open]);
+  //   setShowAccountsList(!!edrpou);
+  //   fetchPartners(entityIdNum);
+  // }, [open]);
 
-  // 2️⃣ после обновления списка — подставляем актуальный основной счёт
-  useEffect(() => {
-    if (!open) return;
+  // // 2️⃣ после обновления списка — подставляем актуальный основной счёт
+  // useEffect(() => {
+  //   if (!open) return;
 
-    const defaultAcc = currentAccountList.find((a) => a.is_default);
-    if (defaultAcc) {
-      internalForm.setValue("bank_account", defaultAcc.bank_account);
-      parentForm.setValue("selectedAccount", defaultAcc.bank_account);
-      parentForm.setValue("partner_account_number_id", defaultAcc.id);
-    }
-  }, [currentAccountList, open]);
+  //   const defaultAcc = currentAccountList.find((a) => a.is_default);
+  //   if (defaultAcc) {
+  //     internalForm.setValue("bank_account", defaultAcc.bank_account);
+  //     parentForm.setValue("selectedAccount", defaultAcc.bank_account);
+  //     parentForm.setValue("partner_account_number_id", defaultAcc.id);
+  //   }
+  // }, [currentAccountList, open]);
 
-  const edrpou = parentForm.getValues("edrpou");
-  const readonlyEdrpou = !!edrpou;
+  // const edrpou = parentForm.getValues("edrpou");
+  // const readonlyEdrpou = !!edrpou;
 
-  const onSubmit = async (data: PartnerValues) => {
-    try {
-      const partner = await createPartner(data);
+  // const onSubmit = async (data: PartnerValues) => {
+  //   try {
+  //     const partner = await createPartner(data);
 
-      const bankAccount = await addBankAccount({
-        partner_id: partner.id,
-        bank_account: data.bank_account,
-        mfo: data.mfo,
-        bank_name: data.bank_name,
-        is_default: false,
-      });
+  //     const bankAccount = await addBankAccount({
+  //       partner_id: partner.id,
+  //       bank_account: data.bank_account,
+  //       mfo: data.mfo,
+  //       bank_name: data.bank_name,
+  //       is_default: false,
+  //     });
 
-      parentForm.setValue("selectedAccount", bankAccount.bank_account);
-      parentForm.setValue("partner_account_number_id", bankAccount.id);
+  //     parentForm.setValue("selectedAccount", bankAccount.bank_account);
+  //     parentForm.setValue("partner_account_number_id", bankAccount.id);
 
-      await fetchPartners(data.entity_id);
-      internalForm.reset();
-      toast.success("Сохранено успешно.");
-    } catch (err) {
-      console.error(err);
-      toast.error("Ошибка при сохранении.");
-    }
-  };
+  //     await fetchPartners(data.entity_id);
+  //     internalForm.reset();
+  //     toast.success("Сохранено успешно.");
+  //   } catch (err) {
+  //     console.error(err);
+  //     toast.error("Ошибка при сохранении.");
+  //   }
+  // };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -145,12 +145,12 @@ export const AddPartner: React.FC<Props> = ({ entityIdNum, className }) => {
 
         <Form {...internalForm}>
           <form
-            onSubmit={(e) => {
-              e.stopPropagation();
-              internalForm.handleSubmit(onSubmit, (errors) => {
-                console.error("Валидация не прошла:", errors);
-              })(e);
-            }}
+            // onSubmit={(e) => {
+            //   e.stopPropagation();
+            //   internalForm.handleSubmit(onSubmit, (errors) => {
+            //     console.error("Валидация не прошла:", errors);
+            //   })(e);
+            // }}
             className="space-y-4"
           >
             <Container className="justify-start gap-2">
@@ -165,12 +165,12 @@ export const AddPartner: React.FC<Props> = ({ entityIdNum, className }) => {
                 name="short_name"
                 label="Короткое имя"
               />
-              <PartnerInput
+              {/* <PartnerInput
                 control={internalForm.control}
                 name="edrpou"
                 label="ЕДРПОУ"
                 readOnly={readonlyEdrpou}
-              />
+              /> */}
             </Container>
 
             <Container className="justify-start gap-2">

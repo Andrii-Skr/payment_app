@@ -30,13 +30,14 @@ type CreateDocumentBody = {
 // POST handler
 const postHandler = async (
   _req: NextRequest,
-  body: CreateDocumentBody,
+  body: CreateDocumentBody & { allowDuplicate?: boolean },
   _params: {},
   user: Session["user"] | null
 ) => {
   if (!user) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
+
   const parsedDate = getSafeDateForPrisma(body.date);
   if (!parsedDate) {
     return NextResponse.json(
@@ -44,8 +45,28 @@ const postHandler = async (
       { status: 400 }
     );
   }
-  console.log("body.date", body.date);
-  console.log("parsedDate:", parsedDate);
+  // 🔍 Проверка на дубликат, если не явно разрешено
+  if (!body.allowDuplicate) {
+    const exists = await prisma.documents.findFirst({
+      where: {
+        entity_id: body.entity_id,
+        partner_id: body.partner_id,
+        account_number: body.accountNumber,
+        date: parsedDate,
+      },
+    });
+
+    if (exists) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Документ с такими данными уже существует.",
+          allowDuplicate: true,
+        },
+        { status: 409 }
+      );
+    }
+  }
 
   const result = await prisma.documents.create({
     data: {
@@ -84,7 +105,6 @@ const postHandler = async (
   );
 };
 
-// GET handler (example)
 export type DocumentWithRelations = Prisma.documentsGetPayload<{
   include: {
     spec_doc: true;
