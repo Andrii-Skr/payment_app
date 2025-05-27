@@ -1,8 +1,10 @@
-
+// src/prisma/data/documents.ts
 import prisma from "@/prisma/prisma-client";
 import { Prisma } from "@prisma/client";
+import { normalizeArray, ReplaceDecimal } from "@/utils/normalizeDecimal";
 
-export type DocumentWithPartner = Prisma.documentsGetPayload<{
+/* ───────── сырой тип из Prisma ───────── */
+export type DocumentWithPartnerDB = Prisma.documentsGetPayload<{
   include: {
     partner: {
       select: {
@@ -13,10 +15,14 @@ export type DocumentWithPartner = Prisma.documentsGetPayload<{
   };
 }>;
 
+/* ───────── UI-тип: Decimal → number ───────── */
+export type DocumentWithPartner = ReplaceDecimal<DocumentWithPartnerDB>;
+
+/* ───────── документы одной entity ───────── */
 export async function getDocumentsForEntity(
   entityId: number
 ): Promise<DocumentWithPartner[]> {
-  return prisma.documents.findMany({
+  const raw = await prisma.documents.findMany({
     where: {
       entity_id: entityId,
       is_saved: true,
@@ -24,17 +30,20 @@ export async function getDocumentsForEntity(
       is_paid: false,
     },
     include: {
-      partner: { select: { short_name: true,full_name:true } },
+      partner: { select: { short_name: true, full_name: true } },
     },
     orderBy: { date: "desc" },
   });
+
+  return normalizeArray(raw); // ← account_sum / vat_percent уже number
 }
 
+/* ───────── документы для выбранных партнёров ───────── */
 export async function getDocumentsForPartners(
   entityId: number,
   partnerIds: number[]
 ): Promise<DocumentWithPartner[]> {
-  return prisma.documents.findMany({
+  const raw = await prisma.documents.findMany({
     where: {
       entity_id: entityId,
       partner_id: { in: partnerIds },
@@ -43,8 +52,10 @@ export async function getDocumentsForPartners(
       is_paid: false,
     },
     include: {
-      partner: { select: { short_name: true,full_name:true } },
+      partner: { select: { short_name: true, full_name: true } },
     },
     orderBy: { date: "desc" },
   });
+
+  return normalizeArray(raw);
 }
