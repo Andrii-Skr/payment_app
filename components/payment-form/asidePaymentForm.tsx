@@ -113,6 +113,26 @@ export const AsidePaymentForm: React.FC<AsideProps> = ({
                   </Button>
                 </TableHead>
                 <TableHead>
+                  <Button variant="ghost" onClick={() => handleSort("sum")}>
+                    Сумма счета{" "}
+                    {sortedColumn === "sum"
+                      ? sortOrder === "asc"
+                        ? "↑"
+                        : "↓"
+                      : ""}
+                  </Button>
+                </TableHead>
+                <TableHead className="w-1">
+                  <Button variant="ghost" onClick={() => handleSort("date")}>
+                    Дата счета{" "}
+                    {sortedColumn === "date"
+                      ? sortOrder === "asc"
+                        ? "↑"
+                        : "↓"
+                      : ""}
+                  </Button>
+                </TableHead>
+                <TableHead>
                   <Button
                     variant="ghost"
                     onClick={() => handleSort("accountNumber")}
@@ -125,41 +145,23 @@ export const AsidePaymentForm: React.FC<AsideProps> = ({
                       : ""}
                   </Button>
                 </TableHead>
-                <TableHead>
-                  <Button variant="ghost" onClick={() => handleSort("sum")}>
-                    Сумма счета{" "}
-                    {sortedColumn === "sum"
-                      ? sortOrder === "asc"
-                        ? "↑"
-                        : "↓"
-                      : ""}
-                  </Button>
-                </TableHead>
-                <TableHead>
-                  <Button variant="ghost" onClick={() => handleSort("date")}>
-                    Дата счета{" "}
-                    {sortedColumn === "date"
-                      ? sortOrder === "asc"
-                        ? "↑"
-                        : "↓"
-                      : ""}
-                  </Button>
-                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody className="">
               {sortedDocs.map((doc) => (
                 <TableRow key={doc.id} onClick={() => onRowClick(doc.id)}>
                   <TableCell>{doc.partner.short_name}</TableCell>
-                  <TableCell>{doc.account_number}</TableCell>
-                  <TableCell>{Number(doc.account_sum)}</TableCell>
-                  <TableCell className="text-center">
+                  <TableCell className="text-right">
+                    {Number(doc.account_sum)}
+                  </TableCell>
+                  <TableCell>
                     {new Date(doc.date).toLocaleDateString("ru-RU", {
                       day: "2-digit",
                       month: "2-digit",
                       year: "numeric",
                     })}
                   </TableCell>
+                  <TableCell>{doc.account_number}</TableCell>
                 </TableRow>
               ))}
             </TableBody>

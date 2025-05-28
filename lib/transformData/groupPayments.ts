@@ -18,7 +18,10 @@ export function groupPaymentsByReceiver(payments: PaymentDetail[]): PaymentDetai
     const [first] = group;
     const totalSum = group.reduce((acc, p) => acc + p.pay_sum, 0);
 
-    // Группировка по дате для построения частей вида "№ acc1, acc2 від дата"
+    // --- Извлекаем пользовательскую часть из первого назначения
+    const userPrefix = first.purpose_of_payment?.split("№")[0]?.trim() || "";
+
+    // --- Подгруппировка по дате
     const byDate = new Map<string, Set<string>>();
     const vatTotals = new Map<number, number>();
     let totalVat = 0;
@@ -36,7 +39,7 @@ export function groupPaymentsByReceiver(payments: PaymentDetail[]): PaymentDetai
       }
     });
 
-    // Формируем блок "№ acc1, acc2 від дата"
+    // --- Формируем блоки вида: "№ acc1, acc2 від дата"
     const parts: string[] = [];
     Array.from(byDate.entries())
       .sort(([d1], [d2]) => new Date(d1).getTime() - new Date(d2).getTime())
@@ -45,18 +48,19 @@ export function groupPaymentsByReceiver(payments: PaymentDetail[]): PaymentDetai
         parts.push(`№ ${list} від ${date}`);
       });
 
+    // --- Формируем окончательное назначение платежа
     let purpose = "";
 
     if (vatTotals.size === 0) {
-      purpose = `${parts.join(", ")}, без ПДВ`;
+      purpose = `${userPrefix} ${parts.join(", ")}, без ПДВ`;
     } else if (vatTotals.size === 1) {
       const [percent, vat] = Array.from(vatTotals.entries())[0];
-      purpose = `${parts.join(", ")}, у т.ч. ПДВ ${percent}% = ${vat.toFixed(2).replace(".", ",")} грн.`;
+      purpose = `${userPrefix} ${parts.join(", ")}, у т.ч. ПДВ ${percent}% = ${vat.toFixed(2).replace(".", ",")} грн.`;
     } else {
       const vatParts = Array.from(vatTotals.entries())
         .map(([percent, vat]) => `ПДВ ${percent}% = ${vat.toFixed(2).replace(".", ",")} грн.`)
         .join("; ");
-      purpose = `${parts.join(", ")}, у т.ч. ${vatParts}`;
+      purpose = `${userPrefix} ${parts.join(", ")}, у т.ч. ${vatParts}`;
     }
 
     return {

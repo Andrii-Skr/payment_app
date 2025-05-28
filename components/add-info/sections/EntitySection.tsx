@@ -104,7 +104,7 @@ export function EntitySection() {
 
   /* ───────── JSX ───────── */
   return (
-    <Container className="flex-col items-start gap-5 w-full min-w-[980px]">
+    <Container className="flex-col items-start gap-5 w-full min-w-[995px]">
       {/* ───── форма создания контрагента ───── */}
       <Form {...form}>
         <form
@@ -132,6 +132,7 @@ export function EntitySection() {
               name="edrpou"
               label="ЕДРПОУ"
               placeholder="12345678"
+              className="min-w-[105px]"
             />
             <FormInput
               control={form.control}
