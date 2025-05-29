@@ -10,7 +10,7 @@ type Params = { id: string };
 
 // ---------- GET ----------
 const getHandler = async (
-  _req: NextRequest,
+  req: NextRequest,
   _body: null,
   params: Params,
   user: Session["user"] | null
@@ -27,10 +27,22 @@ const getHandler = async (
     return NextResponse.json({ error: "Invalid ID" }, { status: 400 });
   }
 
+  const url = new URL(req.url);
+
+  // ✅ читаем query-параметры
+  const showDeleted = url.searchParams.get("showDeleted") === "true";
+  const showHidden = url.searchParams.get("showHidden") === "true";
+
+  const baseFilter = {
+    ...(showDeleted ? {} : { is_deleted: false }),
+    ...(showHidden ? {} : { is_visible: true }),
+  };
+
   // 👑 Админ → доступ ко всем
   if (hasRole(role, "admin")) {
     const partners = await prisma.partners.findMany({
       where: {
+        ...baseFilter,
         entities: {
           some: {
             entity_id: entityId,
@@ -57,15 +69,12 @@ const getHandler = async (
 
   const entityIds = dbUser.users_entities.map((e) => e.entity_id);
   const partnerIds = dbUser.users_partners.map((p) => p.partner_id);
-
   const hasEntityAccess = entityIds.includes(entityId);
 
   if (!hasEntityAccess && partnerIds.length === 0) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  // Получаем всех партнёров, связанных с entityId, но только если
-  // текущий пользователь имеет доступ хотя бы к одному partner
   const linkedPartnerIds = await prisma.partners_on_entities.findMany({
     where: {
       entity_id: entityId,
@@ -84,6 +93,7 @@ const getHandler = async (
 
   const partners = await prisma.partners.findMany({
     where: {
+      ...baseFilter,
       id: { in: visiblePartnerIds },
       entities: {
         some: {

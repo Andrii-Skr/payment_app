@@ -187,6 +187,7 @@ export const AddPartner: React.FC<Props> = ({ entityIdNum, className }) => {
 
             <PartnerAccountsList
               show={showAccountsList}
+               hideDelete={true}
               onDefaultChange={({ bank_account, id }) => {
                 parentForm.setValue("selectedAccount", bank_account);
                 parentForm.setValue("partner_account_number_id", id);

@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { entitySchema, InfoFormValues, Row } from "@/types/infoTypes";
 import { useAutoFillBankDetails } from "@/lib/hooks/useAutoFillBankDetails";
 
-import { Form, Button, LoadingMessage } from "@/components/ui";
+import { Form, Button, LoadingMessage, Checkbox } from "@/components/ui";
 import { EntityTable } from "./EntityTable";
 import { Container, FormInput } from "@/components/shared";
 import { apiClient } from "@/services/api-client";
@@ -111,9 +111,9 @@ export function EntitySection() {
           onSubmit={form.handleSubmit(handleCreate, (errors) =>
             console.warn("Zod validation errors:", errors)
           )}
-          className="flex gap-4"
+          className="space-y-4"
         >
-          <div className="flex gap-4 items-start w-full">
+          <Container className="justify-start gap-2">
             <FormInput
               control={form.control}
               name="full_name"
@@ -134,6 +134,8 @@ export function EntitySection() {
               placeholder="12345678"
               className="min-w-[105px]"
             />
+          </Container>
+          <Container className="justify-start gap-2">
             <FormInput
               control={form.control}
               name="bank_account"
@@ -141,11 +143,11 @@ export function EntitySection() {
               label="р/с"
               placeholder="UA12345678..."
             />
-          </div>
-          <div className="flex items-start">
+          </Container>
+          <div className="flex gap-3">
             <Button
               type="submit"
-              className="mt-7 w-[145px]"
+              className="w-[145px] "
               disabled={form.formState.isSubmitting}
             >
               {form.formState.isSubmitting ? "Сохраняю…" : "Создать"}
@@ -156,11 +158,10 @@ export function EntitySection() {
 
       {/* ───── чекбокс «Показать удалённые» ───── */}
       <label className="flex items-center gap-2 select-none text-sm">
-        <input
-          type="checkbox"
+        <Checkbox
           checked={showDeleted}
-          onChange={(e) => setShowDeleted(e.target.checked)}
-          className="h-4 w-4 accent-primary"
+          onCheckedChange={(v) => setShowDeleted(Boolean(v))}
+          className="h-4 w-4"
         />
         Показать удалённые
       </label>

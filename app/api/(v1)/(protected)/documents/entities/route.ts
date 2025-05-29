@@ -22,7 +22,14 @@ const entityQuery = Prisma.validator<Prisma.entityFindManyArgs>()({
     sort_order: true,
 
     documents: {
-      where: UNPAID_DOC_WHERE,
+      where: {
+        is_paid: false,
+        is_deleted: false,
+        partner: {
+          is_deleted: false,
+          is_visible: true,
+        },
+      },
       include: {
         partner: true,
         spec_doc: true,

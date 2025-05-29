@@ -15,6 +15,8 @@ model partners {
   partner_account_number partner_account_number[]
   users_partners         users_partners[]
 
+  is_visible            Boolean                 @default(true)
+
   created_at             DateTime?               @default(now()) @db.Timestamp()
   updated_at             DateTime?               @updatedAt @db.Timestamp()
   is_deleted             Boolean                 @default(false)
@@ -34,6 +36,7 @@ model partner_account_number {
     bank_name   String?
     mfo          String?
 
+    is_visible   Boolean                 @default(true)
     is_default   Boolean @default(false)
 
     created_at DateTime? @default(now()) @db.Timestamp()

@@ -9,16 +9,32 @@ export type PartnersWithAccounts = partners & {
 
 /* Получить всех партнёров по entity_id */
 export const partnersService = async (
-  entityId: number
+  entityId: number,
+  options: { showDeleted?: boolean; showHidden?: boolean } = {}
 ): Promise<PartnersWithAccounts[] | null> => {
   try {
-    const { data } = await axiosInstance.get<PartnersWithAccounts[]>(
-      `/partners/${entityId}`
-    );
+    const params = new URLSearchParams();
+    if (options.showDeleted) params.append("showDeleted", "true");
+    if (options.showHidden) params.append("showHidden", "true");
+
+    const url = `/partners/${entityId}?${params.toString()}`;
+    const { data } = await axiosInstance.get<PartnersWithAccounts[]>(url);
     return data;
   } catch (error) {
     console.error("Ошибка при загрузке партнёров:", error);
     return null;
+  }
+};
+
+export const togglePartnerVisibility = async (
+  id: number,
+  is_visible: boolean
+) => {
+  try {
+    await axiosInstance.patch("/partners/visibility", { id, is_visible });
+  } catch (error) {
+    console.error("Ошибка при смене видимости партнёра:", error);
+    throw error;
   }
 };
 
@@ -65,6 +81,15 @@ export const updatePartner = async (
   }
 };
 
+export const deletePartner = async (id: number, is_deleted: boolean) => {
+  try {
+    await axiosInstance.patch("/partners/delete", { id, is_deleted });
+  } catch (error) {
+    console.error("Ошибка при удалении партнёра:", error);
+    throw error;
+  }
+};
+
 /* Добавить банковский счёт */
 export const addBankAccount = async (data: {
   partner_id: number;
@@ -92,9 +117,9 @@ export const setDefaultAccount = async (id: number) => {
 };
 
 /* Удалить счёт (is_deleted = true) */
-export const deleteAccount = async (id: number) => {
+export const deleteAccount = async (id: number, is_deleted: boolean) => {
   try {
-    await axiosInstance.patch("/partners/account/delete", { id });
+    await axiosInstance.patch("/partners/account/delete", { id, is_deleted });
   } catch (error) {
     console.error("Ошибка при удалении счёта:", error);
   }

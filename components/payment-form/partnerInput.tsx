@@ -1,4 +1,6 @@
-import { PartnerValues } from "@/components/payment-form/addPartner";
+// components/shared/partnerInput.tsx
+"use client";
+
 import {
   FormControl,
   FormDescription,
@@ -9,42 +11,29 @@ import {
   Input,
 } from "@/components/ui";
 import React from "react";
-import { Control } from "react-hook-form";
+import { Control, FieldValues, Path } from "react-hook-form";
 
-// type Props = {
-//   // control: Control<Omit<FormValues, "expectedDate" | "deadLineDate" | "date">>,
-//   control: Control<PartnerValues>;
-//   name: keyof Omit<PartnerValues, "expectedDate" | "deadLineDate" | "date" | "accList">;
-//   label: string;
-//   placeholder?: string;
-//   description?: string;
-//   type?: "text" | "number";
-//   className?: string
-// };
-
-type AccListKeys = `accList.${number}`;
-type TopLevelKeys = keyof Omit<PartnerValues, "accList" | "synonymList">;
-
-type Props = {
-  control: Control<PartnerValues>;
-  name: TopLevelKeys;
+interface PartnerInputProps<T extends FieldValues = FieldValues>
+  extends React.InputHTMLAttributes<HTMLInputElement> {
+  control: Control<T>;
+  name: Path<T>;
   label: string;
   placeholder?: string;
   description?: string;
   type?: "text" | "number";
   className?: string;
-} & React.InputHTMLAttributes<HTMLInputElement>;
+}
 
-export const PartnerInput: React.FC<Props> = ({
+export function PartnerInput<T extends FieldValues>({
   control,
   name,
   label,
   placeholder,
   description,
-  type,
+  type = "text",
   className,
   ...rest
-}) => {
+}: PartnerInputProps<T>) {
   return (
     <FormField
       control={control}
@@ -54,17 +43,17 @@ export const PartnerInput: React.FC<Props> = ({
           <FormLabel>{label}</FormLabel>
           <FormControl>
             <Input
-              className={className}
               type={type}
               placeholder={placeholder}
+              className={className}
               {...field}
               {...rest}
             />
           </FormControl>
-          <FormDescription>{description}</FormDescription>
+          {description && <FormDescription>{description}</FormDescription>}
           <FormMessage />
         </FormItem>
       )}
     />
   );
-};
+}

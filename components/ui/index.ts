@@ -1,3 +1,4 @@
+import { Checkbox } from '@/components/ui/checkbox';
 import { Switch } from "@/components/ui/switch";
 import { e } from "mathjs";
 export { Button } from "./button";
@@ -56,6 +57,7 @@ export { RadioGroup, RadioGroupItem } from "./radio-group";
 export { Switch } from "./switch";
 export { ChoiceDialog } from "./choice-dialog";
 export { ComboboxUniversal } from "./combobox-universal";
+export { Checkbox } from "./checkbox";
 
 export { Modal } from "./modal";
 export { LoadingMessage } from "./loadingMessage";

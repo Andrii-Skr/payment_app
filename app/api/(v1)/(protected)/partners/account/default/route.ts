@@ -21,6 +21,13 @@ const handler = async (_req: NextRequest, body: Body) => {
     return NextResponse.json({ error: "Счёт не найден" }, { status: 404 });
   }
 
+  if (target.is_deleted) {
+    return NextResponse.json(
+      { error: "Нельзя назначить удалённый счёт основным" },
+      { status: 400 }
+    );
+  }
+
   // Сбрасываем все default у этого партнёра
   await prisma.partner_account_number.updateMany({
     where: { partner_id: target.partner_id },

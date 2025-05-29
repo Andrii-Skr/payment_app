@@ -11,7 +11,7 @@ interface PartnersState {
 export const usePartnersStore = create<PartnersState>((set) => ({
   partners: [],
   fetchPartners: async (entityId: number) => {
-    const data = await apiClient.partners.partnersService(entityId);
+    const data = await apiClient.partners.partnersService(entityId,{ showHidden: true });
     set({ partners: data ?? [] });
   },
   clearPartners: () => set({ partners: [] }),

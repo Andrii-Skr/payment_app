@@ -6,21 +6,21 @@ import { z } from "zod";
 
 const schema = z.object({
   id: z.number(),
+  is_deleted: z.boolean(),
 });
 
 type Body = z.infer<typeof schema>;
 
 const handler = async (_req: NextRequest, body: Body) => {
-  const accountId = body.id;
+  const { id, is_deleted } = body;
 
-  await prisma.partner_account_number.update({
-    where: { id: accountId },
-    data: { is_deleted: true },
+  const updated = await prisma.partner_account_number.update({
+    where: { id },
+    data: { is_deleted },
   });
 
-  return NextResponse.json({ success: true });
+  return NextResponse.json({ success: true, updated });
 };
-
 export const PATCH = apiRoute<Body>(handler, {
   schema,
   requireAuth: true,

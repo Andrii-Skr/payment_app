@@ -1,7 +1,7 @@
 "use client";
+
 import React, { useState, useMemo } from "react";
 import { Trash2 } from "lucide-react";
-import { useAccountListStore } from "@/store/store";
 import {
   Button,
   Card,
@@ -11,17 +11,19 @@ import {
   Label,
   Separator,
   Switch,
-} from "@/components/ui/";
-import { toast } from "@/lib/hooks/use-toast";
+} from "@/components/ui";
 import { formatBankAccount } from "@/lib/helpers/formatiban";
+import { useAccountListStore } from "@/store/store";
 import { apiClient } from "@/services/api-client";
+import { toast } from "@/lib/hooks/use-toast";
 
 type Props = {
   show: boolean;
+  hideDelete?: boolean;
   onDefaultChange?: (acc: { bank_account: string; id: number }) => void;
 };
 
-export const PartnerAccountsList: React.FC<Props> = ({ show, onDefaultChange }) => {
+export const PartnerAccountsList: React.FC<Props> = ({ show, hideDelete, onDefaultChange }) => {
   const { currentAccountList, updateAccountList } = useAccountListStore();
   const [loadingId, setLoadingId] = useState<number | null>(null);
 
@@ -44,7 +46,6 @@ export const PartnerAccountsList: React.FC<Props> = ({ show, onDefaultChange }) 
         is_default: acc.id === id,
       }));
       updateAccountList(updated);
-      toast.success("Счёт назначен основным.");
 
       const newDefault = updated.find((a) => a.id === id);
       if (newDefault && onDefaultChange) {
@@ -53,8 +54,10 @@ export const PartnerAccountsList: React.FC<Props> = ({ show, onDefaultChange }) 
           id: newDefault.id,
         });
       }
+
+      toast.success("Счёт назначен основным");
     } catch {
-      toast.error("Ошибка при обновлении основного счёта.");
+      toast.error("Ошибка при назначении счёта");
     } finally {
       setLoadingId(null);
     }
@@ -63,15 +66,15 @@ export const PartnerAccountsList: React.FC<Props> = ({ show, onDefaultChange }) 
   const handleDelete = async (id: number) => {
     setLoadingId(id);
     try {
-      await apiClient.partners.deleteAccount(id);
+      await apiClient.partners.deleteAccount(id, true);
       updateAccountList(
         currentAccountList.map((acc) =>
           acc.id === id ? { ...acc, is_deleted: true } : acc
         )
       );
-      toast.success("Счёт удалён.");
+      toast.success("Счёт удалён");
     } catch {
-      toast.error("Ошибка при удалении счёта.");
+      toast.error("Ошибка при удалении счёта");
     } finally {
       setLoadingId(null);
     }
@@ -100,15 +103,18 @@ export const PartnerAccountsList: React.FC<Props> = ({ show, onDefaultChange }) 
                   />
                   <Label htmlFor={`default-${acc.id}`}>Основной</Label>
                 </div>
-                <Button
-                  variant="ghost"
-                  className="text-red-500"
-                  size="icon"
-                  onClick={() => handleDelete(acc.id)}
-                  disabled={loadingId === acc.id}
-                >
-                  <Trash2 className="w-4 h-4" />
-                </Button>
+
+                {!hideDelete && (
+                  <Button
+                    variant="ghost"
+                    className="text-red-500"
+                    size="icon"
+                    onClick={() => handleDelete(acc.id)}
+                    disabled={loadingId === acc.id}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                )}
               </div>
             </div>
           </div>

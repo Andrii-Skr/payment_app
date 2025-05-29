@@ -55,7 +55,7 @@ export function EntityTable({ rows, onRemove, onUpdate }: Props) {
                   variant="outline"
                   onClick={() => setEditingRow(r)}
                 >
-                  <Pencil />
+                  <Pencil size={16} />
                 </Button>
 
                 {/* — toggle soft-delete */}
@@ -65,7 +65,7 @@ export function EntityTable({ rows, onRemove, onUpdate }: Props) {
                   className={r.is_deleted ? "bg-green-500" : "bg-red-500"}
                   onClick={() => onRemove(r.id, !r.is_deleted)}
                 >
-                  <Trash2 />
+                  <Trash2 size={16} />
                 </Button>
               </TableCell>
             </TableRow>
