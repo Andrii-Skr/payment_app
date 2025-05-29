@@ -5,6 +5,12 @@ import type { partners, partner_account_number } from "@prisma/client";
 
 export type PartnersWithAccounts = partners & {
   partner_account_number: partner_account_number[];
+  entities: {
+    entity_id: number;
+    partner_id: number;
+    is_visible: boolean;
+    is_deleted: boolean;
+  }[];
 };
 
 /* Получить всех партнёров по entity_id */
@@ -27,13 +33,34 @@ export const partnersService = async (
 };
 
 export const togglePartnerVisibility = async (
-  id: number,
-  is_visible: boolean
+  partner_id: number,
+  is_visible: boolean,
+  entity_id: number
 ) => {
   try {
-    await axiosInstance.patch("/partners/visibility", { id, is_visible });
+    await axiosInstance.patch("/partners/visibility", {
+      partner_id,
+      entity_id,
+      is_visible,
+    });
   } catch (error) {
     console.error("Ошибка при смене видимости партнёра:", error);
+    throw error;
+  }
+};
+
+export const getPartnerVisibility = async (
+  partner_id: number,
+  entity_id: number
+) => {
+  try {
+    const response = await axiosInstance.get("/partners/visibility", {
+      params: { partner_id, entity_id },
+    });
+
+    return response.data as { is_visible: boolean };
+  } catch (error) {
+    console.error("Ошибка при получении видимости партнёра:", error);
     throw error;
   }
 };
@@ -81,9 +108,17 @@ export const updatePartner = async (
   }
 };
 
-export const deletePartner = async (id: number, is_deleted: boolean) => {
+export const deletePartner = async (
+  partner_id: number,
+  is_deleted: boolean,
+  entity_id: number
+) => {
   try {
-    await axiosInstance.patch("/partners/delete", { id, is_deleted });
+    await axiosInstance.patch("/partners/delete", {
+      partner_id,
+      entity_id,
+      is_deleted,
+    });
   } catch (error) {
     console.error("Ошибка при удалении партнёра:", error);
     throw error;

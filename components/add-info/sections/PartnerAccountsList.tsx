@@ -18,10 +18,11 @@ import { toast } from "@/lib/hooks/use-toast";
 type Props = {
   accounts: partner_account_number[];
   onSetDefault: (id: number) => Promise<void>;
-  onDelete: (id: number) => Promise<void>;
+  onDelete: (id: number, entityId: number) => Promise<void>;
   loadingId: number | null;
   showDeleted: boolean;
   showHidden: boolean;
+  entityId: number;
 };
 
 export const PartnerAccountsList: React.FC<Props> = ({
@@ -31,8 +32,8 @@ export const PartnerAccountsList: React.FC<Props> = ({
   loadingId,
   showDeleted,
   showHidden,
+  entityId,
 }) => {
-  // 🔍 Фильтрация по is_deleted и is_visible
   const visibleAccounts = accounts.filter(
     (a) => (showDeleted || !a.is_deleted) && (showHidden || a.is_visible !== false)
   );
@@ -73,7 +74,7 @@ export const PartnerAccountsList: React.FC<Props> = ({
                   variant="outline"
                   className={acc.is_deleted ? "bg-green-500" : "bg-red-500"}
                   title={acc.is_deleted ? "Восстановить" : "Удалить"}
-                  onClick={() => onDelete(acc.id)} // 👈 логика restore/delete на стороне родителя
+                  onClick={() => onDelete(acc.id, entityId)}
                   disabled={loadingId === acc.id}
                 >
                   <Trash2 size={16} />

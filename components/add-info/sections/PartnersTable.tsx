@@ -36,6 +36,7 @@ export const PartnersTable = ({ entityId }: { entityId: number | null }) => {
 
   const reloadPartners = () => setReload((v) => v + 1);
 
+  /* ——— helpers ——— */
   const mutatePartner = (
     partnerId: number,
     cb: (p: PartnersWithAccounts) => PartnersWithAccounts
@@ -43,31 +44,41 @@ export const PartnersTable = ({ entityId }: { entityId: number | null }) => {
     setPartners((prev) => prev.map((p) => (p.id === partnerId ? cb(p) : p)));
   };
 
+  /* ——— fetch ——— */
   useEffect(() => {
     if (!entityId) return;
-    apiClient.partners.partnersService(entityId, { showDeleted: true, showHidden: true }).then((data) => {
-      setPartners(data ?? []);
-    });
+    apiClient.partners
+      .partnersService(entityId, { showDeleted: true, showHidden: true })
+      .then((data) => setPartners(data ?? []));
   }, [entityId, reload]);
 
+  /* clean state when entity changes */
   useEffect(() => {
     setExpanded(null);
     setEditTarget(null);
     setLoadingAccId(null);
   }, [entityId]);
 
+  /* ——— фильтрация для чекбоксов ——— */
   const filteredPartners = partners.filter((p) => {
-    if (!showDeleted && p.is_deleted) return false;
-    if (!showHidden && p.is_visible === false) return false;
+    const rel = p.entities?.[0];
+    if (!showDeleted && rel?.is_deleted) return false;
+    if (!showHidden && rel?.is_visible === false) return false;
     return true;
   });
 
+  /* ——— Удалить / восстановить партнёра ——— */
   const togglePartnerDelete = useToggleDelete({
-    apiFn: apiClient.partners.deletePartner,
+    apiFn: apiClient.partners.deletePartner, // (partner_id, is_deleted, entity_id)
     mutateFn: (id, is_deleted) =>
-      mutatePartner(id, (x) => ({ ...x, is_deleted })),
+      mutatePartner(id, (x) => ({
+        ...x,
+        entities: x.entities.map((rel) =>
+          rel.entity_id === entityId ? { ...rel, is_deleted } : rel
+        ),
+      })),
     getEntityState: (id) =>
-      partners.find((p) => p.id === id)?.is_deleted ?? false,
+      partners.find((p) => p.id === id)?.entities?.[0]?.is_deleted ?? false,
     messages: {
       delete: "Контрагент удалён",
       restore: "Контрагент восстановлен",
@@ -75,16 +86,36 @@ export const PartnersTable = ({ entityId }: { entityId: number | null }) => {
     },
   });
 
+  /* ——— Скрыть / показать ——— */
   const handleToggleVisibility = async (p: PartnersWithAccounts) => {
+    const current = p.entities?.[0];
+    if (!current) return;
+
     try {
-      await apiClient.partners.togglePartnerVisibility(p.id, !p.is_visible);
-      mutatePartner(p.id, (x) => ({ ...x, is_visible: !x.is_visible }));
-      toast.success(!p.is_visible ? "Контрагент показан" : "Контрагент скрыт");
+      await apiClient.partners.togglePartnerVisibility(
+        p.id,
+        !current.is_visible,
+        entityId!
+      );
+
+      mutatePartner(p.id, (x) => ({
+        ...x,
+        entities: x.entities.map((rel) =>
+          rel.entity_id === entityId
+            ? { ...rel, is_visible: !rel.is_visible }
+            : rel
+        ),
+      }));
+
+      toast.success(
+        !current.is_visible ? "Контрагент показан" : "Контрагент скрыт"
+      );
     } catch {
       toast.error("Ошибка при смене видимости");
     }
   };
 
+  /* ——— назначить счёт дефолтным ——— */
   const handleSetDefault = async (partnerId: number, accId: number) => {
     setLoadingAccId(accId);
     try {
@@ -104,6 +135,7 @@ export const PartnersTable = ({ entityId }: { entityId: number | null }) => {
     }
   };
 
+  /* ——— удалить / восстановить счёт ——— */
   const handleDeleteAccount = useToggleDelete({
     apiFn: apiClient.partners.deleteAccount,
     mutateFn: (accId, is_deleted) =>
@@ -115,12 +147,10 @@ export const PartnersTable = ({ entityId }: { entityId: number | null }) => {
           ),
         }))
       ),
-    getEntityState: (accId) => {
-      const account = partners
+    getEntityState: (accId) =>
+      partners
         .flatMap((p) => p.partner_account_number)
-        .find((a) => a.id === accId);
-      return account?.is_deleted ?? false;
-    },
+        .find((a) => a.id === accId)?.is_deleted ?? false,
     messages: {
       delete: "Счёт удалён",
       restore: "Счёт восстановлен",
@@ -128,6 +158,7 @@ export const PartnersTable = ({ entityId }: { entityId: number | null }) => {
     },
   });
 
+  /* ——— рендер ——— */
   if (!entityId) {
     return (
       <Card className="mt-6 p-4 rounded-2xl shadow-sm text-muted-foreground text-center">
@@ -138,6 +169,7 @@ export const PartnersTable = ({ entityId }: { entityId: number | null }) => {
 
   return (
     <Card className="mt-6 rounded-2xl shadow-sm p-0 overflow-hidden">
+      {/* — верхняя панель — */}
       <div className="p-4 border-b space-y-2">
         <PartnerForm
           key={`create-${entityId}`}
@@ -164,6 +196,7 @@ export const PartnersTable = ({ entityId }: { entityId: number | null }) => {
         </div>
       </div>
 
+      {/* — таблица — */}
       <Table>
         <TableHeader>
           <TableRow>
@@ -177,80 +210,108 @@ export const PartnersTable = ({ entityId }: { entityId: number | null }) => {
         <TableBody>
           {filteredPartners.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={4} className="text-center text-muted-foreground">
+              <TableCell
+                colSpan={4}
+                className="text-center text-muted-foreground"
+              >
                 Контрагенты не найдены
               </TableCell>
             </TableRow>
           ) : (
-            filteredPartners.map((p) => (
-              <Fragment key={p.id}>
-                <TableRow
-                  onClick={() => setExpanded((id) => (id === p.id ? null : p.id))}
-                  className="cursor-pointer hover:bg-muted transition"
-                >
-                  <TableCell>{p.full_name}</TableCell>
-                  <TableCell>{p.short_name}</TableCell>
-                  <TableCell>{p.edrpou}</TableCell>
-                  <TableCell className="flex gap-2 justify-end">
-                    <Button
-                      size="icon"
-                      variant="outline"
-                      title={p.is_visible ? "Скрыть" : "Показать"}
-                      onClick={(e: MouseEvent) => {
-                        e.stopPropagation();
-                        handleToggleVisibility(p);
-                      }}
-                    >
-                      {p.is_visible ? <EyeOff size={16} /> : <Eye size={16} />}
-                    </Button>
-                    <Button
-                      size="icon"
-                      variant="outline"
-                      title="Редактировать"
-                      onClick={(e: MouseEvent) => {
-                        e.stopPropagation();
-                        setEditTarget(p);
-                      }}
-                    >
-                      <Pencil size={16} />
-                    </Button>
-                    <Button
-                      size="icon"
-                      variant="outline"
-                      className={p.is_deleted ? "bg-green-500" : "bg-red-500"}
-                      title={p.is_deleted ? "Восстановить" : "Удалить"}
-                      onClick={(e: MouseEvent) => {
-                        e.stopPropagation();
-                        togglePartnerDelete(p.id);
-                      }}
-                    >
-                      <Trash2 size={16} />
-                    </Button>
-                  </TableCell>
-                </TableRow>
+            filteredPartners.map((p) => {
+              const rel = p.entities[0];
+              return (
+                <Fragment key={p.id}>
+                  <TableRow
+                    onClick={() =>
+                      setExpanded((id) => (id === p.id ? null : p.id))
+                    }
+                    className="cursor-pointer hover:bg-muted transition"
+                  >
+                    <TableCell>{p.full_name}</TableCell>
+                    <TableCell>{p.short_name}</TableCell>
+                    <TableCell>{p.edrpou}</TableCell>
 
-                {expanded === p.id && (
-                  <TableRow className="bg-muted/50">
-                    <TableCell colSpan={4} className="p-0">
-                      <PartnerAccountsList
-                        accounts={p.partner_account_number}
-                        loadingId={loadingAccId}
-                        showDeleted={showDeleted}
-                        showHidden={showHidden}
-                        onSetDefault={(accId) =>
-                          handleSetDefault(p.id, accId)
+                    <TableCell className="flex gap-2 justify-end">
+                      {/* скрыть/показать */}
+                      <Button
+                        size="icon"
+                        variant="outline"
+                        className={
+                          !rel.is_visible ? "bg-green-500" : "bg-red-500"
                         }
-                        onDelete={handleDeleteAccount}
-                      />
+                        title={rel.is_visible ? "Скрыть" : "Показать"}
+                        onClick={(e: MouseEvent) => {
+                          e.stopPropagation();
+                          handleToggleVisibility(p);
+                        }}
+                      >
+                        {rel.is_visible ? (
+                          <EyeOff size={16} />
+                        ) : (
+                          <Eye size={16} />
+                        )}
+                      </Button>
+
+                      {/* редактировать */}
+                      <Button
+                        size="icon"
+                        variant="outline"
+                        title="Редактировать"
+                        onClick={(e: MouseEvent) => {
+                          e.stopPropagation();
+                          setEditTarget(p);
+                        }}
+                      >
+                        <Pencil size={16} />
+                      </Button>
+
+                      {/* удалить / восстановить */}
+                      <Button
+                        size="icon"
+                        variant="outline"
+                        className={
+                          rel.is_deleted ? "bg-green-500" : "bg-red-500"
+                        }
+                        title={rel.is_deleted ? "Восстановить" : "Удалить"}
+                        onClick={(e: MouseEvent) => {
+                          e.stopPropagation();
+                          togglePartnerDelete(p.id, entityId);
+                        }}
+                      >
+                        <Trash2 size={16} />
+                      </Button>
                     </TableCell>
                   </TableRow>
-                )}
-              </Fragment>
-            ))
+
+                  {/* подтаблица счётов */}
+                  {expanded === p.id && (
+                    <TableRow className="bg-muted/50">
+                      <TableCell colSpan={4} className="p-0">
+                        <PartnerAccountsList
+                          accounts={p.partner_account_number}
+                          loadingId={loadingAccId}
+                          showDeleted={showDeleted}
+                          showHidden={showHidden}
+                          entityId={entityId}
+                          onSetDefault={(accId) =>
+                            handleSetDefault(p.id, accId)
+                          }
+                          onDelete={(accId) =>
+                            handleDeleteAccount(accId, entityId)
+                          }
+                        />
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </Fragment>
+              );
+            })
           )}
         </TableBody>
       </Table>
 
+      {/* модалка редактирования */}
       {editTarget && (
         <PartnerEditModal
           open={!!editTarget}

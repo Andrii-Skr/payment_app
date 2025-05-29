@@ -28,6 +28,9 @@ model partners_on_entities {
   entity_id  Int
   partner_id Int
 
+  is_visible Boolean @default(true)
+  is_deleted Boolean @default(false)
+
   entity     entity   @relation(fields: [entity_id], references: [id], onDelete: Cascade)
   partner    partners @relation(fields: [partner_id], references: [id], onDelete: Cascade)
 

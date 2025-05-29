@@ -39,11 +39,14 @@ export const PartnerEditModal = ({
   entityId: number;
   onSaved: () => void;
 }) => {
-  const [accounts, setAccounts] = useState<partner_account_number[]>(partner.partner_account_number);
+  const [accounts, setAccounts] = useState<partner_account_number[]>(
+    partner.partner_account_number
+  );
   const [loadingAccId, setLoadingAccId] = useState<number | null>(null);
 
-  const mutateAccounts = (fn: (arr: partner_account_number[]) => partner_account_number[]) =>
-    setAccounts((prev) => fn(prev));
+  const mutateAccounts = (
+    fn: (arr: partner_account_number[]) => partner_account_number[]
+  ) => setAccounts((prev) => fn(prev));
 
   const toggleDeleteAccount = useToggleDelete({
     apiFn: apiClient.partners.deleteAccount,
@@ -51,7 +54,8 @@ export const PartnerEditModal = ({
       mutateAccounts((arr) =>
         arr.map((a) => (a.id === id ? { ...a, is_deleted } : a))
       ),
-    getEntityState: (id) => accounts.find((a) => a.id === id)?.is_deleted ?? false,
+    getEntityState: (id) =>
+      accounts.find((a) => a.id === id)?.is_deleted ?? false,
     messages: {
       delete: "Счёт удалён",
       restore: "Счёт восстановлен",
@@ -120,7 +124,8 @@ export const PartnerEditModal = ({
             full_name: partner.full_name,
             short_name: partner.short_name,
             edrpou: partner.edrpou,
-            bank_account: accounts.find((a) => a.is_default)?.bank_account ?? "",
+            bank_account:
+              accounts.find((a) => a.is_default)?.bank_account ?? "",
           }}
           onSaved={() => {
             onSaved();
@@ -136,6 +141,7 @@ export const PartnerEditModal = ({
           showHidden={true}
           onSetDefault={handleSetDefault}
           onDelete={toggleDeleteAccount}
+          entityId={entityId}
         />
 
         {!addMode ? (

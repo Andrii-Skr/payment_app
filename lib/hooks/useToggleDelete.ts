@@ -1,13 +1,12 @@
-// lib/hooks/useToggleDelete.ts
 "use client";
 
 import { useCallback } from "react";
 import { toast } from "@/lib/hooks/use-toast";
 
 type Params = {
-  apiFn: (id: number, isDeleted: boolean) => Promise<any>;
-  mutateFn: (id: number, isDeleted: boolean) => void;
-  getEntityState: (id: number) => boolean;
+  apiFn: (id: number, isDeleted: boolean, entityId: number) => Promise<any>;
+  mutateFn: (id: number, isDeleted: boolean, entityId: number) => void;
+  getEntityState: (id: number, entityId: number) => boolean;
   messages?: {
     delete?: string;
     restore?: string;
@@ -22,15 +21,19 @@ export function useToggleDelete({
   messages = {},
 }: Params) {
   return useCallback(
-    async (id: number) => {
-      const isCurrentlyDeleted = getEntityState(id);
+    async (id: number, entityId: number) => {
+      const isCurrentlyDeleted = getEntityState(id, entityId);
       const newState = !isCurrentlyDeleted;
 
       try {
-        await apiFn(id, newState);
-        mutateFn(id, newState);
-        toast.success(newState ? messages.delete ?? "Удалено" : messages.restore ?? "Восстановлено");
-      } catch (e) {
+        await apiFn(id, newState, entityId);
+        mutateFn(id, newState, entityId);
+        toast.success(
+          newState
+            ? messages.delete ?? "Удалено"
+            : messages.restore ?? "Восстановлено"
+        );
+      } catch {
         toast.error(messages.error ?? "Ошибка при обновлении");
       }
     },

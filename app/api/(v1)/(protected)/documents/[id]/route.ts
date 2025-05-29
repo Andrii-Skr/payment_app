@@ -4,11 +4,12 @@ import { apiRoute } from "@/utils/apiRoute";
 import type { Session } from "next-auth";
 import { Roles } from "@/constants/roles";
 
-// GET handler
+/* ─────── Типы с сохранением твоих обозначений ─────── */
+
 type Params = { id: string };
 
 const getDocument = async (docId: number) => {
-  const document = await prisma.documents.findUnique({
+  return await prisma.documents.findUnique({
     where: { id: docId },
     include: {
       partner: {
@@ -25,26 +26,17 @@ const getDocument = async (docId: number) => {
           mfo: true,
         },
       },
+      spec_doc: {
+        orderBy: { id: "desc" },
+      },
     },
   });
-
-  if (!document) return null;
-
-  const spec_doc = await prisma.spec_doc.findMany({
-    where: { documents_id: docId },
-    orderBy: { id: "desc" },
-  });
-
-  return {
-    ...document,
-    spec_doc,
-  };
 };
 
-export type DocumentWithIncludesNullable = Awaited<
-  ReturnType<typeof getDocument>
->;
+export type DocumentWithIncludesNullable = Awaited<ReturnType<typeof getDocument>>;
 export type DocumentWithIncludes = NonNullable<DocumentWithIncludesNullable>;
+
+/* ─────── GET handler ─────── */
 
 const getHandler = async (
   _req: NextRequest,
@@ -53,12 +45,11 @@ const getHandler = async (
   _user: Session["user"] | null
 ) => {
   const docId = parseInt(params.id, 10);
-
   if (isNaN(docId)) {
     return NextResponse.json({ error: "Invalid document ID" }, { status: 400 });
   }
 
-  const document: DocumentWithIncludesNullable = await getDocument(docId);
+  const document = await getDocument(docId);
 
   if (!document) {
     return NextResponse.json({ error: "Document not found" }, { status: 404 });
@@ -66,6 +57,8 @@ const getHandler = async (
 
   return NextResponse.json(document);
 };
+
+/* ─────── Экспорт с авторизацией ─────── */
 
 export const GET = apiRoute(getHandler, {
   requireAuth: true,

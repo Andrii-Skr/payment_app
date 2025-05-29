@@ -96,6 +96,21 @@ export function usePaymentFormLogic({
         await apiClient.documents.create(payload);
         await fetchDocs(entityIdNum);
         toast.success("Документ создан успешно.");
+
+        // 👇 Проверка и автоматическое включение видимости партнёра
+        if (data.partner_id) {
+          const { is_visible } = await apiClient.partners.getPartnerVisibility(
+            data.partner_id,
+            entityIdNum
+          );
+          if (is_visible === false) {
+            await apiClient.partners.togglePartnerVisibility(
+              data.partner_id,
+              true,
+              entityIdNum
+            );
+          }
+        }
       } else {
         await apiClient.documents.update(payload);
         await fetchDocs(entityIdNum);
@@ -108,6 +123,7 @@ export function usePaymentFormLogic({
         entity_id: entityIdNum,
         partner_account_number_id: undefined,
       });
+
       updateAccountList([]);
     } catch (error) {
       const err = error as AxiosError<DuplicateCheckResponse>;

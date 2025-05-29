@@ -5,8 +5,10 @@ import { Roles } from "@/constants/roles";
 import type { Session } from "next-auth";
 import { z } from "zod";
 
+// 🔧 Теперь требуем entity_id + partner_id
 const schema = z.object({
-  id: z.number(),
+  partner_id: z.number(),
+  entity_id: z.number(),
   is_deleted: z.boolean(),
 });
 
@@ -23,14 +25,21 @@ const patchHandler = async (
   }
 
   try {
-    const updated = await prisma.partners.update({
-      where: { id: body.id },
-      data: { is_deleted: body.is_deleted },
+    const updated = await prisma.partners_on_entities.update({
+      where: {
+        entity_id_partner_id: {
+          entity_id: body.entity_id,
+          partner_id: body.partner_id,
+        },
+      },
+      data: {
+        is_deleted: body.is_deleted,
+      },
     });
 
     return NextResponse.json({ success: true, updated });
   } catch (error) {
-    console.error("Ошибка при обновлении поля is_deleted у партнёра:", error);
+    console.error("Ошибка при обновлении is_deleted в partners_on_entities:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 };

@@ -29,10 +29,10 @@ export const buildPaymentsCsv = async (
     const payer = entities.get(p.entity_id);
 
     return {
-      DAY: format(new Date(p.date), "yyyy-MM-dd HH:mm:ss"),
-      NUMBER: p.account_number,
+      DAY: format(new Date(), "yyyy-MM-dd"),
+      NUMBER: p.spec_doc_id.toString()?? "",
       A: payer?.full_name ?? "",
-      B: p.partner_name,
+      B: p.partner_name ?? "",
       OKPO_A: payer?.edrpou ?? "",
       OKPO_B: p.partner_edrpou ?? "",
       ACCOUNT_A: payer?.bank_account ?? "",
