@@ -31,7 +31,7 @@ const postHandler = async (
   if (!user) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
-  
+
 
   const sample = await prisma.template.create({
     data: {
@@ -44,7 +44,7 @@ const postHandler = async (
       account_number: body.accountNumber,
       vat_percent: Number(body.vatPercent),
       vat_type: body.vatType,
-      date: new Date(body.date),
+      date: body.date ? new Date(body.date) : undefined,
       account_sum: body.accountSum,
       account_sum_expression: body.accountSumExpression,
       partner_account_number_id: body.partner_account_number_id,
