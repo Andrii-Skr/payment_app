@@ -1,4 +1,3 @@
-import { e } from "mathjs";
 
 export { Container } from "./container";
 export { ContainerGrid } from "./containerGrid";
@@ -32,4 +31,4 @@ export { FiltersBar } from "../payment-schedule/filtersBar";
 export { AddForm } from "./addForm";
 export { EntitySelectController } from "./entitySelectController";
 export { FormTextarea } from "./formTextarea";
-e;
+export { VatSelector} from "./vatSelector";

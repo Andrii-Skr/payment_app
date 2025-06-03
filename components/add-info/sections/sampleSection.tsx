@@ -1,8 +1,8 @@
-// import { EntitySelectController } from "@/components/shared/entitySelectController";
-// import { SampleTable } from "./sampleTable";
+import { EntitySelectController } from "@/components/shared/entitySelectController";
+import { SampleTable } from "./sampleTable";
 
-// export const PartnerSection = () => (
-//   <EntitySelectController>
-//     {(entityId) => <SampleTable entityId={entityId} />}
-//   </EntitySelectController>
-// );
+export const SampleSection = () => (
+  <EntitySelectController>
+    {(entityId) => <SampleTable entityId={entityId} />}
+  </EntitySelectController>
+);

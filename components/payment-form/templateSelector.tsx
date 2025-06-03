@@ -1,7 +1,7 @@
 import React from "react";
-import { Container, ContainerGrid, SampleCombobox } from "@/components/shared";
+import { ContainerGrid, SampleCombobox } from "@/components/shared";
 import { Button } from "@/components/ui/button";
-import { Save } from "lucide-react";
+import { CirclePlus } from "lucide-react";
 import { Control } from "react-hook-form";
 import { FormValues } from "@/types/formTypes";
 import { TemplateWithBankDetails } from "@api/templates/[id]/route";
@@ -36,7 +36,8 @@ export const TemplateSelector: React.FC<Props> = ({
       variant="ghost"
       onClick={onSaveClick}
     >
-      <Save className="mr-2" /> Сохранить шаблон
+      <CirclePlus className="mr-2" />
+          Добавить / Изменить шаблон
     </Button>
   </ContainerGrid>
 );

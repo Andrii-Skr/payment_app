@@ -110,6 +110,8 @@ model template {
 
     created_at DateTime? @default(now()) @db.Timestamp()
     updated_at DateTime? @updatedAt @db.Timestamp()
+
+    is_visible Boolean   @default(true)
     is_deleted Boolean   @default(false)
     @@unique([entity_id,name])
 }

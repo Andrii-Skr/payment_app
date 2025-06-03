@@ -58,7 +58,7 @@ export function usePaymentFormLogic({
   React.useEffect(() => {
     if (entityIdNum) {
       apiClient.entities.getById(entityIdNum).then(setEntity);
-      apiClient.templates.getTemplateById(entityIdNum).then(setTemplatesList);
+      apiClient.templates.getById(entityIdNum).then(setTemplatesList);
       fetchDocs(entityIdNum); // 💡 загружаем список документов из стора
     }
   }, [entityIdNum]);

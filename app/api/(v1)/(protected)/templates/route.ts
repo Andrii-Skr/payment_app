@@ -5,6 +5,7 @@ import type { Session } from "next-auth";
 import { Roles } from "@/constants/roles";
 
 export type TemplateBody = {
+  id: number;
   entity_id: number;
   sample: string;
   partner_id: number;
@@ -14,7 +15,7 @@ export type TemplateBody = {
   accountNumber: string;
   vatPercent: number;
   vatType: boolean;
-  date: string;
+  date?: Date;
   accountSum: number;
   accountSumExpression: string;
   partner_account_number_id: number;
@@ -46,13 +47,13 @@ const postHandler = async (
     short_name: body.short_name,
     edrpou: body.edrpou,
     account_number: body.accountNumber,
-    account_sum: body.accountSum,
-    account_sum_expression: body.accountSumExpression,
+    account_sum: 0,
+    account_sum_expression: '',
     vat_type: body.vatType,
     vat_percent: body.vatPercent,
     date: body.date ? new Date(body.date) : undefined,
     partner_account_number_id: body.partner_account_number_id,
-    purpose_of_payment: body.purposeOfPayment,
+    purpose_of_payment: body.purposeOfPayment?.split("№")[0]?.trim() ?? "",
     note: body.note,
     user_id: Number(user.id),
   };

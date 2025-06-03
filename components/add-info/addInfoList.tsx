@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { EntitySection } from "./sections/entitySection";
 import { PartnerSection } from "./sections/partnerSection";
+import { SampleSection } from "@/components/add-info";
 // import UserSection     from './sections/UserSection';
 
 type Tab = "entity" | "partner" | "user" | "sample";
@@ -51,8 +52,8 @@ export const AddInfoList = () => {
       <main className="flex-1 overflow-auto p-6">
         {tab === "entity" && <EntitySection />}
         {tab === "partner" && <PartnerSection />}
-        {/*{tab === 'user'    && <UserSection />} */
-        /* {tab === 'sample'    && <SampleSection />}  */}
+        {/*{tab === 'user'    && <UserSection />} */}
+        {tab === 'sample' && <SampleSection />}
       </main>
     </Card>
   );

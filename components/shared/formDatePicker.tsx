@@ -1,6 +1,7 @@
 "use client";
+
+import React from "react";
 import { DatePicker } from "@/components/shared/datePicker";
-import { FormValues } from "@/types/formTypes";
 import {
   FormControl,
   FormDescription,
@@ -9,32 +10,25 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui";
-import React from "react";
-import { Control, Path } from "react-hook-form";
+import { Control, FieldValues, Path } from "react-hook-form";
 
-type DateKeys = `payments.${number}.${
-  | "expectedDate"
-  | "deadLineDate"
-  | "paidDate"}`;
-type TopLevelDateKeys = keyof Pick<FormValues, "date">;
-
-type Props = {
-  control: Control<FormValues>;
-  name: DateKeys | TopLevelDateKeys;
+type FormDatePickerProps<T extends FieldValues> = {
+  control: Control<T>;
+  name: Path<T>;
   label: string;
   description?: string;
   readOnly?: boolean;
   preserveDayOnly?: boolean;
 };
 
-const FormDatePicker: React.FC<Props> = ({
+export function FormDatePicker<T extends FieldValues>({
   control,
   name,
   label,
   description,
   readOnly,
   preserveDayOnly = false,
-}) => {
+}: FormDatePickerProps<T>) {
   return (
     <FormField
       control={control}
@@ -44,18 +38,18 @@ const FormDatePicker: React.FC<Props> = ({
           <FormLabel className="mt-1 mb-1.5">{label}</FormLabel>
           <FormControl>
             <DatePicker
-              selected={field.value}
+              selected={field.value as Date | null}
               onChange={field.onChange}
               disabled={readOnly}
               preserveDayOnly={preserveDayOnly}
             />
           </FormControl>
-          <FormDescription className="mb-2">{description}</FormDescription>
+          {description && (
+            <FormDescription className="mb-2">{description}</FormDescription>
+          )}
           <FormMessage />
         </FormItem>
       )}
     />
   );
-};
-
-export { FormDatePicker };
+}

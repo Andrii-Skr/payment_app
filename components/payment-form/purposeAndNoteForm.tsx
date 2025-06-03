@@ -2,7 +2,7 @@ import React from "react";
 import { ContainerGrid, FormTextarea } from "@/components/shared";
 import { useFormContext } from "react-hook-form";
 import { FormValues } from "@/types/formTypes";
-import { VatSelector } from "@/components/payment-form/vatSelector";
+import { VatSelector } from "@/components/shared/vatSelector";
 import { usePurposeAutoFill } from "@/lib/hooks/usePurposeAutoFill";
 
 
@@ -19,7 +19,7 @@ export const PurposeAndNoteForm: React.FC = () => {
         label="Назначение платежа"
       />
       <ContainerGrid className="sm:grid-cols-2 lg:grid-cols-[1fr_2fr]">
-        <VatSelector control={control} />
+        <VatSelector control={control} setValue={setValue} />
 
         <FormTextarea
           control={control}

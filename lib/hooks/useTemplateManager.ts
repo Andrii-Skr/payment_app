@@ -4,6 +4,7 @@ import { apiClient } from "@/services/api-client";
 import { FormValues } from "@/types/formTypes";
 import { toast } from "@/lib/hooks/use-toast";
 import { TemplateWithBankDetails } from "@api/templates/[id]/route";
+import { TemplatePayload } from "@/services/templates";
 
 export function useTemplateManager({
   reset,
@@ -24,6 +25,7 @@ export function useTemplateManager({
     setDialogOpen: (v: boolean) => void
   ) => {
     const tpl = list[idx];
+
     if (tpl) {
       setSelected(tpl);
       setDialogOpen(true);
@@ -39,8 +41,8 @@ export function useTemplateManager({
 
     const { payments, ...payload } = getValues();
 
-    const res = await apiClient.templates.createTemplate(
-      payload as Omit<FormValues, "payments">
+    const res = await apiClient.templates.save(
+      payload as TemplatePayload
     );
 
     if (!res.success) {
@@ -50,12 +52,15 @@ export function useTemplateManager({
 
     toast.success(res.message);
 
-    const updated = await apiClient.templates.getTemplateById(entityIdNum);
+    const updated = await apiClient.templates.getById(entityIdNum);
     if (updated) setTemplatesList(updated);
+
+    setValue("sample", "");
   };
 
   /* ---------- применить шаблон к форме ---------- */
   const confirmTemplateReplace = (tpl: TemplateWithBankDetails) => ({
+    sample: tpl.name,
     doc_id: undefined,
     entity_id: tpl.entity_id,
     partner_id: tpl.partner_id,

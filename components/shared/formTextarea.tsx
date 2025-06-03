@@ -7,27 +7,20 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui";
-
-import { Control } from "react-hook-form";
-import { FormValues } from "@/types/formTypes";
-import { cn } from "@/lib/utils";
 import { Textarea } from "@/components/ui/textarea";
+import { Control, FieldValues, Path } from "react-hook-form";
+import { cn } from "@/lib/utils";
 
-type PaymentsKeys = `payments.${number}.${"paySum"}`;
-type TopLevelKeys = keyof Omit<
-  FormValues,
-  "date" | "accountsList" | "payments" | "is_auto_payment" | "vatType">;
-
-type Props = {
-  control: Control<FormValues>;
-  name: PaymentsKeys | TopLevelKeys;
+type FormTextareaProps<T extends FieldValues> = {
+  control: Control<T>;
+  name: Path<T>;
   label: string;
   placeholder?: string;
   description?: string;
   className?: string;
 } & React.TextareaHTMLAttributes<HTMLTextAreaElement>;
 
-const FormTextarea: React.FC<Props> = ({
+export function FormTextarea<T extends FieldValues>({
   control,
   name,
   label,
@@ -35,7 +28,7 @@ const FormTextarea: React.FC<Props> = ({
   description,
   className,
   ...rest
-}) => {
+}: FormTextareaProps<T>) {
   return (
     <FormField
       control={control}
@@ -45,7 +38,7 @@ const FormTextarea: React.FC<Props> = ({
           <FormLabel>{label}</FormLabel>
           <FormControl>
             <Textarea
-              className={cn("textarea-size p-2 rounded-lg", className)}
+              className={cn("p-2 rounded-lg", className)}
               placeholder={placeholder}
               {...field}
               {...rest}
@@ -57,6 +50,4 @@ const FormTextarea: React.FC<Props> = ({
       )}
     />
   );
-};
-
-export { FormTextarea };
+}

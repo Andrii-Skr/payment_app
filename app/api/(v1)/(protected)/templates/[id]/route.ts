@@ -1,35 +1,31 @@
-// app/api/templates/[entity_id]/route.ts
+// File: app/api/templates/[id]/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/prisma/prisma-client";
 import { apiRoute } from "@/utils/apiRoute";
 import { Roles } from "@/constants/roles";
 import { hasRole } from "@/lib/access/hasRole";
 import type { Session } from "next-auth";
+import { Prisma } from "@prisma/client";
 
-/** Преобразует строку в числовой ID либо возвращает null, если строка не число */
-function toEntityId(raw: string): number | null {
-  return /^\d+$/.test(raw) ? Number(raw) : null;
-}
+/* -------------------------------------------------------------------------- */
+/*                             Re‑export type for FE                          */
+export type TemplateWithBankDetails = Prisma.templateGetPayload<{
+  include: {
+    partner_account_number: {
+      select: { bank_account: true; bank_name: true; mfo: true };
+    };
+  };
+}>;
 
-/** Загружает все шаблоны по entity_id */
-async function fetchTemplates(entityId: number) {
-  return prisma.template.findMany({
-    where: { entity_id: entityId },
-    orderBy: { date: "desc" },
-    include: {
-      partner_account_number: {
-        select: { bank_account: true, bank_name: true, mfo: true },
-      },
-    },
-  });
-}
+/* -------------------------------------------------------------------------- */
+/*                                 Utilities                                  */
+const toId = (raw: string): number | null => (/^\d+$/.test(raw) ? Number(raw) : null);
+const yes = (v: string | null) => v === "1" || v === "true";
 
-export type TemplateWithBankDetails = Awaited<
-  ReturnType<typeof fetchTemplates>
->[number];
-
+/* -------------------------------------------------------------------------- */
+/*                                  Handler                                   */
 const handler = async (
-  _req: NextRequest,
+  req: NextRequest,
   _body: null,
   params: { id: string },
   user: Session["user"] | null
@@ -38,12 +34,12 @@ const handler = async (
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
-  const entityId = toEntityId(params.id);
+  const entityId = toId(params.id);
   if (entityId === null) {
     return NextResponse.json({ message: "Invalid entity ID" }, { status: 400 });
   }
 
-  // ACL: обычные пользователи видят только шаблоны своих организаций
+  /* -------------- ACL: users can access only their entities -------------- */
   if (!hasRole(user.role, [Roles.ADMIN, Roles.MANAGER])) {
     const belongs = await prisma.users_entities.count({
       where: { user_id: Number(user.id), entity_id: entityId },
@@ -54,7 +50,24 @@ const handler = async (
   }
 
   try {
-    const templates = await fetchTemplates(entityId);
+    const sp = req.nextUrl.searchParams;
+    const showDeleted = yes(sp.get("showDeleted"));
+    const showHidden = yes(sp.get("showHidden"));
+
+    const templates = await prisma.template.findMany({
+      where: {
+        entity_id: entityId,
+        ...(showDeleted ? {} : { is_deleted: false }),
+        ...(showHidden ? {} : { is_visible: true }),
+      },
+      orderBy: { date: "desc" },
+      include: {
+        partner_account_number: {
+          select: { bank_account: true, bank_name: true, mfo: true },
+        },
+      },
+    });
+
     return NextResponse.json(templates);
   } catch (e) {
     console.error("Template fetch error:", e);
@@ -64,7 +77,6 @@ const handler = async (
     );
   }
 };
-
 
 export const GET = apiRoute<null, { id: string }>(handler, {
   requireAuth: true,
