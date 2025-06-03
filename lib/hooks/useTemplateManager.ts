@@ -1,3 +1,5 @@
+"use client";
+
 import { apiClient } from "@/services/api-client";
 import { FormValues } from "@/types/formTypes";
 import { toast } from "@/lib/hooks/use-toast";
@@ -14,76 +16,63 @@ export function useTemplateManager({
   entityIdNum: number;
   setTemplatesList: (templates: TemplateWithBankDetails[]) => void;
 }) {
+  /* ---------- выбор шаблона ---------- */
   const handleSampleChange = (
-    i: number,
-    templatesList: TemplateWithBankDetails[],
-    setSelectedTemplate: (t: TemplateWithBankDetails | null) => void,
+    idx: number,
+    list: TemplateWithBankDetails[],
+    setSelected: (t: TemplateWithBankDetails | null) => void,
     setDialogOpen: (v: boolean) => void
   ) => {
-    const foundTemplate = templatesList[i];
-    if (foundTemplate) {
-      setSelectedTemplate(foundTemplate);
+    const tpl = list[idx];
+    if (tpl) {
+      setSelected(tpl);
       setDialogOpen(true);
     }
   };
 
+  /* ---------- сохранение (upsert) ---------- */
   const handleSaveTemplate = async (
     sampleValue: string,
     setValue: (name: keyof FormValues, value: any) => void
   ) => {
-    const existingTemplates = await apiClient.templates.getTemplateById(entityIdNum);
+    setValue("sample", sampleValue.trim());
 
-    const isDuplicate = existingTemplates?.some(
-      (template) =>
-        template.name.trim().toLowerCase() === sampleValue.trim().toLowerCase()
+    const { payments, ...payload } = getValues();
+
+    const res = await apiClient.templates.createTemplate(
+      payload as Omit<FormValues, "payments">
     );
 
-    if (isDuplicate) {
-      toast.error("Шаблон с таким названием уже существует.");
+    if (!res.success) {
+      toast.error(res.message);
       return;
     }
 
-    setValue("sample", sampleValue);
-    const formData = getValues();
+    toast.success(res.message);
 
-    if (formData.partner_id) {
-      const { payments, ...dataToSend } = formData;
-      // Запрос на создание шаблона
-      const result = await apiClient.templates.createTemplate(
-        dataToSend as Omit<FormValues, "payments">
-      );
-      // Обработка ошибки
-      if (!result.success) {
-        toast.error(result.message);
-        return;
-      }
-    }
-
-    // Обновляем список шаблонов
     const updated = await apiClient.templates.getTemplateById(entityIdNum);
     if (updated) setTemplatesList(updated);
-
-    toast.success("Шаблон успешно сохранён.");
   };
 
-  const confirmTemplateReplace = (template: TemplateWithBankDetails) => ({
+  /* ---------- применить шаблон к форме ---------- */
+  const confirmTemplateReplace = (tpl: TemplateWithBankDetails) => ({
     doc_id: undefined,
-    entity_id: template.entity_id,
-    partner_id: template.partner_id,
-    accountNumber: template.account_number || "",
+    entity_id: tpl.entity_id,
+    partner_id: tpl.partner_id,
+    accountNumber: tpl.account_number || "",
     accountSum: undefined,
-    date: template.date || undefined,
-    vatType: template.vat_type,
-    vatPercent: Number(template.vat_percent),
-    purposeOfPayment: template.purpose_of_payment?.split("№")[0]?.trim() ?? "",
-    note: template.note || "",
-    edrpou: template.edrpou,
-    mfo: template.partner_account_number?.mfo || "",
-    bank_name: template.partner_account_number?.bank_name || "",
-    partner_account_number_id: template.partner_account_number_id,
-    full_name: template.full_name,
-    short_name: template.short_name,
-    selectedAccount: template.partner_account_number?.bank_account || "",
+    date: tpl.date || undefined,
+    vatType: tpl.vat_type,
+    vatPercent: Number(tpl.vat_percent),
+    purposeOfPayment: tpl.purpose_of_payment?.split("№")[0]?.trim() ?? "",
+    note: tpl.note || "",
+    edrpou: tpl.edrpou,
+    mfo: tpl.partner_account_number?.mfo || "",
+    bank_name: tpl.partner_account_number?.bank_name || "",
+    partner_account_number_id: tpl.partner_account_number_id,
+    full_name: tpl.full_name,
+    short_name: tpl.short_name,
+    selectedAccount: tpl.partner_account_number?.bank_account || "",
     accountSumExpression: "",
     payments: [
       {

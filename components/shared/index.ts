@@ -9,7 +9,6 @@ export { TabTitle } from "./tabTitle";
 export { TabsList } from "./tabsList";
 export { FormInput } from "./formInput";
 export { FormDatePicker } from "./formDatePicker";
-export { AddInfoList } from "../add-info/AddInfoList";
 export { Combobox } from "../ui/combobox";
 export { AccountsCombobox } from "../payment-form/accountsCombobox";
 export { SampleCombobox } from "../payment-form/sampleCombobox";

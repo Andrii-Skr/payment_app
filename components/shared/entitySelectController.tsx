@@ -29,7 +29,8 @@ export const EntitySelectController: React.FC<Props> = ({ children }) => {
         }))}
         value={selectedId}
         onChange={setSelectedId}
-        placeholder="Выберите юрлицо"
+        className="w-[300px]"
+        placeholder="Выберите Юрлицо"
       />
       {children(selectedId, entities)}
     </div>

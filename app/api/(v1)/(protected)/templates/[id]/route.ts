@@ -6,10 +6,6 @@ import { Roles } from "@/constants/roles";
 import { hasRole } from "@/lib/access/hasRole";
 import type { Session } from "next-auth";
 
-/* -------------------------------------------------------------------------- */
-/*                                  helpers                                   */
-/* -------------------------------------------------------------------------- */
-
 /** Преобразует строку в числовой ID либо возвращает null, если строка не число */
 function toEntityId(raw: string): number | null {
   return /^\d+$/.test(raw) ? Number(raw) : null;
@@ -31,10 +27,6 @@ async function fetchTemplates(entityId: number) {
 export type TemplateWithBankDetails = Awaited<
   ReturnType<typeof fetchTemplates>
 >[number];
-
-/* -------------------------------------------------------------------------- */
-/*                                  handler                                   */
-/* -------------------------------------------------------------------------- */
 
 const handler = async (
   _req: NextRequest,
@@ -73,9 +65,6 @@ const handler = async (
   }
 };
 
-/* -------------------------------------------------------------------------- */
-/*                                   route                                    */
-/* -------------------------------------------------------------------------- */
 
 export const GET = apiRoute<null, { id: string }>(handler, {
   requireAuth: true,

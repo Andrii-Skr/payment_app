@@ -4,7 +4,7 @@ import { apiRoute } from "@/utils/apiRoute";
 import type { Session } from "next-auth";
 import { Roles } from "@/constants/roles";
 
-type TemplateBody = {
+export type TemplateBody = {
   entity_id: number;
   sample: string;
   partner_id: number;
@@ -28,36 +28,60 @@ const postHandler = async (
   _params: {},
   user: Session["user"] | null
 ) => {
-  if (!user) {
+  if (!user)
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-  }
 
-
-  const sample = await prisma.template.create({
-    data: {
+  const where = {
+    entity_id_name: {
       entity_id: body.entity_id,
-      name: body.sample,
-      partner_id: body.partner_id,
-      full_name: body.full_name,
-      short_name: body.short_name,
-      edrpou: body.edrpou,
-      account_number: body.accountNumber,
-      vat_percent: Number(body.vatPercent),
-      vat_type: body.vatType,
-      date: body.date ? new Date(body.date) : undefined,
-      account_sum: body.accountSum,
-      account_sum_expression: body.accountSumExpression,
-      partner_account_number_id: body.partner_account_number_id,
-      purpose_of_payment: body.purposeOfPayment,
-      note: body.note,
-      user_id: parseInt(user.id, 10),
+      name: body.sample.trim(),
     },
-  });
+  }; // композитный ключ либо уникальный индекс
 
-  return NextResponse.json(
-    { success: true, message: "Template created successfully.", sample },
-    { status: 200 }
-  );
+  const data = {
+    entity_id: body.entity_id,
+    name: body.sample.trim(),
+    partner_id: body.partner_id,
+    full_name: body.full_name,
+    short_name: body.short_name,
+    edrpou: body.edrpou,
+    account_number: body.accountNumber,
+    account_sum: body.accountSum,
+    account_sum_expression: body.accountSumExpression,
+    vat_type: body.vatType,
+    vat_percent: body.vatPercent,
+    date: body.date ? new Date(body.date) : undefined,
+    partner_account_number_id: body.partner_account_number_id,
+    purpose_of_payment: body.purposeOfPayment,
+    note: body.note,
+    user_id: Number(user.id),
+  };
+
+  try {
+    const sample = await prisma.template.upsert({
+      where,
+      create: data,
+      update: data,
+    });
+
+    return NextResponse.json(
+      {
+        success: true,
+        message:
+          sample.created_at === sample.updated_at
+            ? "Шаблон успешно создан."
+            : "Шаблон успешно обновлен.",
+        sample,
+      },
+      { status: 200 }
+    );
+  } catch (e) {
+    console.error("Template upsert error:", e);
+    return NextResponse.json(
+      { message: "Internal Server Error" },
+      { status: 500 }
+    );
+  }
 };
 
 export const POST = apiRoute<TemplateBody>(postHandler, {

@@ -34,6 +34,7 @@ import {
   PartnerBlock,
 } from "@/components/payment-form";
 
+/* ---------- default values ---------- */
 const defaultValues: FormValues = {
   doc_id: undefined,
   entity_id: undefined,
@@ -71,15 +72,16 @@ export const PaymentForm: React.FC<{ className?: string }> = ({
 }) => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
+  /* ---------- react-hook-form ---------- */
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues,
     shouldUnregister: false,
   });
-
   const { setValue, getValues, reset, control, watch, handleSubmit } = form;
   const docId = watch("doc_id");
 
+  /* ---------- custom hooks ---------- */
   const {
     entity,
     docs,
@@ -105,12 +107,12 @@ export const PaymentForm: React.FC<{ className?: string }> = ({
 
   const { removeDoc } = useDocumentsStore();
 
+  /* ---------- helpers ---------- */
   const handleAccountSumBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     const value = e.target.value;
     if (value.startsWith("=")) {
       setValue("accountSumExpression", value);
-      const result = parseExpression(value);
-      setValue("accountSum", result);
+      setValue("accountSum", parseExpression(value));
     } else {
       const clean = value.replace(/,/g, ".");
       const num = Number(clean);
@@ -125,22 +127,19 @@ export const PaymentForm: React.FC<{ className?: string }> = ({
 
   const handleDocRowClick = async (docId: number) => {
     const data = await apiClient.documents.getById(docId);
-    if (data != null) {
-      reset(TransformedObject(data));
-    }
+    if (data) reset(TransformedObject(data));
   };
 
   const handleConfirmDelete = async () => {
-    const docId = getValues("doc_id");
-
-    if (!docId) {
+    const id = getValues("doc_id");
+    if (!id) {
       toast.error("Документ не выбран");
       setDeleteDialogOpen(false);
       return;
     }
 
     try {
-      await removeDoc(docId, entityIdNum);
+      await removeDoc(id, entityIdNum);
       reset({ ...defaultValues, entity_id: entityIdNum });
       toast.success("Документ удалён");
     } catch (err) {
@@ -151,23 +150,28 @@ export const PaymentForm: React.FC<{ className?: string }> = ({
     }
   };
 
+  /* ---------- render ---------- */
   return (
-    <div className="flex justify-around">
+    <div className={`flex justify-around ${className ?? ""}`}>
+      {/* левая панель со списком документов */}
       <AsidePaymentForm docs={docs} onRowClick={handleDocRowClick} />
 
+      {/* основная форма */}
       <Form {...form}>
         <form
           onSubmit={handleSubmit(onSubmit)}
           className="space-y-1 w-auto min-w-[850px]"
         >
+          {/* заголовок с плательщиком */}
           <Alert className="flex justify-between items-center p-2">
-            <AlertDescription className="w-auto p-0">
-              Наименование Плательщика: {entity?.short_name || "Загрузка..."}
+            <AlertDescription className="p-0">
+              Наименование Плательщика:&nbsp;
+              {entity?.short_name || "Загрузка..."}
             </AlertDescription>
             <Button
               type="button"
               variant="ghost"
-              className="flex self-end gap-2 h-6 text-red-500 p-0"
+              className="flex gap-2 h-6 text-red-500 p-0"
               onClick={() => setDeleteDialogOpen(true)}
               disabled={!docId}
               title={!docId ? "Документ не выбран" : undefined}
@@ -176,6 +180,7 @@ export const PaymentForm: React.FC<{ className?: string }> = ({
             </Button>
           </Alert>
 
+          {/* выбор/сохранение шаблона */}
           <TemplateSelector
             control={control}
             templatesList={templatesList}
@@ -190,18 +195,19 @@ export const PaymentForm: React.FC<{ className?: string }> = ({
             onSaveClick={() => setTemplateDialogOpen(true)}
           />
 
+          {/* блоки формы */}
           <AccountDetailsForm
             control={control}
             onBlur={handleAccountSumBlur}
             onDoubleClick={handleAccountSumDoubleClick}
           />
-
           <PurposeAndNoteForm />
           <PartnerBlock control={control} entityIdNum={entityIdNum} />
           <SumAndDateForm control={control} />
         </form>
       </Form>
 
+      {/* ---- модалки ---- */}
       <SaveTemplateDialog
         open={isTemplateDialogOpen}
         setOpen={setTemplateDialogOpen}
@@ -209,32 +215,40 @@ export const PaymentForm: React.FC<{ className?: string }> = ({
         initialSample=""
       />
 
-      <ReplaceTemplateDialog
+      <ChoiceDialog
         open={isReplaceDialogOpen}
-        name={getValues("sample")}
-        onOpenChange={(open) => {
-          setIsReplaceDialogOpen(open);
-          if (!open) setSelectedTemplate(null);
+        title="Заменить данные формы?"
+        description={`Данные формы будут заменены значениями из шаблона "${getValues(
+          "sample"
+        )}". Продолжить?`}
+        onCancel={() => {
+          setIsReplaceDialogOpen(false);
+          setSelectedTemplate(null);
         }}
-        onConfirm={() => {
-          if (selectedTemplate) {
-            reset(confirmTemplateReplace(selectedTemplate));
-          }
-        }}
+        choices={[
+          {
+            label: "Заменить",
+            onSelect: () => {
+              if (selectedTemplate) {
+                reset(confirmTemplateReplace(selectedTemplate));
+              }
+              setIsReplaceDialogOpen(false);
+              setSelectedTemplate(null);
+            },
+          },
+        ]}
       />
 
+      {/* удаление документа */}
       <ChoiceDialog
         open={deleteDialogOpen}
         title="Удалить документ"
         description="Вы уверены, что хотите удалить текущий документ?"
         onCancel={() => setDeleteDialogOpen(false)}
-        choices={[
-          {
-            label: "Удалить",
-            onSelect: handleConfirmDelete,
-          },
-        ]}
+        choices={[{ label: "Удалить", onSelect: handleConfirmDelete }]}
       />
+
+      {/* добавление дубликата документа */}
       <ChoiceDialog
         open={isDuplicateDialogOpen}
         title="Документ уже существует"
@@ -248,7 +262,6 @@ export const PaymentForm: React.FC<{ className?: string }> = ({
             label: "Добавить дубликат",
             onSelect: async () => {
               if (!pendingDocData) return;
-
               try {
                 await apiClient.documents.create({
                   ...pendingDocData,
@@ -257,7 +270,7 @@ export const PaymentForm: React.FC<{ className?: string }> = ({
                 await fetchDocs(entityIdNum);
                 toast.success("Дубликат создан.");
                 reset({ ...defaultValues, entity_id: entityIdNum });
-              } catch (e) {
+              } catch {
                 toast.error("Ошибка при добавлении дубликата.");
               } finally {
                 setDuplicateDialogOpen(false);

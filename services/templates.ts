@@ -18,13 +18,22 @@ export const getTemplateById = async (
 
 type TemplateData = Omit<FormValues, "payments">;
 
+type TemplateResponse = {
+  success: boolean;
+  message: string; // ← «Template created…» или «Template updated…»
+};
+
 export const createTemplate = async (data: TemplateData) => {
   try {
-    await axiosInstance.post("/templates", data);
-    return { success: true };
+    const { data: res } = await axiosInstance.post<TemplateResponse>(
+      "/templates",
+      data
+    );
+    return { success: res.success, message: res.message };
   } catch (error: any) {
     const message =
-      error?.response?.data?.message || "Ошибка при создании шаблона";
+      error?.response?.data?.message ??
+      "Ошибка при создании/обновлении шаблона";
     return { success: false, message };
   }
 };
