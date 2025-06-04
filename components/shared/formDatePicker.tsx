@@ -33,23 +33,34 @@ export function FormDatePicker<T extends FieldValues>({
     <FormField
       control={control}
       name={name}
-      render={({ field }) => (
-        <FormItem className="flex flex-col space-y-1">
-          <FormLabel className="mt-1 mb-1.5">{label}</FormLabel>
-          <FormControl>
-            <DatePicker
-              selected={field.value as Date | null}
-              onChange={field.onChange}
-              disabled={readOnly}
-              preserveDayOnly={preserveDayOnly}
-            />
-          </FormControl>
-          {description && (
-            <FormDescription className="mb-2">{description}</FormDescription>
-          )}
-          <FormMessage />
-        </FormItem>
+      render={({ field }) => {
+  const rawValue = field.value as unknown;
+        console.log("Date",typeof rawValue)
+  const value =
+    typeof rawValue === "string"
+      ? new Date(rawValue)
+      : rawValue instanceof Date
+      ? rawValue
+      : null;
+
+  return (
+    <FormItem className="flex flex-col space-y-1">
+      <FormLabel className="mt-1 mb-1.5">{label}</FormLabel>
+      <FormControl>
+        <DatePicker
+          selected={value}
+          onChange={field.onChange}
+          disabled={readOnly}
+          preserveDayOnly={preserveDayOnly}
+        />
+      </FormControl>
+      {description && (
+        <FormDescription className="mb-2">{description}</FormDescription>
       )}
+      <FormMessage />
+    </FormItem>
+  );
+}}
     />
   );
 }

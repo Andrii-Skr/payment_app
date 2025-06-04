@@ -31,7 +31,7 @@ export const paymentSchema = z.object({
   ),
   isPaid: z.boolean().optional(),
   purposeOfPayment: z.string().max(420),
-  paidDate: dateCoerce.nullish(), // Date | string | null
+  paidDate: dateCoerce.nullish(),
   expectedDate: dateCoerce.nullish(),
   deadLineDate: dateCoerce.nullish(),
 });

@@ -146,7 +146,7 @@ const SumAndDateForm: React.FC<Props> = ({ control, onBlur }) => {
                   value={remainder}
                 />
                 {isPaid ? (
-                  <FormDatePicker
+                  <FormDatePicker<FormValues>
                     control={control}
                     name={`payments.${index}.paidDate`}
                     label="Дата оплаты"
