@@ -13,7 +13,6 @@ import {
 } from "@/components/ui";
 import {
   SaveTemplateDialog,
-  ReplaceTemplateDialog,
   SumAndDateForm,
   AsidePaymentForm,
 } from "@/components/shared";
@@ -53,6 +52,7 @@ const defaultValues: FormValues = {
       paySum: 0,
       expectedDate: null,
       deadLineDate: null,
+      isPaid: false,
       paidDate: null,
       purposeOfPayment: "",
     },
@@ -80,6 +80,8 @@ export const PaymentForm: React.FC<{ className?: string }> = ({
   });
   const { setValue, getValues, reset, control, watch, handleSubmit } = form;
   const docId = watch("doc_id");
+  const payments = watch("payments");
+  const isDeletable = payments.every((p) => !p.isPaid);
 
   /* ---------- custom hooks ---------- */
   const {
@@ -173,8 +175,14 @@ export const PaymentForm: React.FC<{ className?: string }> = ({
               variant="ghost"
               className="flex gap-2 h-6 text-red-500 p-0"
               onClick={() => setDeleteDialogOpen(true)}
-              disabled={!docId}
-              title={!docId ? "Документ не выбран" : undefined}
+              disabled={!docId || !isDeletable}
+              title={
+                !docId
+                  ? "Документ не выбран"
+                  : !isDeletable
+                  ? "Документ содержит оплаченные строки"
+                  : undefined
+              }
             >
               <Trash2 /> Удалить Документ
             </Button>
