@@ -24,7 +24,7 @@ const yes = (v: string | null) => v === "1" || v === "true";
 
 /* -------------------------------------------------------------------------- */
 /*                                  Handler                                   */
-const handler = async (
+const getHandler = async (
   req: NextRequest,
   _body: null,
   params: { id: string },
@@ -78,7 +78,69 @@ const handler = async (
   }
 };
 
-export const GET = apiRoute<null, { id: string }>(handler, {
+
+type PatchBody = {
+  entity_id: number;
+  sample: string;
+  partner_id: number;
+  full_name: string;
+  short_name: string;
+  edrpou: string;
+  accountNumber: string;
+  vatPercent: number;
+  vatType: boolean;
+  date: string | null;
+  accountSum: string;
+  accountSumExpression: string;
+  partner_account_number_id: number;
+  purposeOfPayment?: string;
+  note?: string;
+};
+
+const patchHandler = async (
+  _req: NextRequest,
+  body: PatchBody,
+  params: { id: string },
+  user: Session["user"] | null
+) => {
+  if (!user) {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  }
+
+  const updated = await prisma.template.update({
+    where: { id: Number(params.id) },
+    data: {
+      entity_id: body.entity_id,
+      name: body.sample,
+      partner_id: body.partner_id,
+      full_name: body.full_name,
+      short_name: body.short_name,
+      edrpou: body.edrpou,
+      account_number: body.accountNumber,
+      vat_percent: body.vatPercent,
+      vat_type: body.vatType,
+      date: body.date ? new Date(body.date) : null,
+      account_sum: body.accountSum,
+      account_sum_expression: body.accountSumExpression,
+      partner_account_number_id: body.partner_account_number_id,
+      purpose_of_payment: body.purposeOfPayment,
+      note: body.note,
+    },
+  });
+
+  return NextResponse.json(
+    { success: true, message: "Template updated.", template: updated },
+    { status: 200 }
+  );
+};
+
+export const PATCH = apiRoute<PatchBody, { id: string }>(patchHandler, {
   requireAuth: true,
-  roles: [Roles.ADMIN, Roles.MANAGER, Roles.USER],
+  roles: [Roles.ADMIN, Roles.MANAGER],
+});
+
+
+export const GET = apiRoute<null, { id: string }>(getHandler, {
+  requireAuth: true,
+  roles: [Roles.ADMIN, Roles.MANAGER],
 });

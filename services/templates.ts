@@ -3,9 +3,38 @@ import axiosInstance from "@/services/instance";
 import { FormValues } from "@/types/formTypes";
 import { TemplateWithBankDetails } from "@api/templates/[id]/route";
 
-export interface GetTemplatesOptions {
+export type GetTemplatesOptions ={
   showDeleted?: boolean;
   showHidden?: boolean;
+}
+
+export type TemplatePayload ={
+  id?: number;
+  entity_id?: number;
+  sample: string;
+
+  partner_id: number;
+  full_name: string;
+  short_name: string;
+  edrpou: string;
+
+  accountNumber: string;
+  accountSum: string;
+  accountSumExpression: string;
+
+  vatType: boolean;
+  vatPercent: number;
+
+  date: string  | null;
+  partner_account_number_id: number;
+
+  purposeOfPayment?: string;
+  note?: string;
+}
+export type TemplateResponse ={
+  success: boolean;
+  message: string;
+  sample?: TemplateWithBankDetails; // сервер отдаёт sample
 }
 
 export const getById = async (
@@ -23,43 +52,24 @@ export const getById = async (
   return data;
 };
 
-
-
-export interface TemplatePayload {
-  id?: number;                    // ← если нет → create
-  entity_id?: number;
-  sample: string;
-
-  partner_id: number;
-  full_name: string;
-  short_name: string;
-  edrpou: string;
-
-  accountNumber: string;
-  accountSum: string;
-  accountSumExpression: string;
-
-  vatType: boolean;
-  vatPercent: number;
-
-  date?: Date;
-  partner_account_number_id: number;
-
-  purposeOfPayment?: string;
-  note?: string;
+export async function update(
+  id: number,
+  payload: Omit<TemplatePayload, "id">
+): Promise<Omit<TemplateResponse, "sample">> {
+  try {
+    const { data } = await axiosInstance.patch<TemplateResponse>(
+      `/templates/${id}`,
+      payload
+    );
+    return { success: data.success, message: data.message };
+  } catch (err: any) {
+    const message =
+      err?.response?.data?.message ?? "Ошибка при обновлении шаблона";
+    return { success: false, message };
+  }
 }
 
-/** Ответ роута (успех + сообщение + сам шаблон) */
-export interface TemplateResponse {
-  success: boolean;
-  message: string;
-  sample?: TemplateWithBankDetails; // сервер отдаёт sample
-}
 
-/**
- * Создать или обновить шаблон.
- * Передай `payload.id`, если нужно обновление.
- */
 export async function save(
   payload: TemplatePayload
 ): Promise<Omit<TemplateResponse, "sample">> {

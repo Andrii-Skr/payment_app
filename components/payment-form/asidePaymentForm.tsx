@@ -93,7 +93,7 @@ export const AsidePaymentForm: React.FC<AsideProps> = ({
   return (
     <aside
       className={cn(
-        "w-[30dvw] h-[94dvh] space-y-2 rounded-3xl border-gray-200 border-2 mr-[30px]",
+        "w-[31dvw] min-w-[512px] h-[94dvh] space-y-2 rounded-3xl border-gray-200 border-2 mr-[30px]",
         className
       )}
     >

@@ -1,7 +1,10 @@
+"use client";
+
 import React, { useEffect } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { format } from "date-fns";
 
 import {
   Dialog,
@@ -24,7 +27,7 @@ import {
 /* ---------------- schema & types ---------------- */
 const templateSchema = z.object({
   name: z.string().min(1, "Укажите название"),
-  date: z.date().nullable(),
+  date: z.union([z.date(), z.string()]).nullable(),
   accountSum: z
     .string()
     .refine(
@@ -87,8 +90,7 @@ export const TemplateEditModal: React.FC<Props> = ({
   /* -------- submit -------- */
   const onSubmit = async (d: TemplateFormData) => {
     try {
-      await apiClient.templates.save({
-        id: template.id,
+      await apiClient.templates.update(template.id, {
         entity_id: template.entity_id,
         sample: d.name.trim(),
         partner_id: template.partner_id,
@@ -100,7 +102,7 @@ export const TemplateEditModal: React.FC<Props> = ({
         accountSumExpression: template.account_sum_expression ?? "",
         vatType: d.vatType,
         vatPercent: d.vatPercent,
-        date: d.date ?? undefined,
+        date: d.date ? format(d.date, "yyyy-MM-dd") : null,
         partner_account_number_id: template.partner_account_number_id,
         purposeOfPayment: d.purposeOfPayment || undefined,
         note: d.note || undefined,
@@ -128,12 +130,12 @@ export const TemplateEditModal: React.FC<Props> = ({
 
             <FormDatePicker control={control} name="date" label="Дата" />
 
-            <FormInput
+            {/* <FormInput
               control={control}
               name="accountSum"
               label="Сумма"
               type="number"
-            />
+            /> */}
 
             <VatSelector control={control} setValue={setValue} />
 

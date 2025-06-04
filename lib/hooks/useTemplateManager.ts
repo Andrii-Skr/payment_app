@@ -5,6 +5,7 @@ import { FormValues } from "@/types/formTypes";
 import { toast } from "@/lib/hooks/use-toast";
 import { TemplateWithBankDetails } from "@api/templates/[id]/route";
 import { TemplatePayload } from "@/services/templates";
+import { format } from "date-fns";
 
 export function useTemplateManager({
   reset,
@@ -35,15 +36,16 @@ export function useTemplateManager({
   /* ---------- сохранение (upsert) ---------- */
   const handleSaveTemplate = async (
     sampleValue: string,
-    setValue: (name: keyof FormValues, value: any) => void
+    setValue: (name: keyof FormValues, value: string) => void
   ) => {
     setValue("sample", sampleValue.trim());
 
     const { payments, ...payload } = getValues();
 
-    const res = await apiClient.templates.save(
-      payload as TemplatePayload
-    );
+    const res = await apiClient.templates.save({
+      ...payload,
+      date: payload.date ? format(payload.date, "yyyy-MM-dd") : undefined,
+    } as TemplatePayload);
 
     if (!res.success) {
       toast.error(res.message);
@@ -66,7 +68,7 @@ export function useTemplateManager({
     partner_id: tpl.partner_id,
     accountNumber: tpl.account_number || "",
     accountSum: undefined,
-    date: tpl.date || undefined,
+    date: tpl.date || null,
     vatType: tpl.vat_type,
     vatPercent: Number(tpl.vat_percent),
     purposeOfPayment: tpl.purpose_of_payment?.split("№")[0]?.trim() ?? "",

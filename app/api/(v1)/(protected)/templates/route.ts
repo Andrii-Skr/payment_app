@@ -3,6 +3,7 @@ import prisma from "@/prisma/prisma-client";
 import { apiRoute } from "@/utils/apiRoute";
 import type { Session } from "next-auth";
 import { Roles } from "@/constants/roles";
+import { getSafeDateForPrisma } from "@/lib/date/getSafeDateForPrisma";
 
 export type TemplateBody = {
   id: number;
@@ -51,7 +52,7 @@ const postHandler = async (
     account_sum_expression: '',
     vat_type: body.vatType,
     vat_percent: body.vatPercent,
-    date: body.date ? new Date(body.date) : undefined,
+    date: getSafeDateForPrisma(body.date) ?? null,
     partner_account_number_id: body.partner_account_number_id,
     purpose_of_payment: body.purposeOfPayment?.split("№")[0]?.trim() ?? "",
     note: body.note,
