@@ -97,7 +97,7 @@ model template {
     account_sum_expression String?
 
     vat_type Boolean
-    vat_percent Decimal
+    vat_percent Decimal @db.Decimal(4, 2)
 
     partner_account_number_id Int
     partner_account_number partner_account_number @relation(fields: [partner_account_number_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
