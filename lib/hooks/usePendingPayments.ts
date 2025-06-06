@@ -1,4 +1,4 @@
-import { usePaymentStore } from "@/store/store";
+import { usePaymentStore } from "@/store/paymentStore";
 import { PaymentDetail } from "@/types/types";
 import { useMemo } from "react";
 import { toast } from "@/lib/hooks/use-toast";

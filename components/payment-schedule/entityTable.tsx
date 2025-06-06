@@ -272,6 +272,7 @@ export const EntityTable: React.FC<{
           onSave={handleModalSave}
           title={modalTitle}
           paymentDetails={modalPaymentDetails}
+          reloadDocuments={reloadDocuments} // 👈 главное изменение
         />
       )}
 

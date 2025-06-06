@@ -19,6 +19,7 @@ export function createPaymentDetail(entry: PaymentEntry): PaymentDetail {
     dead_line_date: entry.spec_doc.dead_line_date,
     date: entry.document.date,
     pay_sum: Number(entry.spec_doc.pay_sum),
+    is_paid: entry.spec_doc.is_paid,
 
     vat_type: entry.document.vat_type,
     vat_percent: Number(entry.document.vat_percent ),

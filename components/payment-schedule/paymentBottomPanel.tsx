@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ChoiceDialog } from "@/components/ui/choice-dialog";
 import { PaymentDetail } from "@/types/types";
-import { usePaymentStore } from "@/store/store";
+import { usePaymentStore } from "@/store/paymentStore";
 
 type GroupedPayments = Record<number, { name: string; total: number }>;
 

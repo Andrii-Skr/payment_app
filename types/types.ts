@@ -32,6 +32,7 @@ export type PaymentDetail = {
   dead_line_date: Date | null;
   date: Date;
   pay_sum: number;
+  is_paid: boolean;
 
   vat_type: boolean;
   vat_percent: number | null;
