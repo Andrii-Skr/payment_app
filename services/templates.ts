@@ -19,8 +19,8 @@ export type TemplatePayload ={
   edrpou: string;
 
   accountNumber: string;
-  accountSum: string;
-  accountSumExpression: string;
+  accountSum?: string;
+  accountSumExpression?: string;
 
   vatType: boolean;
   vatPercent: number;
@@ -34,7 +34,7 @@ export type TemplatePayload ={
 export type TemplateResponse ={
   success: boolean;
   message: string;
-  sample?: TemplateWithBankDetails; // сервер отдаёт sample
+  sample?: TemplateWithBankDetails;
 }
 
 export const getById = async (

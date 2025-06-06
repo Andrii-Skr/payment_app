@@ -19,7 +19,8 @@ export type TemplateWithBankDetails = Prisma.templateGetPayload<{
 
 /* -------------------------------------------------------------------------- */
 /*                                 Utilities                                  */
-const toId = (raw: string): number | null => (/^\d+$/.test(raw) ? Number(raw) : null);
+const toId = (raw: string): number | null =>
+  /^\d+$/.test(raw) ? Number(raw) : null;
 const yes = (v: string | null) => v === "1" || v === "true";
 
 /* -------------------------------------------------------------------------- */
@@ -78,7 +79,6 @@ const getHandler = async (
   }
 };
 
-
 type PatchBody = {
   entity_id: number;
   sample: string;
@@ -90,7 +90,7 @@ type PatchBody = {
   vatPercent: number;
   vatType: boolean;
   date: string | null;
-  accountSum: string;
+  accountSum?: number;
   accountSumExpression: string;
   partner_account_number_id: number;
   purposeOfPayment?: string;
@@ -120,7 +120,7 @@ const patchHandler = async (
       vat_percent: body.vatPercent,
       vat_type: body.vatType,
       date: body.date ? new Date(body.date) : null,
-      account_sum: body.accountSum,
+      account_sum: body.accountSum ? body.accountSum : 0,
       account_sum_expression: body.accountSumExpression,
       partner_account_number_id: body.partner_account_number_id,
       purpose_of_payment: body.purposeOfPayment,
@@ -138,7 +138,6 @@ export const PATCH = apiRoute<PatchBody, { id: string }>(patchHandler, {
   requireAuth: true,
   roles: [Roles.ADMIN, Roles.MANAGER],
 });
-
 
 export const GET = apiRoute<null, { id: string }>(getHandler, {
   requireAuth: true,

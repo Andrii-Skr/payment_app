@@ -67,7 +67,8 @@ export function useTemplateManager({
     entity_id: tpl.entity_id,
     partner_id: tpl.partner_id,
     accountNumber: tpl.account_number || "",
-    accountSum: undefined,
+    accountSum: tpl.account_sum ? String(tpl.account_sum) : "0",
+    accountSumExpression: tpl.account_sum_expression ?? undefined,
     date: tpl.date || null,
     vatType: tpl.vat_type,
     vatPercent: Number(tpl.vat_percent),
@@ -80,7 +81,6 @@ export function useTemplateManager({
     full_name: tpl.full_name,
     short_name: tpl.short_name,
     selectedAccount: tpl.partner_account_number?.bank_account || "",
-    accountSumExpression: "",
     payments: [
       {
         documents_id: undefined,

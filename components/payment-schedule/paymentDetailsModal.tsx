@@ -42,10 +42,7 @@ export const PaymentDetailsModal: React.FC<PaymentDetailsModalProps> = ({
   const { canAccess } = useAccessControl();
   const isAdmin = canAccess(Roles.ADMIN);
 
-  const {
-    pendingPayments,
-    setPendingPayments,
-  } = usePaymentStore();
+  const { pendingPayments, setPendingPayments } = usePaymentStore();
 
   const unpaidDetails = details.filter((d) => !d.is_paid);
   const paidDetails = details.filter((d) => d.is_paid);
@@ -80,7 +77,10 @@ export const PaymentDetailsModal: React.FC<PaymentDetailsModalProps> = ({
       await apiClient.specDocs.unpay(id);
       toast.success("Оплата отменена");
 
-      // обновим таблицу
+      setDetails((prev) =>
+        prev.map((d) => (d.spec_doc_id === id ? { ...d, is_paid: false } : d))
+      );
+
       await reloadDocuments();
     } catch (error) {
       toast.error("Ошибка при отмене оплаты");
@@ -128,7 +128,9 @@ export const PaymentDetailsModal: React.FC<PaymentDetailsModalProps> = ({
                   <TableRow key={detail.spec_doc_id}>
                     <TableCell>{detail.account_number}</TableCell>
                     <TableCell>{detail.purpose_of_payment}</TableCell>
-                    <TableCell>{new Date(detail.date).toLocaleDateString("ru-RU")}</TableCell>
+                    <TableCell>
+                      {new Date(detail.date).toLocaleDateString("ru-RU")}
+                    </TableCell>
                     <TableCell>{detail.pay_sum}</TableCell>
                     <TableCell className="text-center">
                       <input
@@ -139,7 +141,9 @@ export const PaymentDetailsModal: React.FC<PaymentDetailsModalProps> = ({
                     </TableCell>
                     <TableCell>
                       {detail.dead_line_date
-                        ? new Date(detail.dead_line_date).toLocaleDateString("ru-RU")
+                        ? new Date(detail.dead_line_date).toLocaleDateString(
+                            "ru-RU"
+                          )
                         : ""}
                     </TableCell>
                   </TableRow>
@@ -167,7 +171,9 @@ export const PaymentDetailsModal: React.FC<PaymentDetailsModalProps> = ({
                   <TableRow key={detail.spec_doc_id}>
                     <TableCell>{detail.account_number}</TableCell>
                     <TableCell>{detail.purpose_of_payment}</TableCell>
-                    <TableCell>{new Date(detail.date).toLocaleDateString("ru-RU")}</TableCell>
+                    <TableCell>
+                      {new Date(detail.date).toLocaleDateString("ru-RU")}
+                    </TableCell>
                     <TableCell>{detail.pay_sum}</TableCell>
                     <TableCell className="text-right">
                       <Button

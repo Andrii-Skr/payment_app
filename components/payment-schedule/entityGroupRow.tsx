@@ -69,14 +69,21 @@ export const EntityGroupRow: React.FC<EntityGroupRowProps> = ({
 
     documents.forEach((doc) =>
       doc.spec_doc.forEach((spec) => {
-        const entry = { spec_doc: spec, document: doc, isExpected: !!spec.expected_date };
+        const entry = {
+          spec_doc: spec,
+          document: doc,
+          isExpected: !!spec.expected_date,
+        };
         (spec.is_paid ? paidEntries : unpaidEntries).push(entry);
       })
     );
 
     const totalRemaining = documents.reduce((acc, doc) => {
       const totalAccount = +doc.account_sum;
-      const totalSpecSum = doc.spec_doc.reduce((s, spec) => s + +spec.pay_sum, 0);
+      const totalSpecSum = doc.spec_doc.reduce(
+        (s, spec) => s + +spec.pay_sum,
+        0
+      );
       return acc + totalAccount - totalSpecSum;
     }, 0);
 
@@ -124,18 +131,22 @@ export const EntityGroupRow: React.FC<EntityGroupRowProps> = ({
 
         {dateRange.map((date, idx) => {
           const cellUnpaid = unpaidEntries.filter((e) =>
-            isSameDay(date, getDisplayDate(e.spec_doc)),
+            isSameDay(date, getDisplayDate(e.spec_doc))
           );
           const cellPaid = paidEntries.filter((e) =>
-            isSameDay(date, getDisplayDate(e.spec_doc)),
+            isSameDay(date, getDisplayDate(e.spec_doc))
           );
 
           const expectedSum = cellUnpaid
-            .filter((e) => e.spec_doc.expected_date && !pendingIds.has(e.spec_doc.id))
+            .filter(
+              (e) => e.spec_doc.expected_date && !pendingIds.has(e.spec_doc.id)
+            )
             .reduce((s, e) => s + +e.spec_doc.pay_sum, 0);
 
           const deadlineSum = cellUnpaid
-            .filter((e) => !e.spec_doc.expected_date && !pendingIds.has(e.spec_doc.id))
+            .filter(
+              (e) => !e.spec_doc.expected_date && !pendingIds.has(e.spec_doc.id)
+            )
             .reduce((s, e) => s + +e.spec_doc.pay_sum, 0);
 
           const pendingSum = [...cellUnpaid, ...cellPaid]
@@ -150,29 +161,29 @@ export const EntityGroupRow: React.FC<EntityGroupRowProps> = ({
             <TableCell
               key={idx}
               onClick={(e) => {
-                let entries = [...cellUnpaid];
-                if (isAdmin) {
-                  entries = [...cellUnpaid, ...cellPaid];
-                }
-
-                if (entries.length === 0) return;
-
-                const specDocIds = entries.map((e) => e.spec_doc.id);
+                const specDocIds = cellUnpaid.map((e) => e.spec_doc.id);
                 const hasAllPending = specDocIds.every((id) =>
                   pendingIds.has(id)
                 );
 
                 if (e.ctrlKey || e.metaKey) {
-                  if (!canUseQuickPayment) return;
+                  if (!canUseQuickPayment || cellUnpaid.length === 0) return;
 
                   if (hasAllPending) {
                     setPendingPayments(
-                      pendingPayments.filter((p) => !specDocIds.includes(p.spec_doc_id))
+                      pendingPayments.filter(
+                        (p) => !specDocIds.includes(p.spec_doc_id)
+                      )
                     );
                   } else {
-                    update(entries.map(createPaymentDetail), []);
+                    update(cellUnpaid.map(createPaymentDetail), []);
                   }
                 } else {
+                  // обычный клик — ADMIN видит всё (unpaid + paid), остальные — только unpaid
+                  const entries = isAdmin
+                    ? [...cellUnpaid, ...cellPaid]
+                    : [...cellUnpaid];
+                  if (entries.length === 0) return;
                   onCellClick(entries);
                 }
               }}
@@ -185,10 +196,14 @@ export const EntityGroupRow: React.FC<EntityGroupRowProps> = ({
                   </span>
                 )}
                 {pendingSum > 0 && (
-                  <span className="text-blue-500">{formatMoney(pendingSum)}</span>
+                  <span className="text-blue-500">
+                    {formatMoney(pendingSum)}
+                  </span>
                 )}
                 {confirmedSum > 0 && (
-                  <span className="text-green-500">{formatMoney(confirmedSum)}</span>
+                  <span className="text-green-500">
+                    {formatMoney(confirmedSum)}
+                  </span>
                 )}
               </div>
             </TableCell>
@@ -216,7 +231,7 @@ export const EntityGroupRow: React.FC<EntityGroupRowProps> = ({
             <DropdownMenuItem
               onClick={() => {
                 const hasUnpaid = contextPartner.documents.some((doc) =>
-                  doc.spec_doc.some((spec) => !spec.is_paid),
+                  doc.spec_doc.some((spec) => !spec.is_paid)
                 );
                 if (hasUnpaid) {
                   toast.error("Нельзя скрыть: есть неоплаченные документы");

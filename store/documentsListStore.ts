@@ -15,7 +15,7 @@ export const useDocumentsStore = create<State & Actions>((set) => ({
 
   fetchDocs: async (entityId) => {
     const raw = await apiClient.documents.getByEntity(entityId);
-    if (raw) set({ docs: normalizeArray(raw) });          // типы совпадают
+    if (raw) set({ docs: normalizeArray(raw) });
   },
 
   removeDoc: async (docId, entityId) => {
