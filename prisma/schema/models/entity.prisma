@@ -13,8 +13,9 @@ model entity {
   bank_name      String?
   mfo            String?
 
-documents documents[]
+  documents documents[]
   partners       partners_on_entities[]
+  partner_account_numbers    partner_account_numbers_on_entities[]
   users_entities users_entities[]
 
   created_at     DateTime?             @default(now()) @db.Timestamp()
@@ -35,4 +36,24 @@ model partners_on_entities {
   partner    partners @relation(fields: [partner_id], references: [id], onDelete: Cascade)
 
   @@id([entity_id, partner_id])
+}
+
+model partner_account_numbers_on_entities {
+
+  entity_id                Int
+  partner_account_number_id Int
+
+
+  is_visible               Boolean @default(true)
+  is_default               Boolean @default(false)
+  is_deleted               Boolean @default(false)
+
+
+  entity                   entity                 @relation(fields: [entity_id], references: [id], onDelete: Cascade)
+  partner_account_number   partner_account_number @relation(fields: [partner_account_number_id], references: [id], onDelete: Cascade)
+
+  @@id([entity_id, partner_account_number_id])
+
+
+  @@index([entity_id, is_default])
 }
