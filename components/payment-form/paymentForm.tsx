@@ -35,20 +35,20 @@ import {
 
 /* ---------- default values ---------- */
 const defaultValues: FormValues = {
-  doc_id: undefined,
-  entity_id: undefined,
-  partner_account_number_id: undefined,
+  doc_id: null,
+  entity_id: null,
+  partner_account_number_id: null,
   sample: "",
   accountNumber: "",
   accountSum: "0",
   vatType: true,
   vatPercent: 20,
   accountSumExpression: "",
-  date: undefined,
+  date: null,
   edrpou: "",
   payments: [
     {
-      documents_id: undefined,
+      documents_id: null,
       paySum: 0,
       expectedDate: null,
       deadLineDate: null,
@@ -57,10 +57,10 @@ const defaultValues: FormValues = {
       purposeOfPayment: "",
     },
   ],
-  selectedAccount: "",
+  selectedAccount: null,
   mfo: "",
   bank_name: "",
-  partner_id: undefined,
+  partner_id: null,
   short_name: "",
   full_name: "",
   purposeOfPayment: "",
@@ -81,6 +81,17 @@ export const PaymentForm: React.FC<{ className?: string }> = ({
   const { setValue, getValues, reset, control, watch, handleSubmit } = form;
   const docId = watch("doc_id");
   const payments = watch("payments");
+
+  const edrpu = watch("edrpou");
+  const partner_account_number_id = watch("partner_account_number_id");
+  const selcted = watch("selectedAccount");
+
+  console.log("PaymentForm re-rendered", {
+    edrpu,
+    partner_account_number_id,
+    selcted,
+  });
+
   const isDeletable = payments.every((p) => !p.isPaid);
 
   /* ---------- custom hooks ---------- */

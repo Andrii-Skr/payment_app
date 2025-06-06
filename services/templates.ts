@@ -14,8 +14,6 @@ export type TemplatePayload ={
   sample: string;
 
   partner_id: number;
-  full_name: string;
-  short_name: string;
   edrpou: string;
 
   accountNumber: string;

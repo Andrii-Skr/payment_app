@@ -10,8 +10,6 @@ export type TemplateBody = {
   entity_id: number;
   sample: string;
   partner_id: number;
-  full_name: string;
-  short_name: string;
   edrpou: string;
   accountNumber: string;
   vatPercent: number;
@@ -44,8 +42,6 @@ const postHandler = async (
     entity_id: body.entity_id,
     name: body.sample.trim(),
     partner_id: body.partner_id,
-    full_name: body.full_name,
-    short_name: body.short_name,
     edrpou: body.edrpou,
     account_number: body.accountNumber,
     account_sum: body.accountSum,

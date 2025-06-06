@@ -37,7 +37,8 @@ type AccountListAction = {
 export const useAccountListStore = create<AccountListState & AccountListAction>(
   (set) => ({
     currentAccountList: [],
-    updateAccountList: (accounts) => set({ currentAccountList: accounts }),
+    updateAccountList: (accounts) =>
+      set({ currentAccountList: accounts.filter((a) => !a.is_deleted) }),
   })
 );
 

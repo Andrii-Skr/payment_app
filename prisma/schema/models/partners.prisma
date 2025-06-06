@@ -11,6 +11,7 @@ model partners {
 
   entities               partners_on_entities[]
   documents              documents[]
+  templates              template[]
   synonym_for_partners   synonym_for_partners[]
   partner_account_number partner_account_number[]
   users_partners         users_partners[]

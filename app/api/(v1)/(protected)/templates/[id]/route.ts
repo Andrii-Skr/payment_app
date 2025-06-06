@@ -14,6 +14,7 @@ export type TemplateWithBankDetails = Prisma.templateGetPayload<{
     partner_account_number: {
       select: { bank_account: true; bank_name: true; mfo: true };
     };
+    partner: { select: { short_name: true; full_name: true } };
   };
 }>;
 
@@ -66,6 +67,7 @@ const getHandler = async (
         partner_account_number: {
           select: { bank_account: true, bank_name: true, mfo: true },
         },
+        partner: { select: { short_name: true, full_name: true } },
       },
     });
 
@@ -113,8 +115,7 @@ const patchHandler = async (
       entity_id: body.entity_id,
       name: body.sample,
       partner_id: body.partner_id,
-      full_name: body.full_name,
-      short_name: body.short_name,
+
       edrpou: body.edrpou,
       account_number: body.accountNumber,
       vat_percent: body.vatPercent,

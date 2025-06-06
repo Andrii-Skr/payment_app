@@ -24,7 +24,7 @@ const dateCoerce = z
 
 // ────────── Схема платежа ──────────
 export const paymentSchema = z.object({
-  documents_id: z.number().optional(),
+  documents_id: z.number().optional().nullish(),
   paySum: z.preprocess(
     (v) => (typeof v === "string" ? Number(v.replace(/,/g, ".")) : v),
     z.number().min(0.1, "Сумма должна быть больше 0")
@@ -38,10 +38,10 @@ export const paymentSchema = z.object({
 
 // ────────── Основная форма ──────────
 export const formSchema = z.object({
-  doc_id: z.number().optional(),
-  entity_id: z.number().optional(),
-  partner_id: z.number().optional(),
-  partner_account_number_id: z.number().optional(),
+  doc_id: z.number().optional().nullish(),
+  entity_id: z.number().optional().nullish(),
+  partner_id: z.number().optional().nullish(),
+  partner_account_number_id: z.number().optional().nullish(),
   sample: z.string().optional(),
 
   accountNumber: z
@@ -64,7 +64,7 @@ export const formSchema = z.object({
   payments: z.array(paymentSchema),
 
   edrpou: z.string(),
-  selectedAccount: z.string().nonempty("Выберите номер счета"),
+  selectedAccount: z.string().min(29).nonempty("Выберите номер счета").nullish(),
 
   mfo: z.string().optional(),
   bank_name: z.string().optional(),

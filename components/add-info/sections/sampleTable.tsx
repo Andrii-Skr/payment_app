@@ -85,7 +85,7 @@ export const SampleTable: React.FC<SampleTableProps> = ({ entityId }) => {
     const q = filterText.toLowerCase();
     return (
       t.name.toLowerCase().includes(q) ||
-      t.short_name.toLowerCase().includes(q)
+      t.partner.short_name.toLowerCase().includes(q)
     );
   });
 
@@ -146,7 +146,7 @@ export const SampleTable: React.FC<SampleTableProps> = ({ entityId }) => {
               >
                 <TableCell className="text-center">{idx + 1}</TableCell>
                 <TableCell>{tpl.name}</TableCell>
-                <TableCell>{tpl.short_name}</TableCell>
+                <TableCell>{tpl.partner.short_name}</TableCell>
                 <TableCell className="flex gap-2 justify-end">
                   {/* hide/show */}
                   <Button

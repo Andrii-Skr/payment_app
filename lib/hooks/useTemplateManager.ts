@@ -40,7 +40,7 @@ export function useTemplateManager({
   ) => {
     setValue("sample", sampleValue.trim());
 
-    const { payments, ...payload } = getValues();
+     const { payments, full_name, short_name, ...payload } = getValues();
 
     const res = await apiClient.templates.save({
       ...payload,
@@ -78,8 +78,8 @@ export function useTemplateManager({
     mfo: tpl.partner_account_number?.mfo || "",
     bank_name: tpl.partner_account_number?.bank_name || "",
     partner_account_number_id: tpl.partner_account_number_id,
-    full_name: tpl.full_name,
-    short_name: tpl.short_name,
+    full_name: tpl.partner.full_name,
+    short_name: tpl.partner.short_name,
     selectedAccount: tpl.partner_account_number?.bank_account || "",
     payments: [
       {

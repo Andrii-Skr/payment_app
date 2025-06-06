@@ -87,8 +87,8 @@ model template {
     entity_id Int
 
     partner_id Int
-    full_name       String    @db.VarChar
-    short_name       String    @db.VarChar
+    partner   partners @relation(fields: [partner_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+    
 
     edrpou String
     account_number     String?

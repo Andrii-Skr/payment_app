@@ -52,8 +52,8 @@ export const AccountsCombobox: React.FC<Props> = ({
 
   // 🔥 Сброс и автозаполнение при смене edrpou или short_name
   useEffect(() => {
-    if (!currentAccountList?.length) {
-      setValue("partner_account_number_id", undefined);
+     if (!edrpou && !short_name) {
+      setValue("partner_account_number_id", null);
       setValue("selectedAccount", "");
       setValue("mfo", "");
       setValue("bank_name", "");
@@ -71,13 +71,19 @@ export const AccountsCombobox: React.FC<Props> = ({
     }
 
     // Иначе ставим дефолтный (или первый)
-    const defaultAccount =
-      currentAccountList.find((a) => a.is_default) || currentAccountList[0];
+    const defaultAccount = currentAccountList.find((a) => a.is_default);
 
-    setValue("partner_account_number_id", defaultAccount?.id ?? undefined);
-    setValue("selectedAccount", defaultAccount?.bank_account ?? "");
-    setValue("mfo", defaultAccount?.mfo ?? "");
-    setValue("bank_name", defaultAccount?.bank_name ?? "");
+    if (defaultAccount) {
+      setValue("partner_account_number_id", defaultAccount.id);
+      setValue("selectedAccount", defaultAccount.bank_account);
+      setValue("mfo", defaultAccount.mfo ?? "");
+      setValue("bank_name", defaultAccount.bank_name ?? "");
+    } else {
+      setValue("partner_account_number_id", null);
+      setValue("selectedAccount", "");
+      setValue("mfo", "");
+      setValue("bank_name", "");
+    }
   }, [
     edrpou,
     short_name,

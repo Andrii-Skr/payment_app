@@ -94,8 +94,6 @@ export const TemplateEditModal: React.FC<Props> = ({
         entity_id: template.entity_id,
         sample: d.name.trim(),
         partner_id: template.partner_id,
-        full_name: template.full_name,
-        short_name: template.short_name,
         edrpou: template.edrpou,
         accountNumber: template.account_number ?? "",
         accountSum: d.accountSum,

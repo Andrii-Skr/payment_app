@@ -38,6 +38,8 @@ export const PartnersCombobox: React.FC<Props> = ({
     const partner = partners.find((p) => p.short_name === partnerName);
     if (partner) {
       updateAccountList(partner.partner_account_number);
+     } else {
+      updateAccountList([]);
     }
   }, [partnerName, partners]);
 
