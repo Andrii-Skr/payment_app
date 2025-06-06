@@ -5,42 +5,35 @@ import { Roles } from "@/constants/roles";
 import { z } from "zod";
 
 const schema = z.object({
-  id: z.number(),
+  partner_account_number_id: z.number(),
+  entity_id: z.number(),
+  is_default: z.boolean(),
 });
 
 type Body = z.infer<typeof schema>;
 
 const handler = async (_req: NextRequest, body: Body) => {
-  const accountId = body.id;
+  const { partner_account_number_id, entity_id, is_default } = body;
 
-  const target = await prisma.partner_account_number.findUnique({
-    where: { id: accountId },
-  });
+  try {
+    const updated = await prisma.partner_account_numbers_on_entities.update({
+      where: {
+        entity_id_partner_account_number_id: {
+          entity_id,
+          partner_account_number_id,
+        },
+      },
+      data: { is_default },
+    });
 
-  if (!target) {
-    return NextResponse.json({ error: "Счёт не найден" }, { status: 404 });
-  }
-
-  if (target.is_deleted) {
+    return NextResponse.json({ success: true, updated });
+  } catch (error) {
+    console.error("Ошибка при обновлении is_default:", error);
     return NextResponse.json(
-      { error: "Нельзя назначить удалённый счёт основным" },
-      { status: 400 }
+      { error: "Internal server error" },
+      { status: 500 }
     );
   }
-
-  // Сбрасываем все default у этого партнёра
-  await prisma.partner_account_number.updateMany({
-    where: { partner_id: target.partner_id },
-    data: { is_default: false },
-  });
-
-  // Назначаем этот счёт default
-  await prisma.partner_account_number.update({
-    where: { id: accountId },
-    data: { is_default: true },
-  });
-
-  return NextResponse.json({ success: true });
 };
 
 export const PATCH = apiRoute<Body>(handler, {
