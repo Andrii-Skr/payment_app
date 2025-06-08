@@ -29,19 +29,42 @@ const handler = async (_req: NextRequest, body: Body) => {
   });
 
   if (existing) {
-     const alreadyLinked = existing.entities.some(
-      (e) => e.entity_id === body.entity_id
+    const alreadyLinked = existing.entities.some(
+      (e) => e.entity_id === body.entity_id,
     );
 
-    if (!alreadyLinked) {
-      await prisma.partner_account_numbers_on_entities.create({
-        data: {
-          entity_id: body.entity_id,
-          partner_account_number_id: existing.id,
-          is_default: body.is_default ?? false,
-        },
-      });
-    }
+    await prisma.$transaction(async (tx) => {
+      if (body.is_default) {
+        await tx.partner_account_numbers_on_entities.updateMany({
+          where: {
+            entity_id: body.entity_id,
+            partner_account_number: { partner_id: body.partner_id },
+          },
+          data: { is_default: false },
+        });
+      }
+
+      if (!alreadyLinked) {
+        await tx.partner_account_numbers_on_entities.create({
+          data: {
+            entity_id: body.entity_id,
+            partner_account_number_id: existing.id,
+            is_default: body.is_default ?? false,
+          },
+        });
+      } else if (body.is_default) {
+        await tx.partner_account_numbers_on_entities.update({
+          where: {
+            entity_id_partner_account_number_id: {
+              entity_id: body.entity_id,
+              partner_account_number_id: existing.id,
+            },
+          },
+          data: { is_default: true },
+        });
+      }
+    });
+
     return NextResponse.json({
       success: true,
       created: existing,
@@ -58,12 +81,24 @@ const handler = async (_req: NextRequest, body: Body) => {
     },
   });
 
-   await prisma.partner_account_numbers_on_entities.create({
-    data: {
-      entity_id: body.entity_id,
-      partner_account_number_id: created.id,
-      is_default: body.is_default ?? false,
-    },
+  await prisma.$transaction(async (tx) => {
+    if (body.is_default) {
+      await tx.partner_account_numbers_on_entities.updateMany({
+        where: {
+          entity_id: body.entity_id,
+          partner_account_number: { partner_id: body.partner_id },
+        },
+        data: { is_default: false },
+      });
+    }
+
+    await tx.partner_account_numbers_on_entities.create({
+      data: {
+        entity_id: body.entity_id,
+        partner_account_number_id: created.id,
+        is_default: body.is_default ?? false,
+      },
+    });
   });
 
   return NextResponse.json({ success: true, created });
