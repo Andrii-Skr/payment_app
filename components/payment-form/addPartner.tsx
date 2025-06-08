@@ -102,6 +102,7 @@ export const AddPartner: React.FC<Props> = ({ entityIdNum, className }) => {
 
       const bankAccount = await addBankAccount({
         partner_id: partner.id,
+        entity_id: data.entity_id,
         bank_account: data.bank_account,
         mfo: data.mfo,
         bank_name: data.bank_name,
@@ -187,6 +188,7 @@ export const AddPartner: React.FC<Props> = ({ entityIdNum, className }) => {
 
             <PartnerAccountsList
               show={showAccountsList}
+              entityId={entityIdNum}
                hideDelete={true}
               onDefaultChange={({ bank_account, id }) => {
                 parentForm.setValue("selectedAccount", bank_account);

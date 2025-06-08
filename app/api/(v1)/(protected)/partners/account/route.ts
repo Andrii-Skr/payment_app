@@ -8,6 +8,7 @@ import { z } from "zod";
 
 const schema = z.object({
   partner_id: z.number(),
+  entity_id: z.number(),
   bank_account: z.string().length(29),
   mfo: z.string().optional(),
   bank_name: z.string().optional(),
@@ -22,9 +23,25 @@ const handler = async (_req: NextRequest, body: Body) => {
       partner_id: body.partner_id,
       bank_account: body.bank_account,
     },
+    include: {
+      entities: true,
+    },
   });
 
   if (existing) {
+     const alreadyLinked = existing.entities.some(
+      (e) => e.entity_id === body.entity_id
+    );
+
+    if (!alreadyLinked) {
+      await prisma.partner_account_numbers_on_entities.create({
+        data: {
+          entity_id: body.entity_id,
+          partner_account_number_id: existing.id,
+          is_default: body.is_default ?? false,
+        },
+      });
+    }
     return NextResponse.json({
       success: true,
       created: existing,
@@ -38,6 +55,13 @@ const handler = async (_req: NextRequest, body: Body) => {
       bank_account: body.bank_account,
       mfo: body.mfo,
       bank_name: body.bank_name,
+    },
+  });
+
+   await prisma.partner_account_numbers_on_entities.create({
+    data: {
+      entity_id: body.entity_id,
+      partner_account_number_id: created.id,
       is_default: body.is_default ?? false,
     },
   });

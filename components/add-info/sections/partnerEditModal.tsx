@@ -11,7 +11,7 @@ import { PartnerAccountsList } from "./partnerAccountsList";
 import { PartnersWithAccounts } from "@/services/partners";
 import { toast } from "@/lib/hooks/use-toast";
 import { useState } from "react";
-import { partner_account_number } from "@prisma/client";
+import type { AccountItem } from "@/store/store";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -39,13 +39,13 @@ export const PartnerEditModal = ({
   entityId: number;
   onSaved: () => void;
 }) => {
-  const [accounts, setAccounts] = useState<partner_account_number[]>(
+  const [accounts, setAccounts] = useState<AccountItem[]>(
     partner.partner_account_number
   );
   const [loadingAccId, setLoadingAccId] = useState<number | null>(null);
 
   const mutateAccounts = (
-    fn: (arr: partner_account_number[]) => partner_account_number[]
+    fn: (arr: AccountItem[]) => AccountItem[]
   ) => setAccounts((prev) => fn(prev));
 
   const toggleDeleteAccount = useToggleDelete({
@@ -66,7 +66,7 @@ export const PartnerEditModal = ({
   const handleSetDefault = async (accId: number) => {
     setLoadingAccId(accId);
     try {
-      await apiClient.partners.setDefaultAccount(accId);
+      await apiClient.partners.setDefaultAccount(accId, entityId);
       mutateAccounts((arr) =>
         arr.map((a) => ({ ...a, is_default: a.id === accId }))
       );
@@ -96,6 +96,7 @@ export const PartnerEditModal = ({
     try {
       const created = await apiClient.partners.addBankAccount({
         partner_id: partner.id,
+        entity_id: entityId,
         ...vals,
       });
       mutateAccounts((arr) => [...arr, created]);

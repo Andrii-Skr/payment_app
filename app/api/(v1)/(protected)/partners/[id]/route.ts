@@ -47,8 +47,20 @@ const getHandler = async (
   const include = {
     partner: {
       include: {
-        partner_account_number: true,
-        /*  ← поле называется `entities` в Prisma-клиенте */
+        partner_account_number: {
+          include: {
+            entities: {
+              where: { entity_id: entityId },
+              select: {
+                entity_id: true,
+                partner_account_number_id: true,
+                is_visible: true,
+                is_default: true,
+                is_deleted: true,
+              },
+            },
+          },
+        },
         entities: {
           where: { entity_id: entityId },
           select: {
@@ -103,11 +115,7 @@ const getHandler = async (
 };
 
 /* ─────────────── PATCH ─────────────── */
-const patchHandler = async (
-  _req: NextRequest,
-  body: Body,
-  params: Params
-) => {
+const patchHandler = async (_req: NextRequest, body: Body, params: Params) => {
   const id = Number(params.id);
   if (isNaN(id))
     return NextResponse.json({ error: "Invalid ID" }, { status: 400 });

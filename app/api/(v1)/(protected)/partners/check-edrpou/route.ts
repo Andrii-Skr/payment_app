@@ -30,7 +30,20 @@ const getHandler = async (
       },
     },
     include: {
-      partner_account_number: true,
+      partner_account_number: {
+        include: {
+          entities: {
+            where: { entity_id },
+            select: {
+              entity_id: true,
+              partner_account_number_id: true,
+              is_visible: true,
+              is_default: true,
+              is_deleted: true,
+            },
+          },
+        },
+      },
     },
   });
 

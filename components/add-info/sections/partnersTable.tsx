@@ -119,7 +119,7 @@ export const PartnersTable = ({ entityId }: { entityId: number | null }) => {
   const handleSetDefault = async (partnerId: number, accId: number) => {
     setLoadingAccId(accId);
     try {
-      await apiClient.partners.setDefaultAccount(accId);
+      await apiClient.partners.setDefaultAccount(accId, entityId);
       mutatePartner(partnerId, (p) => ({
         ...p,
         partner_account_number: p.partner_account_number.map((a) => ({

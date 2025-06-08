@@ -144,7 +144,6 @@ async function seedPartnerAccounts() {
       bank_account: `UA00000${i + 1}1234567890123456`,
       bank_name: `Bank ${i + 1}`,
       mfo: `3000${(i % 10) + 1}`,
-      is_default: true,
     }));
 
   const real = allPartners.find(p => p.edrpou === "20030635");
@@ -154,12 +153,23 @@ async function seedPartnerAccounts() {
         bank_account: "UA933515330000026000052247108",
         bank_name: 'Харківське ГРУ АТ КБ "ПриватБанк"',
         mfo: "351533",
-        is_default: true,
       }
     : null;
 
   await prisma.partner_account_number.createMany({
     data: realAccount ? [...testAccounts, realAccount] : testAccounts,
+  });
+
+  const accounts = await prisma.partner_account_number.findMany();
+  await prisma.partner_account_numbers_on_entities.createMany({
+    data: accounts.map(acc => ({
+      entity_id:
+        partnerEntityLinks.find(pl => pl.partner_id === acc.partner_id)?.entity_id ??
+        1,
+      partner_account_number_id: acc.id,
+      is_visible: true,
+      is_default: true,
+    })),
   });
 }
 

@@ -29,11 +29,14 @@ export const AccountsCombobox: React.FC<Props> = ({
 }) => {
   const currentAccountList = useAccountListStore(
     (state) => state.currentAccountList
-  );
+  ) as PartnerAccountWithRelation[];
 
   const list =
     currentAccountList
-      ?.filter((a) => !a.is_deleted)
+      ?.filter(
+        (a) =>
+          a.entities?.[0]?.is_deleted !== true && a.entities?.[0]?.is_visible !== false
+      )
       .map((e) => ({
         key: String(e.id),
         value: e.bank_account,
@@ -71,7 +74,9 @@ export const AccountsCombobox: React.FC<Props> = ({
     }
 
     // Иначе ставим дефолтный (или первый)
-    const defaultAccount = currentAccountList.find((a) => a.is_default);
+    const defaultAccount = currentAccountList.find(
+      (a) => a.entities?.[0]?.is_default
+    );
 
     if (defaultAccount) {
       setValue("partner_account_number_id", defaultAccount.id);

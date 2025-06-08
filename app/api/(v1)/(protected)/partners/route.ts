@@ -69,6 +69,10 @@ const handler = async (
 
   // Новый партнёр: создаём полностью
   const partner = await prisma.partners.create({
+    include: {
+      entities: true,
+      partner_account_number: true,
+    },
     data: {
       full_name,
       short_name,
@@ -78,8 +82,7 @@ const handler = async (
         create: {
           bank_account,
           mfo,
-          bank_name,
-          is_default: false,
+          bank_name
         },
       },
       entities: {
@@ -89,6 +92,16 @@ const handler = async (
           },
         },
       },
+    },
+  });
+
+  const account = partner.partner_account_number[0];
+
+  await prisma.partner_account_numbers_on_entities.create({
+    data: {
+      entity_id,
+      partner_account_number_id: account.id,
+      is_default: false,
     },
   });
 

@@ -1,16 +1,42 @@
 import { PartnerValues } from "@/components/payment-form/addPartner";
 import axiosInstance from "@/services/instance";
 
-import type { partners, partner_account_number } from "@prisma/client";
+import type {
+  partners,
+  partner_account_number,
+} from "@prisma/client";
+
+export type PartnerAccountWithEntities = partner_account_number & {
+  entities: {
+    entity_id: number;
+    partner_account_number_id: number;
+    is_default: boolean;
+    is_visible: boolean;
+    is_deleted: boolean;
+  }[];
+};
 
 export type PartnersWithAccounts = partners & {
-  partner_account_number: partner_account_number[];
+  partner_account_number: PartnerAccountWithEntities[];
   entities: {
     entity_id: number;
     partner_id: number;
     is_visible: boolean;
     is_deleted: boolean;
   }[];
+};
+
+const mergeAccountRelation = (
+  acc: PartnerAccountWithEntities,
+  entityId: number,
+): PartnerAccountWithEntities => {
+  const rel = acc.entities.find((e) => e.entity_id === entityId);
+  return {
+    ...acc,
+    is_default: rel?.is_default ?? false,
+    is_visible: rel?.is_visible ?? true,
+    is_deleted: rel?.is_deleted ?? false,
+  } as PartnerAccountWithEntities;
 };
 
 /* Получить всех партнёров по entity_id */
@@ -25,7 +51,13 @@ export const partnersService = async (
 
     const url = `/partners/${entityId}?${params.toString()}`;
     const { data } = await axiosInstance.get<PartnersWithAccounts[]>(url);
-    return data;
+
+    return data.map((p) => ({
+      ...p,
+      partner_account_number: p.partner_account_number.map((a) =>
+        mergeAccountRelation(a, entityId),
+      ),
+    }));
   } catch (error) {
     console.error("Ошибка при загрузке партнёров:", error);
     return null;
@@ -78,7 +110,15 @@ export const getByEdrpou = async (
       params: { edrpou, entity_id: entityId },
     });
 
-    return data.found ? data.partner : null;
+    if (!data.found) return null;
+
+    const partner = data.partner;
+    return {
+      ...partner,
+      partner_account_number: partner.partner_account_number.map((a) =>
+        mergeAccountRelation(a, entityId),
+      ),
+    };
   } catch (error) {
     console.error("Ошибка при проверке ЕДРПОУ:", error);
     return null;
@@ -128,6 +168,7 @@ export const deletePartner = async (
 /* Добавить банковский счёт */
 export const addBankAccount = async (data: {
   partner_id: number;
+  entity_id: number;
   bank_account: string;
   mfo?: string;
   bank_name?: string;
@@ -143,9 +184,9 @@ export const addBankAccount = async (data: {
 };
 
 /* Сделать счёт основным */
-export const setDefaultAccount = async (id: number) => {
+export const setDefaultAccount = async (id: number, entity_id: number) => {
   try {
-    await axiosInstance.patch("/partners/account/default", { id });
+    await axiosInstance.patch("/partners/account/default", { id, entity_id });
   } catch (error) {
     console.error("Ошибка при назначении счёта основным:", error);
   }

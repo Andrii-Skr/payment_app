@@ -75,6 +75,7 @@ export const PartnerForm: React.FC<Props> = ({
         /* 2. сразу добавляем счёт */
         await apiClient.partners.addBankAccount({
           partner_id: partner.id,
+          entity_id: entityId,
           bank_account: vals.bank_account,
           mfo: vals.mfo,
           bank_name: vals.bank_name,

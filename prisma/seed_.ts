@@ -80,12 +80,20 @@ async function seedRealPartner() {
     },
   });
 
-  await prisma.partner_account_number.create({
+  const account = await prisma.partner_account_number.create({
     data: {
       partner_id: partner.id,
       bank_account: "UA933515330000026000052247108",
       bank_name: 'Харківське ГРУ АТ КБ "ПриватБанк"',
       mfo: "351533",
+    },
+  });
+
+  await prisma.partner_account_numbers_on_entities.create({
+    data: {
+      entity_id: 1,
+      partner_account_number_id: account.id,
+      is_visible: true,
       is_default: true,
     },
   });

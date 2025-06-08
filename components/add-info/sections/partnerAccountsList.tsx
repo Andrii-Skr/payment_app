@@ -11,12 +11,12 @@ import {
   Switch,
 } from "@/components/ui";
 import { Trash2 } from "lucide-react";
-import { partner_account_number } from "@prisma/client";
+import type { AccountItem } from "@/store/store";
 import { formatBankAccount } from "@/lib/helpers/formatiban";
 import { toast } from "@/lib/hooks/use-toast";
 
 type Props = {
-  accounts: partner_account_number[];
+  accounts: AccountItem[];
   onSetDefault: (id: number) => Promise<void>;
   onDelete: (id: number, entityId: number) => Promise<void>;
   loadingId: number | null;

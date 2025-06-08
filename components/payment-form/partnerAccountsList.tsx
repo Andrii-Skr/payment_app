@@ -20,10 +20,11 @@ import { toast } from "@/lib/hooks/use-toast";
 type Props = {
   show: boolean;
   hideDelete?: boolean;
+  entityId: number;
   onDefaultChange?: (acc: { bank_account: string; id: number }) => void;
 };
 
-export const PartnerAccountsList: React.FC<Props> = ({ show, hideDelete, onDefaultChange }) => {
+export const PartnerAccountsList: React.FC<Props> = ({ show, hideDelete, entityId, onDefaultChange }) => {
   const { currentAccountList, updateAccountList } = useAccountListStore();
   const [loadingId, setLoadingId] = useState<number | null>(null);
 
@@ -39,7 +40,7 @@ export const PartnerAccountsList: React.FC<Props> = ({ show, hideDelete, onDefau
   const handleSetDefault = async (id: number) => {
     setLoadingId(id);
     try {
-      await apiClient.partners.setDefaultAccount(id);
+      await apiClient.partners.setDefaultAccount(id, entityId);
 
       const updated = currentAccountList.map((acc) => ({
         ...acc,
