@@ -76,7 +76,7 @@ export const PartnerEditModal = ({
   const handleSetDefault = async (accId: number) => {
     setLoadingAccId(accId);
     try {
-      await apiClient.partners.setDefaultAccount(accId, entityId);
+      await apiClient.partners.setDefaultAccount(accId, entityId, true);
       mutateAccounts((arr) =>
         arr.map((a) => ({ ...a, is_default: a.id === accId }))
       );

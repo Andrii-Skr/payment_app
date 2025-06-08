@@ -70,17 +70,19 @@ export const PartnerForm: React.FC<Props> = ({
     try {
       if (mode === "create") {
         /* 1. создаём контрагента */
-        const partner = await apiClient.partners.createPartner(vals);
+        const { partner, reused } = await apiClient.partners.createPartner(vals);
 
-        /* 2. сразу добавляем счёт */
-        await apiClient.partners.addBankAccount({
-          partner_id: partner.id,
-          entity_id: entityId,
-          bank_account: vals.bank_account,
-          mfo: vals.mfo,
-          bank_name: vals.bank_name,
-          is_default: true,
-        });
+        /* 2. создаём счёт только если партнёр уже существовал */
+        if (reused) {
+          await apiClient.partners.addBankAccount({
+            partner_id: partner.id,
+            entity_id: entityId,
+            bank_account: vals.bank_account,
+            mfo: vals.mfo,
+            bank_name: vals.bank_name,
+            is_default: true,
+          });
+        }
       } else {
         /* редактируем имена партнёра */
         await apiClient.partners.updatePartner(initialValues!.id!, {

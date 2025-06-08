@@ -29,6 +29,11 @@ export type PartnersWithAccounts = partners & {
   }[];
 };
 
+export type CreatePartnerResponse = {
+  partner: PartnersWithAccounts;
+  reused: boolean;
+};
+
 const mergeAccountRelation = (
   acc: PartnerAccountWithEntities,
   entityId: number,
@@ -129,10 +134,12 @@ export const getByEdrpou = async (
 };
 
 /* Создать контрагента */
-export const createPartner = async (data: PartnerValues) => {
+export const createPartner = async (
+  data: PartnerValues,
+): Promise<CreatePartnerResponse> => {
   try {
     const res = await axiosInstance.post("/partners", data);
-    return res.data.partner;
+    return res.data as CreatePartnerResponse;
   } catch (error) {
     console.error("Ошибка при создании партнёра:", error);
     throw error;
@@ -187,9 +194,17 @@ export const addBankAccount = async (data: {
 };
 
 /* Сделать счёт основным */
-export const setDefaultAccount = async (id: number, entity_id: number) => {
+export const setDefaultAccount = async (
+  partner_account_number_id: number,
+  entity_id: number,
+  is_default: boolean,
+) => {
   try {
-    await axiosInstance.patch("/partners/account/default", { id, entity_id });
+    await axiosInstance.patch("/partners/account/default", {
+      partner_account_number_id,
+      entity_id,
+      is_default,
+    });
   } catch (error) {
     console.error("Ошибка при назначении счёта основным:", error);
   }

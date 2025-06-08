@@ -123,7 +123,7 @@ export const PartnersTable = ({ entityId }: { entityId: number | null }) => {
         toast.error("Не выбрано юрлицо");
         return;
       }
-      await apiClient.partners.setDefaultAccount(accId, entityId);
+      await apiClient.partners.setDefaultAccount(accId, entityId, true);
       mutatePartner(partnerId, (p) => ({
         ...p,
         partner_account_number: p.partner_account_number.map((a) => ({

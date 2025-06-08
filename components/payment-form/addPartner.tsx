@@ -98,16 +98,18 @@ export const AddPartner: React.FC<Props> = ({ entityIdNum, className }) => {
 
   const onSubmit = async (data: PartnerValues) => {
     try {
-      const partner = await createPartner(data);
+      const { partner, reused } = await createPartner(data);
 
-      const bankAccount = await addBankAccount({
-        partner_id: partner.id,
-        entity_id: data.entity_id,
-        bank_account: data.bank_account,
-        mfo: data.mfo,
-        bank_name: data.bank_name,
-        is_default: false,
-      });
+      const bankAccount = reused
+        ? await addBankAccount({
+            partner_id: partner.id,
+            entity_id: data.entity_id,
+            bank_account: data.bank_account,
+            mfo: data.mfo,
+            bank_name: data.bank_name,
+            is_default: false,
+          })
+        : partner.partner_account_number[0];
 
       parentForm.setValue("selectedAccount", bankAccount.bank_account);
       parentForm.setValue("partner_account_number_id", bankAccount.id);

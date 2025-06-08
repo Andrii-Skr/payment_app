@@ -40,7 +40,7 @@ export const PartnerAccountsList: React.FC<Props> = ({ show, hideDelete, entityI
   const handleSetDefault = async (id: number) => {
     setLoadingId(id);
     try {
-      await apiClient.partners.setDefaultAccount(id, entityId);
+      await apiClient.partners.setDefaultAccount(id, entityId, true);
 
       const updated = currentAccountList.map((acc) => ({
         ...acc,
