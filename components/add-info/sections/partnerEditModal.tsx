@@ -20,6 +20,16 @@ import { Container, PartnerInput } from "@/components/shared";
 import { apiClient } from "@/services/api-client";
 import { useToggleDelete } from "@/lib/hooks/useToggleDelete";
 
+const toAccountItem = (acc: any): AccountItem => {
+  const rel = "entities" in acc ? (acc.entities as any)[0] : undefined;
+  return {
+    ...acc,
+    is_default: rel?.is_default ?? acc.is_default ?? false,
+    is_visible: rel?.is_visible ?? acc.is_visible ?? true,
+    is_deleted: rel?.is_deleted ?? acc.is_deleted ?? false,
+  } as AccountItem;
+};
+
 type BankForm = {
   bank_account: string;
   mfo?: string;
@@ -40,7 +50,7 @@ export const PartnerEditModal = ({
   onSaved: () => void;
 }) => {
   const [accounts, setAccounts] = useState<AccountItem[]>(
-    partner.partner_account_number
+    partner.partner_account_number.map(toAccountItem)
   );
   const [loadingAccId, setLoadingAccId] = useState<number | null>(null);
 
@@ -99,7 +109,8 @@ export const PartnerEditModal = ({
         entity_id: entityId,
         ...vals,
       });
-      mutateAccounts((arr) => [...arr, created]);
+      const accItem = toAccountItem(created);
+      mutateAccounts((arr) => [...arr, accItem]);
       toast.success("Счёт добавлен");
       bankForm.reset();
       setAddMode(false);

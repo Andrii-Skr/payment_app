@@ -119,6 +119,10 @@ export const PartnersTable = ({ entityId }: { entityId: number | null }) => {
   const handleSetDefault = async (partnerId: number, accId: number) => {
     setLoadingAccId(accId);
     try {
+      if (entityId === null) {
+        toast.error("Не выбрано юрлицо");
+        return;
+      }
       await apiClient.partners.setDefaultAccount(accId, entityId);
       mutatePartner(partnerId, (p) => ({
         ...p,
@@ -276,7 +280,7 @@ export const PartnersTable = ({ entityId }: { entityId: number | null }) => {
                         title={rel.is_deleted ? "Восстановить" : "Удалить"}
                         onClick={(e: MouseEvent) => {
                           e.stopPropagation();
-                          togglePartnerDelete(p.id, entityId);
+                          togglePartnerDelete(p.id, entityId!);
                         }}
                       >
                         <Trash2 size={16} />
@@ -298,7 +302,7 @@ export const PartnersTable = ({ entityId }: { entityId: number | null }) => {
                             handleSetDefault(p.id, accId)
                           }
                           onDelete={(accId) =>
-                            handleDeleteAccount(accId, entityId)
+                            handleDeleteAccount(accId, entityId!)
                           }
                         />
                       </TableCell>

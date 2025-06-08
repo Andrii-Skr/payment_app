@@ -31,6 +31,7 @@ export const useEntityStore = create(
 export type AccountItem = partner_account_number & {
   is_default: boolean;
   is_visible: boolean;
+  is_deleted: boolean;
 };
 
 type AccountListState = {

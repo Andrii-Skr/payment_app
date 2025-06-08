@@ -14,6 +14,9 @@ export type PartnerAccountWithEntities = partner_account_number & {
     is_visible: boolean;
     is_deleted: boolean;
   }[];
+  is_default: boolean;
+  is_visible: boolean;
+  is_deleted: boolean;
 };
 
 export type PartnersWithAccounts = partners & {

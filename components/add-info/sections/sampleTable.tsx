@@ -42,7 +42,7 @@ export const SampleTable: React.FC<SampleTableProps> = ({ entityId }) => {
     if (!entityId) return;
     setIsLoading(true);
     try {
-      const data = await apiClient.templates.getById(entityId, {
+      const data = await apiClient.templates.getById(entityId!, {
         showHidden,
         showDeleted,
       });

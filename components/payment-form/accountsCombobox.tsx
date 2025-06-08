@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { Control, useFormContext } from "react-hook-form";
 import { FormValues } from "@/types/formTypes";
 import { useAccountListStore } from "@/store/store";
+import type { AccountItem } from "@/store/store";
 import { Combobox } from "@/components/shared";
 import { useAutoFillBankDetails } from "@/lib/hooks/useAutoFillBankDetails";
 
@@ -29,13 +30,12 @@ export const AccountsCombobox: React.FC<Props> = ({
 }) => {
   const currentAccountList = useAccountListStore(
     (state) => state.currentAccountList
-  ) as PartnerAccountWithRelation[];
+  ) as AccountItem[];
 
   const list =
     currentAccountList
       ?.filter(
-        (a) =>
-          a.entities?.[0]?.is_deleted !== true && a.entities?.[0]?.is_visible !== false
+        (a) => a.is_deleted !== true && a.is_visible !== false
       )
       .map((e) => ({
         key: String(e.id),
@@ -74,9 +74,7 @@ export const AccountsCombobox: React.FC<Props> = ({
     }
 
     // Иначе ставим дефолтный (или первый)
-    const defaultAccount = currentAccountList.find(
-      (a) => a.entities?.[0]?.is_default
-    );
+    const defaultAccount = currentAccountList.find((a) => a.is_default);
 
     if (defaultAccount) {
       setValue("partner_account_number_id", defaultAccount.id);
