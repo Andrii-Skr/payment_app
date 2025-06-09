@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState } from "react";
 import { Trash2 } from "lucide-react";
 import {
   Button,
@@ -30,25 +30,23 @@ export const PartnerAccountsList: React.FC<Props> = ({ show, hideDelete, entityI
 
   if (!show) return null;
 
-  const visibleAccounts = useMemo(
-    () => currentAccountList.filter((acc) => !acc.is_deleted),
-    [currentAccountList]
-  );
+  const visibleAccounts = currentAccountList.filter((acc) => !acc.is_deleted);
 
   if (visibleAccounts.length === 0) return null;
 
   const handleSetDefault = async (id: number) => {
     setLoadingId(id);
+    const prevList = currentAccountList;
+    const optimistic = currentAccountList.map((acc) => ({
+      ...acc,
+      is_default: acc.id === id,
+    }));
+    updateAccountList(optimistic);
+
     try {
       await apiClient.partners.setDefaultAccount(id, entityId, true);
 
-      const updated = currentAccountList.map((acc) => ({
-        ...acc,
-        is_default: acc.id === id,
-      }));
-      updateAccountList(updated);
-
-      const newDefault = updated.find((a) => a.id === id);
+      const newDefault = optimistic.find((a) => a.id === id);
       if (newDefault && onDefaultChange) {
         onDefaultChange({
           bank_account: newDefault.bank_account,
@@ -58,6 +56,7 @@ export const PartnerAccountsList: React.FC<Props> = ({ show, hideDelete, entityI
 
       toast.success("Счёт назначен основным");
     } catch {
+      updateAccountList(prevList);
       toast.error("Ошибка при назначении счёта");
     } finally {
       setLoadingId(null);

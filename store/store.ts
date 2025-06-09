@@ -47,6 +47,9 @@ export const useAccountListStore = create<AccountListState & AccountListAction>(
     updateAccountList: (accounts) =>
       set({
         currentAccountList: accounts
+          .filter((a) =>
+            "entities" in a ? (a.entities as any).length > 0 : true,
+          )
           .map((a) => {
             const rel = "entities" in a ? (a.entities as any)[0] : undefined;
             return {

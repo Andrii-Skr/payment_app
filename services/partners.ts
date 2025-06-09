@@ -62,9 +62,9 @@ export const partnersService = async (
 
     return data.map((p) => ({
       ...p,
-      partner_account_number: p.partner_account_number.map((a) =>
-        mergeAccountRelation(a, entityId),
-      ),
+      partner_account_number: p.partner_account_number
+        .filter((a) => a.entities.length > 0)
+        .map((a) => mergeAccountRelation(a, entityId)),
     }));
   } catch (error) {
     console.error("Ошибка при загрузке партнёров:", error);
@@ -123,9 +123,9 @@ export const getByEdrpou = async (
     const partner = data.partner;
     return {
       ...partner,
-      partner_account_number: partner.partner_account_number.map((a) =>
-        mergeAccountRelation(a, entityId),
-      ),
+      partner_account_number: partner.partner_account_number
+        .filter((a) => a.entities.length > 0)
+        .map((a) => mergeAccountRelation(a, entityId)),
     };
   } catch (error) {
     console.error("Ошибка при проверке ЕДРПОУ:", error);

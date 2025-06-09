@@ -31,6 +31,11 @@ const getHandler = async (
     },
     include: {
       partner_account_number: {
+        where: {
+          entities: {
+            some: { entity_id },
+          },
+        },
         include: {
           entities: {
             where: { entity_id },
