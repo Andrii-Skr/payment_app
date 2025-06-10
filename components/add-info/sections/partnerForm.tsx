@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -54,6 +54,37 @@ export const PartnerForm: React.FC<Props> = ({
       bank_name: "",
     },
   });
+
+  const watchedEdrpou = useWatch({ control: form.control, name: "edrpou" });
+
+  useEffect(() => {
+    if (mode !== "create") return;
+    if (!watchedEdrpou || watchedEdrpou.length < 8) return;
+
+    const fillFromOther = async () => {
+      try {
+        const entities = await apiClient.entities.getAll();
+        for (const ent of entities) {
+          if (ent.id === entityId) continue;
+          const partner = await apiClient.partners.getByEdrpou(
+            watchedEdrpou,
+            ent.id,
+          );
+          if (partner) {
+            form.setValue("full_name", partner.full_name);
+            form.setValue("short_name", partner.short_name);
+            const acc = partner.partner_account_number.find((a) => a.is_default);
+            if (acc) form.setValue("bank_account", acc.bank_account);
+            break;
+          }
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fillFromOther();
+  }, [watchedEdrpou, mode]);
 
   /* подставляем initialValues при edit */
   useEffect(() => {

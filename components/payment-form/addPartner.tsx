@@ -19,6 +19,7 @@ import {
 import { CirclePlus } from "lucide-react";
 
 import { createPartner, addBankAccount } from "@/services/partners";
+import { apiClient } from "@/services/api-client";
 import { useAccountListStore } from "@/store/accountListStore";
 import { usePartnersStore } from "@/store/partnersStore";
 import { PartnerAccountsList } from "@/components/payment-form/partnerAccountsList";
@@ -64,6 +65,8 @@ export const AddPartner: React.FC<Props> = ({ entityIdNum, className }) => {
     },
   });
 
+  const watchedEdrpou = useWatch({ control: internalForm.control, name: "edrpou" });
+
   // 1️⃣ при открытии — инициализируем и fetch-им
   useEffect(() => {
     if (!open) return;
@@ -80,6 +83,35 @@ export const AddPartner: React.FC<Props> = ({ entityIdNum, className }) => {
     setShowAccountsList(!!edrpou);
     fetchPartners(entityIdNum);
   }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+    if (!watchedEdrpou || watchedEdrpou.length < 8) return;
+
+    const fillFromOther = async () => {
+      try {
+        const entities = await apiClient.entities.getAll();
+        for (const ent of entities) {
+          if (ent.id === entityIdNum) continue;
+          const partner = await apiClient.partners.getByEdrpou(
+            watchedEdrpou,
+            ent.id,
+          );
+          if (partner) {
+            internalForm.setValue("full_name", partner.full_name);
+            internalForm.setValue("short_name", partner.short_name);
+            const acc = partner.partner_account_number.find((a) => a.is_default);
+            if (acc) internalForm.setValue("bank_account", acc.bank_account);
+            break;
+          }
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fillFromOther();
+  }, [watchedEdrpou, open]);
 
   // 2️⃣ после обновления списка — подставляем актуальный основной счёт
   useEffect(() => {
