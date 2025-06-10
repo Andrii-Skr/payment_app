@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "test": "jest",
+    "test": "pnpm exec jest",
     "sync:bank-info": "tsc dist/scripts/updateBankInfo.ts",
     "cron": "node dist/scripts/cronJob.js",
     "build:scripts": "tsc -p tsconfig.scripts.json",
