@@ -60,7 +60,11 @@ export const TabTitle: React.FC<Props> = ({ className }) => {
       >
         <TabsList>
           {visibleTabs.map((tab) => (
-            <TabsTrigger key={tab.value} value={tab.value}>
+            <TabsTrigger
+              key={tab.value}
+              value={tab.value}
+              onClick={() => handleClick(tab.value)}
+            >
               {tab.label}
             </TabsTrigger>
           ))}
