@@ -1,5 +1,13 @@
 jest.mock("@/utils/rateLimiter", () => ({ rateLimit: jest.fn() }));
 
+jest.mock("@/prisma/prisma-client", () => ({
+  __esModule: true,
+  default: {
+    user: { findUnique: jest.fn() },
+    $disconnect: jest.fn(),
+  },
+}));
+
 jest.mock("next-auth", () => ({
   __esModule: true,
   default: jest.fn(() =>
@@ -10,12 +18,15 @@ jest.mock("next-auth", () => ({
 
 jest.mock("@/lib/authOptions", () => ({ authOptions: {} }));
 
+const prisma = require("@/prisma/prisma-client").default;
+
 /**
  * Проверяет, что authorize возвращает null при срабатывании rate limiter
  */
 describe("auth nextauth rate limit", () => {
+  afterAll(async () => prisma.$disconnect?.());
   it("authorize возвращает null при превышении лимита", async () => {
-    
+
     jest.clearAllMocks();
     const { rateLimit } = require("@/utils/rateLimiter");
     const { authOptions } = jest.requireActual("@/lib/authOptions");
