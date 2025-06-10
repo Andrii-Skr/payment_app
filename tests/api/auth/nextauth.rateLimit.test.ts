@@ -15,6 +15,7 @@ jest.mock("@/lib/authOptions", () => ({ authOptions: {} }));
  */
 describe("auth nextauth rate limit", () => {
   it("authorize возвращает null при превышении лимита", async () => {
+    
     jest.clearAllMocks();
     const { rateLimit } = require("@/utils/rateLimiter");
     const { authOptions } = jest.requireActual("@/lib/authOptions");
