@@ -11,7 +11,7 @@ import { PartnerAccountsList } from "./partnerAccountsList";
 import { PartnersWithAccounts } from "@/services/partners";
 import { toast } from "@/lib/hooks/use-toast";
 import { useState } from "react";
-import type { AccountItem } from "@/store/store";
+import type { AccountItem } from "@/store/accountListStore";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";

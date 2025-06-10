@@ -13,9 +13,10 @@ import {
   Switch,
 } from "@/components/ui";
 import { formatBankAccount } from "@/lib/helpers/formatiban";
-import { useAccountListStore } from "@/store/store";
+import { useAccountListStore } from "@/store/accountListStore";
 import { apiClient } from "@/services/api-client";
 import { toast } from "@/lib/hooks/use-toast";
+import { usePartnersStore } from "@/store/partnersStore";
 
 type Props = {
   show: boolean;
@@ -26,6 +27,7 @@ type Props = {
 
 export const PartnerAccountsList: React.FC<Props> = ({ show, hideDelete, entityId, onDefaultChange }) => {
   const { currentAccountList, updateAccountList } = useAccountListStore();
+  const { fetchPartners } = usePartnersStore();
   const [loadingId, setLoadingId] = useState<number | null>(null);
 
   if (!show) return null;
@@ -45,6 +47,8 @@ export const PartnerAccountsList: React.FC<Props> = ({ show, hideDelete, entityI
 
     try {
       await apiClient.partners.setDefaultAccount(id, entityId, true);
+
+      await fetchPartners(entityId);
 
       const newDefault = optimistic.find((a) => a.id === id);
       if (newDefault && onDefaultChange) {

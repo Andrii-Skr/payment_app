@@ -1,7 +1,7 @@
 "use client";
 import { Combobox } from "@/components/shared";
 import { FormValues } from "@/types/formTypes";
-import { useAccountListStore } from "@/store/store";
+import { useAccountListStore } from "@/store/accountListStore";
 import { usePartnersStore } from "@/store/partnersStore";
 import React from "react";
 import { Control, useFormContext } from "react-hook-form";

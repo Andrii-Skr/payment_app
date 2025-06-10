@@ -3,8 +3,8 @@ import * as React from "react";
 import { useEffect } from "react";
 import { Control, useFormContext } from "react-hook-form";
 import { FormValues } from "@/types/formTypes";
-import { useAccountListStore } from "@/store/store";
-import type { AccountItem } from "@/store/store";
+import { useAccountListStore } from "@/store/accountListStore";
+import type { AccountItem } from "@/store/accountListStore";
 import { Combobox } from "@/components/shared";
 import { useAutoFillBankDetails } from "@/lib/hooks/useAutoFillBankDetails";
 

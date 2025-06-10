@@ -13,7 +13,7 @@ import { TemplateWithBankDetails } from "@api/templates/[id]/route";
 import { AxiosError } from "axios";
 import { format } from "date-fns";
 import { CreateDocumentPayload } from "@/services/documents";
-import { useAccountListStore } from "@/store/store";
+import { useAccountListStore } from "@/store/accountListStore";
 
 type DuplicateCheckResponse = {
   success: false;

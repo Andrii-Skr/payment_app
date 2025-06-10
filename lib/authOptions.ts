@@ -1,11 +1,11 @@
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcrypt";
 import { Role } from "@/constants/roles";
 import { rateLimit } from "@/utils/rateLimiter";
+import prisma from "@/prisma/prisma-client";
 
-const prisma = new PrismaClient();
+
 
 export const authOptions: NextAuthOptions = {
   providers: [

@@ -19,7 +19,7 @@ import {
 import { CirclePlus } from "lucide-react";
 
 import { createPartner, addBankAccount } from "@/services/partners";
-import { useAccountListStore } from "@/store/store";
+import { useAccountListStore } from "@/store/accountListStore";
 import { usePartnersStore } from "@/store/partnersStore";
 import { PartnerAccountsList } from "@/components/payment-form/partnerAccountsList";
 import { FormValues } from "@/types/formTypes";
