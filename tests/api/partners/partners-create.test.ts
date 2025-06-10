@@ -36,7 +36,19 @@ describe("POST /partners", () => {
     await testApiHandler({
       appHandler: handler,
       test: async ({ fetch }) => {
-        const res = await fetch({ method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({}) });
+        const res = await fetch({
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            full_name: "F",
+            short_name: "S",
+            edrpou: "1",
+            entity_id: 1,
+            bank_account: "1",
+            mfo: "1",
+            bank_name: "b",
+          }),
+        });
         expect(res.status).toBe(401);
       },
     });

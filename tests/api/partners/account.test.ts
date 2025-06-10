@@ -8,6 +8,7 @@ jest.mock("@/prisma/prisma-client", () => ({
     partner_account_number: { findFirst: jest.fn(), create: jest.fn() },
     partner_account_numbers_on_entities: { create: jest.fn(), updateMany: jest.fn() },
     api_request_log: { create: jest.fn().mockResolvedValue(null) },
+    $transaction: jest.fn(() => Promise.resolve()),
     $disconnect: jest.fn(),
   },
 }));
@@ -34,7 +35,16 @@ describe("POST /partners/account", () => {
     await testApiHandler({
       appHandler: handler,
       test: async ({ fetch }) => {
-        const res = await fetch({ method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({}) });
+        const res = await fetch({
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            partner_id: 1,
+            entity_id: 1,
+            bank_account: "12345678901234567890123456789",
+            mfo: "1",
+          }),
+        });
         expect(res.status).toBe(401);
       },
     });

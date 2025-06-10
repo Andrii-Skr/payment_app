@@ -2,7 +2,10 @@ import { testApiHandler } from "next-test-api-route-handler";
 import * as handler from "@/app/api/auth/[...nextauth]/route";
 
 jest.mock("next-auth", () => ({
-  default: () => jest.fn(() => Promise.resolve(new Response(null, { status: 200 }))),
+  __esModule: true,
+  default: jest.fn(() =>
+    jest.fn(() => Promise.resolve(new Response(null, { status: 200 })))
+  ),
   getToken: jest.fn(() => ({ sub: "1" })),
 }));
 
