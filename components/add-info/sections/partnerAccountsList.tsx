@@ -11,7 +11,7 @@ import {
   Switch,
 } from "@/components/ui";
 import { Trash2 } from "lucide-react";
-import type { AccountItem } from "@/store/store";
+import type { AccountItem } from "@/store/accountListStore";
 import { formatBankAccount } from "@/lib/helpers/formatiban";
 import { toast } from "@/lib/hooks/use-toast";
 
