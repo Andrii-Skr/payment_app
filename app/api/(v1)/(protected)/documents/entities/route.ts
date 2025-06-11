@@ -11,7 +11,7 @@ import { Prisma } from "@prisma/client";
 /* ────────────── Prisma helpers ────────────── */
 
 /** документы, которые считаем «неоплаченными»                   */
-//const UNPAID_DOC_WHERE = { is_paid: false, is_deleted: false } as const;
+const UNPAID_DOC_WHERE = { is_paid: false, is_deleted: false } as const;
 
 /** базовый запрос entity + все связи                             */
 export const entityQuery = Prisma.validator<Prisma.entityFindManyArgs>()({
@@ -27,7 +27,7 @@ export const entityQuery = Prisma.validator<Prisma.entityFindManyArgs>()({
 
     /* --- Документы --- */
     documents: {
-    //  where: UNPAID_DOC_WHERE,
+     where: UNPAID_DOC_WHERE,
       include: {
         partner: true,
         spec_doc: true,

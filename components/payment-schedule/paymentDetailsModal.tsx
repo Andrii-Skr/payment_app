@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
 import {
@@ -43,6 +44,7 @@ export const PaymentDetailsModal: React.FC<PaymentDetailsModalProps> = ({
   const isAdmin = canAccess(Roles.ADMIN);
 
   const { pendingPayments, setPendingPayments } = usePaymentStore();
+  const router = useRouter();
 
   const unpaidDetails = details.filter((d) => !d.is_paid);
   const paidDetails = details.filter((d) => d.is_paid);
@@ -125,7 +127,15 @@ export const PaymentDetailsModal: React.FC<PaymentDetailsModalProps> = ({
               </TableHeader>
               <TableBody>
                 {unpaidDetails.map((detail) => (
-                  <TableRow key={detail.spec_doc_id}>
+                  <TableRow
+                    key={detail.spec_doc_id}
+                    className="hover:bg-muted"
+                    onDoubleClick={() =>
+                      router.push(
+                        `/create/payment-form/${detail.entity_id}?doc_id=${detail.doc_id}`
+                      )
+                    }
+                  >
                     <TableCell>{detail.account_number}</TableCell>
                     <TableCell>{detail.purpose_of_payment}</TableCell>
                     <TableCell>
@@ -168,7 +178,15 @@ export const PaymentDetailsModal: React.FC<PaymentDetailsModalProps> = ({
               </TableHeader>
               <TableBody>
                 {paidDetails.map((detail) => (
-                  <TableRow key={detail.spec_doc_id}>
+                  <TableRow
+                    key={detail.spec_doc_id}
+                    className="hover:bg-muted"
+                    onDoubleClick={() =>
+                      router.push(
+                        `/create/payment-form/${detail.entity_id}?doc_id=${detail.doc_id}`
+                      )
+                    }
+                  >
                     <TableCell>{detail.account_number}</TableCell>
                     <TableCell>{detail.purpose_of_payment}</TableCell>
                     <TableCell>
