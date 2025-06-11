@@ -6,6 +6,7 @@ import { toast } from "@/lib/hooks/use-toast";
 import { TemplateWithBankDetails } from "@api/templates/[id]/route";
 import { TemplatePayload } from "@/services/templates";
 import { format } from "date-fns";
+import { AUTO_PURPOSE_MARKER } from "@/constants/marker";
 
 export function useTemplateManager({
   reset,
@@ -72,7 +73,7 @@ export function useTemplateManager({
     date: tpl.date || null,
     vatType: tpl.vat_type,
     vatPercent: Number(tpl.vat_percent),
-    purposeOfPayment: tpl.purpose_of_payment?.split("№")[0]?.trim() ?? "",
+    purposeOfPayment: tpl.purpose_of_payment?.split(AUTO_PURPOSE_MARKER)[0]?.trim() ?? "",
     note: tpl.note || "",
     edrpou: tpl.edrpou,
     mfo: tpl.partner_account_number?.mfo || "",

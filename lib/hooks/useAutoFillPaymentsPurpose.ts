@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useWatch, UseFormSetValue, Control } from "react-hook-form";
 import { FormValues } from "@/types/formTypes";
+import { AUTO_PURPOSE_MARKER } from "@/constants/marker";
 import { format } from "date-fns";
 
 export function useAutoFillPaymentsPurpose(
@@ -20,14 +21,14 @@ export function useAutoFillPaymentsPurpose(
     if (!mainPurpose || !Array.isArray(payments) || payments.length === 0)
       return;
 
-    const [userPart] = mainPurpose.split("№").map((s) => s.trim());
+    const [userPart] = mainPurpose.split(AUTO_PURPOSE_MARKER).map((s) => s.trim());
 
     const newPurposes: string[] = [];
 
     if (!vatType || !vatPercent) {
       newPurposes.push(
         ...payments.map(
-          () => `${userPart} № ${accountNumber} від ${formattedDate}, без ПДВ`
+          () => `${userPart} ${AUTO_PURPOSE_MARKER} ${accountNumber} від ${formattedDate}, без ПДВ`
         )
       );
     } else {
@@ -54,7 +55,7 @@ export function useAutoFillPaymentsPurpose(
           .toFixed(2)
           .replace(".", ",")} грн.`;
         newPurposes.push(
-          `${userPart} № ${accountNumber} від ${formattedDate}, ${vatText}`
+          `${userPart} ${AUTO_PURPOSE_MARKER} ${accountNumber} від ${formattedDate}, ${vatText}`
         );
       });
     }

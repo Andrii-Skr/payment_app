@@ -1,5 +1,6 @@
 import { PaymentDetail } from "@/types/types";
 import { format } from "date-fns";
+import { AUTO_PURPOSE_MARKER } from "@/constants/marker";
 
 /**
  * Группирует платежи по получателю (entity_id, partner_id, partner_account_number)
@@ -19,7 +20,7 @@ export function groupPaymentsByReceiver(payments: PaymentDetail[]): PaymentDetai
     const totalSum = group.reduce((acc, p) => acc + p.pay_sum, 0);
 
     // --- Извлекаем пользовательскую часть из первого назначения
-    const userPrefix = first.purpose_of_payment?.split("№")[0]?.trim() || "";
+    const userPrefix = first.purpose_of_payment?.split(AUTO_PURPOSE_MARKER)[0]?.trim() || "";
 
     // --- Подгруппировка по дате
     const byDate = new Map<string, Set<string>>();
@@ -45,7 +46,7 @@ export function groupPaymentsByReceiver(payments: PaymentDetail[]): PaymentDetai
       .sort(([d1], [d2]) => new Date(d1).getTime() - new Date(d2).getTime())
       .forEach(([date, accounts]) => {
         const list = Array.from(accounts).sort().join(", ");
-        parts.push(`№ ${list} від ${date}`);
+        parts.push(`${AUTO_PURPOSE_MARKER} ${list} від ${date}`);
       });
 
     // --- Формируем окончательное назначение платежа

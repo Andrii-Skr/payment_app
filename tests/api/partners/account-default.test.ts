@@ -41,7 +41,7 @@ describe("PATCH /partners/account/default", () => {
     prisma.partner_account_number.findUnique.mockResolvedValue({ partner_id: 1 });
     const updateMany = jest.fn();
     const update = jest.fn();
-    prisma.$transaction.mockImplementation(async (fn) =>
+    prisma.$transaction.mockImplementation(async (fn :any) =>
       fn({
         partner_account_numbers_on_entities: {
           updateMany,

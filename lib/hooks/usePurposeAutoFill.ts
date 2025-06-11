@@ -8,6 +8,7 @@ import {
 } from "react-hook-form";
 import { format } from "date-fns";
 import { FormValues } from "@/types/formTypes";
+import { AUTO_PURPOSE_MARKER } from "@/constants/marker";
 
 export function usePurposeAutoFill<T extends FieldValues>(
   control: Control<FormValues>,
@@ -51,7 +52,7 @@ export function usePurposeAutoFill<T extends FieldValues>(
       autoNote += ` без ПДВ`;
     }
 
-    const marker = "№";
+    const marker = AUTO_PURPOSE_MARKER;
     const hasMarker = purpose?.includes(marker);
 
     // всегда разбиваем по маркеру
