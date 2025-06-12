@@ -32,7 +32,13 @@ type Props = {
   onDefaultChange?: (acc: { bank_account: string; id: number }) => void;
 };
 
-export const PartnerAccountsList: React.FC<Props> = ({ show, hideDelete, entityId, partnerId, onDefaultChange }) => {
+export const PartnerAccountsList: React.FC<Props> = ({
+  show,
+  hideDelete,
+  entityId,
+  partnerId,
+  onDefaultChange,
+}) => {
   const { currentAccountList, updateAccountList } = useAccountListStore();
   const { fetchPartners } = usePartnersStore();
   const [loadingId, setLoadingId] = useState<number | null>(null);
@@ -114,7 +120,8 @@ export const PartnerAccountsList: React.FC<Props> = ({ show, hideDelete, entityI
         entity_id: entityId,
         ...vals,
       });
-      const rel = "entities" in created ? (created.entities as any)[0] : undefined;
+      const rel =
+        "entities" in created ? (created.entities as any)[0] : undefined;
       const accItem: AccountItem = {
         ...created,
         is_default: rel?.is_default ?? created.is_default ?? false,
@@ -136,7 +143,9 @@ export const PartnerAccountsList: React.FC<Props> = ({ show, hideDelete, entityI
   return (
     <Card className="mt-6">
       <CardHeader>
-        <CardTitle className="text-sm font-semibold">Счета контрагента</CardTitle>
+        <CardTitle className="text-sm font-semibold">
+          Счета контрагента
+        </CardTitle>
       </CardHeader>
       <CardContent>
         {visibleAccounts.map((acc, idx) => (
@@ -173,14 +182,24 @@ export const PartnerAccountsList: React.FC<Props> = ({ show, hideDelete, entityI
           </div>
         ))}
 
-        {partnerId && (
-          !addMode ? (
-            <Button variant="ghost" onClick={() => setAddMode(true)} className="mt-4">
+        {partnerId &&
+          (!addMode ? (
+            <Button
+              variant="ghost"
+              onClick={() => setAddMode(true)}
+              className="mt-4"
+            >
               + Добавить счёт
             </Button>
           ) : (
             <Form {...bankForm}>
-              <form onSubmit={bankForm.handleSubmit(handleAddBank)} className="space-y-2 mt-4">
+              <form
+                onSubmit={(e) => {
+                  e.stopPropagation();
+                  bankForm.handleSubmit(handleAddBank)(e);
+                }}
+                className="space-y-2 mt-4"
+              >
                 <Container className="justify-start gap-2">
                   <PartnerInput<BankForm>
                     control={bankForm.control}
@@ -191,7 +210,9 @@ export const PartnerAccountsList: React.FC<Props> = ({ show, hideDelete, entityI
                 </Container>
 
                 <div className="flex gap-2">
-                  <Button type="submit" disabled={loadingId === -1}>Сохранить</Button>
+                  <Button type="submit" disabled={loadingId === -1}>
+                    Сохранить
+                  </Button>
                   <Button
                     variant="ghost"
                     type="button"
@@ -205,8 +226,7 @@ export const PartnerAccountsList: React.FC<Props> = ({ show, hideDelete, entityI
                 </div>
               </form>
             </Form>
-          )
-        )}
+          ))}
       </CardContent>
     </Card>
   );

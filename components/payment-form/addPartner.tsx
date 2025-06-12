@@ -258,18 +258,18 @@ export const AddPartner: React.FC<Props> = ({ entityIdNum, className }) => {
             <DialogFooter>
               <Button type="submit">Сохранить</Button>
             </DialogFooter>
-
-            <PartnerAccountsList
-              show={showAccountsList}
-              entityId={entityIdNum}
-              partnerId={partnerId}
-              hideDelete={true}
-              onDefaultChange={({ bank_account, id }) => {
-                parentForm.setValue("selectedAccount", bank_account);
-                parentForm.setValue("partner_account_number_id", id);
-              }}
-            />
           </form>
+
+          <PartnerAccountsList
+            show={showAccountsList}
+            entityId={entityIdNum}
+            partnerId={partnerId}
+            hideDelete={true}
+            onDefaultChange={({ bank_account, id }) => {
+              parentForm.setValue("selectedAccount", bank_account);
+              parentForm.setValue("partner_account_number_id", id);
+            }}
+          />
         </Form>
       </DialogContent>
     </Dialog>
