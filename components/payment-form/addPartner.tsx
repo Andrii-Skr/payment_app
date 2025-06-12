@@ -118,11 +118,15 @@ export const AddPartner: React.FC<Props> = ({ entityIdNum, className }) => {
     if (!open) return;
 
     const defaultAcc = currentAccountList.find((a) => a.is_default);
-    if (defaultAcc) {
-      internalForm.setValue("bank_account", defaultAcc.bank_account);
-      parentForm.setValue("selectedAccount", defaultAcc.bank_account);
-      parentForm.setValue("partner_account_number_id", defaultAcc.id);
-    }
+    if (!defaultAcc) return;
+
+    const alreadySelected = parentForm.getValues("selectedAccount");
+    const selectedId = parentForm.getValues("partner_account_number_id");
+    if (alreadySelected || selectedId) return;
+
+    internalForm.setValue("bank_account", defaultAcc.bank_account);
+    parentForm.setValue("selectedAccount", defaultAcc.bank_account);
+    parentForm.setValue("partner_account_number_id", defaultAcc.id);
   }, [currentAccountList, open]);
 
   const edrpou = parentForm.getValues("edrpou");
