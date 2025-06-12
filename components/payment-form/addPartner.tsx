@@ -31,7 +31,11 @@ const formSchema = z.object({
   entity_id: z.number(),
   full_name: z.string().min(3),
   short_name: z.string().min(3),
-  edrpou: z.string().min(8).max(10),
+  edrpou: z
+    .string()
+    .min(8)
+    .max(10)
+    .regex(/^\d+$/, "ЕДРПОУ должен содержать только цифры"),
   bank_account: z.preprocess(
     (v) => (typeof v === "string" && v.trim() === "" ? undefined : v),
     z.string().length(29).optional()
@@ -167,7 +171,7 @@ export const AddPartner: React.FC<Props> = ({ entityIdNum, className }) => {
       } else {
         const { partner, reused } = await createPartner(data);
 
-        const bankAccount =
+        const addRes =
           reused && data.bank_account
             ? await addBankAccount({
                 partner_id: partner.id,
@@ -177,6 +181,15 @@ export const AddPartner: React.FC<Props> = ({ entityIdNum, className }) => {
                 bank_name: data.bank_name,
                 is_default: false,
               })
+            : null;
+
+        if (addRes?.message) {
+          toast.error(addRes.message);
+        }
+
+        const bankAccount =
+          reused && data.bank_account
+            ? addRes!.created
             : partner.partner_account_number[0];
 
         parentForm.setValue("selectedAccount", bankAccount.bank_account);

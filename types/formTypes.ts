@@ -63,7 +63,7 @@ export const formSchema = z.object({
 
   payments: z.array(paymentSchema),
 
-  edrpou: z.string(),
+  edrpou: z.string().regex(/^\d+$/, "ЕДРПОУ должен содержать только цифры"),
   selectedAccount: z.string().min(29).nonempty("Выберите номер счета").nullish(),
 
   mfo: z.string().optional(),

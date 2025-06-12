@@ -34,6 +34,12 @@ export type CreatePartnerResponse = {
   reused: boolean;
 };
 
+export type AddBankAccountResponse = {
+  success: boolean;
+  created: PartnerAccountWithEntities;
+  message?: string;
+};
+
 const mergeAccountRelation = (
   acc: PartnerAccountWithEntities,
   entityId: number,
@@ -177,20 +183,26 @@ export const deletePartner = async (
 };
 
 /* Добавить банковский счёт */
-export const addBankAccount = async (data: {
-  partner_id: number;
-  entity_id: number;
-  bank_account: string;
-  mfo?: string;
-  bank_name?: string;
-  is_default?: boolean;
-}) => {
+export const addBankAccount = async (
+  data: {
+    partner_id: number;
+    entity_id: number;
+    bank_account: string;
+    mfo?: string;
+    bank_name?: string;
+    is_default?: boolean;
+  },
+): Promise<AddBankAccountResponse> => {
   try {
-    const res = await axiosInstance.post("/partners/account", data);
-    return res.data.created;
+    const res = await axiosInstance.post<AddBankAccountResponse>(
+      "/partners/account",
+      data,
+    );
+    return res.data;
   } catch (error: any) {
     console.error("Ошибка при добавлении счёта:", error);
-    throw new Error("Не удалось добавить счёт.");
+    const message = error?.response?.data?.message;
+    throw new Error(message || "Не удалось добавить счёт.");
   }
 };
 

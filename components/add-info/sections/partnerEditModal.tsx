@@ -104,16 +104,21 @@ export const PartnerEditModal = ({
   const handleAddBank = async (vals: BankForm) => {
     setLoadingAccId(-1);
     try {
-      const created = await apiClient.partners.addBankAccount({
+      const result = await apiClient.partners.addBankAccount({
         partner_id: partner.id,
         entity_id: entityId,
         ...vals,
       });
-      const accItem = toAccountItem(created);
-      mutateAccounts((arr) => [...arr, accItem]);
-      toast.success("Счёт добавлен");
-      bankForm.reset();
-      setAddMode(false);
+
+      if (result.message) {
+        toast.error(result.message);
+      } else {
+        const accItem = toAccountItem(result.created);
+        mutateAccounts((arr) => [...arr, accItem]);
+        toast.success("Счёт добавлен");
+        bankForm.reset();
+        setAddMode(false);
+      }
     } catch {
       toast.error("Не удалось добавить счёт");
     } finally {

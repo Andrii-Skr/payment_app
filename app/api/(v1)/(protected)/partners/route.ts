@@ -10,7 +10,7 @@ import { Roles } from "@/constants/roles";
 const partnerSchema = z.object({
   full_name: z.string(),
   short_name: z.string(),
-  edrpou: z.string(),
+  edrpou: z.string().regex(/^\d+$/, "ЕДРПОУ должен содержать только цифры"),
   entity_id: z.number(),
   type: z.string().optional(),
   bank_account: z.string(),

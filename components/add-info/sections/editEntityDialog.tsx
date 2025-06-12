@@ -19,7 +19,11 @@ import { Container, FormInput } from "@/components/shared";
 const schema = z.object({
   full_name: z.string().min(1, "Обязательное поле"),
   short_name: z.string().min(1, "Обязательное поле"),
-  edrpou: z.string().min(8).max(10),
+  edrpou: z
+    .string()
+    .min(8)
+    .max(10)
+    .regex(/^\d+$/, "ЕДРПОУ должен содержать только цифры"),
   bank_account: z.string().length(29),
   sort_order: z
     .union([z.string(), z.number()])

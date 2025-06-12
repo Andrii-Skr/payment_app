@@ -115,24 +115,30 @@ export const PartnerAccountsList: React.FC<Props> = ({
     if (!partnerId) return;
     setLoadingId(-1);
     try {
-      const created = await apiClient.partners.addBankAccount({
+      const result = await apiClient.partners.addBankAccount({
         partner_id: partnerId,
         entity_id: entityId,
         ...vals,
       });
-      const rel =
-        "entities" in created ? (created.entities as any)[0] : undefined;
-      const accItem: AccountItem = {
-        ...created,
-        is_default: rel?.is_default ?? created.is_default ?? false,
-        is_visible: rel?.is_visible ?? created.is_visible ?? true,
-        is_deleted: rel?.is_deleted ?? created.is_deleted ?? false,
-      };
-      updateAccountList([...currentAccountList, accItem]);
-      await fetchPartners(entityId);
-      toast.success("Счёт добавлен");
-      bankForm.reset();
-      setAddMode(false);
+
+      if (result.message) {
+        toast.error(result.message);
+      } else {
+        const created = result.created;
+        const rel =
+          "entities" in created ? (created.entities as any)[0] : undefined;
+        const accItem: AccountItem = {
+          ...created,
+          is_default: rel?.is_default ?? created.is_default ?? false,
+          is_visible: rel?.is_visible ?? created.is_visible ?? true,
+          is_deleted: rel?.is_deleted ?? created.is_deleted ?? false,
+        };
+        updateAccountList([...currentAccountList, accItem]);
+        await fetchPartners(entityId);
+        toast.success("Счёт добавлен");
+        bankForm.reset();
+        setAddMode(false);
+      }
     } catch {
       toast.error("Не удалось добавить счёт");
     } finally {

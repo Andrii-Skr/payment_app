@@ -17,7 +17,11 @@ const schema = z.object({
   entity_id: z.number(),
   full_name: z.string().min(3, "Мин. 3 символа"),
   short_name: z.string().min(3, "Мин. 3 символа"),
-  edrpou: z.string().min(8).max(10),
+  edrpou: z
+    .string()
+    .min(8)
+    .max(10)
+    .regex(/^\d+$/, "ЕДРПОУ должен содержать только цифры"),
   bank_account: z.string().length(29, "Должно быть 29 символов"),
   mfo: z.string().optional(),
   bank_name: z.string().optional(),
@@ -105,7 +109,7 @@ export const PartnerForm: React.FC<Props> = ({
 
         /* 2. создаём счёт только если партнёр уже существовал */
         if (reused) {
-          await apiClient.partners.addBankAccount({
+          const res = await apiClient.partners.addBankAccount({
             partner_id: partner.id,
             entity_id: entityId,
             bank_account: vals.bank_account,
@@ -113,6 +117,9 @@ export const PartnerForm: React.FC<Props> = ({
             bank_name: vals.bank_name,
             is_default: true,
           });
+          if (res.message) {
+            toast.error(res.message);
+          }
         }
       } else {
         /* редактируем имена партнёра */
