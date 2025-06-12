@@ -18,7 +18,7 @@ import {
 } from "@/components/ui";
 import { CirclePlus } from "lucide-react";
 
-import { createPartner, addBankAccount } from "@/services/partners";
+import { createPartner, addBankAccount, updatePartner } from "@/services/partners";
 import { apiClient } from "@/services/api-client";
 import { useAccountListStore } from "@/store/accountListStore";
 import { usePartnersStore } from "@/store/partnersStore";
@@ -152,26 +152,40 @@ export const AddPartner: React.FC<Props> = ({ entityIdNum, className }) => {
       return;
     }
     try {
-      const { partner, reused } = await createPartner(data);
+      if (isEdit) {
+        const id = parentForm.getValues("partner_id");
+        if (id) {
+          await updatePartner(id, {
+            full_name: data.full_name,
+            short_name: data.short_name,
+          });
+        }
 
-      const bankAccount =
-        reused && data.bank_account
-          ? await addBankAccount({
-              partner_id: partner.id,
-              entity_id: data.entity_id,
-              bank_account: data.bank_account,
-              mfo: data.mfo,
-              bank_name: data.bank_name,
-              is_default: false,
-            })
-          : partner.partner_account_number[0];
+        await fetchPartners(data.entity_id);
+        internalForm.reset();
+        toast.success("Сохранено успешно.");
+      } else {
+        const { partner, reused } = await createPartner(data);
 
-      parentForm.setValue("selectedAccount", bankAccount.bank_account);
-      parentForm.setValue("partner_account_number_id", bankAccount.id);
+        const bankAccount =
+          reused && data.bank_account
+            ? await addBankAccount({
+                partner_id: partner.id,
+                entity_id: data.entity_id,
+                bank_account: data.bank_account,
+                mfo: data.mfo,
+                bank_name: data.bank_name,
+                is_default: false,
+              })
+            : partner.partner_account_number[0];
 
-      await fetchPartners(data.entity_id);
-      internalForm.reset();
-      toast.success("Сохранено успешно.");
+        parentForm.setValue("selectedAccount", bankAccount.bank_account);
+        parentForm.setValue("partner_account_number_id", bankAccount.id);
+
+        await fetchPartners(data.entity_id);
+        internalForm.reset();
+        toast.success("Сохранено успешно.");
+      }
     } catch (err) {
       console.error(err);
       toast.error("Ошибка при сохранении.");
