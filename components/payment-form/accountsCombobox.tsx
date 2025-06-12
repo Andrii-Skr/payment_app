@@ -48,10 +48,11 @@ export const AccountsCombobox: React.FC<Props> = ({
   const short_name = watch("short_name");
 
   const selectedId = watch("partner_account_number_id");
+  const selectedAccountValue = watch("selectedAccount");
 
   // Находим выбранный счет по ID
-  const selectedAccount = currentAccountList?.find((a) => a.id === selectedId);
-  const bankAccount = selectedAccount?.bank_account;
+  const selectedAccountObj = currentAccountList?.find((a) => a.id === selectedId);
+  const bankAccount = selectedAccountObj?.bank_account;
 
   // 🔥 Сброс и автозаполнение при смене edrpou или short_name
   useEffect(() => {
@@ -63,13 +64,16 @@ export const AccountsCombobox: React.FC<Props> = ({
       return;
     }
 
-    // ⬇️ Смотрим, не выставлен ли id уже (после reset или выбора пользователем)
+    // ⬇️ Смотрим, не выставлен ли счёт уже (после reset или выбора пользователем)
+    if (selectedAccountValue !== "" && selectedAccountValue !== null) {
+      return;
+    }
+
     if (
       selectedId !== undefined &&
       selectedId !== null &&
       currentAccountList.some((a) => a.id === selectedId)
     ) {
-
       return;
     }
 
@@ -92,6 +96,7 @@ export const AccountsCombobox: React.FC<Props> = ({
     short_name,
     currentAccountList,
     selectedId,
+    selectedAccountValue,
     setValue,
   ]);
 

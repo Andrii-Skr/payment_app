@@ -81,7 +81,7 @@ export function useTemplateManager({
     partner_account_number_id: tpl.partner_account_number_id,
     full_name: tpl.partner.full_name,
     short_name: tpl.partner.short_name,
-    selectedAccount: tpl.partner_account_number?.bank_account || "",
+    selectedAccount: tpl.partner_account_number?.bank_account ?? null,
     payments: [
       {
         documents_id: undefined,
