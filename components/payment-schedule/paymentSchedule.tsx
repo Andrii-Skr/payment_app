@@ -15,8 +15,6 @@ export const PaymentSchedule: React.FC<Props> = ({ className }) => {
   const fetchEntities = async () => {
     const data = await apiClient.documents.entitySchedule();
 
-    console.log("Fetched entities:", data);
-
     if (data) setEntities(data);
   };
 

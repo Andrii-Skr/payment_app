@@ -137,6 +137,7 @@ export const getByEdrpou = async (
 export const createPartner = async (
   data: PartnerValues,
 ): Promise<CreatePartnerResponse> => {
+  console.log(data)
   try {
     const res = await axiosInstance.post("/partners", data);
     return res.data as CreatePartnerResponse;

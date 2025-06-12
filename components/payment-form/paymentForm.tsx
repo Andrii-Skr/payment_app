@@ -86,12 +86,6 @@ export const PaymentForm: React.FC<{ className?: string }> = ({
   const partner_account_number_id = watch("partner_account_number_id");
   const selcted = watch("selectedAccount");
 
-  console.log("PaymentForm re-rendered", {
-    edrpu,
-    partner_account_number_id,
-    selcted,
-  });
-
   const isDeletable = payments.every((p) => !p.isPaid);
 
   /* ---------- custom hooks ---------- */

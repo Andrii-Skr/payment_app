@@ -14,8 +14,8 @@ const partnerSchema = z.object({
   entity_id: z.number(),
   type: z.string().optional(),
   bank_account: z.string(),
-  mfo: z.string(),
-  bank_name: z.string(),
+  mfo: z.string().optional(),
+  bank_name: z.string().optional(),
 });
 
 type PartnerBody = z.infer<typeof partnerSchema>;
