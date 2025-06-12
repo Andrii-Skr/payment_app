@@ -159,17 +159,19 @@ export const PartnerForm: React.FC<Props> = ({
           />
         </Container>
 
-        <Container className="justify-start gap-2">
-          <PartnerInput<PartnerFormValues>
-            control={form.control}
-            name="bank_account"
-            label="р/с"
-            className="bank-account-size"
-          />
-          {/* При необходимости раскомментируйте следующие поля */}
-          {/* <PartnerInput<PartnerFormValues> control={form.control} name="mfo" label="МФО" />
-          <PartnerInput<PartnerFormValues> control={form.control} name="bank_name" label="Банк" /> */}
-        </Container>
+        {mode === "create" && (
+          <Container className="justify-start gap-2">
+            <PartnerInput<PartnerFormValues>
+              control={form.control}
+              name="bank_account"
+              label="р/с"
+              className="bank-account-size"
+            />
+            {/* При необходимости раскомментируйте следующие поля */}
+            {/* <PartnerInput<PartnerFormValues> control={form.control} name="mfo" label="МФО" />
+            <PartnerInput<PartnerFormValues> control={form.control} name="bank_name" label="Банк" /> */}
+          </Container>
+        )}
 
         <div className="flex gap-3">
           <Button type="submit" className="w-[145px]">

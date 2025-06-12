@@ -17,18 +17,39 @@ import { useAccountListStore } from "@/store/accountListStore";
 import { apiClient } from "@/services/api-client";
 import { toast } from "@/lib/hooks/use-toast";
 import { usePartnersStore } from "@/store/partnersStore";
+import type { AccountItem } from "@/store/accountListStore";
+import { Form } from "@/components/ui";
+import { Container, PartnerInput } from "@/components/shared";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 type Props = {
   show: boolean;
   hideDelete?: boolean;
   entityId: number;
+  partnerId?: number;
   onDefaultChange?: (acc: { bank_account: string; id: number }) => void;
 };
 
-export const PartnerAccountsList: React.FC<Props> = ({ show, hideDelete, entityId, onDefaultChange }) => {
+export const PartnerAccountsList: React.FC<Props> = ({ show, hideDelete, entityId, partnerId, onDefaultChange }) => {
   const { currentAccountList, updateAccountList } = useAccountListStore();
   const { fetchPartners } = usePartnersStore();
   const [loadingId, setLoadingId] = useState<number | null>(null);
+  const [addMode, setAddMode] = useState(false);
+
+  const bankSchema = z.object({
+    bank_account: z.string().length(29, "29 символов"),
+    mfo: z.string().optional(),
+    bank_name: z.string().optional(),
+  });
+
+  type BankForm = z.infer<typeof bankSchema>;
+
+  const bankForm = useForm<BankForm>({
+    resolver: zodResolver(bankSchema),
+    defaultValues: { bank_account: "" },
+  });
 
   if (!show) return null;
 
@@ -84,6 +105,34 @@ export const PartnerAccountsList: React.FC<Props> = ({ show, hideDelete, entityI
     }
   };
 
+  const handleAddBank = async (vals: BankForm) => {
+    if (!partnerId) return;
+    setLoadingId(-1);
+    try {
+      const created = await apiClient.partners.addBankAccount({
+        partner_id: partnerId,
+        entity_id: entityId,
+        ...vals,
+      });
+      const rel = "entities" in created ? (created.entities as any)[0] : undefined;
+      const accItem: AccountItem = {
+        ...created,
+        is_default: rel?.is_default ?? created.is_default ?? false,
+        is_visible: rel?.is_visible ?? created.is_visible ?? true,
+        is_deleted: rel?.is_deleted ?? created.is_deleted ?? false,
+      };
+      updateAccountList([...currentAccountList, accItem]);
+      await fetchPartners(entityId);
+      toast.success("Счёт добавлен");
+      bankForm.reset();
+      setAddMode(false);
+    } catch {
+      toast.error("Не удалось добавить счёт");
+    } finally {
+      setLoadingId(null);
+    }
+  };
+
   return (
     <Card className="mt-6">
       <CardHeader>
@@ -123,6 +172,41 @@ export const PartnerAccountsList: React.FC<Props> = ({ show, hideDelete, entityI
             </div>
           </div>
         ))}
+
+        {partnerId && (
+          !addMode ? (
+            <Button variant="ghost" onClick={() => setAddMode(true)} className="mt-4">
+              + Добавить счёт
+            </Button>
+          ) : (
+            <Form {...bankForm}>
+              <form onSubmit={bankForm.handleSubmit(handleAddBank)} className="space-y-2 mt-4">
+                <Container className="justify-start gap-2">
+                  <PartnerInput<BankForm>
+                    control={bankForm.control}
+                    name="bank_account"
+                    label="Счёт"
+                    className="bank-account-size"
+                  />
+                </Container>
+
+                <div className="flex gap-2">
+                  <Button type="submit" disabled={loadingId === -1}>Сохранить</Button>
+                  <Button
+                    variant="ghost"
+                    type="button"
+                    onClick={() => {
+                      bankForm.reset();
+                      setAddMode(false);
+                    }}
+                  >
+                    Отмена
+                  </Button>
+                </div>
+              </form>
+            </Form>
+          )
+        )}
       </CardContent>
     </Card>
   );

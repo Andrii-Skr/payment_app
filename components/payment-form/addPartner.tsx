@@ -32,7 +32,10 @@ const formSchema = z.object({
   full_name: z.string().min(3),
   short_name: z.string().min(3),
   edrpou: z.string().min(8).max(10),
-  bank_account: z.string().length(29),
+  bank_account: z.preprocess(
+    (v) => (typeof v === "string" && v.trim() === "" ? undefined : v),
+    z.string().length(29).optional()
+  ),
   mfo: z.string().optional(),
   bank_name: z.string().optional(),
 });
@@ -48,6 +51,7 @@ export const AddPartner: React.FC<Props> = ({ entityIdNum, className }) => {
   const parentForm = useFormContext<FormValues>();
   const { fetchPartners } = usePartnersStore();
   const { currentAccountList } = useAccountListStore();
+  const partnerId = parentForm.watch("partner_id") ?? undefined;
 
   const [open, setOpen] = useState(false);
   const [showAccountsList, setShowAccountsList] = useState(false);
@@ -65,7 +69,10 @@ export const AddPartner: React.FC<Props> = ({ entityIdNum, className }) => {
     },
   });
 
-  const watchedEdrpou = useWatch({ control: internalForm.control, name: "edrpou" });
+  const watchedEdrpou = useWatch({
+    control: internalForm.control,
+    name: "edrpou",
+  });
 
   // 1️⃣ при открытии — инициализируем и fetch-им
   useEffect(() => {
@@ -95,12 +102,14 @@ export const AddPartner: React.FC<Props> = ({ entityIdNum, className }) => {
           if (ent.id === entityIdNum) continue;
           const partner = await apiClient.partners.getByEdrpou(
             watchedEdrpou,
-            ent.id,
+            ent.id
           );
           if (partner) {
             internalForm.setValue("full_name", partner.full_name);
             internalForm.setValue("short_name", partner.short_name);
-            const acc = partner.partner_account_number.find((a) => a.is_default);
+            const acc = partner.partner_account_number.find(
+              (a) => a.is_default
+            );
             if (acc) internalForm.setValue("bank_account", acc.bank_account);
             break;
           }
@@ -133,19 +142,29 @@ export const AddPartner: React.FC<Props> = ({ entityIdNum, className }) => {
   const readonlyEdrpou = !!edrpou;
 
   const onSubmit = async (data: PartnerValues) => {
+    const isEdit = !!parentForm.getValues("partner_account_number_id");
+
+    if (!isEdit && !data.bank_account) {
+      internalForm.setError("bank_account", {
+        type: "validate",
+        message: "Укажите номер счёта",
+      });
+      return;
+    }
     try {
       const { partner, reused } = await createPartner(data);
 
-      const bankAccount = reused
-        ? await addBankAccount({
-            partner_id: partner.id,
-            entity_id: data.entity_id,
-            bank_account: data.bank_account,
-            mfo: data.mfo,
-            bank_name: data.bank_name,
-            is_default: false,
-          })
-        : partner.partner_account_number[0];
+      const bankAccount =
+        reused && data.bank_account
+          ? await addBankAccount({
+              partner_id: partner.id,
+              entity_id: data.entity_id,
+              bank_account: data.bank_account,
+              mfo: data.mfo,
+              bank_name: data.bank_name,
+              is_default: false,
+            })
+          : partner.partner_account_number[0];
 
       parentForm.setValue("selectedAccount", bankAccount.bank_account);
       parentForm.setValue("partner_account_number_id", bankAccount.id);
@@ -211,14 +230,16 @@ export const AddPartner: React.FC<Props> = ({ entityIdNum, className }) => {
               />
             </Container>
 
-            <Container className="justify-start gap-2">
-              <PartnerInput
-                control={internalForm.control}
-                name="bank_account"
-                label="Номер счета"
-                className="bank-account-size"
-              />
-            </Container>
+            {!showAccountsList && (
+              <Container className="justify-start gap-2">
+                <PartnerInput
+                  control={internalForm.control}
+                  name="bank_account"
+                  label="Номер счета"
+                  className="bank-account-size"
+                />
+              </Container>
+            )}
 
             <DialogFooter>
               <Button type="submit">Сохранить</Button>
@@ -227,6 +248,7 @@ export const AddPartner: React.FC<Props> = ({ entityIdNum, className }) => {
             <PartnerAccountsList
               show={showAccountsList}
               entityId={entityIdNum}
+              partnerId={partnerId}
               hideDelete={true}
               onDefaultChange={({ bank_account, id }) => {
                 parentForm.setValue("selectedAccount", bank_account);
