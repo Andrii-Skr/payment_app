@@ -74,6 +74,7 @@ export function useTemplateManager({
     vatType: tpl.vat_type,
     vatPercent: Number(tpl.vat_percent),
     purposeOfPayment: tpl.purpose_of_payment?.split(AUTO_PURPOSE_MARKER)[0]?.trim() ?? "",
+    is_auto_purpose_of_payment: tpl.is_auto_purpose_of_payment,
     note: tpl.note || "",
     edrpou: tpl.edrpou,
     mfo: tpl.partner_account_number?.mfo || "",

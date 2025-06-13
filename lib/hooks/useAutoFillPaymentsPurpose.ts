@@ -19,10 +19,21 @@ export function useAutoFillPaymentsPurpose(
   const formattedDate = date ? format(date, "dd.MM.yyyy") : "";
 
   useEffect(() => {
-    if (!isAuto || !mainPurpose || !Array.isArray(payments) || payments.length === 0)
-      return;
+    if (!mainPurpose || !Array.isArray(payments) || payments.length === 0) return;
 
     const [userPart] = mainPurpose.split(AUTO_PURPOSE_MARKER).map((s) => s.trim());
+
+    if (!isAuto) {
+      const manualPurposes = payments.map(() => userPart);
+      const isSameManual = payments.every((p, i) => p.purposeOfPayment === manualPurposes[i]);
+
+      if (!isSameManual) {
+        payments.forEach((_, i) => {
+          setValue(`payments.${i}.purposeOfPayment`, manualPurposes[i] as any);
+        });
+      }
+      return;
+    }
 
     const newPurposes: string[] = [];
 
@@ -61,10 +72,7 @@ export function useAutoFillPaymentsPurpose(
       });
     }
 
-    // Только если значения действительно изменились
-    const isSame = payments.every(
-      (p, i) => p.purposeOfPayment === newPurposes[i]
-    );
+    const isSame = payments.every((p, i) => p.purposeOfPayment === newPurposes[i]);
 
     if (!isSame) {
       payments.forEach((_, i) => {
@@ -78,5 +86,6 @@ export function useAutoFillPaymentsPurpose(
     vatPercent,
     accountNumber,
     date,
+    isAuto,
   ]);
 }
