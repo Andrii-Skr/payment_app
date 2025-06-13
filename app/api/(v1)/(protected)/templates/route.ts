@@ -21,6 +21,7 @@ export type TemplateBody = {
   partner_account_number_id: number;
   purposeOfPayment: string;
   note: string;
+  is_auto_purpose_of_payment?: boolean;
 };
 
 const postHandler = async (
@@ -53,6 +54,7 @@ const postHandler = async (
     partner_account_number_id: body.partner_account_number_id,
     purpose_of_payment: body.purposeOfPayment?.split(AUTO_PURPOSE_MARKER)[0]?.trim() ?? "",
     note: body.note,
+    is_auto_purpose_of_payment: body.is_auto_purpose_of_payment ?? true,
     user_id: Number(user.id),
   };
 

@@ -28,13 +28,21 @@ export function usePurposeAutoFill<T extends FieldValues>(
     name: "vatPercent",
   });
   const vatType = useWatch({ control, name: "vatType" });
+  const isAuto = useWatch({ control, name: "is_auto_purpose_of_payment" });
   const purpose = useWatch({
     control,
     name: "purposeOfPayment",
   });
 
   useEffect(() => {
-    if (!accountNumber || !date || !accountSum || vatType === undefined) return;
+    if (
+      !isAuto ||
+      !accountNumber ||
+      !date ||
+      !accountSum ||
+      vatType === undefined
+    )
+      return;
 
     const parsedSum = parseFloat(accountSum.toString());
     const formattedDate = format(new Date(date), "dd.MM.yyyy");

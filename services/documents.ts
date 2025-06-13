@@ -11,6 +11,7 @@ import { EntityWithAll } from "@api/documents/entities/route";
 export type CreateDocumentPayload = Omit<FormValues, "date"> & {
   date: string;
   allowDuplicate?: boolean;
+  is_auto_purpose_of_payment: boolean;
 };
 
 export const create = async (data: CreateDocumentPayload) => {

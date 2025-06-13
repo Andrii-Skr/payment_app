@@ -14,11 +14,12 @@ export function useAutoFillPaymentsPurpose(
   const vatPercent = useWatch({ control, name: "vatPercent" });
   const mainPurpose = useWatch({ control, name: "purposeOfPayment" });
   const payments = useWatch({ control, name: "payments" });
+  const isAuto = useWatch({ control, name: "is_auto_purpose_of_payment" });
 
   const formattedDate = date ? format(date, "dd.MM.yyyy") : "";
 
   useEffect(() => {
-    if (!mainPurpose || !Array.isArray(payments) || payments.length === 0)
+    if (!isAuto || !mainPurpose || !Array.isArray(payments) || payments.length === 0)
       return;
 
     const [userPart] = mainPurpose.split(AUTO_PURPOSE_MARKER).map((s) => s.trim());

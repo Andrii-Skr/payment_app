@@ -34,6 +34,8 @@ export type PaymentDetail = {
   pay_sum: number;
   is_paid: boolean;
 
+  is_auto_purpose_of_payment: boolean;
+
   vat_type: boolean;
   vat_percent: number | null;
 };

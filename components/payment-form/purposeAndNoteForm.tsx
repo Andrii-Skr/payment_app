@@ -1,5 +1,5 @@
 import React from "react";
-import { ContainerGrid, FormTextarea } from "@/components/shared";
+import { ContainerGrid, FormTextarea, FormCheckbox } from "@/components/shared";
 import { useFormContext } from "react-hook-form";
 import { FormValues } from "@/types/formTypes";
 import { VatSelector } from "@/components/shared/vatSelector";
@@ -17,6 +17,11 @@ export const PurposeAndNoteForm: React.FC = () => {
         control={control}
         name="purposeOfPayment"
         label="Назначение платежа"
+      />
+      <FormCheckbox
+        control={control}
+        name="is_auto_purpose_of_payment"
+        label="Автозаполнение назначения"
       />
       <ContainerGrid className="sm:grid-cols-2 lg:grid-cols-[1fr_2fr]">
         <VatSelector control={control} setValue={setValue} />

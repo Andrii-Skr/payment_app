@@ -32,3 +32,4 @@ export { AddForm } from "./addForm";
 export { EntitySelectController } from "./entitySelectController";
 export { FormTextarea } from "./formTextarea";
 export { VatSelector} from "./vatSelector";
+export { FormCheckbox } from "./formCheckbox";

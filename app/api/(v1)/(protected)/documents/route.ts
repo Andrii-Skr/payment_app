@@ -25,6 +25,7 @@ type CreateDocumentBody = {
   vatPercent: number;
   purposeOfPayment: string;
   payments: Payment[];
+  is_auto_purpose_of_payment: boolean;
 };
 
 // POST handler
@@ -81,6 +82,7 @@ const postHandler = async (
       vat_percent: body.vatType ? body.vatPercent : 0,
       purpose_of_payment: body.purposeOfPayment,
       user_id: parseInt(user.id, 10),
+      is_auto_purpose_of_payment: body.is_auto_purpose_of_payment,
       is_saved: true,
       spec_doc: {
         create: body.payments.map(

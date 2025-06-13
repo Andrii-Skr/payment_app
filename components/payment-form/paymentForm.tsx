@@ -65,6 +65,7 @@ const defaultValues: FormValues = {
   full_name: "",
   purposeOfPayment: "",
   note: "",
+  is_auto_purpose_of_payment: true,
 };
 
 export const PaymentForm: React.FC<{ className?: string }> = ({

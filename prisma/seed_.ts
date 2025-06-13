@@ -123,6 +123,7 @@ async function seedDocument(partner_id: number) {
       partner_account_number_id: acc.id,
       is_saved: true,
       is_paid: false,
+      is_auto_purpose_of_payment: true,
       user_id: 1,
     },
   });

@@ -22,6 +22,8 @@ export function groupPaymentsByReceiver(payments: PaymentDetail[]): PaymentDetai
     // --- Извлекаем пользовательскую часть из первого назначения
     const userPrefix = first.purpose_of_payment?.split(AUTO_PURPOSE_MARKER)[0]?.trim() || "";
 
+    const autoEnabled = group.every((p) => p.is_auto_purpose_of_payment);
+
     // --- Подгруппировка по дате
     const byDate = new Map<string, Set<string>>();
     const vatTotals = new Map<number, number>();
@@ -52,7 +54,9 @@ export function groupPaymentsByReceiver(payments: PaymentDetail[]): PaymentDetai
     // --- Формируем окончательное назначение платежа
     let purpose = "";
 
-    if (vatTotals.size === 0) {
+    if (!autoEnabled) {
+      purpose = userPrefix;
+    } else if (vatTotals.size === 0) {
       purpose = `${userPrefix} ${parts.join(", ")}, без ПДВ`;
     } else if (vatTotals.size === 1) {
       const [percent, vat] = Array.from(vatTotals.entries())[0];

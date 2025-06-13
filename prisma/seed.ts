@@ -201,6 +201,7 @@ async function seedDocuments() {
       partner_account_number_id: getAccountByPartnerId(p.id),
       is_saved: true,
       is_paid: false,
+      is_auto_purpose_of_payment: true,
       user_id: 1,
     };
   });

@@ -75,6 +75,7 @@ export const formSchema = z.object({
   note: z.string().optional(),
 
   is_auto_payment: z.boolean().optional(),
+  is_auto_purpose_of_payment: z.boolean().default(true),
 });
 
 export type PaymentValues = z.infer<typeof paymentSchema>;

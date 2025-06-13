@@ -28,6 +28,7 @@ export type TemplatePayload ={
 
   purposeOfPayment?: string;
   note?: string;
+  is_auto_purpose_of_payment?: boolean;
 }
 export type TemplateResponse ={
   success: boolean;

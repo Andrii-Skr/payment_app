@@ -29,7 +29,9 @@ model documents {
 
     user_id Int
     user    user @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+    
     is_auto_payment Boolean @default(false)
+    is_auto_purpose_of_payment Boolean @default(true)
 
     created_at DateTime? @default(now()) @db.Timestamp()
     updated_at DateTime? @updatedAt @db.Timestamp()
@@ -88,7 +90,7 @@ model template {
 
     partner_id Int
     partner   partners @relation(fields: [partner_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-    
+
 
     edrpou String
     account_number     String?
@@ -107,6 +109,8 @@ model template {
     note String?
 
     user_id Int
+
+    is_auto_purpose_of_payment Boolean @default(true)
 
     created_at DateTime? @default(now()) @db.Timestamp()
     updated_at DateTime? @updatedAt @db.Timestamp()

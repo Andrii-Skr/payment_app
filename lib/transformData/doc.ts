@@ -13,6 +13,7 @@ export const TransformedObject = (data: DocumentWithIncludes): FormValues => {
     vatPercent: data.vat_percent != null ? Number(data.vat_percent) : undefined,
     edrpou: data.partner?.edrpou ?? "",
     is_auto_payment: data.is_auto_payment,
+    is_auto_purpose_of_payment: data.is_auto_purpose_of_payment,
 
     payments:
       data.spec_doc?.map((specDoc) => ({
