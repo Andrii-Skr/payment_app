@@ -33,6 +33,7 @@ export const TemplateSelector: React.FC<Props> = ({
       type="button"
       tabIndex={-1}
       className="justify-start self-end"
+      size={"sm"}
       variant="ghost"
       onClick={onSaveClick}
     >

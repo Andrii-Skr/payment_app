@@ -212,6 +212,7 @@ export const AddPartner: React.FC<Props> = ({ entityIdNum, className }) => {
           type="button"
           variant="ghost"
           tabIndex={-1}
+          size={"sm"}
           className={cn("", className)}
         >
           <CirclePlus className="mr-2" />

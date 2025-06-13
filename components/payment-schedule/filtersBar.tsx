@@ -69,7 +69,7 @@ export const FiltersBar: React.FC<FiltersBarProps> = ({
       <div className="flex items-center space-x-2">
         <Button onClick={handlePrev}>←</Button>
         <DatePicker
-          className="w-[130px]"
+          className="w-[130px] !h-8"
           selected={startDate}
           onChange={(day) => {
             if (day) setStartDate(day);
@@ -111,7 +111,7 @@ export const FiltersBar: React.FC<FiltersBarProps> = ({
           placeholder="Фильтр по Контрагенту"
           value={partnerFilter}
           onChange={(e) => setPartnerFilter(e.target.value)}
-          className="border rounded p-1"
+          className="border rounded p-1 !h-8"
         />
       </div>
 

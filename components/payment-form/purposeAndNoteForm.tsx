@@ -17,19 +17,22 @@ export const PurposeAndNoteForm: React.FC = () => {
         control={control}
         name="purposeOfPayment"
         label="Назначение платежа"
+        className="textarea-size"
       />
       <FormCheckbox
         control={control}
         name="is_auto_purpose_of_payment"
         label="Автозаполнение назначения"
+        className="justify-end !mb-[-15]"
       />
-      <ContainerGrid className="sm:grid-cols-2 lg:grid-cols-[1fr_2fr]">
+      <ContainerGrid className="sm:grid-cols-2 lg:grid-cols-[1fr_2fr] items-center">
         <VatSelector control={control} setValue={setValue} />
 
         <FormTextarea
           control={control}
           name="note"
           label="Комментарий к платежу"
+          className="textarea-size"
         />
       </ContainerGrid>
     </>

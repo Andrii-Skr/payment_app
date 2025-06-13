@@ -37,10 +37,9 @@ export function VatSelector<T extends FieldValues>({
     <div className={cn("flex flex-col gap-3", className)}>
       <FormLabel className="text-sm">Тип налогообложения</FormLabel>
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 mt-[-5px]">
         <Button
           type="button"
-          size="sm"
           onClick={() => setValue(typeName, true as any)}
           className={`px-4 py-1 rounded-full border text-sm transition ${
             vatType === true
@@ -67,7 +66,6 @@ export function VatSelector<T extends FieldValues>({
 
         <Button
           type="button"
-          size="sm"
           onClick={() => setValue(typeName, false as any)}
           className={`px-4 py-1 rounded-full border text-sm transition ${
             vatType === false

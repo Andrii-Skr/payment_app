@@ -191,6 +191,7 @@ const SumAndDateForm: React.FC<Props> = ({ control, onBlur }) => {
                   type="button"
                   tabIndex={-1}
                   className="flex items-center justify-start text-red-500 self-center mt-2"
+                  size={"sm"}
                   variant="ghost"
                   disabled={isPaid}
                   onClick={() => remove(index)}

@@ -88,7 +88,7 @@ body {
 }
 
 .input-size {
-  @apply w-full  h-8;
+  @apply w-full max-w-[270px] h-7;
 }
 
 .vat-input-size {
@@ -96,14 +96,14 @@ body {
 }
 
 .date-picker-size {
-  @apply w-full  h-8;
+  @apply w-full max-w-[270px] h-7;
 }
 
 .combobox-size {
-  @apply w-full  h-8;
+  @apply w-full max-w-[270px]  h-7;
 }
 .bank-account-size {
-  @apply min-w-[290px];
+  @apply min-w-[270px] w-full;
 }
 
 @layer base {
