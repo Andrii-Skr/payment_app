@@ -3,6 +3,8 @@ import { format } from "date-fns";
 import type { PaymentDetail } from "@/types/types";
 import { fetchEntitiesBatch } from "@/services/entityService";
 
+const INVISIBLE_SEPARATOR = "\u2063";
+
 type CsvRow = Record<string, string>;
 
 /** Порядок колонок в итоговом файле */
@@ -42,7 +44,7 @@ export const buildPaymentsCsv = async (
       MFO_A: payer?.mfo ?? "",
       MFO_B: p.partner_account_mfo ?? "",
       AMOUNT: p.pay_sum.toFixed(2).replace(".", ","),
-      DETAILS: p.purpose_of_payment,
+      DETAILS: p.purpose_of_payment.replace(new RegExp(INVISIBLE_SEPARATOR, "g"), ""),
     };
   });
 
