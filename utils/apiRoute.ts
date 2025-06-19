@@ -136,7 +136,7 @@ export function apiRoute<
         { status }
       );
     } finally {
-      logApiRequest(req, user, status, started, bodyRaw);
+      void logApiRequest(req, user, status, started, bodyRaw);
     }
   };
 }

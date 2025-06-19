@@ -36,7 +36,7 @@ async function handleAuth(
   }
 
   // --- логируем ---
-  await logApiRequest(
+  void logApiRequest(
     req,
     numericUserId ? ({ id: numericUserId } as any) : null,
     status,

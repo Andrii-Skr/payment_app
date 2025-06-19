@@ -1,7 +1,7 @@
 "use client";
 
+import { FormEvent } from "react";
 import { signIn } from "next-auth/react";
-import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -9,13 +9,22 @@ import { Label } from "@/components/ui/label";
 import { toast } from "@/lib/hooks/use-toast";
 
 export default function SignIn() {
-  const [login, setLogin] = useState("");
-  const [password, setPassword] = useState("");
   const router = useRouter();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    // 1. Берём значения прямо из формы (автозаполнение уже там)
+    const formData = new FormData(e.currentTarget);
+    const login = (formData.get("login") ?? "").toString();
+    const password = (formData.get("password") ?? "").toString();
+
+    if (!login || !password) {
+      toast.error("Введите логин и пароль");
+      return;
+    }
+
+    // 2. Отправляем их в NextAuth
     const result = await signIn("credentials", {
       login,
       password,
@@ -37,41 +46,34 @@ export default function SignIn() {
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Логин */}
           <div className="space-y-1">
-            <Label htmlFor="username" className="sr-only">
+            <Label htmlFor="login" className="sr-only">
               Логин
             </Label>
             <Input
-              id="username"
-              name="username"
+              id="login"
+              name="login"            /* <- было username */
               type="text"
-              className="w-full"
-              placeholder="Логин"
               autoComplete="username"
-              value={login}
-              onChange={(e) => setLogin(e.target.value)}
+              placeholder="Логин"
               required
             />
           </div>
 
           {/* Пароль */}
           <div className="space-y-1">
-            <Label htmlFor="password" className="sr-only inline-flex">
+            <Label htmlFor="password" className="sr-only">
               Пароль
             </Label>
             <Input
               id="password"
               name="password"
               type="password"
-              className="w-full"
-              placeholder="Пароль"
               autoComplete="current-password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Пароль"
               required
             />
           </div>
 
-          {/* Кнопка входа */}
           <Button type="submit" className="w-full">
             Войти
           </Button>
