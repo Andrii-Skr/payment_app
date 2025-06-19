@@ -1,7 +1,7 @@
 type RateLimitMap = Map<string, { count: number; timestamp: number }>;
 
 const WINDOW_SIZE = 60 * 1000; // 60 секунд
-const MAX_REQUESTS = 5;
+const MAX_REQUESTS = 5000000;
 
 const ipLimitStore: RateLimitMap = new Map();
 const loginLimitStore: RateLimitMap = new Map();
