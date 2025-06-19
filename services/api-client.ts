@@ -5,6 +5,7 @@ import * as specDocs from "./specDocs";
 import * as autoPayments from "./autoPayments";
 import * as templates from "./templates";
 import * as bankInfo from "./bank-info";
+import * as users from "./users";
 
 export const apiClient = {
   entities,
@@ -14,4 +15,5 @@ export const apiClient = {
   autoPayments,
   templates,
   bankInfo,
+  users,
 };
