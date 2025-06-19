@@ -16,6 +16,12 @@ function cleanExpiredEntries(map: RateLimitMap) {
   }
 }
 
+/** Сбрасывает счётчики попыток для IP и логина */
+export function resetRateLimit(ip: string, login: string) {
+  ipLimitStore.delete(ip);
+  loginLimitStore.delete(login);
+}
+
 export function rateLimit(ip: string, login: string): {
   allowed: boolean;
   retryAfter?: number;

@@ -2,7 +2,7 @@ import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcrypt";
 import { Role } from "@/constants/roles";
-import { rateLimit } from "@/utils/rateLimiter";
+import { rateLimit, resetRateLimit } from "@/utils/rateLimiter";
 import prisma from "@/prisma/prisma-client";
 
 
@@ -43,6 +43,8 @@ export const authOptions: NextAuthOptions = {
           user.password
         );
         if (!isValid) return null;
+
+        resetRateLimit(ip.toString(), login);
 
         return {
           id: user.id.toString(),
