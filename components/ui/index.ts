@@ -1,4 +1,4 @@
-import { Checkbox } from '@/components/ui/checkbox';
+import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
 import { e } from "mathjs";
 export { Button } from "./button";
@@ -45,7 +45,13 @@ export {
   TableCell,
   TableCaption,
 } from "./table";
-export { Select } from "./select";
+export {
+  Select,
+  SelectTrigger,
+  SelectContent,
+  SelectItem,
+  SelectValue,
+} from "./select";
 export { Card, CardContent, CardHeader, CardTitle } from "./card";
 export {
   DropdownMenu,

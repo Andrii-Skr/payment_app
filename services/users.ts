@@ -1,5 +1,5 @@
 import axiosInstance from "@/services/instance";
-import type { user } from "@prisma/client";
+import type { user, role } from "@prisma/client";
 
 export const getAll = async (): Promise<user[] | []> => {
   try {
@@ -11,33 +11,85 @@ export const getAll = async (): Promise<user[] | []> => {
   }
 };
 
-export const updateRole = async (user_id: number, role_id: number) => {
+export const updateRole = async (
+  user_id: number,
+  role_id: number,
+  login?: string,
+  name?: string,
+) => {
   try {
-    await axiosInstance.patch("/users/role", { user_id, role_id });
+    await axiosInstance.patch("/users", { user_id, role_id, login, name });
   } catch (error) {
     console.error(error);
   }
 };
 
-export const updateEntities = async (
+export const updateLinks = async (
   user_id: number,
-  entity_ids: number[],
+  data: {
+    add_entities?: number[];
+    remove_entities?: number[];
+    add_partners?: number[];
+    remove_partners?: number[];
+  },
 ) => {
   try {
-    await axiosInstance.patch("/users/entities", { user_id, entity_ids });
+    await axiosInstance.post("/users", { user_id, ...data });
   } catch (error) {
     console.error(error);
   }
 };
 
-export const updatePartners = async (
-  user_id: number,
-  partner_ids: number[],
-) => {
+export const toggleDelete = async (user_id: number, is_deleted: boolean) => {
   try {
-    await axiosInstance.patch("/users/partners", { user_id, partner_ids });
+    await axiosInstance.patch("/users/delete", { user_id, is_deleted });
   } catch (error) {
     console.error(error);
   }
 };
+
+export const getRoles = async (): Promise<role[] | []> => {
+  try {
+    const { data } = await axiosInstance.get<role[]>("/roles");
+    return data;
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
+};
+
+export const remove = async (user_id: number, is_deleted: boolean) => {
+  try {
+    await axiosInstance.patch("/users/delete", { user_id, is_deleted });
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+export const updateUser = async (
+  user_id: number,
+  data: { login: string; name: string; role_id: number },
+) => {
+  try {
+    await axiosInstance.patch("/users/update", { user_id, ...data });
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+export const updateRights = async (data: {
+  user_id: number;
+  add_entities?: number[];
+  remove_entities?: number[];
+  add_partners?: number[];
+  remove_partners?: number[];
+}) => {
+  try {
+    await axiosInstance.post("/users", data);
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+export type Role = { id: number; name: string };
 
