@@ -105,12 +105,14 @@ const getHandler = async (
   const hasEntityAccess = entityIds.includes(entityId);
 
   if (!hasEntityAccess && partnerIds.length === 0)
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    return NextResponse.json([]);
 
   const linkedRecords = await prisma.partners_on_entities.findMany({
     where: {
       ...relationFilter,
-      ...(partnerIds.length ? { partner_id: { in: partnerIds } } : {}),
+      ...(!hasEntityAccess && partnerIds.length
+        ? { partner_id: { in: partnerIds } }
+        : {}),
     },
     include,
   });
