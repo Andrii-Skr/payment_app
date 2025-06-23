@@ -156,7 +156,7 @@ export const PaymentForm: React.FC<{ className?: string }> = ({
 
   /* ---------- render ---------- */
   return (
-    <div className={`flex justify-around ${className ?? ""}`}>
+    <div className={`flex flex-row-reverse justify-around ${className ?? ""}`}>
       {/* левая панель со списком документов */}
       <AsidePaymentForm docs={docs} onRowClick={handleDocRowClick} />
 

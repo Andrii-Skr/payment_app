@@ -1,5 +1,5 @@
 import { usePaymentStore } from "@/store/paymentStore";
-import { PaymentDetail } from "@/types/types";
+import { PaymentDetail, DocumentType } from "@/types/types";
 import { useMemo } from "react";
 import { toast } from "@/lib/hooks/use-toast";
 
@@ -41,6 +41,18 @@ export const usePendingPayments = () => {
     setPendingPayments(all);
   };
 
+  const syncWithDocuments = (docs: DocumentType[]) => {
+    const existingIds = new Set<number>();
+    docs.forEach((doc) =>
+      doc.spec_doc.forEach((spec) => existingIds.add(spec.id))
+    );
+
+    const filtered = pendingPayments.filter((p) => existingIds.has(p.spec_doc_id));
+    if (filtered.length !== pendingPayments.length) {
+      setPendingPayments(filtered);
+    }
+  };
+
   return {
     pendingPayments,
     groupedPayments,
@@ -48,5 +60,6 @@ export const usePendingPayments = () => {
     setPendingPayments,
     clearPendingPayments,
     update,
+    syncWithDocuments,
   };
 };
