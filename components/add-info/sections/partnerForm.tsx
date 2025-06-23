@@ -77,8 +77,6 @@ export const PartnerForm: React.FC<Props> = ({
           if (partner) {
             form.setValue("full_name", partner.full_name);
             form.setValue("short_name", partner.short_name);
-            const acc = partner.partner_account_number.find((a) => a.is_default);
-            if (acc) form.setValue("bank_account", acc.bank_account);
             break;
           }
         }

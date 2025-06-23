@@ -111,10 +111,6 @@ export const AddPartner: React.FC<Props> = ({ entityIdNum, className }) => {
           if (partner) {
             internalForm.setValue("full_name", partner.full_name);
             internalForm.setValue("short_name", partner.short_name);
-            const acc = partner.partner_account_number.find(
-              (a) => a.is_default
-            );
-            if (acc) internalForm.setValue("bank_account", acc.bank_account);
             break;
           }
         }
