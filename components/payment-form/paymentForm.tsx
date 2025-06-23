@@ -25,6 +25,7 @@ import { useDocumentsStore } from "@/store/documentsListStore";
 import { apiClient } from "@/services/api-client";
 import { toast } from "@/lib/hooks/use-toast";
 import { Trash2 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 import {
   TemplateSelector,
@@ -156,7 +157,7 @@ export const PaymentForm: React.FC<{ className?: string }> = ({
 
   /* ---------- render ---------- */
   return (
-    <div className={`flex flex-row-reverse justify-around ${className ?? ""}`}>
+    <div className={cn('flex flex-row-reverse justify-around', className)}>
       {/* левая панель со списком документов */}
       <AsidePaymentForm docs={docs} onRowClick={handleDocRowClick} />
 
