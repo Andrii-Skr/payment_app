@@ -73,16 +73,20 @@ export const PartnerEditModal = ({
     },
   });
 
-  const handleSetDefault = async (accId: number) => {
+  const handleSetDefault = async (accId: number, checked: boolean) => {
     setLoadingAccId(accId);
     try {
-      await apiClient.partners.setDefaultAccount(accId, entityId, true);
+      await apiClient.partners.setDefaultAccount(accId, entityId, checked);
       mutateAccounts((arr) =>
-        arr.map((a) => ({ ...a, is_default: a.id === accId }))
+        arr.map((a) => ({ ...a, is_default: checked ? a.id === accId : false }))
       );
-      toast.success("Счёт назначен основным");
+      toast.success(
+        checked ? "Счёт назначен основным" : "Счёт больше не основной"
+      );
     } catch {
-      toast.error("Не удалось назначить счёт");
+      toast.error(
+        checked ? "Не удалось назначить счёт" : "Не удалось снять счёт"
+      );
     } finally {
       setLoadingAccId(null);
     }
@@ -156,7 +160,7 @@ export const PartnerEditModal = ({
           loadingId={loadingAccId}
           showDeleted={true}
           showHidden={true}
-          onSetDefault={handleSetDefault}
+          onSetDefault={(accId, checked) => handleSetDefault(accId, checked)}
           onDelete={toggleDeleteAccount}
           entityId={entityId}
         />

@@ -116,24 +116,32 @@ export const PartnersTable = ({ entityId }: { entityId: number | null }) => {
   };
 
   /* ——— назначить счёт дефолтным ——— */
-  const handleSetDefault = async (partnerId: number, accId: number) => {
+  const handleSetDefault = async (
+    partnerId: number,
+    accId: number,
+    checked: boolean,
+  ) => {
     setLoadingAccId(accId);
     try {
       if (entityId === null) {
         toast.error("Не выбрано юрлицо");
         return;
       }
-      await apiClient.partners.setDefaultAccount(accId, entityId, true);
+      await apiClient.partners.setDefaultAccount(accId, entityId, checked);
       mutatePartner(partnerId, (p) => ({
         ...p,
         partner_account_number: p.partner_account_number.map((a) => ({
           ...a,
-          is_default: a.id === accId,
+          is_default: checked ? a.id === accId : false,
         })),
       }));
-      toast.success("Счёт назначен основным");
+      toast.success(
+        checked ? "Счёт назначен основным" : "Счёт больше не основной"
+      );
     } catch {
-      toast.error("Не удалось назначить счёт");
+      toast.error(
+        checked ? "Не удалось назначить счёт" : "Не удалось снять счёт"
+      );
     } finally {
       setLoadingAccId(null);
     }
@@ -298,8 +306,8 @@ export const PartnersTable = ({ entityId }: { entityId: number | null }) => {
                           showDeleted={showDeleted}
                           showHidden={showHidden}
                           entityId={entityId}
-                          onSetDefault={(accId) =>
-                            handleSetDefault(p.id, accId)
+                          onSetDefault={(accId, checked) =>
+                            handleSetDefault(p.id, accId, checked)
                           }
                           onDelete={(accId) =>
                             handleDeleteAccount(accId, entityId!)

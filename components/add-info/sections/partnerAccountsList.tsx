@@ -17,7 +17,7 @@ import { toast } from "@/lib/hooks/use-toast";
 
 type Props = {
   accounts: AccountItem[];
-  onSetDefault: (id: number) => Promise<void>;
+  onSetDefault: (id: number, checked: boolean) => Promise<void>;
   onDelete: (id: number, entityId: number) => Promise<void>;
   loadingId: number | null;
   showDeleted: boolean;
@@ -57,11 +57,15 @@ export const PartnerAccountsList: React.FC<Props> = ({
                 <div className="flex items-center space-x-2">
                   <Switch
                     checked={acc.is_default}
-                    onCheckedChange={async () => {
+                    onCheckedChange={async (checked) => {
                       try {
-                        await onSetDefault(acc.id);
+                        await onSetDefault(acc.id, checked);
                       } catch {
-                        toast.error("Не удалось назначить счёт основным");
+                        toast.error(
+                          checked
+                            ? "Не удалось назначить счёт основным"
+                            : "Не удалось снять счёт из основных"
+                        );
                       }
                     }}
                     disabled={loadingId === acc.id || acc.is_deleted}

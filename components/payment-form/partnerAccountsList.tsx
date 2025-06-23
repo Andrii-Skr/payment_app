@@ -63,29 +63,31 @@ export const PartnerAccountsList: React.FC<Props> = ({
 
   if (visibleAccounts.length === 0) return null;
 
-  const handleSetDefault = async (id: number) => {
+  const handleSetDefault = async (id: number, checked: boolean) => {
     setLoadingId(id);
     const prevList = currentAccountList;
     const optimistic = currentAccountList.map((acc) => ({
       ...acc,
-      is_default: acc.id === id,
+      is_default: checked ? acc.id === id : false,
     }));
     updateAccountList(optimistic);
 
     try {
-      await apiClient.partners.setDefaultAccount(id, entityId, true);
+      await apiClient.partners.setDefaultAccount(id, entityId, checked);
 
       await fetchPartners(entityId);
 
-      const newDefault = optimistic.find((a) => a.id === id);
-      if (newDefault && onDefaultChange) {
+      const newDefault = optimistic.find((a) => a.is_default);
+      if (newDefault && onDefaultChange && checked) {
         onDefaultChange({
           bank_account: newDefault.bank_account,
           id: newDefault.id,
         });
       }
 
-      toast.success("Счёт назначен основным");
+      toast.success(
+        checked ? "Счёт назначен основным" : "Счёт больше не основной"
+      );
     } catch {
       updateAccountList(prevList);
       toast.error("Ошибка при назначении счёта");
@@ -165,7 +167,7 @@ export const PartnerAccountsList: React.FC<Props> = ({
                 <div className="flex items-center space-x-2">
                   <Switch
                     checked={acc.is_default}
-                    onCheckedChange={() => handleSetDefault(acc.id)}
+                    onCheckedChange={(checked) => handleSetDefault(acc.id, checked)}
                     disabled={loadingId === acc.id}
                     id={`default-${acc.id}`}
                   />
