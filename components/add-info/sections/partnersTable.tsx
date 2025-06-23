@@ -70,14 +70,14 @@ export const PartnersTable = ({ entityId }: { entityId: number | null }) => {
   /* ——— Удалить / восстановить партнёра ——— */
   const togglePartnerDelete = useToggleDelete({
     apiFn: apiClient.partners.deletePartner, // (partner_id, is_deleted, entity_id)
-    mutateFn: (id, is_deleted) =>
+    mutateFn: (id, is_deleted, _entityId) =>
       mutatePartner(id, (x) => ({
         ...x,
         entities: x.entities.map((rel) =>
           rel.entity_id === entityId ? { ...rel, is_deleted } : rel
         ),
       })),
-    getEntityState: (id) =>
+    getEntityState: (id, _entityId) =>
       partners.find((p) => p.id === id)?.entities?.[0]?.is_deleted ?? false,
     messages: {
       delete: "Контрагент удалён",
@@ -142,7 +142,7 @@ export const PartnersTable = ({ entityId }: { entityId: number | null }) => {
   /* ——— удалить / восстановить счёт ——— */
   const handleDeleteAccount = useToggleDelete({
     apiFn: apiClient.partners.deleteAccount,
-    mutateFn: (accId, is_deleted) =>
+    mutateFn: (accId, is_deleted, _entityId) =>
       setPartners((prev) =>
         prev.map((p) => ({
           ...p,
@@ -151,7 +151,7 @@ export const PartnersTable = ({ entityId }: { entityId: number | null }) => {
           ),
         }))
       ),
-    getEntityState: (accId) =>
+    getEntityState: (accId, _entityId) =>
       partners
         .flatMap((p) => p.partner_account_number)
         .find((a) => a.id === accId)?.is_deleted ?? false,

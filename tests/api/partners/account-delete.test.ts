@@ -5,7 +5,7 @@ import { Roles } from "@/constants/roles";
 jest.mock("@/prisma/prisma-client", () => ({
   __esModule: true,
   default: {
-    partner_account_number: { update: jest.fn() },
+    partner_account_numbers_on_entities: { update: jest.fn() },
     api_request_log: { create: jest.fn().mockResolvedValue(null) },
     $disconnect: jest.fn(),
   },
@@ -33,20 +33,21 @@ describe("PATCH /partners/account/delete", () => {
     await testApiHandler({
       appHandler: handler,
       test: async ({ fetch }) => {
-        const res = await fetch({ method: "PATCH", headers: { "content-type": "application/json" }, body: JSON.stringify({ id: 1, is_deleted: true }) });
+        const res = await fetch({ method: "PATCH", headers: { "content-type": "application/json" }, body: JSON.stringify({ partner_account_number_id: 1, entity_id: 2, is_deleted: true }) });
         expect(res.status).toBe(401);
       },
     });
   });
 
   it("200 обновляет запись", async () => {
-    prisma.partner_account_number.update.mockResolvedValueOnce({ id: 1 });
+    prisma.partner_account_numbers_on_entities.update.mockResolvedValueOnce({ id: 1 });
 
     await testApiHandler({
       appHandler: handler,
       test: async ({ fetch }) => {
-        const res = await fetch({ method: "PATCH", headers: { "content-type": "application/json" }, body: JSON.stringify({ id: 1, is_deleted: true }) });
+        const res = await fetch({ method: "PATCH", headers: { "content-type": "application/json" }, body: JSON.stringify({ partner_account_number_id: 1, entity_id: 2, is_deleted: true }) });
         expect(res.status).toBe(200);
+        expect(prisma.partner_account_numbers_on_entities.update).toHaveBeenCalled();
       },
     });
   });

@@ -224,9 +224,17 @@ export const setDefaultAccount = async (
 };
 
 /* Удалить счёт (is_deleted = true) */
-export const deleteAccount = async (id: number, is_deleted: boolean) => {
+export const deleteAccount = async (
+  partner_account_number_id: number,
+  is_deleted: boolean,
+  entity_id: number,
+) => {
   try {
-    await axiosInstance.patch("/partners/account/delete", { id, is_deleted });
+    await axiosInstance.patch("/partners/account/delete", {
+      partner_account_number_id,
+      entity_id,
+      is_deleted,
+    });
   } catch (error) {
     console.error("Ошибка при удалении счёта:", error);
   }

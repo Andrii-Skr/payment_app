@@ -60,11 +60,11 @@ export const PartnerEditModal = ({
 
   const toggleDeleteAccount = useToggleDelete({
     apiFn: apiClient.partners.deleteAccount,
-    mutateFn: (id, is_deleted) =>
+    mutateFn: (id, is_deleted, _entityId) =>
       mutateAccounts((arr) =>
         arr.map((a) => (a.id === id ? { ...a, is_deleted } : a))
       ),
-    getEntityState: (id) =>
+    getEntityState: (id, _entityId) =>
       accounts.find((a) => a.id === id)?.is_deleted ?? false,
     messages: {
       delete: "Счёт удалён",

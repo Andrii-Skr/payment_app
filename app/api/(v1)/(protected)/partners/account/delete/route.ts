@@ -5,17 +5,23 @@ import { Roles } from "@/constants/roles";
 import { z } from "zod";
 
 const schema = z.object({
-  id: z.number(),
+  partner_account_number_id: z.number(),
+  entity_id: z.number(),
   is_deleted: z.boolean(),
 });
 
 type Body = z.infer<typeof schema>;
 
 const handler = async (_req: NextRequest, body: Body) => {
-  const { id, is_deleted } = body;
+  const { partner_account_number_id, entity_id, is_deleted } = body;
 
-  const updated = await prisma.partner_account_number.update({
-    where: { id },
+  const updated = await prisma.partner_account_numbers_on_entities.update({
+    where: {
+      entity_id_partner_account_number_id: {
+        entity_id,
+        partner_account_number_id,
+      },
+    },
     data: { is_deleted },
   });
 

@@ -97,7 +97,7 @@ export const PartnerAccountsList: React.FC<Props> = ({
   const handleDelete = async (id: number) => {
     setLoadingId(id);
     try {
-      await apiClient.partners.deleteAccount(id, true);
+      await apiClient.partners.deleteAccount(id, true, entityId);
       updateAccountList(
         currentAccountList.map((acc) =>
           acc.id === id ? { ...acc, is_deleted: true } : acc

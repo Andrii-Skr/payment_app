@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { apiClient } from "@/services/api-client";
 import {
   Button,
@@ -15,6 +16,7 @@ import type { AutoPaymentWithDocs } from "@api/regular-payments/route";
 export const AutoPaymentTable: React.FC = () => {
   const [autoPayments, setAutoPayments] = useState<AutoPaymentWithDocs[]>([]);
   const [expandedGroups, setExpandedGroups] = useState<Set<number>>(new Set());
+  const router = useRouter();
 
   useEffect(() => {
     apiClient.autoPayments
@@ -100,7 +102,14 @@ export const AutoPaymentTable: React.FC = () => {
                         </TableHeader>
                         <TableBody>
                           {payments.map((payment) => (
-                            <TableRow key={payment.id}>
+                            <TableRow
+                              key={payment.id}
+                              onDoubleClick={() =>
+                                router.push(
+                                  `/create/payment-form/${payment.documents.entity_id}?doc_id=${payment.documents.id}`
+                                )
+                              }
+                            >
                               <TableCell>
                                 {payment.documents.partner.short_name}
                               </TableCell>
