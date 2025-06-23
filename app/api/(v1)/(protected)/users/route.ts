@@ -3,6 +3,7 @@ import prisma from "@/prisma/prisma-client";
 import { apiRoute } from "@/utils/apiRoute";
 import { Roles } from "@/constants/roles";
 import { z } from "zod";
+import { Prisma } from "@prisma/client";
 
 /* ----------------------------- Schemas ----------------------------- */
 const roleSchema = z.object({
@@ -22,26 +23,33 @@ type RoleBody = z.infer<typeof roleSchema>;
 
 type LinkBody = z.infer<typeof linkSchema>;
 
-/* ----------------------------- Handlers ---------------------------- */
-const getHandler = async () => {
-  const users = await prisma.user.findMany({
-    where: { is_deleted: false },
-    select: {
-      id: true,
-      login: true,
-      name: true,
-      role: true,
-      users_entities: {
-        select: {
-          entity: true,
-        },
-      },
-      users_partners: {
-        select: {
-          partners: true,
-        },
+export const userQuery = Prisma.validator<Prisma.userFindManyArgs>()({
+  select: {
+    id: true,
+    login: true,
+    name: true,
+    role: true,
+    users_entities: {
+      select: {
+        entity: true,
       },
     },
+    users_partners: {
+      select: {
+        partners: true,
+      },
+    },
+    is_deleted: true,
+  },
+});
+export type UserWithRelations = Prisma.userGetPayload<typeof userQuery>;
+
+/* ----------------------------- Handlers ---------------------------- */
+const getHandler = async (req: NextRequest) => {
+  const withDeleted = req.nextUrl.searchParams.get("withDeleted") === "true";
+  const users = await prisma.user.findMany({
+    where: withDeleted ? {} : { is_deleted: false },
+    ...userQuery,
   });
   return NextResponse.json(users);
 };

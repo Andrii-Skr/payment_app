@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import type { user } from "@prisma/client";
+import type { UserWithRelations } from "@api/users/route";
 
 import { apiClient } from "@/services/api-client";
 import { Container } from "@/components/shared";
@@ -9,7 +9,7 @@ import { Checkbox, LoadingMessage } from "@/components/ui";
 import { UserTable } from "./UserTable";
 
 export function UserSection() {
-  const [rows, setRows] = useState<user[]>([]);
+  const [rows, setRows] = useState<UserWithRelations[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showDeleted, setShowDeleted] = useState(false);
@@ -17,7 +17,7 @@ export function UserSection() {
   const loadUsers = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await apiClient.users.getAll();
+      const data = await apiClient.users.getAll(showDeleted);
       setRows(data);
       setError(null);
     } catch (err) {
@@ -25,7 +25,7 @@ export function UserSection() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [showDeleted]);
 
   useEffect(() => {
     loadUsers();

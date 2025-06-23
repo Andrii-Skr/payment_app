@@ -1,9 +1,6 @@
-import React, {
-  useState,
-  useEffect,
-  useCallback,
-  MouseEvent,
-} from "react";
+"use client";
+
+import React, { useState, useEffect, useCallback, MouseEvent } from "react";
 import {
   Table,
   TableHeader,
@@ -34,8 +31,9 @@ export const SampleTable: React.FC<SampleTableProps> = ({ entityId }) => {
   const [showHidden, setShowHidden] = useState(false);
   const [showDeleted, setShowDeleted] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
-  const [editTarget, setEditTarget] =
-    useState<TemplateWithBankDetails | null>(null);
+  const [editTarget, setEditTarget] = useState<TemplateWithBankDetails | null>(
+    null
+  );
 
   /* ------------------------ data load ----------------------- */
   const loadTemplates = useCallback(async () => {
@@ -152,9 +150,7 @@ export const SampleTable: React.FC<SampleTableProps> = ({ entityId }) => {
                   <Button
                     size="icon"
                     variant="outline"
-                    className={
-                      tpl.is_visible ? "bg-red-500" : "bg-green-500"
-                    }
+                    className={tpl.is_visible ? "bg-red-500" : "bg-green-500"}
                     title={tpl.is_visible ? "Скрыть" : "Показать"}
                     onClick={(e: MouseEvent) => {
                       e.stopPropagation();
@@ -182,9 +178,7 @@ export const SampleTable: React.FC<SampleTableProps> = ({ entityId }) => {
                   <Button
                     size="icon"
                     variant="outline"
-                    className={
-                      tpl.is_deleted ? "bg-green-500" : "bg-red-500"
-                    }
+                    className={tpl.is_deleted ? "bg-green-500" : "bg-red-500"}
                     title={tpl.is_deleted ? "Восстановить" : "Удалить"}
                     onClick={(e: MouseEvent) => {
                       e.stopPropagation();

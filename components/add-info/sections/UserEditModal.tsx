@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import type { user } from "@prisma/client";
+import type { UserWithRelations } from "@api/users/route";
 
 import { apiClient } from "@/services/api-client";
 import { toast } from "@/lib/hooks/use-toast";
@@ -30,7 +30,7 @@ import {
 import { FormInput } from "@/components/shared";
 
 interface Props {
-  user: user;
+  user: UserWithRelations;
   open: boolean;
   onOpenChange: (v: boolean) => void;
   onSaved: () => Promise<void>;

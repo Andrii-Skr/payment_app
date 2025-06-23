@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { user, entity } from "@prisma/client";
+import type {  entity } from "@prisma/client";
+import type { UserWithRelations } from "@api/users/route";
 
 import {
   Dialog,
@@ -20,10 +21,7 @@ import { toast } from "@/lib/hooks/use-toast";
 import { LoadingMessage } from "@/components/ui";
 
 interface Props {
-  user: user & {
-    users_entities: { entity: entity }[];
-    users_partners: { partners: PartnersWithAccounts }[];
-  };
+  user: UserWithRelations;
   open: boolean;
   onOpenChange: (v: boolean) => void;
   onSaved: () => Promise<void>;

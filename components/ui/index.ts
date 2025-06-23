@@ -1,6 +1,4 @@
-import { Checkbox } from "@/components/ui/checkbox";
-import { Switch } from "@/components/ui/switch";
-import { e } from "mathjs";
+
 export { Button } from "./button";
 export { Tabs, TabsList, TabsTrigger, TabsContent } from "./tabs";
 export {

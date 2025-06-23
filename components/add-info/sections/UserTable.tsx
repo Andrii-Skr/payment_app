@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { user } from "@prisma/client";
+import type { UserWithRelations } from "@api/users/route";
 
 import { Button, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui";
 import { Pencil, Shield, Trash2 } from "lucide-react";
@@ -10,14 +10,14 @@ import { UserEditModal } from "./UserEditModal";
 import { UserRightsModal } from "./UserRightsModal";
 
 interface Props {
-  rows: user[];
+  rows: UserWithRelations[];
   onRemove: (id: number, is_deleted: boolean) => Promise<void>;
   onUpdated: () => Promise<void>;
 }
 
 export function UserTable({ rows, onRemove, onUpdated }: Props) {
-  const [editTarget, setEditTarget] = useState<user | null>(null);
-  const [rightsTarget, setRightsTarget] = useState<user | null>(null);
+  const [editTarget, setEditTarget] = useState<UserWithRelations | null>(null);
+  const [rightsTarget, setRightsTarget] = useState<UserWithRelations | null>(null);
 
   return (
     <>

@@ -1,9 +1,11 @@
 import axiosInstance from "@/services/instance";
-import type { user, role } from "@prisma/client";
+import type { role } from "@prisma/client";
+import type { UserWithRelations } from "@api/users/route";
 
-export const getAll = async (): Promise<user[] | []> => {
+export const getAll = async (withDeleted = false): Promise<UserWithRelations[] | []> => {
   try {
-    const { data } = await axiosInstance.get<user[]>("/users");
+    const query = withDeleted ? "?withDeleted=true" : "";
+    const { data } = await axiosInstance.get<UserWithRelations[]>(`/users${query}`);
     return data;
   } catch (error) {
     console.error(error);
@@ -19,30 +21,6 @@ export const updateRole = async (
 ) => {
   try {
     await axiosInstance.patch("/users", { user_id, role_id, login, name });
-  } catch (error) {
-    console.error(error);
-  }
-};
-
-export const updateLinks = async (
-  user_id: number,
-  data: {
-    add_entities?: number[];
-    remove_entities?: number[];
-    add_partners?: number[];
-    remove_partners?: number[];
-  },
-) => {
-  try {
-    await axiosInstance.post("/users", { user_id, ...data });
-  } catch (error) {
-    console.error(error);
-  }
-};
-
-export const toggleDelete = async (user_id: number, is_deleted: boolean) => {
-  try {
-    await axiosInstance.patch("/users/delete", { user_id, is_deleted });
   } catch (error) {
     console.error(error);
   }
