@@ -1,3 +1,5 @@
+'use client'
+
 import React from "react";
 import { ContainerGrid, FormTextarea, FormCheckbox } from "@/components/shared";
 import { useFormContext } from "react-hook-form";
