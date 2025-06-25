@@ -31,7 +31,7 @@ export const PurposeAndNoteForm: React.FC = () => {
           control={control}
           name="note"
           label="Комментарий к платежу"
-          className="textarea-size"
+          className="w-full h-[39px]"
         />
       </ContainerGrid>
     </>

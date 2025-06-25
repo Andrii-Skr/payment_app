@@ -84,7 +84,7 @@ body {
 }
 
 .textarea-size {
-  @apply w-full h-[38px];
+  @apply w-full h-[58px];
 }
 
 .input-size {
