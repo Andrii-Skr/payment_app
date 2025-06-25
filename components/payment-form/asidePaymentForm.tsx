@@ -8,8 +8,11 @@ import {
   TableHeader,
   TableRow,
   Button,
+  Input,
 } from "@/components/ui";
 import { cn } from "@/lib/utils";
+import { DatePicker } from "@/components/shared/datePicker";
+import { isSameDay } from "date-fns";
 
 export type Document = {
   id: number;
@@ -42,6 +45,11 @@ export const AsidePaymentForm: React.FC<AsideProps> = ({
     sensitivity: "base",
   });
 
+  const [filterPartner, setFilterPartner] = useState("");
+  const [filterSum, setFilterSum] = useState("");
+  const [filterDate, setFilterDate] = useState<Date | undefined>();
+  const [filterAccount, setFilterAccount] = useState("");
+
   const handleSort = (column: "partner" | "accountNumber" | "date" | "sum") => {
     if (sortedColumn === column) {
       setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"));
@@ -51,8 +59,25 @@ export const AsidePaymentForm: React.FC<AsideProps> = ({
     }
   };
 
+  const filteredDocs = useMemo(() => {
+    return docs.filter((d) => {
+      const matchesPartner = d.partner.short_name
+        .toLowerCase()
+        .includes(filterPartner.toLowerCase());
+      const matchesAccount = d.account_number.includes(filterAccount);
+      const matchesSum = filterSum
+        ? d.account_sum.toString().includes(filterSum)
+        : true;
+      const matchesDate = filterDate
+        ? isSameDay(new Date(d.date), filterDate)
+        : true;
+
+      return matchesPartner && matchesAccount && matchesSum && matchesDate;
+    });
+  }, [docs, filterPartner, filterAccount, filterSum, filterDate]);
+
   const sortedDocs = useMemo(() => {
-    let sorted = [...docs];
+    let sorted = [...filteredDocs];
     switch (sortedColumn) {
       case "partner":
         sorted.sort((a, b) =>
@@ -88,12 +113,12 @@ export const AsidePaymentForm: React.FC<AsideProps> = ({
         );
     }
     return sorted;
-  }, [docs, sortedColumn, sortOrder]);
+  }, [filteredDocs, sortedColumn, sortOrder]);
 
   return (
     <aside
       className={cn(
-        "w-[31dvw] min-w-[512px] h-[94dvh] space-y-2 rounded-3xl border-gray-200 border-2 mr-[30px]",
+        "w-[34dvw] min-w-[512px] h-[94dvh] space-y-2 rounded-3xl border-gray-200 border-2 mr-[30px]",
         className
       )}
     >
@@ -144,6 +169,39 @@ export const AsidePaymentForm: React.FC<AsideProps> = ({
                         : "↓"
                       : ""}
                   </Button>
+                </TableHead>
+              </TableRow>
+              <TableRow>
+                <TableHead className="p-1 font-normal">
+                  <Input
+                    value={filterPartner}
+                    onChange={(e) => setFilterPartner(e.target.value)}
+                    placeholder="Фильтр"
+                    className="h-7"
+                  />
+                </TableHead>
+                <TableHead className="p-1 font-normal">
+                  <Input
+                    value={filterSum}
+                    onChange={(e) => setFilterSum(e.target.value)}
+                    placeholder="Фильтр"
+                    className="h-7 text-right"
+                  />
+                </TableHead>
+                <TableHead className="p-1 font-normal">
+                  <DatePicker
+                    selected={filterDate}
+                    onChange={setFilterDate}
+                    className="w-full"
+                  />
+                </TableHead>
+                <TableHead className="p-1 font-normal">
+                  <Input
+                    value={filterAccount}
+                    onChange={(e) => setFilterAccount(e.target.value)}
+                    placeholder="Фильтр"
+                    className="h-7"
+                  />
                 </TableHead>
               </TableRow>
             </TableHeader>

@@ -16,15 +16,29 @@ export const TransformedObject = (data: DocumentWithIncludes): FormValues => {
     is_auto_purpose_of_payment: data.is_auto_purpose_of_payment,
 
     payments:
-      data.spec_doc?.map((specDoc) => ({
-        documents_id: specDoc.documents_id,
-        paySum: Number(specDoc.pay_sum),
-        expectedDate: specDoc.expected_date,
-        deadLineDate: specDoc.dead_line_date,
-        purposeOfPayment: specDoc.purpose_of_payment ?? "",
-        isPaid: specDoc.is_paid,
-        paidDate: specDoc.paid_date,
-      })) ?? [],
+      data.spec_doc
+        ?.slice()
+        .sort((a, b) => {
+          if (a.is_paid !== b.is_paid) {
+            return a.is_paid ? 1 : -1;
+          }
+          const aDate = a.expected_date
+            ? new Date(a.expected_date).getTime()
+            : -Infinity;
+          const bDate = b.expected_date
+            ? new Date(b.expected_date).getTime()
+            : -Infinity;
+          return bDate - aDate;
+        })
+        .map((specDoc) => ({
+          documents_id: specDoc.documents_id,
+          paySum: Number(specDoc.pay_sum),
+          expectedDate: specDoc.expected_date,
+          deadLineDate: specDoc.dead_line_date,
+          purposeOfPayment: specDoc.purpose_of_payment ?? "",
+          isPaid: specDoc.is_paid,
+          paidDate: specDoc.paid_date,
+        })) ?? [],
 
     partner_account_number_id: data.partner_account_number_id ?? undefined,
     selectedAccount: data.partner_account_number?.bank_account ?? "",
