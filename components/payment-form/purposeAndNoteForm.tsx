@@ -5,7 +5,6 @@ import { FormValues } from "@/types/formTypes";
 import { VatSelector } from "@/components/shared/vatSelector";
 import { usePurposeAutoFill } from "@/lib/hooks/usePurposeAutoFill";
 
-
 export const PurposeAndNoteForm: React.FC = () => {
   const { control, setValue } = useFormContext<FormValues>();
 
@@ -23,7 +22,7 @@ export const PurposeAndNoteForm: React.FC = () => {
         control={control}
         name="is_auto_purpose_of_payment"
         label="Автозаполнение назначения"
-        className="justify-end !-mb-[15px]"
+        className="justify-end !mb-[-15px]"
       />
       <ContainerGrid className="sm:grid-cols-2 lg:grid-cols-[1fr_2fr] items-center">
         <VatSelector control={control} setValue={setValue} />
