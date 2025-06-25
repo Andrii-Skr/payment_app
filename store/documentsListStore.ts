@@ -10,7 +10,11 @@ type Actions = {
   removeDoc: (docId: number, entityId: number) => Promise<void>;
 };
 
-export const useDocumentsStore = create<State & Actions>((set) => ({
+type Selectors = {
+  getRemainder: (entityId: number, partnerId: number) => number;
+};
+
+export const useDocumentsStore = create<State & Actions & Selectors>((set, get) => ({
   docs: [],
 
   fetchDocs: async (entityId) => {
@@ -22,5 +26,19 @@ export const useDocumentsStore = create<State & Actions>((set) => ({
     await apiClient.documents.remove(docId);
     const raw = await apiClient.documents.getByEntity(entityId);
     if (raw) set({ docs: normalizeArray(raw) });
+  },
+
+  getRemainder: (entityId, partnerId) => {
+    const docs = get().docs.filter(
+      (d) => d.entity_id === entityId && d.partner_id === partnerId
+    );
+    const total = docs.reduce((acc, doc) => {
+      const specSum = doc.spec_doc.reduce(
+        (s, spec) => s + +spec.pay_sum,
+        0
+      );
+      return acc + +doc.account_sum - specSum;
+    }, 0);
+    return Number(total.toFixed(2));
   },
 }));

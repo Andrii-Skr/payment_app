@@ -12,6 +12,7 @@ export type DocumentWithPartnerDB = Prisma.documentsGetPayload<{
         full_name: true;
       };
     };
+    spec_doc: true;
   };
 }>;
 
@@ -31,6 +32,7 @@ export async function getDocumentsForEntity(
     },
     include: {
       partner: { select: { short_name: true, full_name: true } },
+      spec_doc: true,
     },
     orderBy: { date: "desc" },
   });
@@ -53,6 +55,7 @@ export async function getDocumentsForPartners(
     },
     include: {
       partner: { select: { short_name: true, full_name: true } },
+      spec_doc: true,
     },
     orderBy: { date: "desc" },
   });
