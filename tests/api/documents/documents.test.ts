@@ -70,4 +70,40 @@ describe("/documents route", () => {
       },
     });
   });
+
+  it("передает note при создании документа", async () => {
+    prisma.documents.create.mockResolvedValueOnce({ id: 1 });
+    getSafeDateForPrisma.mockReturnValueOnce(new Date());
+
+    await testApiHandler({
+      appHandler: handler,
+      test: async ({ fetch }) => {
+        const res = await fetch({
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            entity_id: 1,
+            partner_id: 1,
+            partner_account_number_id: 1,
+            accountNumber: "a",
+            date: "2020-01-01",
+            accountSum: 1,
+            accountSumExpression: "1",
+            vatType: false,
+            vatPercent: 0,
+            purposeOfPayment: "",
+            payments: [],
+            is_auto_purpose_of_payment: true,
+            note: "test",
+          }),
+        });
+        expect(res.status).toBe(200);
+        expect(prisma.documents.create).toHaveBeenCalledWith(
+          expect.objectContaining({
+            data: expect.objectContaining({ note: "test" }),
+          })
+        );
+      },
+    });
+  });
 });

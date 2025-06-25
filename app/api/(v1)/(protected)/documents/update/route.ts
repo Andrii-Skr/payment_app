@@ -27,6 +27,7 @@ type UpdateDocumentBody = {
     purposeOfPayment: string;
   }[];
   is_auto_purpose_of_payment: boolean;
+  note?: string;
 };
 
 const patchHandler = async (
@@ -64,6 +65,7 @@ const patchHandler = async (
         user_id: parseInt(user.id, 10),
         is_auto_purpose_of_payment: body.is_auto_purpose_of_payment,
         is_saved: true,
+        note: body.note,
         spec_doc: {
           deleteMany: {}, // удаляем старые
           create: body.payments.map(

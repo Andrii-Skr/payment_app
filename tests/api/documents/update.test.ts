@@ -54,12 +54,12 @@ describe("PATCH /documents/update", () => {
         const res = await fetch({
           method: "PATCH",
           headers: { "content-type": "application/json" },
-          body: JSON.stringify({ doc_id: 1, entity_id: 1, partner_id: 1, partner_account_number_id: 1, accountNumber: "a", date: "2020-01-01", accountSum: 1, accountSumExpression: "1", vatType: false, vatPercent: 0, purposeOfPayment: "", payments: [], is_auto_purpose_of_payment: true }),
+          body: JSON.stringify({ doc_id: 1, entity_id: 1, partner_id: 1, partner_account_number_id: 1, accountNumber: "a", date: "2020-01-01", accountSum: 1, accountSumExpression: "1", vatType: false, vatPercent: 0, purposeOfPayment: "", payments: [], is_auto_purpose_of_payment: true, note: "test" }),
         });
         expect(res.status).toBe(200);
         expect(prisma.documents.update).toHaveBeenCalledWith(
           expect.objectContaining({
-            data: expect.objectContaining({ is_auto_purpose_of_payment: true })
+            data: expect.objectContaining({ is_auto_purpose_of_payment: true, note: "test" })
           })
         );
       },

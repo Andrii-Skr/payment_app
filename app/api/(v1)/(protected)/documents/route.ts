@@ -26,6 +26,7 @@ type CreateDocumentBody = {
   purposeOfPayment: string;
   payments: Payment[];
   is_auto_purpose_of_payment: boolean;
+  note?: string;
 };
 
 // POST handler
@@ -84,6 +85,7 @@ const postHandler = async (
       user_id: parseInt(user.id, 10),
       is_auto_purpose_of_payment: body.is_auto_purpose_of_payment,
       is_saved: true,
+      note: body.note,
       spec_doc: {
         create: body.payments.map(
           ({ paySum, expectedDate, deadLineDate, purposeOfPayment }) => ({
