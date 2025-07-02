@@ -29,7 +29,7 @@ model documents {
 
     user_id Int
     user    user @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-    
+
     is_auto_payment Boolean @default(false)
     is_auto_purpose_of_payment Boolean @default(true)
 
@@ -73,6 +73,8 @@ model auto_payment {
     pay_sum        Decimal  @db.Decimal(10, 2)
     expected_date  DateTime? @db.Timestamp()
     dead_line_date DateTime? @db.Timestamp()
+
+    purpose_of_payment String?
 
     user_id Int
 

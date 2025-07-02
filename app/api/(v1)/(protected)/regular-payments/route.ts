@@ -16,6 +16,7 @@ type AutoPaymentDto = {
   vatType: boolean;
   vatPercent: number;
   userId: number;
+  purposeOfPayment?: string;
 };
 
 /* ---------- бизнес-логика ---------- */
@@ -35,6 +36,7 @@ const postHandler = async (
       pay_sum: body.paySum,
       expected_date: body.expectedDate ? new Date(body.expectedDate) : undefined,
       dead_line_date: body.deadLineDate ? new Date(body.deadLineDate) : undefined,
+      purpose_of_payment: body.purposeOfPayment,
       user_id: Number(user.id),
     },
   });

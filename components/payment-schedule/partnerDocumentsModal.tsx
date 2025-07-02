@@ -117,13 +117,13 @@ export const PartnerDocumentsModal: React.FC<PartnerDocumentsModalProps> = ({
         </div>
 
         {/* Таблица */}
-        <Table className="w-full">
+        <Table className="">
           <TableHeader>
             <TableRow>
-              <TableHead>Дата счета</TableHead>
-              <TableHead>Комментарий к платежу</TableHead>
-              <TableHead>Сумма</TableHead>
-              <TableHead>Остаток</TableHead>
+              <TableHead className="w-24">Дата счета</TableHead>
+              <TableHead className="w-56">Комментарий к платежу</TableHead>
+              <TableHead className="w-32">Сумма</TableHead>
+              <TableHead className="w-32">Остаток</TableHead>
               <TableHead>Платежи</TableHead>
             </TableRow>
           </TableHeader>
@@ -150,17 +150,32 @@ export const PartnerDocumentsModal: React.FC<PartnerDocumentsModalProps> = ({
                   <TableCell>
                     {new Date(doc.date).toLocaleDateString("ru-RU")}
                   </TableCell>
-                  <TableCell>{doc.note}</TableCell>
+                  <TableCell
+                    className="w-[230px] h-[49px] overflow-hidden line-clamp-2"
+                    title={doc.note ?? ""}
+                  >
+                    {doc.note}
+                  </TableCell>
                   <TableCell>{Number(doc.account_sum)}</TableCell>
                   <TableCell>{balance}</TableCell>
                   <TableCell>
                     <div className="flex gap-4">
-                      {doc.spec_doc.map((spec: SpecDocType) => {
-                        const displayDate = spec.expected_date
-                          ? new Date(spec.expected_date)
-                          : spec.dead_line_date
-                          ? new Date(spec.dead_line_date)
-                          : new Date();
+                      {[...doc.spec_doc]
+                        .sort((a, b) => {
+                          const dateA = new Date(
+                            (a.expected_date ?? a.dead_line_date) as unknown as string
+                          ).getTime();
+                          const dateB = new Date(
+                            (b.expected_date ?? b.dead_line_date) as unknown as string
+                          ).getTime();
+                          return dateB - dateA;
+                        })
+                        .map((spec: SpecDocType) => {
+                          const displayDate = spec.expected_date
+                            ? new Date(spec.expected_date)
+                            : spec.dead_line_date
+                            ? new Date(spec.dead_line_date)
+                            : new Date();
 
                         const amountClass = spec.is_paid
                           ? "text-green-500"

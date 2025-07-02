@@ -19,6 +19,7 @@ export async function rolloverAutoPayments() {
       pay_sum: true,
       expected_date: true,
       dead_line_date: true,
+      purpose_of_payment : true,
     },
   });
 
@@ -57,6 +58,7 @@ export async function rolloverAutoPayments() {
             is_paid: false,
             created_at: new Date(),
             updated_at: new Date(),
+            purpose_of_payment: ap.purpose_of_payment,
 
             /* связи через connect – теперь валидны */
             documents: { connect: { id: ap.documents_id } },
@@ -79,6 +81,7 @@ export async function rolloverAutoPayments() {
               pay_sum: ap.pay_sum,
               dead_line_date: newUtc,
               updated_at: new Date(),
+              purpose_of_payment: ap.purpose_of_payment,
             },
           });
         } else {
