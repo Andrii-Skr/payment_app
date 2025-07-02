@@ -107,7 +107,7 @@ const SumAndDateForm: React.FC<Props> = ({ control, onBlur }) => {
           return (
             <div
               key={field.id}
-              className="w-auto rounded-3xl border-gray-200 border-2 ml-[-20px] p-3"
+              className="w-auto rounded-3xl border-gray-400 border-2 ml-[-20px] p-2"
             >
               <ContainerGrid className="">
                 <div className="relative">

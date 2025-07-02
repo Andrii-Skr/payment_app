@@ -207,12 +207,15 @@ export const PaymentForm: React.FC<{ className?: string }> = ({
           />
 
           {/* блоки формы */}
+          <div className="w-auto rounded-3xl border-gray-400 border-2 ml-[-20px] p-2">
+
           <AccountDetailsForm
             control={control}
             onBlur={handleAccountSumBlur}
             onDoubleClick={handleAccountSumDoubleClick}
-          />
+            />
           <PurposeAndNoteForm />
+            </div>
           <PartnerBlock control={control} entityIdNum={entityIdNum} />
           <SumAndDateForm control={control} />
         </form>

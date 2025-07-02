@@ -13,7 +13,7 @@ const config: Config = {
     "bg-yellow-100",
     "bg-red-100",
     "bg-purple-100",
-    "bg-indigo-100",
+    "bg-orange-100",
   ],
 
   theme: {

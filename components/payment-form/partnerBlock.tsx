@@ -24,7 +24,7 @@ export const PartnerBlock: React.FC<Props> = ({ control, entityIdNum }) => {
   );
 
   return (
-    <div className="w-auto rounded-3xl border-gray-200 border-2 ml-[-20px] p-3 space-y-1">
+    <div className="w-auto rounded-3xl border-gray-400 border-2 ml-[-20px] p-3 space-y-1">
       <ContainerGrid className="">
         <EdrpouCombobox
           control={control}

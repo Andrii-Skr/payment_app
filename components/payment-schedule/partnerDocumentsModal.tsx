@@ -67,8 +67,8 @@ export const PartnerDocumentsModal: React.FC<PartnerDocumentsModalProps> = ({
   );
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose}>
-      <div className="max-h-screen overflow-y-auto p-4">
+    <Modal isOpen={isOpen} onClose={onClose} className="max-w-screen-xl">
+      <div className="max-h-screen w-full overflow-y-auto p-4">
         {/* Заголовок */}
         <div className="flex items-center justify-between border-b pb-2">
           <h2 className="text-lg font-bold">Счета по {partner.short_name}</h2>
@@ -80,13 +80,13 @@ export const PartnerDocumentsModal: React.FC<PartnerDocumentsModalProps> = ({
         {/* Фильтры */}
         <div className="mb-4 flex gap-4">
           {/* DatePicker */}
-          <div className="flex-1 space-y-1">
+          <div className="flex-0 space-y-1">
             <Label className="text-sm">Фильтр по дате</Label>
             <Popover>
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
-                  className="w-full justify-start text-left font-normal"
+                  className="w-full h-7 p-3 justify-start text-left font-normal"
                 >
                   {filterDate
                     ? format(filterDate, "dd.MM.yyyy")
@@ -117,13 +117,13 @@ export const PartnerDocumentsModal: React.FC<PartnerDocumentsModalProps> = ({
         </div>
 
         {/* Таблица */}
-        <Table>
+        <Table className="w-full">
           <TableHeader>
             <TableRow>
               <TableHead>Дата счета</TableHead>
+              <TableHead>Комментарий к платежу</TableHead>
               <TableHead>Сумма</TableHead>
               <TableHead>Остаток</TableHead>
-              <TableHead>Комментарий к платежу</TableHead>
               <TableHead>Платежи</TableHead>
             </TableRow>
           </TableHeader>
@@ -150,9 +150,9 @@ export const PartnerDocumentsModal: React.FC<PartnerDocumentsModalProps> = ({
                   <TableCell>
                     {new Date(doc.date).toLocaleDateString("ru-RU")}
                   </TableCell>
+                  <TableCell>{doc.note}</TableCell>
                   <TableCell>{Number(doc.account_sum)}</TableCell>
                   <TableCell>{balance}</TableCell>
-                  <TableCell>{doc.purpose_of_payment}</TableCell>
                   <TableCell>
                     <div className="flex gap-4">
                       {doc.spec_doc.map((spec: SpecDocType) => {
