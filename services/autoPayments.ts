@@ -26,3 +26,11 @@ export const deleteById = async (id: number) => {
     console.log(error);
   }
 };
+
+export const updatePurpose = async (docId: number) => {
+  try {
+    await axiosInstance.patch("/regular-payments", { doc_id: docId });
+  } catch (error) {
+    console.log(error);
+  }
+};

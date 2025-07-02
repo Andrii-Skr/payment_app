@@ -113,6 +113,9 @@ export function usePaymentFormLogic({
         }
       } else {
         await apiClient.documents.update(payload);
+        if (data.is_auto_payment && data.doc_id) {
+          await apiClient.autoPayments.updatePurpose(data.doc_id);
+        }
         await fetchDocs(entityIdNum);
         toast.success("Документ обновлён.");
         router.push(`/create/payment-form/${entityIdNum}`);
