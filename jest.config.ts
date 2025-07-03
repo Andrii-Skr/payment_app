@@ -1,7 +1,7 @@
 export default {
   preset: "ts-jest",
   testEnvironment: "node",
-  testMatch: ["**/tests/**/*.test.ts"],
+  testMatch: ["**/tests/**/*.test.ts", "**/tests/**/*.test.tsx"],
   setupFilesAfterEnv: ["./jest.setup.ts"],
   moduleFileExtensions: ["ts", "tsx", "js"],
   moduleNameMapper: {

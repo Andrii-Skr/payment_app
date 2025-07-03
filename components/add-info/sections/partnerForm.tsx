@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { partnerFormSchema } from "@/types/partner";
 
 import { Button, Form } from "@/components/ui";
 import { toast } from "@/lib/hooks/use-toast";
@@ -13,21 +14,11 @@ import { apiClient } from "@/services/api-client";
 
 /* ---------- schema & types ---------- */
 
-const schema = z.object({
-  entity_id: z.number(),
-  full_name: z.string().min(3, "Мин. 3 символа"),
-  short_name: z.string().min(3, "Мин. 3 символа"),
-  edrpou: z
-    .string()
-    .min(8)
-    .max(10)
-    .regex(/^\d+$/, "ЕДРПОУ должен содержать только цифры"),
+const createSchema = partnerFormSchema.extend({
   bank_account: z.string().length(29, "Должно быть 29 символов"),
-  mfo: z.string().optional(),
-  bank_name: z.string().optional(),
 });
 
-export type PartnerFormValues = z.infer<typeof schema>;
+export type PartnerFormValues = z.infer<typeof createSchema>;
 
 interface Props {
   mode: "create" | "edit";
@@ -46,6 +37,7 @@ export const PartnerForm: React.FC<Props> = ({
   onSaved,
   onCancel,
 }) => {
+  const schema = mode === "edit" ? partnerFormSchema : createSchema;
   const form = useForm<PartnerFormValues>({
     resolver: zodResolver(schema),
     defaultValues: {

@@ -124,13 +124,15 @@ export const AddPartner: React.FC<Props> = ({ entityIdNum, className }) => {
   const readonlyEdrpou = !!edrpou;
 
   const onSubmit = async (data: PartnerValues) => {
-    const isEdit = !!parentForm.getValues("partner_account_number_id");
+
+    const isEdit = !!parentForm.getValues("partner_id");
 
     if (!isEdit && !data.bank_account) {
       internalForm.setError("bank_account", {
         type: "validate",
         message: "Укажите номер счёта",
       });
+      
       return;
     }
     try {
@@ -141,11 +143,16 @@ export const AddPartner: React.FC<Props> = ({ entityIdNum, className }) => {
             full_name: data.full_name,
             short_name: data.short_name,
           });
+
+          parentForm.setValue("full_name", data.full_name);
+          parentForm.setValue("short_name", data.short_name);
+          parentForm.setValue("edrpou", data.edrpou);
         }
 
         await fetchPartners(data.entity_id);
         internalForm.reset();
         toast.success("Сохранено успешно.");
+        setOpen(false);
       } else {
         const { partner, reused } = await createPartner(data);
 
