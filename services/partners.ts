@@ -1,4 +1,4 @@
-import { PartnerValues } from "@/components/payment-form/addPartner";
+import type { PartnerValues } from "@/types/partner";
 import axiosInstance from "@/services/instance";
 
 import type {

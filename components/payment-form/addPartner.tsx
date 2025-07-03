@@ -2,7 +2,8 @@
 import { useEffect, useState } from "react";
 import { useFormContext, useWatch, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
+
+import { partnerFormSchema, type PartnerValues } from "@/types/partner";
 
 import { PartnerInput, Container } from "@/components/shared";
 import {
@@ -27,25 +28,6 @@ import { FormValues } from "@/types/formTypes";
 import { toast } from "@/lib/hooks/use-toast";
 import { cn } from "@/lib/utils";
 
-const formSchema = z.object({
-  entity_id: z.number(),
-  full_name: z.string().min(3),
-  short_name: z.string().min(3),
-  edrpou: z
-    .string()
-    .min(8)
-    .max(10)
-    .regex(/^\d+$/, "ЕДРПОУ должен содержать только цифры"),
-  bank_account: z.preprocess(
-    (v) => (typeof v === "string" && v.trim() === "" ? undefined : v),
-    z.string().length(29).optional()
-  ),
-  mfo: z.string().optional(),
-  bank_name: z.string().optional(),
-});
-
-export type PartnerValues = z.infer<typeof formSchema>;
-
 type Props = {
   entityIdNum: number;
   className?: string;
@@ -61,7 +43,7 @@ export const AddPartner: React.FC<Props> = ({ entityIdNum, className }) => {
   const [showAccountsList, setShowAccountsList] = useState(false);
 
   const internalForm = useForm<PartnerValues>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(partnerFormSchema),
     defaultValues: {
       entity_id: entityIdNum,
       full_name: "",
