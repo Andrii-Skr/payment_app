@@ -96,9 +96,9 @@ export const PartnerDocumentsModal: React.FC<PartnerDocumentsModalProps> = ({
               <PopoverContent className="p-0" align="start">
                 <Calendar
                   mode="single"
+                  captionLayout="dropdown"
                   selected={filterDate}
                   onSelect={setFilterDate}
-                  initialFocus
                 />
               </PopoverContent>
             </Popover>
