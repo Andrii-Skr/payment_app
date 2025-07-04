@@ -124,6 +124,7 @@ const SumAndDateForm: React.FC<Props> = ({ control, onBlur }) => {
                   <Button
                     type="button"
                     variant="ghost"
+                    size={"sm"}
                     className="absolute right-0 top-11 transform -translate-y-4 rounded text-xs font-bold"
                     disabled={isPaid}
                     onClick={() => {

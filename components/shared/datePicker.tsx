@@ -64,8 +64,8 @@ export function DatePicker({
         <Calendar
           mode="single"
           selected={selected ?? undefined}
+          captionLayout="dropdown"
           onSelect={handleSelect}
-          initialFocus
         />
       </PopoverContent>
     </Popover>
