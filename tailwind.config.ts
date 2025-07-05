@@ -14,6 +14,20 @@ const config: Config = {
     "bg-red-100",
     "bg-purple-100",
     "bg-orange-100",
+
+    "sticky",
+    "left-0",
+    "z-[20]",
+    "top-[-50px]",
+    "w-[30px]",
+    "border-r",
+
+    "[writing-mode:vertical-rl]",
+    "[-webkit-writing-mode:vertical-rl]",
+    "rotate-180",
+
+    "font-bold",
+    "text-center",
   ],
 
   theme: {

@@ -104,7 +104,7 @@ export const EntityGroupRow: React.FC<EntityGroupRowProps> = ({
         {rowIndex === 0 && (
           <TableCell
             rowSpan={rows.length}
-            className={`sticky left-0 z-[20] w-[30px] border-r top-[-50] ${color}`}
+            className={`sticky left-0 z-[20] w-[30px] border-r top-[-50px] ${color}`}
           >
             <div className="font-bold rotate-180 text-center [writing-mode:vertical-rl] [-webkit-writing-mode:vertical-rl]">
               {entityNames[entityId]}
