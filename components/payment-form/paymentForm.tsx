@@ -117,7 +117,7 @@ export const PaymentForm: React.FC<{ className?: string }> = ({
     const value = e.target.value;
     if (value.startsWith("=")) {
       setValue("accountSumExpression", value);
-      setValue("accountSum", parseExpression(value));
+      setValue("accountSum", parseExpression(value.replace(/,/g, ".")));
     } else {
       const clean = value.replace(/,/g, ".");
       const num = Number(clean);
