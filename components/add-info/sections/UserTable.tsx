@@ -1,13 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import type { UserWithRelations } from "@api/users/route";
-
 import { Button, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui";
 import { Pencil, Shield, Trash2 } from "lucide-react";
-
 import { UserEditModal } from "./userEditModal";
 import { UserRightsModal } from "./userRightsModal";
+import type { UserWithRelations } from "@api/users/route";
 
 interface Props {
   rows: UserWithRelations[];

@@ -4,8 +4,6 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import type { UserWithRelations } from "@api/users/route";
-
 import { apiClient } from "@/services/api-client";
 import { toast } from "@/lib/hooks/use-toast";
 import {
@@ -28,6 +26,7 @@ import {
   Button,
 } from "@/components/ui";
 import { FormInput } from "@/components/shared";
+import type { UserWithRelations } from "@api/users/route";
 
 interface Props {
   user: UserWithRelations;

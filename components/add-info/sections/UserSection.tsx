@@ -1,12 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import type { UserWithRelations } from "@api/users/route";
-
 import { apiClient } from "@/services/api-client";
 import { Container } from "@/components/shared";
 import { Checkbox, LoadingMessage } from "@/components/ui";
 import { UserTable } from "./userTable";
+import type { UserWithRelations } from "@api/users/route";
 
 export function UserSection() {
   const [rows, setRows] = useState<UserWithRelations[]>([]);

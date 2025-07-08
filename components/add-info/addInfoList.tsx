@@ -1,4 +1,4 @@
-// components/shared/addInfoList.tsx
+
 "use client";
 
 import { useState } from "react";
@@ -16,7 +16,7 @@ export const AddInfoList = () => {
 
   return (
     <Card className="flex h-full min-h-[28rem] overflow-hidden">
-      {/* -------- sidebar -------- */}
+
       <aside className="flex w-56 shrink-0 flex-col gap-2 border-r p-4">
         <Button
           variant={tab === "entity" ? "default" : "ghost"}
