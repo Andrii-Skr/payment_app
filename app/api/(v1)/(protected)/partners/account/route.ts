@@ -65,11 +65,15 @@ const handler = async (_req: NextRequest, body: Body) => {
       }
     });
 
-    return NextResponse.json({
-      success: true,
-      created: existing,
-      message: "Счёт уже существует у партнёра.",
-    });
+    if (alreadyLinked) {
+      return NextResponse.json({
+        success: true,
+        created: existing,
+        message: "Счёт уже существует у партнёра.",
+      });
+    }
+
+    return NextResponse.json({ success: true, created: existing });
   }
 
   const created = await prisma.partner_account_number.create({

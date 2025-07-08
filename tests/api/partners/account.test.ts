@@ -61,4 +61,56 @@ describe("POST /partners/account", () => {
       },
     });
   });
+
+  it("200 привязывает существующий счёт без сообщения", async () => {
+    prisma.partner_account_number.findFirst.mockResolvedValueOnce({
+      id: 2,
+      entities: [],
+    });
+
+    await testApiHandler({
+      appHandler: handler,
+      test: async ({ fetch }) => {
+        const res = await fetch({
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            partner_id: 1,
+            entity_id: 2,
+            bank_account: "12345678901234567890123456789",
+          }),
+        });
+
+        expect(res.status).toBe(200);
+        const data = await res.json();
+        expect(data.message).toBeUndefined();
+      },
+    });
+  });
+
+  it("200 возвращает сообщение если счёт уже привязан", async () => {
+    prisma.partner_account_number.findFirst.mockResolvedValueOnce({
+      id: 3,
+      entities: [{ entity_id: 2 }],
+    });
+
+    await testApiHandler({
+      appHandler: handler,
+      test: async ({ fetch }) => {
+        const res = await fetch({
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            partner_id: 1,
+            entity_id: 2,
+            bank_account: "12345678901234567890123456789",
+          }),
+        });
+
+        expect(res.status).toBe(200);
+        const data = await res.json();
+        expect(data.message).toBe("Счёт уже существует у партнёра.");
+      },
+    });
+  });
 });
