@@ -6,7 +6,7 @@ import type { UserWithRelations } from "@api/users/route";
 import { apiClient } from "@/services/api-client";
 import { Container } from "@/components/shared";
 import { Checkbox, LoadingMessage } from "@/components/ui";
-import { UserTable } from "./UserTable";
+import { UserTable } from "./userTable";
 
 export function UserSection() {
   const [rows, setRows] = useState<UserWithRelations[]>([]);

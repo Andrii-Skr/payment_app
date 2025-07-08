@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/card";
 import { EntitySection } from "./sections/entitySection";
 import { PartnerSection } from "./sections/partnerSection";
 import { SampleSection } from "@/components/add-info";
-import { UserSection } from "./sections/UserSection";
+import { UserSection } from "./sections/userSection";
 
 type Tab = "entity" | "partner" | "user" | "sample";
 

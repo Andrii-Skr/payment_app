@@ -18,6 +18,7 @@ import { apiClient } from "@/services/api-client";
 import type { TemplateWithBankDetails } from "@api/templates/[id]/route";
 
 import {
+  ContainerGrid,
   FormDatePicker,
   FormInput,
   FormTextarea,
@@ -126,14 +127,16 @@ export const TemplateEditModal: React.FC<Props> = ({
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
             <FormInput control={control} name="name" label="Название" />
 
-            <FormDatePicker control={control} name="date" label="Дата" />
+            <ContainerGrid>
 
-            {/* <FormInput
+            <FormInput
               control={control}
               name="accountSum"
               label="Сумма"
               type="number"
-            /> */}
+              />
+            <FormDatePicker control={control} name="date" label="Дата" />
+              </ContainerGrid>
 
             <VatSelector control={control} setValue={setValue} />
 
