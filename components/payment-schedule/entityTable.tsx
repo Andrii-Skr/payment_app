@@ -30,6 +30,7 @@ import type {
   PaymentEntry,
 } from "@/types/types";
 import type { EntityWithAll } from "@/app/api/(v1)/(protected)/documents/entities/route";
+import { useEntitySelectionStore } from "@/store/entitySelectionStore";
 
 export const EntityTable: React.FC<{
   entities: EntityWithAll[];
@@ -62,7 +63,8 @@ export const EntityTable: React.FC<{
   const [selectedPartnerDocuments, setSelectedPartnerDocuments] = useState<
     DocumentType[]
   >([]);
-  const [selectedEntity, setSelectedEntity] = useState<number | "all">("all");
+  const selectedEntity = useEntitySelectionStore((s) => s.selectedEntity);
+  const setSelectedEntity = useEntitySelectionStore((s) => s.setSelectedEntity);
   const [partnerFilter, setPartnerFilter] = useState("");
   const [pendingPartnerShortName, setPendingPartnerShortName] =
     useState<string>("");
