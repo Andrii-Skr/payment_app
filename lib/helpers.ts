@@ -30,11 +30,21 @@ export const formatMoney = (value: number | Decimal): string =>
 
 const colors = [
   "bg-blue-100",
-  "bg-green-100",
+  "bg-green-200",
   "bg-yellow-100",
   "bg-red-100",
   "bg-purple-100",
   "bg-orange-100",
+  "bg-pink-100",
+  "bg-teal-100",
+  "bg-lime-100",
+  "bg-cyan-100",
+  "bg-rose-200",
+  "bg-amber-200",
+  "bg-violet-200",
+  "bg-sky-100",
+  "bg-fuchsia-100",
+  "bg-emerald-100",
 ];
 
 export const getColorForEntity = (entityId: number | string): string => {
