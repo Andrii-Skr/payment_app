@@ -57,7 +57,7 @@ export const PartnerBlock: React.FC<Props> = ({ control, entityIdNum }) => {
           placeholder="Выберите Контрагента..."
           id={entityIdNum}
         />
-        <ComputedFormInput label="Сальдо" value={remainder} className="mt-[-6px]"/>
+        <ComputedFormInput label="Сальдо" value={remainder} className="mt-[-6px]" tabIndex={-1}/>
         {/* <FormInput
           control={control}
           className="no-spin"

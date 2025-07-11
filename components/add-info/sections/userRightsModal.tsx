@@ -9,10 +9,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  Tabs,
-  TabsList,
-  TabsTrigger,
-  TabsContent,
   Checkbox,
 } from "@/components/ui";
 import { apiClient } from "@/services/api-client";
@@ -31,6 +27,8 @@ export function UserRightsModal({ user, open, onOpenChange, onSaved }: Props) {
   const [entities, setEntities] = useState<entity[]>([]);
   const [partners, setPartners] = useState<PartnersWithAccounts[]>([]);
   const [loading, setLoading] = useState(false);
+  const [partnersLoading, setPartnersLoading] = useState(false);
+  const [selectedEntityId, setSelectedEntityId] = useState<number | null>(null);
 
   const entityRights = new Set(user.users_entities.map((u) => u.entity.id));
   const partnerRights = new Set(user.users_partners.map((p) => p.partners.id));
@@ -42,14 +40,12 @@ export function UserRightsModal({ user, open, onOpenChange, onSaved }: Props) {
       try {
         const ents = await apiClient.entities.getAll();
         setEntities(ents);
-        const partnerLists = await Promise.all(
-          ents.map((e) => apiClient.partners.partnersService(e.id))
-        );
-        setPartners(partnerLists.flat().filter(Boolean) as PartnersWithAccounts[]);
       } finally {
         setLoading(false);
       }
     })();
+    setSelectedEntityId(null);
+    setPartners([]);
   }, [open]);
 
   const toggleEntity = async (id: number) => {
@@ -80,43 +76,64 @@ export function UserRightsModal({ user, open, onOpenChange, onSaved }: Props) {
     }
   };
 
+  const selectEntity = async (id: number) => {
+    setSelectedEntityId(id);
+    setPartnersLoading(true);
+    try {
+      const data = await apiClient.partners.partnersService(id);
+      setPartners((data ?? []) as PartnersWithAccounts[]);
+    } finally {
+      setPartnersLoading(false);
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-xl max-h-[90dvh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Права пользователя</DialogTitle>
         </DialogHeader>
         {loading ? (
           <LoadingMessage />
         ) : (
-          <Tabs defaultValue="entities" className="space-y-3 w-[400px] min-h-[600px]">
-            <TabsList>
-              <TabsTrigger value="entities">Юрлица</TabsTrigger>
-              <TabsTrigger value="partners">Контрагенты</TabsTrigger>
-            </TabsList>
-            <TabsContent value="entities" className="space-y-2">
+          <div className="grid grid-cols-2 gap-4 w-[600px]">
+            <div className="space-y-2">
               {entities.map((e) => (
-                <label key={e.id} className="flex items-center gap-2 text-sm">
+                <label
+                  key={e.id}
+                  onClick={() => selectEntity(e.id)}
+                  className={`flex items-center gap-2 text-sm cursor-pointer ${
+                    selectedEntityId === e.id ? 'font-medium' : ''
+                  }`}
+                >
                   <Checkbox
                     checked={entityRights.has(e.id)}
                     onCheckedChange={() => toggleEntity(e.id)}
+                    className="shrink-0"
                   />
                   {e.short_name}
                 </label>
               ))}
-            </TabsContent>
-            <TabsContent value="partners" className="space-y-2">
-              {partners.map((p) => (
-                <label key={p.id} className="flex items-center gap-2 text-sm">
-                  <Checkbox
-                    checked={partnerRights.has(p.id)}
-                    onCheckedChange={() => togglePartner(p.id)}
-                  />
-                  {p.short_name}
-                </label>
-              ))}
-            </TabsContent>
-          </Tabs>
+            </div>
+            <div className="space-y-2">
+              {selectedEntityId === null ? (
+                <p className="text-sm text-muted-foreground">Выберите юрлицо</p>
+              ) : partnersLoading ? (
+                <LoadingMessage />
+              ) : (
+                partners.map((p) => (
+                  <label key={p.id} className="flex items-center gap-2 text-sm">
+                    <Checkbox
+                      checked={partnerRights.has(p.id)}
+                      onCheckedChange={() => togglePartner(p.id)}
+                      className="shrink-0"
+                    />
+                    {p.short_name}
+                  </label>
+                ))
+              )}
+            </div>
+          </div>
         )}
       </DialogContent>
     </Dialog>

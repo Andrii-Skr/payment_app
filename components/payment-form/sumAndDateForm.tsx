@@ -143,6 +143,7 @@ const SumAndDateForm: React.FC<Props> = ({ control, onBlur }) => {
                 </div>
                 <ComputedFormInput
                   label="Остаток"
+                  tabIndex={-1}
                   description="Сумма счета минус сумма платежей"
                   value={remainder}
                 />

@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 type ComputedFormInputProps = {
   label: string;
   description?: string;
+  tabIndex?: number
   value: number;
   className?: string
 }
@@ -19,6 +20,7 @@ type ComputedFormInputProps = {
 export const ComputedFormInput: React.FC<ComputedFormInputProps> = ({
   label,
   description,
+  tabIndex,
   value,
   className
 }) => {
@@ -26,7 +28,7 @@ export const ComputedFormInput: React.FC<ComputedFormInputProps> = ({
     <FormItem className={cn('',className)}>
       <FormLabel>{label}</FormLabel>
       <FormControl>
-        <Input type="number" readOnly className="no-spin" value={value} />
+        <Input type="number" readOnly className="no-spin" value={value} tabIndex={tabIndex} />
       </FormControl>
       {description && <FormDescription>{description}</FormDescription>}
       <FormMessage />

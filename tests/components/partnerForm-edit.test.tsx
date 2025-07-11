@@ -36,12 +36,12 @@ describe('PartnerForm edit', () => {
     await userEvent.clear(screen.getByLabelText('Полное имя'));
     await userEvent.type(screen.getByLabelText('Полное имя'), 'New Name');
     await userEvent.clear(screen.getByLabelText('Короткое имя'));
-    await userEvent.type(screen.getByLabelText('Короткое имя'), 'NN');
+    await userEvent.type(screen.getByLabelText('Короткое имя'), 'NNN');
 
     await userEvent.click(screen.getByRole('button', { name: 'Сохранить' }));
 
     await waitFor(() => expect(mockedUpdate).toHaveBeenCalled());
-    expect(mockedUpdate).toHaveBeenCalledWith(5, { full_name: 'New Name', short_name: 'NN' });
+    expect(mockedUpdate).toHaveBeenCalledWith(5, { full_name: 'New Name', short_name: 'NNN' });
     expect(onSaved).toHaveBeenCalled();
   });
 });

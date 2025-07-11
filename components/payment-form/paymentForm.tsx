@@ -80,7 +80,15 @@ export const PaymentForm: React.FC<{ className?: string }> = ({
     defaultValues,
     shouldUnregister: false,
   });
-  const { setValue, getValues, reset, control, watch, handleSubmit } = form;
+  const {
+    setValue,
+    getValues,
+    reset,
+    control,
+    watch,
+    handleSubmit,
+    setFocus,
+  } = form;
   const docId = watch("doc_id");
   const payments = watch("payments");
 
@@ -245,6 +253,7 @@ export const PaymentForm: React.FC<{ className?: string }> = ({
             onSelect: () => {
               if (selectedTemplate) {
                 reset(confirmTemplateReplace(selectedTemplate));
+                setTimeout(() => setFocus("accountSum"), 0);
               }
               setIsReplaceDialogOpen(false);
               setSelectedTemplate(null);
