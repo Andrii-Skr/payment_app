@@ -16,6 +16,7 @@ model entity {
   documents documents[]
   partners       partners_on_entities[]
   partner_account_numbers    partner_account_numbers_on_entities[]
+  user_partners users_partners[]
   users_entities users_entities[]
 
   created_at     DateTime?             @default(now()) @db.Timestamp()

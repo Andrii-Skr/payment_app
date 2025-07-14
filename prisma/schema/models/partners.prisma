@@ -59,8 +59,10 @@ model synonym_for_partners {
 model users_partners {
   id              Int       @id @default(autoincrement())
   user_id         Int
+  entity_id       Int
   partner_id      Int
 
   user            user      @relation(fields: [user_id], references: [id])
+  entity       entity @relation(fields: [entity_id], references: [id])
   partners         partners  @relation(fields: [partner_id], references: [id])
 }
