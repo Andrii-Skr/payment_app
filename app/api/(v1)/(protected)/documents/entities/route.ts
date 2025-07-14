@@ -126,7 +126,33 @@ const getHandler = async (
       id: { in: allVisibleEntityIds },
     });
 
-    return json(entities);
+    const entityAccess = new Set(directEntityIds);
+    const partnerAccess = dbUser.users_partners.reduce<Record<number, Set<number>>>(
+      (acc, { entity_id, partner_id }) => {
+        if (!acc[entity_id]) acc[entity_id] = new Set();
+        acc[entity_id].add(partner_id);
+        return acc;
+      },
+      {}
+    );
+
+    const filtered = entities.map((e) => {
+      const allowedPartners = partnerAccess[e.id];
+      const hasEntityAccess = entityAccess.has(e.id);
+
+      if (hasEntityAccess && (!allowedPartners || allowedPartners.size === 0)) {
+        return e;
+      }
+
+      const partnerSet = allowedPartners ?? new Set<number>();
+      return {
+        ...e,
+        partners: e.partners.filter((p) => partnerSet.has(p.partner_id)),
+        documents: e.documents.filter((d) => partnerSet.has(d.partner_id)),
+      };
+    });
+
+    return json(filtered);
   } catch (err) {
     console.error(err);
     return json({ message: "Internal Server Error" }, { status: 500 });

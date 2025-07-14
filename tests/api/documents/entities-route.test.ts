@@ -52,4 +52,49 @@ describe("GET /documents/entities", () => {
       },
     });
   });
+
+  it("фильтрует контрагентов по правам", async () => {
+    getServerSession.mockResolvedValueOnce({
+      user: { id: 1, role: Roles.MANAGER },
+    });
+
+    prisma.user.findUnique.mockResolvedValueOnce({
+      users_partners: [{ partner_id: 10, entity_id: 1 }],
+      users_entities: [{ entity_id: 1 }],
+    });
+
+    prisma.entity.findMany.mockResolvedValueOnce([
+      {
+        id: 1,
+        full_name: "",
+        short_name: "",
+        edrpou: "",
+        bank_account: "",
+        bank_name: "",
+        mfo: "",
+        sort_order: 0,
+        documents: [
+          { partner_id: 10 },
+          { partner_id: 11 },
+        ],
+        partners: [
+          { partner_id: 10, partner: { id: 10, full_name: "", short_name: "", edrpou: "" } },
+          { partner_id: 11, partner: { id: 11, full_name: "", short_name: "", edrpou: "" } },
+        ],
+      },
+    ]);
+
+    await testApiHandler({
+      appHandler: handler,
+      test: async ({ fetch }) => {
+        const res = await fetch({ method: "GET" });
+        expect(res.status).toBe(200);
+        const data = await res.json();
+        expect(data[0].partners).toHaveLength(1);
+        expect(data[0].partners[0].partner_id).toBe(10);
+        expect(data[0].documents).toHaveLength(1);
+        expect(data[0].documents[0].partner_id).toBe(10);
+      },
+    });
+  });
 });

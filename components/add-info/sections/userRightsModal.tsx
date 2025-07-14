@@ -38,7 +38,9 @@ export function UserRightsModal({
 
   /* локальные права для мгновенного UI */
   const [entityRights, setEntityRights] = useState<Set<number>>(new Set());
-  const [partnerRights, setPartnerRights] = useState<Set<number>>(new Set());
+  const [partnerRights, setPartnerRights] = useState<Map<number, Set<number>>>(
+    new Map(),
+  );
 
   /* текущий выбранный объект юрлица (удобно для заголовка) */
   const selectedEntity = useMemo(
@@ -50,7 +52,12 @@ export function UserRightsModal({
   useEffect(() => {
     if (!open) return;
     setEntityRights(new Set(user.users_entities.map((u) => u.entity.id)));
-    setPartnerRights(new Set(user.users_partners.map((p) => p.partners.id)));
+    const map = new Map<number, Set<number>>();
+    user.users_partners.forEach((p) => {
+      if (!map.has(p.entity_id)) map.set(p.entity_id, new Set<number>());
+      map.get(p.entity_id)!.add(p.partner_id);
+    });
+    setPartnerRights(map);
   }, [user, open]);
 
   /* загружаем юрлица */
@@ -92,11 +99,14 @@ export function UserRightsModal({
 
   const togglePartner = async (id: number) => {
     if (selectedEntityId == null) return;
-    const had = partnerRights.has(id);
+    const current = partnerRights.get(selectedEntityId) || new Set<number>();
+    const had = current.has(id);
+    const nextCurrent = new Set(current);
+    had ? nextCurrent.delete(id) : nextCurrent.add(id);
     setPartnerRights((prev) => {
-      const next = new Set(prev);
-      had ? next.delete(id) : next.add(id);
-      return next;
+      const map = new Map(prev);
+      map.set(selectedEntityId, nextCurrent);
+      return map;
     });
     try {
       await apiClient.users.updateRights({
@@ -194,7 +204,10 @@ export function UserRightsModal({
                           className="flex items-center gap-2 text-sm cursor-pointer rounded-md px-2 py-1 hover:bg-muted/50 transition-colors"
                         >
                           <Checkbox
-                            checked={partnerRights.has(p.id)}
+                            checked={
+                              partnerRights.get(selectedEntityId ?? -1)?.has(p.id) ??
+                              false
+                            }
                             onCheckedChange={() => togglePartner(p.id)}
                             onClick={(ev) => ev.stopPropagation()}
                             className="shrink-0"
