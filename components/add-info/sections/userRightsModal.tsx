@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import type {  entity } from "@prisma/client";
+import { useEffect, useState, useMemo } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import type { entity } from "@prisma/client";
 import type { UserWithRelations } from "@api/users/route";
-
 import {
   Dialog,
   DialogContent,
@@ -23,23 +23,43 @@ interface Props {
   onSaved: () => Promise<void>;
 }
 
-export function UserRightsModal({ user, open, onOpenChange, onSaved }: Props) {
+export function UserRightsModal({
+  user,
+  open,
+  onOpenChange,
+  onSaved,
+}: Props) {
+  /* -------------------- данные -------------------- */
   const [entities, setEntities] = useState<entity[]>([]);
   const [partners, setPartners] = useState<PartnersWithAccounts[]>([]);
   const [loading, setLoading] = useState(false);
   const [partnersLoading, setPartnersLoading] = useState(false);
   const [selectedEntityId, setSelectedEntityId] = useState<number | null>(null);
 
-  const entityRights = new Set(user.users_entities.map((u) => u.entity.id));
-  const partnerRights = new Set(user.users_partners.map((p) => p.partners.id));
+  /* локальные права для мгновенного UI */
+  const [entityRights, setEntityRights] = useState<Set<number>>(new Set());
+  const [partnerRights, setPartnerRights] = useState<Set<number>>(new Set());
 
+  /* текущий выбранный объект юрлица (удобно для заголовка) */
+  const selectedEntity = useMemo(
+    () => entities.find((e) => e.id === selectedEntityId) || null,
+    [entities, selectedEntityId]
+  );
+
+  /* инициализируем права */
+  useEffect(() => {
+    if (!open) return;
+    setEntityRights(new Set(user.users_entities.map((u) => u.entity.id)));
+    setPartnerRights(new Set(user.users_partners.map((p) => p.partners.id)));
+  }, [user, open]);
+
+  /* загружаем юрлица */
   useEffect(() => {
     if (!open) return;
     (async () => {
       setLoading(true);
       try {
-        const ents = await apiClient.entities.getAll();
-        setEntities(ents);
+        setEntities(await apiClient.entities.getAll());
       } finally {
         setLoading(false);
       }
@@ -48,31 +68,46 @@ export function UserRightsModal({ user, open, onOpenChange, onSaved }: Props) {
     setPartners([]);
   }, [open]);
 
+  /* -------------------- колбеки -------------------- */
   const toggleEntity = async (id: number) => {
+    const had = entityRights.has(id);
+    setEntityRights((prev) => {
+      const next = new Set(prev);
+      had ? next.delete(id) : next.add(id);
+      return next;
+    });
     try {
       await apiClient.users.updateRights({
         user_id: user.id,
-        add_entities: entityRights.has(id) ? undefined : [id],
-        remove_entities: entityRights.has(id) ? [id] : undefined,
+        add_entities: had ? undefined : [id],
+        remove_entities: had ? [id] : undefined,
       });
       toast.success("Права обновлены");
-      await onSaved();
+      onSaved();
     } catch {
       toast.error("Не удалось обновить права");
+      onSaved();
     }
   };
 
   const togglePartner = async (id: number) => {
+    const had = partnerRights.has(id);
+    setPartnerRights((prev) => {
+      const next = new Set(prev);
+      had ? next.delete(id) : next.add(id);
+      return next;
+    });
     try {
       await apiClient.users.updateRights({
         user_id: user.id,
-        add_partners: partnerRights.has(id) ? undefined : [id],
-        remove_partners: partnerRights.has(id) ? [id] : undefined,
+        add_partners: had ? undefined : [id],
+        remove_partners: had ? [id] : undefined,
       });
       toast.success("Права обновлены");
-      await onSaved();
+      onSaved();
     } catch {
       toast.error("Не удалось обновить права");
+      onSaved();
     }
   };
 
@@ -87,51 +122,85 @@ export function UserRightsModal({ user, open, onOpenChange, onSaved }: Props) {
     }
   };
 
+  /* -------------------- UI -------------------- */
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-xl max-h-[90dvh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Права пользователя</DialogTitle>
         </DialogHeader>
+
         {loading ? (
           <LoadingMessage />
         ) : (
           <div className="grid grid-cols-2 gap-4 w-[600px]">
-            <div className="space-y-2">
-              {entities.map((e) => (
-                <label
-                  key={e.id}
-                  onClick={() => selectEntity(e.id)}
-                  className={`flex items-center gap-2 text-sm cursor-pointer ${
-                    selectedEntityId === e.id ? 'font-medium' : ''
-                  }`}
-                >
-                  <Checkbox
-                    checked={entityRights.has(e.id)}
-                    onCheckedChange={() => toggleEntity(e.id)}
-                    className="shrink-0"
-                  />
-                  {e.short_name}
-                </label>
-              ))}
-            </div>
-            <div className="space-y-2">
-              {selectedEntityId === null ? (
-                <p className="text-sm text-muted-foreground">Выберите юрлицо</p>
-              ) : partnersLoading ? (
-                <LoadingMessage />
-              ) : (
-                partners.map((p) => (
-                  <label key={p.id} className="flex items-center gap-2 text-sm">
+            {/* ───── Юрлица ───── */}
+            <div className="space-y-1 pr-2 border-r">
+              {entities.map((e) => {
+                const isSelected = selectedEntityId === e.id;
+                return (
+                  <div
+                    key={e.id}
+                    onClick={() => selectEntity(e.id)}
+                    className={`flex items-center gap-2 text-sm cursor-pointer rounded-md px-2 py-1 transition-colors ${
+                      isSelected
+                        ? "bg-primary/15 text-primary font-semibold"
+                        : "hover:bg-muted/50"
+                    }`}
+                  >
                     <Checkbox
-                      checked={partnerRights.has(p.id)}
-                      onCheckedChange={() => togglePartner(p.id)}
+                      checked={entityRights.has(e.id)}
+                      onCheckedChange={() => toggleEntity(e.id)}
+                      onClick={(ev) => ev.stopPropagation()}
                       className="shrink-0"
                     />
-                    {p.short_name}
-                  </label>
-                ))
-              )}
+                    <span>{e.short_name}</span>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* ───── Контрагенты ───── */}
+            <div className="relative min-h-[200px] pl-1">
+              {partnersLoading && <LoadingMessage />}
+              <AnimatePresence mode="wait">
+                {selectedEntity && !partnersLoading && (
+                  <motion.div
+                    key={selectedEntity.id}
+                    initial={{ x: 60, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    exit={{ x: 60, opacity: 0 }}
+                    transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                    className="space-y-1"
+                  >
+                    {/* Заголовок юрлица */}
+                    <p className="text-sm font-semibold mb-1 text-muted-foreground">
+                      {selectedEntity.short_name}
+                    </p>
+
+                    {partners.length === 0 ? (
+                      <p className="text-sm text-muted-foreground">
+                        Нет контрагентов
+                      </p>
+                    ) : (
+                      partners.map((p) => (
+                        <div
+                          key={p.id}
+                          className="flex items-center gap-2 text-sm cursor-pointer rounded-md px-2 py-1 hover:bg-muted/50 transition-colors"
+                        >
+                          <Checkbox
+                            checked={partnerRights.has(p.id)}
+                            onCheckedChange={() => togglePartner(p.id)}
+                            onClick={(ev) => ev.stopPropagation()}
+                            className="shrink-0"
+                          />
+                          <span>{p.short_name}</span>
+                        </div>
+                      ))
+                    )}
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           </div>
         )}
