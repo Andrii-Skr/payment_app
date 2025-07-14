@@ -91,6 +91,7 @@ export function UserRightsModal({
   };
 
   const togglePartner = async (id: number) => {
+    if (selectedEntityId == null) return;
     const had = partnerRights.has(id);
     setPartnerRights((prev) => {
       const next = new Set(prev);
@@ -100,8 +101,12 @@ export function UserRightsModal({
     try {
       await apiClient.users.updateRights({
         user_id: user.id,
-        add_partners: had ? undefined : [id],
-        remove_partners: had ? [id] : undefined,
+        add_partners: had
+          ? undefined
+          : [{ partner_id: id, entity_id: selectedEntityId ?? 0 }],
+        remove_partners: had
+          ? [{ partner_id: id, entity_id: selectedEntityId ?? 0 }]
+          : undefined,
       });
       toast.success("Права обновлены");
       onSaved();

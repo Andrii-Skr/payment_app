@@ -156,7 +156,7 @@ async function seedUserAccess(partner_id: number) {
   });
 
   await prisma.users_partners.create({
-    data: { user_id: user.id, partner_id },
+    data: { user_id: user.id, partner_id, entity_id: 1 },
   });
 }
 

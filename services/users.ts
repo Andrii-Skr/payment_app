@@ -59,8 +59,8 @@ export const updateRights = async (data: {
   user_id: number;
   add_entities?: number[];
   remove_entities?: number[];
-  add_partners?: number[];
-  remove_partners?: number[];
+  add_partners?: { partner_id: number; entity_id: number }[];
+  remove_partners?: { partner_id: number; entity_id: number }[];
 }) => {
   try {
     await axiosInstance.post("/users", data);

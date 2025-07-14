@@ -8,4 +8,11 @@ export default {
     "^@/(.*)$": "<rootDir>/$1",
     "^@api/(.*)$": "<rootDir>/app/api/(v1)/(protected)/$1"
   },
+  globals: {
+    'ts-jest': {
+      tsconfig: {
+        jsx: 'react-jsx'
+      }
+    }
+  }
 };

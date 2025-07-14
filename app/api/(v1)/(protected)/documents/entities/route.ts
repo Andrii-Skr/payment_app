@@ -109,23 +109,14 @@ const getHandler = async (
     const dbUser = await prisma.user.findUnique({
       where: { id: userId },
       select: {
-        users_partners: { select: { partner_id: true } },
+        users_partners: { select: { partner_id: true, entity_id: true } },
         users_entities: { select: { entity_id: true } },
       },
     });
     if (!dbUser) return json({ message: "User not found" }, { status: 404 });
 
-    const partnerIds = dbUser.users_partners.map((p) => p.partner_id);
     const directEntityIds = dbUser.users_entities.map((e) => e.entity_id);
-
-    if (partnerIds.length === 0 && directEntityIds.length === 0) return json([]);
-
-    const linkedEntities = await prisma.partners_on_entities.findMany({
-      where: { partner_id: { in: partnerIds } },
-      select: { entity_id: true },
-    });
-
-    const entityIdsViaPartners = linkedEntities.map((e) => e.entity_id);
+    const entityIdsViaPartners = dbUser.users_partners.map((p) => p.entity_id);
     const allVisibleEntityIds = [...new Set([...directEntityIds, ...entityIdsViaPartners])];
 
     if (allVisibleEntityIds.length === 0) return json([]);

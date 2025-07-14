@@ -15,8 +15,12 @@ const linkSchema = z.object({
   user_id: z.number(),
   add_entities: z.array(z.number()).optional(),
   remove_entities: z.array(z.number()).optional(),
-  add_partners: z.array(z.number()).optional(),
-  remove_partners: z.array(z.number()).optional(),
+  add_partners: z
+    .array(z.object({ partner_id: z.number(), entity_id: z.number() }))
+    .optional(),
+  remove_partners: z
+    .array(z.object({ partner_id: z.number(), entity_id: z.number() }))
+    .optional(),
 });
 
 type RoleBody = z.infer<typeof roleSchema>;
@@ -36,6 +40,8 @@ export const userQuery = Prisma.validator<Prisma.userFindManyArgs>()({
     },
     users_partners: {
       select: {
+        partner_id: true,
+        entity_id: true,
         partners: true,
       },
     },
@@ -89,14 +95,24 @@ const postHandler = async (_req: NextRequest, body: LinkBody) => {
 
     if (add_partners.length > 0) {
       await tx.users_partners.createMany({
-        data: add_partners.map((partner_id) => ({ user_id, partner_id })),
+        data: add_partners.map(({ partner_id, entity_id }) => ({
+          user_id,
+          partner_id,
+          entity_id,
+        })),
         skipDuplicates: true,
       });
     }
 
     if (remove_partners.length > 0) {
       await tx.users_partners.deleteMany({
-        where: { user_id, partner_id: { in: remove_partners } },
+        where: {
+          user_id,
+          OR: remove_partners.map(({ partner_id, entity_id }) => ({
+            partner_id,
+            entity_id,
+          })),
+        },
       });
     }
   });

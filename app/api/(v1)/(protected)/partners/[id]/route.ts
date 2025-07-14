@@ -93,14 +93,16 @@ const getHandler = async (
   const dbUser = await prisma.user.findUnique({
     where: { id: userId },
     select: {
-      users_partners: { select: { partner_id: true } },
+      users_partners: { select: { partner_id: true, entity_id: true } },
       users_entities: { select: { entity_id: true } },
     },
   });
   if (!dbUser)
     return NextResponse.json({ error: "User not found" }, { status: 404 });
 
-  const partnerIds = dbUser.users_partners.map((p) => p.partner_id);
+  const partnerIds = dbUser.users_partners
+    .filter((p) => p.entity_id === entityId)
+    .map((p) => p.partner_id);
   const entityIds = dbUser.users_entities.map((e) => e.entity_id);
   const hasEntityAccess = entityIds.includes(entityId);
 

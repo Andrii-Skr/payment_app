@@ -48,7 +48,7 @@ const getHandler = async (
   const dbUser = await prisma.user.findUnique({
     where: { id: userId },
     select: {
-      users_partners: { select: { partner_id: true } },
+      users_partners: { select: { partner_id: true, entity_id: true } },
       users_entities: { select: { entity_id: true } },
     },
   });
@@ -57,7 +57,9 @@ const getHandler = async (
     return NextResponse.json({ message: "User not found" }, { status: 404 });
   }
 
-  const allowedPartnerIds = dbUser.users_partners.map((p) => p.partner_id);
+  const allowedPartnerIds = dbUser.users_partners
+    .filter((p) => p.entity_id === entityId)
+    .map((p) => p.partner_id);
   const allowedEntityIds = dbUser.users_entities.map((e) => e.entity_id);
 
   // Партнёр связан с entity через partners_on_entities?

@@ -245,9 +245,12 @@ async function seedUserAccess() {
   });
 
   await prisma.users_partners.createMany({
-    data: allPartners
-      .slice(4, 7)
-      .map(p => ({ user_id: user.id, partner_id: p.id })),
+    data: allPartners.slice(4, 7).map(p => ({
+      user_id: user.id,
+      partner_id: p.id,
+      entity_id:
+        partnerEntityLinks.find(l => l.partner_id === p.id)?.entity_id ?? 1,
+    })),
   });
 
   await prisma.users_entities.createMany({
@@ -258,9 +261,12 @@ async function seedUserAccess() {
   });
 
   await prisma.users_partners.createMany({
-    data: allPartners
-      .slice(7, 14)
-      .map(p => ({ user_id: testuser.id, partner_id: p.id })),
+    data: allPartners.slice(7, 14).map(p => ({
+      user_id: testuser.id,
+      partner_id: p.id,
+      entity_id:
+        partnerEntityLinks.find(l => l.partner_id === p.id)?.entity_id ?? 1,
+    })),
   });
 }
 
