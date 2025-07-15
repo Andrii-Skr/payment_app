@@ -98,5 +98,5 @@ export const PATCH = apiRoute<Body>(patchHandler, {
 
 export const GET = apiRoute(getHandler, {
   requireAuth: true,
-  roles: [Roles.ADMIN],
+  roles: [Roles.ADMIN,Roles.MANAGER],
 });
