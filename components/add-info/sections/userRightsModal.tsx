@@ -140,7 +140,7 @@ export function UserRightsModal({
   /* -------------------- UI -------------------- */
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-xl max-h-[90dvh] overflow-y-auto">
+      <DialogContent className="min-w-[600px] max-h-[90dvh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Права пользователя</DialogTitle>
         </DialogHeader>
@@ -148,7 +148,7 @@ export function UserRightsModal({
         {loading ? (
           <LoadingMessage />
         ) : (
-          <div className="grid grid-cols-2 gap-4 w-[600px]">
+          <div className="grid grid-cols-2 gap-4 w-[550px]">
             {/* ───── Юрлица ───── */}
             <div className="space-y-1 pr-2 border-r">
               {entities.map((e) => {
