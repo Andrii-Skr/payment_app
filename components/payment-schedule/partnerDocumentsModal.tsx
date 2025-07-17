@@ -151,7 +151,7 @@ export const PartnerDocumentsModal: React.FC<PartnerDocumentsModalProps> = ({
                     {new Date(doc.date).toLocaleDateString("ru-RU")}
                   </TableCell>
                   <TableCell
-                    className="w-[230px] h-[49px] overflow-hidden line-clamp-2"
+                    className="w-[230px] h-[49px] overflow-hidden line-clamp-2 whitespace-pre-line"
                     title={doc.note ?? ""}
                   >
                     {doc.note}

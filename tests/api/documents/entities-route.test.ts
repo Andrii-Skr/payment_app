@@ -97,4 +97,25 @@ describe("GET /documents/entities", () => {
       },
     });
   });
+
+  it("возвращает пустой массив если есть доступ только через партнеров", async () => {
+    getServerSession.mockResolvedValueOnce({
+      user: { id: 1, role: Roles.MANAGER },
+    });
+
+    prisma.user.findUnique.mockResolvedValueOnce({
+      users_partners: [{ partner_id: 10, entity_id: 1 }],
+      users_entities: [],
+    });
+
+    await testApiHandler({
+      appHandler: handler,
+      test: async ({ fetch }) => {
+        const res = await fetch({ method: "GET" });
+        expect(res.status).toBe(200);
+        const data = await res.json();
+        expect(data).toEqual([]);
+      },
+    });
+  });
 });

@@ -14,6 +14,7 @@ type Props = {
   description?: string;
   placeholder: string;
   empty: string;
+  disabled?: boolean;
 };
 
 export const PartnersCombobox: React.FC<Props> = ({
@@ -24,6 +25,7 @@ export const PartnersCombobox: React.FC<Props> = ({
   description,
   placeholder,
   empty,
+  disabled,
 }) => {
   const { partners, fetchPartners } = usePartnersStore();
   const updateAccountList = useAccountListStore((s) => s.updateAccountList);
@@ -64,6 +66,7 @@ export const PartnersCombobox: React.FC<Props> = ({
       empty={empty}
       onChange={onChange}
       list={list}
+      disabled={disabled}
     />
   );
 };

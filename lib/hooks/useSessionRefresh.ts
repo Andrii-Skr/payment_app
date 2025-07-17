@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect } from "react";
-import { getSession, signOut } from "next-auth/react";
+import { getSession } from "next-auth/react";
+import { logoutAndReset } from "@/lib/utils/logoutAndReset";
 
 export function useSessionRefresh(intervalMs = 5 * 60 * 1000) {
   useEffect(() => {
@@ -25,7 +26,7 @@ export function useSessionRefresh(intervalMs = 5 * 60 * 1000) {
 
         if (!session) {
           console.log("🔒 Session expired — logging out");
-          signOut({ callbackUrl: "/auth/signin" });
+          logoutAndReset("/auth/signin");
         } else if (process.env.NODE_ENV === "development") {
           console.log("✅ Session active — refreshed");
         }

@@ -14,6 +14,7 @@ type Props = {
   description?: string;
   placeholder: string;
   empty: string;
+  disabled?: boolean;
 };
 
 export const EdrpouCombobox: React.FC<Props> = ({
@@ -24,6 +25,7 @@ export const EdrpouCombobox: React.FC<Props> = ({
   description,
   placeholder,
   empty,
+  disabled,
 }) => {
   const { partners, fetchPartners } = usePartnersStore();
   const updateAccountList = useAccountListStore((s) => s.updateAccountList);
@@ -66,6 +68,7 @@ export const EdrpouCombobox: React.FC<Props> = ({
       empty={empty}
       onChange={onChange}
       list={list}
+      disabled={disabled}
     />
   );
 };

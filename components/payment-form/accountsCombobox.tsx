@@ -17,6 +17,7 @@ type Props = {
   placeholder: string;
   empty: string;
   className?: string;
+  disabled?: boolean;
 };
 
 export const AccountsCombobox: React.FC<Props> = ({
@@ -27,6 +28,7 @@ export const AccountsCombobox: React.FC<Props> = ({
   placeholder,
   empty,
   className,
+  disabled,
 }) => {
   const currentAccountList = useAccountListStore(
     (state) => state.currentAccountList
@@ -142,6 +144,7 @@ export const AccountsCombobox: React.FC<Props> = ({
       onChange={onChange}
       list={list}
       className={className}
+      disabled={disabled}
     />
   );
 };

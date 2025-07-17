@@ -32,6 +32,7 @@ type Props = {
   className?: string;
   onChange: (id: number) => void;
   list: { key: string; value: string }[];
+  disabled?: boolean;
 };
 
 export const Combobox: React.FC<Props> = ({
@@ -43,6 +44,7 @@ export const Combobox: React.FC<Props> = ({
   empty,
   list,
   className,
+  disabled,
 }) => {
   const [open, setOpen] = React.useState(false);
 
@@ -63,6 +65,7 @@ export const Combobox: React.FC<Props> = ({
                   "combobox-size first-letter:px-3 py-1 justify-between",
                   className
                 )}
+                disabled={disabled}
               >
                 {field.value
                   ? list?.find((row) => {
@@ -74,7 +77,7 @@ export const Combobox: React.FC<Props> = ({
             </PopoverTrigger>
             <PopoverContent className="w-[300px] p-0">
               <Command>
-                <CommandInput placeholder={placeholder} />
+                <CommandInput placeholder={placeholder} disabled={disabled} />
                 <CommandList>
                   <CommandEmpty>{empty}</CommandEmpty>
                   <CommandGroup>
@@ -83,12 +86,14 @@ export const Combobox: React.FC<Props> = ({
                         key={row.key}
                         value={row.value}
                         onSelect={(currentValue) => {
+                          if (disabled) return;
                           field.onChange(
                             currentValue === field.value ? "1" : currentValue
                           );
                           onChange(i);
                           setOpen(false);
                         }}
+                        disabled={disabled}
                       >
                         <Check
                           className={cn(

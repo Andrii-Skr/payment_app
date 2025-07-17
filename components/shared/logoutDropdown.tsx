@@ -6,7 +6,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui";
-import { signOut, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
+import { logoutAndReset } from "@/lib/utils/logoutAndReset";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import React from "react";
@@ -33,7 +34,7 @@ export function LogoutDropdown() {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuItem
-            onClick={() => signOut({ callbackUrl: "/" })}
+            onClick={() => logoutAndReset("/")}
             className="text-red-500"
           >
             Выйти

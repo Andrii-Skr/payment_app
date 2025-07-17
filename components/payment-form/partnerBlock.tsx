@@ -19,9 +19,17 @@ type Props = {
 export const PartnerBlock: React.FC<Props> = ({ control, entityIdNum }) => {
   const partnerId = useWatch({ control, name: "partner_id" });
   const entityId = useWatch({ control, name: "entity_id" });
+  const payments = useWatch({ control, name: "payments" });
+  const hasPaid = payments?.some((p) => p?.isPaid);
   const remainder = useDocumentsStore((s) =>
     s.getRemainder(Number(entityId), Number(partnerId))
   );
+
+  const paySumTotal = (payments || []).reduce(
+    (acc: number, curr: any) => acc + (Number(curr.paySum) || 0),
+    0
+  );
+  const computedRemainder = Number((remainder - paySumTotal).toFixed(2));
 
   return (
     <div className="w-auto rounded-3xl border-gray-400 border-2 ml-[-20px] p-3 space-y-1">
@@ -33,6 +41,7 @@ export const PartnerBlock: React.FC<Props> = ({ control, entityIdNum }) => {
           empty="ЕДРПОУ не найдены =("
           placeholder="Выберите ЕДРПОУ..."
           id={entityIdNum}
+          disabled={hasPaid}
         />
         <AccountsCombobox
           control={control}
@@ -41,10 +50,12 @@ export const PartnerBlock: React.FC<Props> = ({ control, entityIdNum }) => {
           empty="Счета не найдены =("
           label="Номер счета"
           placeholder="Выберите номер счета..."
+          disabled={hasPaid}
         />
         <AddPartner
           entityIdNum={entityIdNum}
           className="self-end justify-start"
+          disabled={hasPaid}
         />
       </ContainerGrid>
 
@@ -56,8 +67,14 @@ export const PartnerBlock: React.FC<Props> = ({ control, entityIdNum }) => {
           empty="Контрагенты не найдены =("
           placeholder="Выберите Контрагента..."
           id={entityIdNum}
+          disabled={hasPaid}
         />
-        <ComputedFormInput label="Сальдо" value={remainder} className="mt-[-6px]" tabIndex={-1}/>
+        <ComputedFormInput
+          label="Сальдо"
+          value={computedRemainder}
+          className="mt-[-6px]"
+          tabIndex={-1}
+        />
         {/* <FormInput
           control={control}
           className="no-spin"

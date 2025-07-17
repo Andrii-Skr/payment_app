@@ -116,8 +116,7 @@ const getHandler = async (
     if (!dbUser) return json({ message: "User not found" }, { status: 404 });
 
     const directEntityIds = dbUser.users_entities.map((e) => e.entity_id);
-    const entityIdsViaPartners = dbUser.users_partners.map((p) => p.entity_id);
-    const allVisibleEntityIds = [...new Set([...directEntityIds, ...entityIdsViaPartners])];
+    const allVisibleEntityIds = [...new Set(directEntityIds)];
 
     if (allVisibleEntityIds.length === 0) return json([]);
 

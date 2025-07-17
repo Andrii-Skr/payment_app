@@ -31,9 +31,14 @@ import { cn } from "@/lib/utils";
 type Props = {
   entityIdNum: number;
   className?: string;
+  disabled?: boolean;
 };
 
-export const AddPartner: React.FC<Props> = ({ entityIdNum, className }) => {
+export const AddPartner: React.FC<Props> = ({
+  entityIdNum,
+  className,
+  disabled,
+}) => {
   const parentForm = useFormContext<FormValues>();
   const { fetchPartners } = usePartnersStore();
   const { currentAccountList } = useAccountListStore();
@@ -199,6 +204,7 @@ export const AddPartner: React.FC<Props> = ({ entityIdNum, className }) => {
           tabIndex={-1}
           size={"sm"}
           className={cn("", className)}
+          disabled={disabled}
         >
           <CirclePlus className="mr-2" />
           Добавить / Изменить
