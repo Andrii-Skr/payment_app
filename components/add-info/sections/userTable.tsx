@@ -9,7 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui";
-import { Pencil, Shield, Trash2 } from "lucide-react";
+import { Pencil, Shield, Trash2, Key } from "lucide-react";
 import type { UserWithRelations } from "@api/users/route";
 
 interface Props {
@@ -18,6 +18,7 @@ interface Props {
   onUpdated: () => Promise<void>;
   onEdit: (user: UserWithRelations) => void;
   onRights: (user: UserWithRelations) => void;
+  onPassword: (user: UserWithRelations) => void;
 }
 
 export function UserTable({
@@ -26,6 +27,7 @@ export function UserTable({
   onUpdated,
   onEdit,
   onRights,
+  onPassword,
 }: Props) {
   return (
     <Table>
@@ -50,6 +52,9 @@ export function UserTable({
               </Button>
               <Button size="icon" variant="outline" onClick={() => onRights(u)}>
                 <Shield size={16} />
+              </Button>
+              <Button size="icon" variant="outline" onClick={() => onPassword(u)}>
+                <Key size={16} />
               </Button>
               <Button
                 size="icon"

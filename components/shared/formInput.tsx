@@ -17,7 +17,7 @@ type FormInputProps<T extends FieldValues> = {
   label: string;
   placeholder?: string;
   description?: string;
-  type?: "text" | "number";
+  type?: "text" | "number" | "password";
   className?: string;
 } & React.InputHTMLAttributes<HTMLInputElement>;
 

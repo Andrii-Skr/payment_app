@@ -69,5 +69,13 @@ export const updateRights = async (data: {
   }
 };
 
+export const changePassword = async (user_id: number, password: string) => {
+  try {
+    await axiosInstance.patch("/users/password", { user_id, password });
+  } catch (error) {
+    console.error(error);
+  }
+};
+
 export type Role = { id: number; name: string };
 

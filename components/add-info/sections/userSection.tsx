@@ -7,6 +7,7 @@ import { Checkbox, LoadingMessage } from "@/components/ui";
 import { UserTable } from "./userTable";
 import { UserEditModal } from "./userEditModal";
 import { UserRightsModal } from "./userRightsModal";
+import { UserPasswordModal } from "./userPasswordModal";
 import type { UserWithRelations } from "@api/users/route";
 
 export function UserSection() {
@@ -19,6 +20,7 @@ export function UserSection() {
   /* -------------------- состояние модалок -------------------- */
   const [editTarget, setEditTarget] = useState<UserWithRelations | null>(null);
   const [rightsTarget, setRightsTarget] = useState<UserWithRelations | null>(null);
+  const [passwordTarget, setPasswordTarget] = useState<UserWithRelations | null>(null);
 
   /* -------------------- загрузка списка -------------------- */
   const loadUsers = useCallback(async () => {
@@ -84,6 +86,7 @@ export function UserSection() {
           onUpdated={loadUsers}
           onEdit={setEditTarget}
           onRights={setRightsTarget}
+          onPassword={setPasswordTarget}
         />
       )}
 
@@ -107,6 +110,18 @@ export function UserSection() {
           open={!!rightsTarget}
           onOpenChange={(v) => !v && setRightsTarget(null)}
           onSaved={loadUsers}           /* обновляем список, не закрываем окно */
+        />
+      )}
+
+      {passwordTarget && (
+        <UserPasswordModal
+          user={passwordTarget}
+          open={!!passwordTarget}
+          onOpenChange={(v) => !v && setPasswordTarget(null)}
+          onSaved={async () => {
+            setPasswordTarget(null);
+            await loadUsers();
+          }}
         />
       )}
     </Container>
