@@ -53,7 +53,14 @@ export function UserTable({
               <Button size="icon" variant="outline" onClick={() => onRights(u)}>
                 <Shield size={16} />
               </Button>
-              <Button size="icon" variant="outline" onClick={() => onPassword(u)}>
+              <Button
+                size="icon"
+                variant="outline"
+                onClick={() => onPassword(u)}
+                disabled={u.password_protection}
+                className={u.password_protection ? "cursor-not-allowed" : undefined}
+                title={u.password_protection ? "Запрещено" : undefined}
+              >
                 <Key size={16} />
               </Button>
               <Button

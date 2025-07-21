@@ -1,5 +1,6 @@
 import { testApiHandler } from "next-test-api-route-handler";
 import * as handler from "@api/users/route";
+import { userQuery } from "@api/users/route";
 import { Roles } from "@/constants/roles";
 
 jest.mock("@/prisma/prisma-client", () => ({
@@ -27,6 +28,10 @@ describe("/users route", () => {
   afterAll(async () => prisma.$disconnect?.());
   beforeEach(() => jest.clearAllMocks());
 
+  it("userQuery включает password_protection", () => {
+    expect(userQuery.select).toHaveProperty("password_protection", true);
+  });
+
   it("401 GET без сессии", async () => {
     getServerSession.mockResolvedValueOnce(null);
 
@@ -40,7 +45,9 @@ describe("/users route", () => {
   });
 
   it("200 GET фильтрует удалённые по умолчанию", async () => {
-    prisma.user.findMany.mockResolvedValueOnce([]);
+    prisma.user.findMany.mockResolvedValueOnce([
+      { password_protection: false },
+    ]);
 
     await testApiHandler({
       appHandler: handler,
@@ -55,7 +62,9 @@ describe("/users route", () => {
   });
 
   it("200 GET withDeleted=true убирает фильтр", async () => {
-    prisma.user.findMany.mockResolvedValueOnce([]);
+    prisma.user.findMany.mockResolvedValueOnce([
+      { password_protection: false },
+    ]);
 
     await testApiHandler({
       appHandler: handler,

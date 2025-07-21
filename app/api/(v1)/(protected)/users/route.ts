@@ -45,6 +45,7 @@ export const userQuery = Prisma.validator<Prisma.userFindManyArgs>()({
         partners: true,
       },
     },
+    password_protection: true,
     is_deleted: true,
   },
 });
