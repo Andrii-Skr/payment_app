@@ -87,6 +87,11 @@ export const EntityGroupRow: React.FC<EntityGroupRowProps> = ({
       return acc + totalAccount - totalSpecSum;
     }, 0);
 
+    const totalUnpaid = unpaidEntries.reduce(
+      (sum, e) => sum + +e.spec_doc.pay_sum,
+      0
+    );
+
     const color = getColorForEntity(entityId);
     const pendingIds = new Set(pendingPayments.map((p) => p.spec_doc_id));
 
@@ -113,7 +118,7 @@ export const EntityGroupRow: React.FC<EntityGroupRowProps> = ({
         )}
 
         <TableCell
-          className={`sticky left-10 z-[10] w-[200px] ${color} transition-colors group-hover:bg-muted/50`}
+          className={`sticky left-10 z-[10] w-[210px] ${color} transition-colors group-hover:bg-muted/50`}
         >
           <button
             className="text-blue-500 hover:underline"
@@ -124,9 +129,20 @@ export const EntityGroupRow: React.FC<EntityGroupRowProps> = ({
         </TableCell>
 
         <TableCell
-          className={`sticky left-[220px] z-[10] w-[120px] ${color} text-right transition-colors group-hover:bg-muted/50`}
+          className={`sticky left-[210px] z-[10] w-[120px] ${color} text-right transition-colors group-hover:bg-muted/50`}
         >
           {formatMoney(totalRemaining)}
+        </TableCell>
+
+        <TableCell
+          className={`sticky left-[310px] z-[10] w-[120px] ${color} text-right transition-colors group-hover:bg-muted/50`}
+        >
+          {totalUnpaid > 0 ? (
+            <span className="text-red-500">{formatMoney(totalUnpaid)}</span>
+          ) : (
+              <span>{formatMoney(totalUnpaid)}</span>
+          )}
+
         </TableCell>
 
         {dateRange.map((date, idx) => {

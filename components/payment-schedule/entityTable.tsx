@@ -82,7 +82,8 @@ export const EntityTable: React.FC<{
       new Date().toLocaleString("en-US", { timeZone: "Europe/Kyiv" })
     );
     const day = kyivNow.getDay();
-    kyivNow.setDate(kyivNow.getDate() + (day === 0 ? -6 : 1 - day));
+    const daysToSubtract = (day === 0 ? 7 : day) + 1
+    kyivNow.setDate(kyivNow.getDate() - daysToSubtract);
     kyivNow.setHours(0, 0, 0, 0);
     setStartDate(kyivNow);
   }, []);
@@ -232,8 +233,11 @@ export const EntityTable: React.FC<{
             <TableHead className="sticky left-9 z-[30] bg-white min-w-[180px]">
               Контрагент
             </TableHead>
-            <TableHead className="sticky left-[200px] z-[30] bg-white min-w-[100px] text-right">
+            <TableHead className="sticky left-[210px] z-[30] bg-white min-w-[100px] text-right">
               Остаток
+            </TableHead>
+            <TableHead className="sticky left-[310px] z-[30] bg-white min-w-[100px] text-right">
+              Не оплачено
             </TableHead>
             {formattedDateRange.map((d, i) => (
               <TableHead key={i}>{d}</TableHead>
