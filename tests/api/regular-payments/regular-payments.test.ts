@@ -54,13 +54,32 @@ describe("regular-payments route", () => {
   });
 
   it("200 GET возвращает данные", async () => {
-    prisma.auto_payment.findMany.mockResolvedValueOnce([]);
+    prisma.auto_payment.findMany.mockResolvedValueOnce([
+      {
+        id: 1,
+        pay_sum: 100,
+        documents: {
+          id: 1,
+          entity_id: 1,
+          account_number: "123",
+          purpose_of_payment: "",
+          entity: {
+            id: 1,
+            short_name: "ent",
+            full_name: "Entity",
+            sort_order: 5,
+          },
+          partner: { short_name: "p", full_name: "Partner" },
+        },
+      },
+    ]);
     await testApiHandler({
       appHandler: handler,
       test: async ({ fetch }) => {
         const res = await fetch({ method: "GET" });
         expect(res.status).toBe(200);
-        expect(await res.json()).toEqual([]);
+        const data = await res.json();
+        expect(data[0].documents.entity.sort_order).toBe(5);
       },
     });
   });

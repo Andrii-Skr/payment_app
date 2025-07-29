@@ -20,7 +20,11 @@ export const PartnerBlock: React.FC<Props> = ({ control, entityIdNum }) => {
   const partnerId = useWatch({ control, name: "partner_id" });
   const entityId = useWatch({ control, name: "entity_id" });
   const payments = useWatch({ control, name: "payments" });
+  const accountSum = useWatch({ control, name: "accountSum" });
+  const docId = useWatch({ control, name: "doc_id" });
+
   const hasPaid = payments?.some((p) => p?.isPaid);
+  const docs = useDocumentsStore((s) => s.docs);
   const remainder = useDocumentsStore((s) =>
     s.getRemainder(Number(entityId), Number(partnerId))
   );
@@ -29,7 +33,23 @@ export const PartnerBlock: React.FC<Props> = ({ control, entityIdNum }) => {
     (acc: number, curr: any) => acc + (Number(curr.paySum) || 0),
     0
   );
-  const computedRemainder = Number((remainder - paySumTotal).toFixed(2));
+
+  const savedDoc = docs.find((d) => d.id === Number(docId));
+  const savedAccountSum = savedDoc ? Number(savedDoc.account_sum) : 0;
+  const savedPaySum = savedDoc
+    ? savedDoc.spec_doc.reduce((s, spec) => s + Number(spec.pay_sum), 0)
+    : 0;
+  const accountSumNum = Number(String(accountSum).replace(/,/g, ".")) || 0;
+
+  const computedRemainder = Number(
+    (
+      remainder +
+      savedPaySum -
+      paySumTotal +
+      accountSumNum -
+      savedAccountSum
+    ).toFixed(2)
+  );
 
   return (
     <div className="w-auto rounded-3xl border-gray-400 border-2 ml-[-20px] p-3 space-y-1">

@@ -55,17 +55,24 @@ export const AutoPaymentTable: React.FC = () => {
     }
   };
 
-  // Группируем платежи по documents.entity_id
-  const groupedPayments = autoPayments.reduce<
-    Record<number, AutoPaymentWithDocs[]>
-  >((acc, payment) => {
-    const key = payment.documents.entity_id;
-    if (!acc[key]) {
-      acc[key] = [];
-    }
-    acc[key].push(payment);
-    return acc;
-  }, {});
+  // Группируем платежи по documents.entity_id и собираем порядок сортировки
+  const { groupedPayments, entityOrderMap } = autoPayments.reduce<{
+    groupedPayments: Record<number, AutoPaymentWithDocs[]>;
+    entityOrderMap: Map<number, number>;
+  }>(
+    (acc, payment) => {
+      const key = payment.documents.entity_id;
+      if (!acc.groupedPayments[key]) {
+        acc.groupedPayments[key] = [];
+      }
+      acc.groupedPayments[key].push(payment);
+      if (!acc.entityOrderMap.has(key)) {
+        acc.entityOrderMap.set(key, payment.documents.entity.sort_order ?? 0);
+      }
+      return acc;
+    },
+    { groupedPayments: {}, entityOrderMap: new Map() }
+  );
 
   return (
     <div className="overflow-x-auto">
@@ -76,7 +83,12 @@ export const AutoPaymentTable: React.FC = () => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {Object.entries(groupedPayments).map(([entityId, payments]) => {
+          {Object.entries(groupedPayments)
+            .sort(
+              ([a], [b]) =>
+                (entityOrderMap.get(+a) ?? 0) - (entityOrderMap.get(+b) ?? 0)
+            )
+            .map(([entityId, payments]) => {
             const groupExpanded = expandedGroups.has(Number(entityId));
             const firstPayment = payments[0];
             return (

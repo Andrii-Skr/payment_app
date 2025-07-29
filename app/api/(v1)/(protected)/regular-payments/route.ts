@@ -64,6 +64,7 @@ export type AutoPaymentWithDocs = auto_payment & {
       id: number;
       short_name: string;
       full_name: string;
+      sort_order: number;
     };
     partner: {
       short_name: string;
@@ -103,6 +104,7 @@ const getHandler = async (
               id: true,
               short_name: true,
               full_name: true,
+              sort_order: true,
             },
           },
           partner: {
