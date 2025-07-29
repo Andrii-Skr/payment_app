@@ -131,7 +131,8 @@ export const EntityGroupRow: React.FC<EntityGroupRowProps> = ({
         <TableCell
           className={`sticky left-[210px] z-[10] w-[120px] ${color} text-right transition-colors group-hover:bg-muted/50`}
         >
-          {formatMoney(totalRemaining)}
+          {formatMoney(totalRemaining)
+            } {/* Total remaining in account */}
         </TableCell>
 
         <TableCell
