@@ -55,6 +55,7 @@ const postHandler = async (
         partner_id: body.partner_id,
         account_number: body.accountNumber,
         date: parsedDate,
+        is_deleted: false,
       },
     });
 

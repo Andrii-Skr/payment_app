@@ -283,6 +283,7 @@ export const PaymentForm: React.FC<{ className?: string }> = ({
         choices={[
           {
             label: "Добавить дубликат",
+            variant: "destructive",
             onSelect: async () => {
               if (!pendingDocData) return;
               try {

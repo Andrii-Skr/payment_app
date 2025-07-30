@@ -17,6 +17,7 @@ type ChoiceDialogProps = {
   choices: {
     label: string;
     onSelect: () => void;
+    variant?: React.ComponentProps<typeof Button>["variant"];
   }[];
   onCancel: () => void;
   cancelLabel?: string;
@@ -39,7 +40,7 @@ export const ChoiceDialog: React.FC<ChoiceDialogProps> = ({
 
       <DialogFooter className="flex flex-col items-stretch gap-2">
         {choices.map((choice, i) => (
-          <Button key={i} onClick={choice.onSelect}>
+          <Button key={i} onClick={choice.onSelect} variant={choice.variant}>
             {choice.label}
           </Button>
         ))}
