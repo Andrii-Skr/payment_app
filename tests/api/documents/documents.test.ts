@@ -106,4 +106,68 @@ describe("/documents route", () => {
       },
     });
   });
+
+  it("409 без allowDuplicate если совпадает сумма", async () => {
+    getSafeDateForPrisma.mockReturnValueOnce(new Date());
+    prisma.documents.findFirst.mockResolvedValueOnce({ account_sum: 10 });
+
+    await testApiHandler({
+      appHandler: handler,
+      test: async ({ fetch }) => {
+        const res = await fetch({
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            entity_id: 1,
+            partner_id: 1,
+            partner_account_number_id: 1,
+            accountNumber: "a",
+            date: "2020-01-01",
+            accountSum: 10,
+            accountSumExpression: "10",
+            vatType: false,
+            vatPercent: 0,
+            purposeOfPayment: "",
+            payments: [],
+            is_auto_purpose_of_payment: true,
+          }),
+        });
+        expect(res.status).toBe(409);
+        const data = await res.json();
+        expect(data.allowDuplicate).toBeUndefined();
+      },
+    });
+  });
+
+  it("409 с allowDuplicate если сумма отличается", async () => {
+    getSafeDateForPrisma.mockReturnValueOnce(new Date());
+    prisma.documents.findFirst.mockResolvedValueOnce({ account_sum: 5 });
+
+    await testApiHandler({
+      appHandler: handler,
+      test: async ({ fetch }) => {
+        const res = await fetch({
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            entity_id: 1,
+            partner_id: 1,
+            partner_account_number_id: 1,
+            accountNumber: "a",
+            date: "2020-01-01",
+            accountSum: 10,
+            accountSumExpression: "10",
+            vatType: false,
+            vatPercent: 0,
+            purposeOfPayment: "",
+            payments: [],
+            is_auto_purpose_of_payment: true,
+          }),
+        });
+        expect(res.status).toBe(409);
+        const data = await res.json();
+        expect(data.allowDuplicate).toBe(true);
+      },
+    });
+  });
 });

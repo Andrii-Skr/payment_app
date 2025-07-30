@@ -131,9 +131,14 @@ export function usePaymentFormLogic({
     } catch (error) {
       const err = error as AxiosError<DuplicateCheckResponse>;
 
-      if (err.response?.status === 409 && err.response?.data?.allowDuplicate) {
-        setPendingDocData(payload);
-        setDuplicateDialogOpen(true);
+      if (err.response?.status === 409) {
+        if (err.response.data?.allowDuplicate) {
+          setPendingDocData(payload);
+          setDuplicateDialogOpen(true);
+          return;
+        }
+
+        toast.error(err.response.data?.message || "Документ уже существует.");
         return;
       }
 

@@ -59,11 +59,14 @@ const postHandler = async (
     });
 
     if (exists) {
+      const sameSum =
+        Number(exists.account_sum) === Number(body.accountSum) &&
+        Number(body.accountSum) > 0;
       return NextResponse.json(
         {
           success: false,
           message: "Документ с такими данными уже существует.",
-          allowDuplicate: true,
+          ...(sameSum ? {} : { allowDuplicate: true }),
         },
         { status: 409 }
       );
