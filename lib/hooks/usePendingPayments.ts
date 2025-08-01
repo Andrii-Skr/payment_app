@@ -38,6 +38,16 @@ export const usePendingPayments = () => {
       return;
     }
 
+    const hasPaid = all.some((p) => p.is_paid);
+    const hasUnpaid = all.some((p) => !p.is_paid);
+
+    if (hasPaid && hasUnpaid) {
+      toast.error(
+        "Нельзя одновременно выбирать оплаченные и неоплаченные документы"
+      );
+      return;
+    }
+
     setPendingPayments(all);
   };
 

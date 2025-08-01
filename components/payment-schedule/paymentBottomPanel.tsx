@@ -32,6 +32,7 @@ export const PaymentBottomPanel: React.FC<PaymentBottomPanelProps> = ({
 
   const [payDialogOpen, setPayDialogOpen] = useState(false);
   const [finalizeDialogOpen, setFinalizeDialogOpen] = useState(false);
+  const paidMode = pendingPayments[0]?.is_paid;
 
   if (pendingPayments.length === 0) return null;
 
@@ -51,8 +52,14 @@ export const PaymentBottomPanel: React.FC<PaymentBottomPanelProps> = ({
               {overallTotal.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, " ")}
             </div>
             <div className="flex justify-end items-center space-x-2 mt-2">
-              <Button onClick={() => setPayDialogOpen(true)}>Оплатить</Button>
-              <Button onClick={() => setFinalizeDialogOpen(true)}>Сформировать</Button>
+              {!paidMode && (
+                <>
+                  <Button onClick={() => setPayDialogOpen(true)}>Оплатить</Button>
+                  <Button onClick={() => setFinalizeDialogOpen(true)}>
+                    Сформировать
+                  </Button>
+                </>
+              )}
               <Button variant="secondary" onClick={collapsePanel}>
                 Скрыть
               </Button>

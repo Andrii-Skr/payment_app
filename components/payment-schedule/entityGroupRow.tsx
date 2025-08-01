@@ -166,7 +166,11 @@ export const EntityGroupRow: React.FC<EntityGroupRowProps> = ({
             )
             .reduce((s, e) => s + +e.spec_doc.pay_sum, 0);
 
-          const pendingSum = [...cellUnpaid, ...cellPaid]
+          const pendingUnpaidSum = cellUnpaid
+            .filter((e) => pendingIds.has(e.spec_doc.id))
+            .reduce((s, e) => s + +e.spec_doc.pay_sum, 0);
+
+          const pendingPaidSum = cellPaid
             .filter((e) => pendingIds.has(e.spec_doc.id))
             .reduce((s, e) => s + +e.spec_doc.pay_sum, 0);
 
@@ -178,13 +182,14 @@ export const EntityGroupRow: React.FC<EntityGroupRowProps> = ({
             <TableCell
               key={idx}
               onClick={(e) => {
-                const specDocIds = cellUnpaid.map((e) => e.spec_doc.id);
+                const entries = cellUnpaid.length ? cellUnpaid : cellPaid;
+                const specDocIds = entries.map((e) => e.spec_doc.id);
                 const hasAllPending = specDocIds.every((id) =>
                   pendingIds.has(id)
                 );
 
                 if (e.ctrlKey || e.metaKey) {
-                  if (!canUseQuickPayment || cellUnpaid.length === 0) return;
+                  if (!canUseQuickPayment || entries.length === 0) return;
 
                   if (hasAllPending) {
                     setPendingPayments(
@@ -193,15 +198,15 @@ export const EntityGroupRow: React.FC<EntityGroupRowProps> = ({
                       )
                     );
                   } else {
-                    update(cellUnpaid.map(createPaymentDetail), []);
+                    update(entries.map(createPaymentDetail), []);
                   }
                 } else {
                   // обычный клик — ADMIN видит всё (unpaid + paid), остальные — только unpaid
-                  const entries = isAdmin
+                  const entriesClick = isAdmin
                     ? [...cellUnpaid, ...cellPaid]
                     : [...cellUnpaid];
-                  if (entries.length === 0) return;
-                  onCellClick(entries);
+                  if (entriesClick.length === 0) return;
+                  onCellClick(entriesClick);
                 }
               }}
               className="cursor-pointer"
@@ -212,9 +217,14 @@ export const EntityGroupRow: React.FC<EntityGroupRowProps> = ({
                     {formatMoney(expectedSum + deadlineSum)}
                   </span>
                 )}
-                {pendingSum > 0 && (
+                {pendingUnpaidSum > 0 && (
                   <span className="text-blue-500">
-                    {formatMoney(pendingSum)}
+                    {formatMoney(pendingUnpaidSum)}
+                  </span>
+                )}
+                {pendingPaidSum > 0 && (
+                  <span className="text-pink-500">
+                    {formatMoney(pendingPaidSum)}
                   </span>
                 )}
                 {confirmedSum > 0 && (
