@@ -29,6 +29,9 @@ export const PaymentBottomPanel: React.FC<PaymentBottomPanelProps> = ({
   const isExpanded = usePaymentStore((s) => s.isPaymentPanelExpanded);
   const expandPanel = usePaymentStore((s) => s.expandPaymentPanel);
   const collapsePanel = usePaymentStore((s) => s.collapsePaymentPanel);
+  const clearPendingPayments = usePaymentStore(
+    (s) => s.clearPendingPayments,
+  );
 
   const [payDialogOpen, setPayDialogOpen] = useState(false);
   const [finalizeDialogOpen, setFinalizeDialogOpen] = useState(false);
@@ -60,6 +63,15 @@ export const PaymentBottomPanel: React.FC<PaymentBottomPanelProps> = ({
                   </Button>
                 </>
               )}
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  clearPendingPayments();
+                  collapsePanel();
+                }}
+              >
+                Снять выбор
+              </Button>
               <Button variant="secondary" onClick={collapsePanel}>
                 Скрыть
               </Button>

@@ -223,7 +223,7 @@ export const EntityGroupRow: React.FC<EntityGroupRowProps> = ({
                   </span>
                 )}
                 {pendingPaidSum > 0 && (
-                  <span className="text-pink-500">
+                  <span className="text-fuchsia-500">
                     {formatMoney(pendingPaidSum)}
                   </span>
                 )}
