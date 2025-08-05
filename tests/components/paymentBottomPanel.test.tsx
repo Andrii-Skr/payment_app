@@ -54,7 +54,7 @@ describe("PaymentBottomPanel", () => {
       />
     );
 
-    const clearButton = screen.getByRole("button", { name: "Снять выбор" });
+    const clearButton = screen.getByRole("button", { name: "Сбросить выбор" });
     expect(clearButton).toBeInTheDocument();
 
     await userEvent.click(clearButton);
