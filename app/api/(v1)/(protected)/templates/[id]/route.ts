@@ -109,7 +109,7 @@ const patchHandler = async (
   if (!user) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
-
+console.log(body);
   const updated = await prisma.template.update({
     where: { id: Number(params.id) },
     data: {
@@ -125,8 +125,8 @@ const patchHandler = async (
       account_sum: body.accountSum ? body.accountSum : 0,
       account_sum_expression: body.accountSumExpression,
       partner_account_number_id: body.partner_account_number_id,
-      purpose_of_payment: body.purposeOfPayment,
-      note: body.note,
+      purpose_of_payment: body.purposeOfPayment ?? "",
+      note: body.note ?? "",
       is_auto_purpose_of_payment: body.is_auto_purpose_of_payment ?? true,
     },
   });
