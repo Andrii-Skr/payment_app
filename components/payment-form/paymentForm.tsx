@@ -142,13 +142,13 @@ export const PaymentForm: React.FC<{ className?: string }> = ({ className }) => 
 
   /* ---------- render ---------- */
   return (
-    <div className={cn("flex flex-row-reverse justify-around", className)}>
+    <div className={cn("flex w-full flex-row-reverse items-start justify-around gap-6 px-6", className)}>
       {/* левая панель со списком документов */}
       <AsidePaymentForm docs={docs} onRowClick={handleDocRowClick} />
 
       {/* основная форма */}
       <Form {...form}>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-1 w-auto min-w-[750px]">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-1 w-auto min-w-[700px]">
           {/* заголовок с плательщиком */}
           <Alert className="flex justify-between items-center p-2">
             <AlertDescription className="p-0">

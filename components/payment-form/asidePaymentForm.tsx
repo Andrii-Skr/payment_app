@@ -95,10 +95,7 @@ export const AsidePaymentForm: React.FC<AsideProps> = ({ docs, onRowClick, class
 
   return (
     <aside
-      className={cn(
-        "w-[38dvw] min-w-[512px] h-[94dvh] space-y-2 rounded-3xl border-gray-200 border-2 mr-[30px]",
-        className,
-      )}
+      className={cn("w-[40dvw] min-w-[512px] h-[94dvh] space-y-2 rounded-3xl border-2 border-gray-200", className)}
     >
       <div className="w-auto h-[90dvh] overflow-y-scroll">
         <div className="p-1">

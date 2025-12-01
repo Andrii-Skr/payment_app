@@ -108,7 +108,7 @@ const SumAndDateForm: React.FC<Props> = ({ control }) => {
                     type="button"
                     variant="ghost"
                     size={"sm"}
-                    className="absolute right-3 top-11 transform -translate-y-4 rounded text-xs font-bold"
+                    className="absolute right-0 top-11 transform -translate-y-4 rounded text-xs font-bold"
                     disabled={isPaid}
                     onClick={() => {
                       if (remainder > 0) {
