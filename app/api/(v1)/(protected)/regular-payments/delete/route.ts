@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
+import type { Session } from "next-auth";
+import { Roles } from "@/constants/roles";
+import { hasRole } from "@/lib/access/hasRole";
 import prisma from "@/prisma/prisma-client";
 import { apiRoute } from "@/utils/apiRoute";
-import { hasRole } from "@/lib/access/hasRole";
-import { Roles } from "@/constants/roles";
-import type { Session } from "next-auth";
 
 type PatchBody = {
   id: number;
@@ -12,18 +12,15 @@ type PatchBody = {
 const patchHandler = async (
   _req: NextRequest,
   body: PatchBody,
-  _params: {},
-  user: Session["user"] | null
+  _params: Record<string, never>,
+  user: Session["user"] | null,
 ) => {
   if (!user) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
   if (!hasRole(user.role, Roles.ADMIN)) {
-    return NextResponse.json(
-      { message: "Forbidden: Admins only" },
-      { status: 403 }
-    );
+    return NextResponse.json({ message: "Forbidden: Admins only" }, { status: 403 });
   }
 
   const { id } = body;
@@ -41,10 +38,7 @@ const patchHandler = async (
   });
 
   if (!autoPayment) {
-    return NextResponse.json(
-      { message: "auto_payment не найден" },
-      { status: 404 }
-    );
+    return NextResponse.json({ message: "auto_payment не найден" }, { status: 404 });
   }
 
   const [updatedAutoPayment, updatedDocument] = await Promise.all([

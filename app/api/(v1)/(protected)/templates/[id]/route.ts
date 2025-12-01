@@ -1,11 +1,12 @@
 // File: app/api/templates/[id]/route.ts
-import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/prisma/prisma-client";
-import { apiRoute } from "@/utils/apiRoute";
+
+import type { Prisma } from "@prisma/client";
+import { type NextRequest, NextResponse } from "next/server";
+import type { Session } from "next-auth";
 import { Roles } from "@/constants/roles";
 import { hasRole } from "@/lib/access/hasRole";
-import type { Session } from "next-auth";
-import { Prisma } from "@prisma/client";
+import prisma from "@/prisma/prisma-client";
+import { apiRoute } from "@/utils/apiRoute";
 
 /* -------------------------------------------------------------------------- */
 /*                             Re‑export type for FE                          */
@@ -20,18 +21,12 @@ export type TemplateWithBankDetails = Prisma.templateGetPayload<{
 
 /* -------------------------------------------------------------------------- */
 /*                                 Utilities                                  */
-const toId = (raw: string): number | null =>
-  /^\d+$/.test(raw) ? Number(raw) : null;
+const toId = (raw: string): number | null => (/^\d+$/.test(raw) ? Number(raw) : null);
 const yes = (v: string | null) => v === "1" || v === "true";
 
 /* -------------------------------------------------------------------------- */
 /*                                  Handler                                   */
-const getHandler = async (
-  req: NextRequest,
-  _body: null,
-  params: { id: string },
-  user: Session["user"] | null
-) => {
+const getHandler = async (req: NextRequest, _body: null, params: { id: string }, user: Session["user"] | null) => {
   if (!user) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
@@ -74,10 +69,7 @@ const getHandler = async (
     return NextResponse.json(templates);
   } catch (e) {
     console.error("Template fetch error:", e);
-    return NextResponse.json(
-      { message: "Internal Server Error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
   }
 };
 
@@ -104,12 +96,12 @@ const patchHandler = async (
   _req: NextRequest,
   body: PatchBody,
   params: { id: string },
-  user: Session["user"] | null
+  user: Session["user"] | null,
 ) => {
   if (!user) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
-console.log(body);
+  console.log(body);
   const updated = await prisma.template.update({
     where: { id: Number(params.id) },
     data: {
@@ -131,10 +123,7 @@ console.log(body);
     },
   });
 
-  return NextResponse.json(
-    { success: true, message: "Template updated.", template: updated },
-    { status: 200 }
-  );
+  return NextResponse.json({ success: true, message: "Template updated.", template: updated }, { status: 200 });
 };
 
 export const PATCH = apiRoute<PatchBody, { id: string }>(patchHandler, {

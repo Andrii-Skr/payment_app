@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
+import { Roles } from "@/constants/roles";
 import prisma from "@/prisma/prisma-client";
 import { apiRoute } from "@/utils/apiRoute";
-import { Roles } from "@/constants/roles";
 
 const getHandler = async () => {
   const roles = await prisma.role.findMany({

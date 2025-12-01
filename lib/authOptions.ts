@@ -1,11 +1,9 @@
-import { NextAuthOptions } from "next-auth";
-import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcrypt";
-import { Role } from "@/constants/roles";
-import { rateLimit, resetRateLimit } from "@/utils/rateLimiter";
+import type { NextAuthOptions } from "next-auth";
+import CredentialsProvider from "next-auth/providers/credentials";
+import type { Role } from "@/constants/roles";
 import prisma from "@/prisma/prisma-client";
-
-
+import { rateLimit, resetRateLimit } from "@/utils/rateLimiter";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -16,10 +14,7 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials, req) {
-        const ip =
-          req?.headers?.["x-forwarded-for"] ??
-          req?.headers?.["x-real-ip"] ??
-          "unknown";
+        const ip = req?.headers?.["x-forwarded-for"] ?? req?.headers?.["x-real-ip"] ?? "unknown";
 
         const login = credentials?.login ?? "unknown";
         const limit = rateLimit(ip.toString(), login);
@@ -38,10 +33,7 @@ export const authOptions: NextAuthOptions = {
 
         if (!user || !user.password) return null;
 
-        const isValid = await bcrypt.compare(
-          credentials.password,
-          user.password
-        );
+        const isValid = await bcrypt.compare(credentials.password, user.password);
         if (!isValid) return null;
 
         resetRateLimit(ip.toString(), login);

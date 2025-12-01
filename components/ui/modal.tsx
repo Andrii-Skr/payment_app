@@ -1,6 +1,6 @@
 "use client";
+import { AnimatePresence, motion } from "framer-motion";
 import React from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 export type ModalProps = {
@@ -10,7 +10,7 @@ export type ModalProps = {
   className?: string;
 };
 
-export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children,className }) => {
+export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, className }) => {
   React.useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
@@ -35,14 +35,25 @@ export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children,classNam
           exit={{ opacity: 0 }}
         >
           {/* Overlay */}
-          <div
+          <button
+            type="button"
+            aria-label="Закрыть модальное окно"
             className="fixed inset-0 bg-black/50"
             onClick={onClose}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                onClose();
+              }
+            }}
           />
 
           {/* Modal content */}
           <motion.div
-            className={cn("z-10 bg-white rounded-xl shadow-lg p-6 w-full max-w-3xl max-h-[90vh] overflow-y-auto", className)}
+            className={cn(
+              "z-10 bg-white rounded-xl shadow-lg p-6 w-full max-w-3xl max-h-[90vh] overflow-y-auto",
+              className,
+            )}
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}

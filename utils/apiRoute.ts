@@ -1,23 +1,20 @@
-import { NextRequest, NextResponse } from "next/server";
+import { Prisma } from "@prisma/client";
+import { type NextRequest, NextResponse } from "next/server";
 import { getServerSession, type User } from "next-auth";
+import type { ZodSchema } from "zod";
 import { authOptions } from "@/lib/authOptions";
 import { logApiRequest } from "@/lib/logs/logApiRequest";
-import type { ZodSchema } from "zod";
-import { Prisma } from "@prisma/client";
 
 /* ---------- Типы ---------- */
-export type RouteContext<T extends Record<string, string> = {}> = {
+export type RouteContext<T extends Record<string, string> = Record<string, never>> = {
   params: Promise<T>;
 };
 
-export type ApiHandler<
-  TBody = unknown,
-  TParams extends Record<string, string> = {}
-> = (
+export type ApiHandler<TBody = unknown, TParams extends Record<string, string> = Record<string, never>> = (
   req: NextRequest,
   body: TBody,
   params: TParams,
-  user: User | null
+  user: User | null,
 ) => Promise<NextResponse>;
 
 export type ApiRouteOptions<TBody = unknown> = {
@@ -27,14 +24,11 @@ export type ApiRouteOptions<TBody = unknown> = {
 };
 
 /* ---------- Обёртка ---------- */
-export function apiRoute<
-  TBody = unknown,
-  TParams extends Record<string, string> = {}
->(handler: ApiHandler<TBody, TParams>, options: ApiRouteOptions<TBody> = {}) {
-  return async function route(
-    req: NextRequest,
-    { params }: RouteContext<TParams>
-  ): Promise<NextResponse> {
+export function apiRoute<TBody = unknown, TParams extends Record<string, string> = Record<string, never>>(
+  handler: ApiHandler<TBody, TParams>,
+  options: ApiRouteOptions<TBody> = {},
+) {
+  return async function route(req: NextRequest, { params }: RouteContext<TParams>): Promise<NextResponse> {
     const started = performance.now();
     let status = 200;
     let user: User | null = null;
@@ -44,19 +38,14 @@ export function apiRoute<
       const resolvedParams = await params;
 
       /* ---------- Чтение тела ---------- */
-      const needsBody = !["GET", "HEAD", "OPTIONS", "DELETE"].includes(
-        req.method
-      );
+      const needsBody = !["GET", "HEAD", "OPTIONS", "DELETE"].includes(req.method);
 
       if (needsBody) {
         try {
           bodyRaw = await req.json();
         } catch {
           status = 400;
-          return NextResponse.json(
-            { success: false, message: "Invalid JSON body" },
-            { status }
-          );
+          return NextResponse.json({ success: false, message: "Invalid JSON body" }, { status });
         }
 
         /* ---------- Валидация ---------- */
@@ -70,7 +59,7 @@ export function apiRoute<
                 message: "Validation error",
                 errors: parsed.error.format(),
               },
-              { status }
+              { status },
             );
           }
           bodyRaw = parsed.data;
@@ -83,18 +72,12 @@ export function apiRoute<
 
       if (options.requireAuth && !user?.id) {
         status = 401;
-        return NextResponse.json(
-          { success: false, message: "Unauthorized" },
-          { status }
-        );
+        return NextResponse.json({ success: false, message: "Unauthorized" }, { status });
       }
 
       if (options.roles && user && !options.roles.includes(user.role)) {
         status = 403;
-        return NextResponse.json(
-          { success: false, message: "Forbidden" },
-          { status }
-        );
+        return NextResponse.json({ success: false, message: "Forbidden" }, { status });
       }
 
       /* ---------- Выполняем основной хендлер ---------- */
@@ -113,7 +96,7 @@ export function apiRoute<
               message: "Duplicate entry. Resource already exists.",
               meta: err.meta,
             },
-            { status }
+            { status },
           );
         }
 
@@ -125,16 +108,13 @@ export function apiRoute<
               message: "Record not found.",
               meta: err.meta,
             },
-            { status }
+            { status },
           );
         }
       }
 
       status = 500;
-      return NextResponse.json(
-        { success: false, message: "Internal server error." },
-        { status }
-      );
+      return NextResponse.json({ success: false, message: "Internal server error." }, { status });
     } finally {
       void logApiRequest(req, user, status, started, bodyRaw);
     }

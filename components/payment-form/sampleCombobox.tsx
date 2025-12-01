@@ -1,9 +1,8 @@
-
-import * as React from "react";
-import { Control } from "react-hook-form";
+import type { TemplateWithBankDetails } from "@api/templates/[id]/route";
+import type * as React from "react";
+import type { Control } from "react-hook-form";
 import { Combobox } from "@/components/ui";
-import { FormValues } from "@/types/formTypes";
-import { TemplateWithBankDetails } from "@api/templates/[id]/route";
+import type { FormValues } from "@/types/formTypes";
 
 type Props = {
   control: Control<FormValues>;
@@ -25,7 +24,7 @@ export const SampleCombobox: React.FC<Props> = ({
   placeholder,
   empty,
   data,
-  onChange
+  onChange,
 }) => {
   const list = data.map((e) => ({ key: String(e.id), value: e.name }));
 

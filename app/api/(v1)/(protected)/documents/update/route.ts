@@ -1,9 +1,9 @@
+import { type NextRequest, NextResponse } from "next/server";
+import type { Session } from "next-auth";
 import { Roles } from "@/constants/roles";
 import { getSafeDateForPrisma } from "@/lib/date/getSafeDateForPrisma";
 import prisma from "@/prisma/prisma-client";
 import { apiRoute } from "@/utils/apiRoute";
-import { Session } from "next-auth";
-import { NextRequest, NextResponse } from "next/server";
 
 //PATCH handler
 type UpdateDocumentBody = {
@@ -33,8 +33,8 @@ type UpdateDocumentBody = {
 const patchHandler = async (
   _req: NextRequest,
   body: UpdateDocumentBody,
-  _params: {},
-  user: Session["user"] | null
+  _params: Record<string, never>,
+  user: Session["user"] | null,
 ) => {
   if (!user) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
@@ -42,10 +42,7 @@ const patchHandler = async (
 
   const parsedDate = getSafeDateForPrisma(body.date);
   if (!parsedDate) {
-    return NextResponse.json(
-      { message: "Invalid date format" },
-      { status: 400 }
-    );
+    return NextResponse.json({ message: "Invalid date format" }, { status: 400 });
   }
 
   try {
@@ -68,39 +65,21 @@ const patchHandler = async (
         note: body.note,
         spec_doc: {
           deleteMany: {}, // удаляем старые
-          create: body.payments.map(
-            ({
-              paySum,
-              expectedDate,
-              deadLineDate,
-              isPaid,
-              purposeOfPayment,
-            }) => ({
-              pay_sum: paySum,
-              expected_date: expectedDate
-                ? new Date(expectedDate)
-                : !deadLineDate
-                ? new Date()
-                : null,
-              dead_line_date: deadLineDate ? new Date(deadLineDate) : null,
-              purpose_of_payment: purposeOfPayment ?? "",
-              is_paid: isPaid,
-            })
-          ),
+          create: body.payments.map(({ paySum, expectedDate, deadLineDate, isPaid, purposeOfPayment }) => ({
+            pay_sum: paySum,
+            expected_date: expectedDate ? new Date(expectedDate) : !deadLineDate ? new Date() : null,
+            dead_line_date: deadLineDate ? new Date(deadLineDate) : null,
+            purpose_of_payment: purposeOfPayment ?? "",
+            is_paid: isPaid,
+          })),
         },
       },
     });
 
-    return NextResponse.json(
-      { success: true, message: "Data processed successfully.", result },
-      { status: 200 }
-    );
+    return NextResponse.json({ success: true, message: "Data processed successfully.", result }, { status: 200 });
   } catch (error) {
     console.error("Error processing request:", error);
-    return NextResponse.json(
-      { success: false, message: "Internal server error." },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: false, message: "Internal server error." }, { status: 500 });
   }
 };
 

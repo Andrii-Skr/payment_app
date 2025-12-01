@@ -1,5 +1,5 @@
-import { testApiHandler } from "next-test-api-route-handler";
 import * as handler from "@api/documents/update/route";
+import { testApiHandler } from "next-test-api-route-handler";
 import { Roles } from "@/constants/roles";
 
 jest.mock("@/prisma/prisma-client", () => ({
@@ -16,9 +16,7 @@ jest.mock("@/lib/date/getSafeDateForPrisma", () => ({
 }));
 
 jest.mock("next-auth", () => ({
-  getServerSession: jest.fn(() =>
-    Promise.resolve({ user: { id: 1, role: Roles.ADMIN } })
-  ),
+  getServerSession: jest.fn(() => Promise.resolve({ user: { id: 1, role: Roles.ADMIN } })),
 }));
 
 jest.mock("@/lib/authOptions", () => ({ authOptions: {} }));
@@ -26,8 +24,6 @@ jest.mock("@/lib/logs/logApiRequest", () => ({ logApiRequest: jest.fn() }));
 
 const prisma = require("@/prisma/prisma-client").default;
 const { getServerSession } = require("next-auth");
-
-const { getSafeDateForPrisma } = require("@/lib/date/getSafeDateForPrisma");
 
 describe("PATCH /documents/update", () => {
   afterAll(async () => prisma.$disconnect?.());
@@ -39,7 +35,11 @@ describe("PATCH /documents/update", () => {
     await testApiHandler({
       appHandler: handler,
       test: async ({ fetch }) => {
-        const res = await fetch({ method: "PATCH", headers: { "content-type": "application/json" }, body: JSON.stringify({}) });
+        const res = await fetch({
+          method: "PATCH",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({}),
+        });
         expect(res.status).toBe(401);
       },
     });
@@ -54,13 +54,28 @@ describe("PATCH /documents/update", () => {
         const res = await fetch({
           method: "PATCH",
           headers: { "content-type": "application/json" },
-          body: JSON.stringify({ doc_id: 1, entity_id: 1, partner_id: 1, partner_account_number_id: 1, accountNumber: "a", date: "2020-01-01", accountSum: 1, accountSumExpression: "1", vatType: false, vatPercent: 0, purposeOfPayment: "", payments: [], is_auto_purpose_of_payment: true, note: "test" }),
+          body: JSON.stringify({
+            doc_id: 1,
+            entity_id: 1,
+            partner_id: 1,
+            partner_account_number_id: 1,
+            accountNumber: "a",
+            date: "2020-01-01",
+            accountSum: 1,
+            accountSumExpression: "1",
+            vatType: false,
+            vatPercent: 0,
+            purposeOfPayment: "",
+            payments: [],
+            is_auto_purpose_of_payment: true,
+            note: "test",
+          }),
         });
         expect(res.status).toBe(200);
         expect(prisma.documents.update).toHaveBeenCalledWith(
           expect.objectContaining({
-            data: expect.objectContaining({ is_auto_purpose_of_payment: true, note: "test" })
-          })
+            data: expect.objectContaining({ is_auto_purpose_of_payment: true, note: "test" }),
+          }),
         );
       },
     });

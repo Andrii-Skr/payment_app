@@ -1,10 +1,10 @@
 "use client";
 
-import { FormEvent } from "react";
-import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { Input } from "@/components/ui/input";
+import { signIn } from "next-auth/react";
+import type { FormEvent } from "react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/lib/hooks/use-toast";
 
@@ -51,7 +51,7 @@ export default function SignIn() {
             </Label>
             <Input
               id="login"
-              name="login"            /* <- было username */
+              name="login" /* <- было username */
               type="text"
               autoComplete="username"
               placeholder="Логин"

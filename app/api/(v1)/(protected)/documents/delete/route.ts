@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from "next/server";
-import { apiRoute } from "@/utils/apiRoute";
-import prisma from "@/prisma/prisma-client";
-import { Roles } from "@/constants/roles";
+import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { Roles } from "@/constants/roles";
+import prisma from "@/prisma/prisma-client";
+import { apiRoute } from "@/utils/apiRoute";
 
 const schema = z.object({
   id: z.number(),

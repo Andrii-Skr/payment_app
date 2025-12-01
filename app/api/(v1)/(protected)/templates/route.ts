@@ -1,10 +1,10 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
+import type { Session } from "next-auth";
+import { AUTO_PURPOSE_MARKER } from "@/constants/marker";
+import { Roles } from "@/constants/roles";
+import { getSafeDateForPrisma } from "@/lib/date/getSafeDateForPrisma";
 import prisma from "@/prisma/prisma-client";
 import { apiRoute } from "@/utils/apiRoute";
-import type { Session } from "next-auth";
-import { Roles } from "@/constants/roles";
-import { AUTO_PURPOSE_MARKER } from "@/constants/marker";
-import { getSafeDateForPrisma } from "@/lib/date/getSafeDateForPrisma";
 
 export type TemplateBody = {
   id: number;
@@ -27,11 +27,10 @@ export type TemplateBody = {
 const postHandler = async (
   _req: NextRequest,
   body: TemplateBody,
-  _params: {},
-  user: Session["user"] | null
+  _params: Record<string, never>,
+  user: Session["user"] | null,
 ) => {
-  if (!user)
-    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  if (!user) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
 
   const where = {
     entity_id_name: {
@@ -68,20 +67,14 @@ const postHandler = async (
     return NextResponse.json(
       {
         success: true,
-        message:
-          sample.created_at === sample.updated_at
-            ? "Шаблон успешно создан."
-            : "Шаблон успешно обновлен.",
+        message: sample.created_at === sample.updated_at ? "Шаблон успешно создан." : "Шаблон успешно обновлен.",
         sample,
       },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (e) {
     console.error("Template upsert error:", e);
-    return NextResponse.json(
-      { message: "Internal Server Error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
   }
 };
 

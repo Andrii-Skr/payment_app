@@ -14,6 +14,6 @@ export const useEntitySelectionStore = create(
     }),
     {
       name: "entity-selection",
-    }
-  )
+    },
+  ),
 );

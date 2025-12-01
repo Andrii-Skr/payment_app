@@ -14,12 +14,7 @@ type Params = {
   };
 };
 
-export function useToggleDelete({
-  apiFn,
-  mutateFn,
-  getEntityState,
-  messages = {},
-}: Params) {
+export function useToggleDelete({ apiFn, mutateFn, getEntityState, messages = {} }: Params) {
   return useCallback(
     async (id: number, entityId: number) => {
       const isCurrentlyDeleted = getEntityState(id, entityId);
@@ -28,15 +23,11 @@ export function useToggleDelete({
       try {
         await apiFn(id, newState, entityId);
         mutateFn(id, newState, entityId);
-        toast.success(
-          newState
-            ? messages.delete ?? "Удалено"
-            : messages.restore ?? "Восстановлено"
-        );
+        toast.success(newState ? (messages.delete ?? "Удалено") : (messages.restore ?? "Восстановлено"));
       } catch {
         toast.error(messages.error ?? "Ошибка при обновлении");
       }
     },
-    [apiFn, mutateFn, getEntityState, messages]
+    [apiFn, mutateFn, getEntityState, messages],
   );
 }

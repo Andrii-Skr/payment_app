@@ -1,6 +1,6 @@
-import { testApiHandler } from "next-test-api-route-handler";
 import * as handler from "@api/users/route";
 import { userQuery } from "@api/users/route";
+import { testApiHandler } from "next-test-api-route-handler";
 import { Roles } from "@/constants/roles";
 
 jest.mock("@/prisma/prisma-client", () => ({
@@ -13,9 +13,7 @@ jest.mock("@/prisma/prisma-client", () => ({
 }));
 
 jest.mock("next-auth", () => ({
-  getServerSession: jest.fn(() =>
-    Promise.resolve({ user: { id: 1, role: Roles.ADMIN } })
-  ),
+  getServerSession: jest.fn(() => Promise.resolve({ user: { id: 1, role: Roles.ADMIN } })),
 }));
 
 jest.mock("@/lib/authOptions", () => ({ authOptions: {} }));
@@ -45,26 +43,20 @@ describe("/users route", () => {
   });
 
   it("200 GET фильтрует удалённые по умолчанию", async () => {
-    prisma.user.findMany.mockResolvedValueOnce([
-      { password_protection: false },
-    ]);
+    prisma.user.findMany.mockResolvedValueOnce([{ password_protection: false }]);
 
     await testApiHandler({
       appHandler: handler,
       test: async ({ fetch }) => {
         const res = await fetch({ method: "GET" });
         expect(res.status).toBe(200);
-        expect(prisma.user.findMany).toHaveBeenCalledWith(
-          expect.objectContaining({ where: { is_deleted: false } })
-        );
+        expect(prisma.user.findMany).toHaveBeenCalledWith(expect.objectContaining({ where: { is_deleted: false } }));
       },
     });
   });
 
   it("200 GET withDeleted=true убирает фильтр", async () => {
-    prisma.user.findMany.mockResolvedValueOnce([
-      { password_protection: false },
-    ]);
+    prisma.user.findMany.mockResolvedValueOnce([{ password_protection: false }]);
 
     await testApiHandler({
       appHandler: handler,
@@ -72,9 +64,7 @@ describe("/users route", () => {
       test: async ({ fetch }) => {
         const res = await fetch({ method: "GET" });
         expect(res.status).toBe(200);
-        expect(prisma.user.findMany).toHaveBeenCalledWith(
-          expect.objectContaining({ where: {} })
-        );
+        expect(prisma.user.findMany).toHaveBeenCalledWith(expect.objectContaining({ where: {} }));
       },
     });
   });

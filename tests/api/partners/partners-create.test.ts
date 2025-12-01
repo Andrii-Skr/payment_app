@@ -1,5 +1,5 @@
-import { testApiHandler } from "next-test-api-route-handler";
 import * as handler from "@api/partners/route";
+import { testApiHandler } from "next-test-api-route-handler";
 import { Roles } from "@/constants/roles";
 
 jest.mock("@/prisma/prisma-client", () => ({
@@ -15,9 +15,7 @@ jest.mock("@/prisma/prisma-client", () => ({
 }));
 
 jest.mock("next-auth", () => ({
-  getServerSession: jest.fn(() =>
-    Promise.resolve({ user: { id: 1, role: Roles.ADMIN } })
-  ),
+  getServerSession: jest.fn(() => Promise.resolve({ user: { id: 1, role: Roles.ADMIN } })),
 }));
 
 jest.mock("@/lib/authOptions", () => ({ authOptions: {} }));
@@ -55,12 +53,24 @@ describe("POST /partners", () => {
   });
 
   it("201 создаёт партнёра", async () => {
-    prisma.partners.create.mockResolvedValueOnce({ id: 1, partner_account_number: [{ id: 1 }] , entities: [] });
+    prisma.partners.create.mockResolvedValueOnce({ id: 1, partner_account_number: [{ id: 1 }], entities: [] });
 
     await testApiHandler({
       appHandler: handler,
       test: async ({ fetch }) => {
-        const res = await fetch({ method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ full_name: "F", short_name: "S", edrpou: "1", entity_id: 1, bank_account: "1", mfo: "1", bank_name: "b" }) });
+        const res = await fetch({
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            full_name: "F",
+            short_name: "S",
+            edrpou: "1",
+            entity_id: 1,
+            bank_account: "1",
+            mfo: "1",
+            bank_name: "b",
+          }),
+        });
         expect(res.status).toBe(201);
       },
     });

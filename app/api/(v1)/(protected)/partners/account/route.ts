@@ -1,10 +1,10 @@
 // src/app/api/partners/account/route.ts
 
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
+import { Roles } from "@/constants/roles";
 import prisma from "@/prisma/prisma-client";
 import { apiRoute } from "@/utils/apiRoute";
-import { Roles } from "@/constants/roles";
-import { z } from "zod";
 
 const schema = z.object({
   partner_id: z.number(),
@@ -29,9 +29,7 @@ const handler = async (_req: NextRequest, body: Body) => {
   });
 
   if (existing) {
-    const alreadyLinked = existing.entities.some(
-      (e) => e.entity_id === body.entity_id,
-    );
+    const alreadyLinked = existing.entities.some((e) => e.entity_id === body.entity_id);
 
     await prisma.$transaction(async (tx) => {
       if (body.is_default) {

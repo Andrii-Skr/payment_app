@@ -1,14 +1,7 @@
 "use client";
-import React from "react";
-import {
-  Control,
-  FieldValues,
-  Path,
-  useWatch,
-  UseFormSetValue,
-} from "react-hook-form";
-import { Button, FormLabel } from "@/components/ui";
+import { type Control, type FieldValues, type Path, type UseFormSetValue, useWatch } from "react-hook-form";
 import { FormInput } from "@/components/shared";
+import { Button, FormLabel } from "@/components/ui";
 import { cn } from "@/lib/utils";
 
 interface VatSelectorProps<T extends FieldValues> {
@@ -16,8 +9,8 @@ interface VatSelectorProps<T extends FieldValues> {
   /** передаём setValue из useForm() */
   setValue: UseFormSetValue<T>;
 
-  vatTypeName?: Path<T>;     // default "vatType"
-  vatPercentName?: Path<T>;  // default "vatPercent"
+  vatTypeName?: Path<T>; // default "vatType"
+  vatPercentName?: Path<T>; // default "vatPercent"
   className?: string;
 }
 
@@ -59,9 +52,7 @@ export function VatSelector<T extends FieldValues>({
             disabled={!vatType}
             label=""
           />
-          <span className="absolute right-1 top-1/2 -translate-y-1/2 text-gray-500 text-sm">
-            %
-          </span>
+          <span className="absolute right-1 top-1/2 -translate-y-1/2 text-gray-500 text-sm">%</span>
         </div>
 
         <Button
@@ -73,7 +64,6 @@ export function VatSelector<T extends FieldValues>({
               : "bg-white text-gray-700 border-gray-300 hover:border-gray-500"
           }`}
         >
-
           Без НДС
         </Button>
       </div>

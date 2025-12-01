@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
 import { getSession } from "next-auth/react";
+import { useEffect } from "react";
 import { logoutAndReset } from "@/lib/utils/logoutAndReset";
 
 export function useSessionRefresh(intervalMs = 5 * 60 * 1000) {

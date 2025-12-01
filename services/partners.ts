@@ -1,10 +1,6 @@
-import type { PartnerValues } from "@/types/partner";
+import type { partner_account_number, partners } from "@prisma/client";
 import axiosInstance from "@/services/instance";
-
-import type {
-  partners,
-  partner_account_number,
-} from "@prisma/client";
+import type { PartnerValues } from "@/types/partner";
 
 export type PartnerAccountWithEntities = partner_account_number & {
   entities: {
@@ -40,10 +36,7 @@ export type AddBankAccountResponse = {
   message?: string;
 };
 
-const mergeAccountRelation = (
-  acc: PartnerAccountWithEntities,
-  entityId: number,
-): PartnerAccountWithEntities => {
+const mergeAccountRelation = (acc: PartnerAccountWithEntities, entityId: number): PartnerAccountWithEntities => {
   const rel = acc.entities.find((e) => e.entity_id === entityId);
   return {
     ...acc,
@@ -56,7 +49,7 @@ const mergeAccountRelation = (
 /* Получить всех партнёров по entity_id */
 export const partnersService = async (
   entityId: number,
-  options: { showDeleted?: boolean; showHidden?: boolean } = {}
+  options: { showDeleted?: boolean; showHidden?: boolean } = {},
 ): Promise<PartnersWithAccounts[] | null> => {
   try {
     const params = new URLSearchParams();
@@ -78,11 +71,7 @@ export const partnersService = async (
   }
 };
 
-export const togglePartnerVisibility = async (
-  partner_id: number,
-  is_visible: boolean,
-  entity_id: number
-) => {
+export const togglePartnerVisibility = async (partner_id: number, is_visible: boolean, entity_id: number) => {
   try {
     await axiosInstance.patch("/partners/visibility", {
       partner_id,
@@ -95,10 +84,7 @@ export const togglePartnerVisibility = async (
   }
 };
 
-export const getPartnerVisibility = async (
-  partner_id: number,
-  entity_id: number
-) => {
+export const getPartnerVisibility = async (partner_id: number, entity_id: number) => {
   try {
     const response = await axiosInstance.get("/partners/visibility", {
       params: { partner_id, entity_id },
@@ -112,10 +98,7 @@ export const getPartnerVisibility = async (
 };
 
 /* Получить партнёра по edrpou и entity_id */
-export const getByEdrpou = async (
-  edrpou: string,
-  entityId: number
-): Promise<PartnersWithAccounts | null> => {
+export const getByEdrpou = async (edrpou: string, entityId: number): Promise<PartnersWithAccounts | null> => {
   try {
     const { data } = await axiosInstance.get<{
       found: boolean;
@@ -140,10 +123,8 @@ export const getByEdrpou = async (
 };
 
 /* Создать контрагента */
-export const createPartner = async (
-  data: PartnerValues,
-): Promise<CreatePartnerResponse> => {
-  console.log(data)
+export const createPartner = async (data: PartnerValues): Promise<CreatePartnerResponse> => {
+  console.log(data);
   try {
     const res = await axiosInstance.post("/partners", data);
     return res.data as CreatePartnerResponse;
@@ -154,10 +135,7 @@ export const createPartner = async (
 };
 
 /* Обновить имя контрагента */
-export const updatePartner = async (
-  id: number,
-  data: Pick<PartnerValues, "full_name" | "short_name">
-) => {
+export const updatePartner = async (id: number, data: Pick<PartnerValues, "full_name" | "short_name">) => {
   try {
     await axiosInstance.patch(`/partners/${id}`, data);
   } catch (error) {
@@ -165,11 +143,7 @@ export const updatePartner = async (
   }
 };
 
-export const deletePartner = async (
-  partner_id: number,
-  is_deleted: boolean,
-  entity_id: number
-) => {
+export const deletePartner = async (partner_id: number, is_deleted: boolean, entity_id: number) => {
   try {
     await axiosInstance.patch("/partners/delete", {
       partner_id,
@@ -183,21 +157,16 @@ export const deletePartner = async (
 };
 
 /* Добавить банковский счёт */
-export const addBankAccount = async (
-  data: {
-    partner_id: number;
-    entity_id: number;
-    bank_account: string;
-    mfo?: string;
-    bank_name?: string;
-    is_default?: boolean;
-  },
-): Promise<AddBankAccountResponse> => {
+export const addBankAccount = async (data: {
+  partner_id: number;
+  entity_id: number;
+  bank_account: string;
+  mfo?: string;
+  bank_name?: string;
+  is_default?: boolean;
+}): Promise<AddBankAccountResponse> => {
   try {
-    const res = await axiosInstance.post<AddBankAccountResponse>(
-      "/partners/account",
-      data,
-    );
+    const res = await axiosInstance.post<AddBankAccountResponse>("/partners/account", data);
     return res.data;
   } catch (error: any) {
     console.error("Ошибка при добавлении счёта:", error);
@@ -207,11 +176,7 @@ export const addBankAccount = async (
 };
 
 /* Сделать счёт основным */
-export const setDefaultAccount = async (
-  partner_account_number_id: number,
-  entity_id: number,
-  is_default: boolean,
-) => {
+export const setDefaultAccount = async (partner_account_number_id: number, entity_id: number, is_default: boolean) => {
   try {
     await axiosInstance.patch("/partners/account/default", {
       partner_account_number_id,
@@ -224,11 +189,7 @@ export const setDefaultAccount = async (
 };
 
 /* Удалить счёт (is_deleted = true) */
-export const deleteAccount = async (
-  partner_account_number_id: number,
-  is_deleted: boolean,
-  entity_id: number,
-) => {
+export const deleteAccount = async (partner_account_number_id: number, is_deleted: boolean, entity_id: number) => {
   try {
     await axiosInstance.patch("/partners/account/delete", {
       partner_account_number_id,

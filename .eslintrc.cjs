@@ -1,5 +1,5 @@
 module.exports = {
-    "rules": {
-      "@typescript-eslint/no-explicit-any": ""
-    }
-  };
+  rules: {
+    "@typescript-eslint/no-explicit-any": "",
+  },
+};

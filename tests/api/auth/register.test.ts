@@ -104,9 +104,7 @@ describe("POST /api/auth/register", () => {
         const res = await fetch({
           method: "POST",
           headers: { "content-type": "application/json" },
-          body: JSON.stringify(
-            makeBody({ login: "user2", name: "New User" }),
-          ),
+          body: JSON.stringify(makeBody({ login: "user2", name: "New User" })),
         });
 
         expect(res.status).toBe(201);

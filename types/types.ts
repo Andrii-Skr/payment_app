@@ -1,4 +1,4 @@
-import { EntityWithAll } from "@/app/api/(v1)/(protected)/documents/entities/route";
+import type { EntityWithAll } from "@/app/api/(v1)/(protected)/documents/entities/route";
 
 export type DocumentType = EntityWithAll["documents"][number];
 

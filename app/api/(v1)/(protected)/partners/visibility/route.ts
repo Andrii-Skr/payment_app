@@ -1,9 +1,9 @@
-import prisma from "@/prisma/prisma-client";
-import { NextRequest, NextResponse } from "next/server";
-import { apiRoute } from "@/utils/apiRoute";
-import { Roles } from "@/constants/roles";
+import { type NextRequest, NextResponse } from "next/server";
 import type { Session } from "next-auth";
 import { z } from "zod";
+import { Roles } from "@/constants/roles";
+import prisma from "@/prisma/prisma-client";
+import { apiRoute } from "@/utils/apiRoute";
 
 const schema = z.object({
   partner_id: z.number(),
@@ -16,11 +16,10 @@ type Body = z.infer<typeof schema>;
 const patchHandler = async (
   _req: NextRequest,
   body: Body,
-  _params: {},
-  user: Session["user"] | null
+  _params: Record<string, never>,
+  user: Session["user"] | null,
 ) => {
-  if (!user)
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   try {
     const updated = await prisma.partners_on_entities.update({
@@ -38,10 +37,7 @@ const patchHandler = async (
     return NextResponse.json({ success: true, updated });
   } catch (error) {
     console.error("Ошибка при обновлении is_visible:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 };
 
@@ -83,10 +79,7 @@ const getHandler = async (req: NextRequest) => {
     return NextResponse.json(record);
   } catch (error) {
     console.error("Ошибка при получении is_visible:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 };
 
@@ -98,5 +91,5 @@ export const PATCH = apiRoute<Body>(patchHandler, {
 
 export const GET = apiRoute(getHandler, {
   requireAuth: true,
-  roles: [Roles.ADMIN,Roles.MANAGER],
+  roles: [Roles.ADMIN, Roles.MANAGER],
 });

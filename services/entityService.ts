@@ -1,5 +1,5 @@
+import type { entity } from "@prisma/client";
 import { getById } from "@/services/entities";
-import { entity } from "@prisma/client";
 
 const cache = new Map<number, entity>();
 
@@ -12,9 +12,7 @@ export const fetchEntity = async (id: number): Promise<entity | null> => {
 };
 
 /** Утилита для пакетной загрузки */
-export const fetchEntitiesBatch = async (
-  ids: number[]
-): Promise<Map<number, entity>> => {
+export const fetchEntitiesBatch = async (ids: number[]): Promise<Map<number, entity>> => {
   await Promise.all(ids.map(fetchEntity));
   return cache;
 };

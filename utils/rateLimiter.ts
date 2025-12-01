@@ -22,7 +22,10 @@ export function resetRateLimit(ip: string, login: string) {
   loginLimitStore.delete(login);
 }
 
-export function rateLimit(ip: string, login: string): {
+export function rateLimit(
+  ip: string,
+  login: string,
+): {
   allowed: boolean;
   retryAfter?: number;
   reason?: "ip" | "login";

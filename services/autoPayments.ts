@@ -1,6 +1,6 @@
+import type { AutoPaymentWithDocs } from "@api/regular-payments/route";
 import axiosInstance from "@/services/instance";
-import { PaymentValues } from "@/types/formTypes";
-import { AutoPaymentWithDocs } from "@api/regular-payments/route";
+import type { PaymentValues } from "@/types/formTypes";
 
 export const create = async (data: PaymentValues) => {
   try {

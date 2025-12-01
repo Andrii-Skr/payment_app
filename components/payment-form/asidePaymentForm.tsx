@@ -1,18 +1,10 @@
 "use client";
-import React, { useState, useMemo } from "react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-  Button,
-  Input,
-} from "@/components/ui";
-import { cn } from "@/lib/utils";
-import { DatePicker } from "@/components/shared/datePicker";
 import { isSameDay } from "date-fns";
+import type React from "react";
+import { useMemo, useState } from "react";
+import { DatePicker } from "@/components/shared/datePicker";
+import { Button, Input, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui";
+import { cn } from "@/lib/utils";
 
 export type Document = {
   id: number;
@@ -31,14 +23,8 @@ type AsideProps = {
   className?: string;
 };
 
-export const AsidePaymentForm: React.FC<AsideProps> = ({
-  docs,
-  onRowClick,
-  className,
-}) => {
-  const [sortedColumn, setSortedColumn] = useState<
-    "partner" | "accountNumber" | "date" | "sum" | null
-  >(null);
+export const AsidePaymentForm: React.FC<AsideProps> = ({ docs, onRowClick, className }) => {
+  const [sortedColumn, setSortedColumn] = useState<"partner" | "accountNumber" | "date" | "sum" | null>(null);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const collator = new Intl.Collator(undefined, {
     numeric: true,
@@ -61,65 +47,57 @@ export const AsidePaymentForm: React.FC<AsideProps> = ({
 
   const filteredDocs = useMemo(() => {
     return docs.filter((d) => {
-      const matchesPartner = d.partner.short_name
-        .toLowerCase()
-        .includes(filterPartner.toLowerCase());
+      const matchesPartner = d.partner.short_name.toLowerCase().includes(filterPartner.toLowerCase());
       const matchesAccount = d.account_number.includes(filterAccount);
-      const matchesSum = filterSum
-        ? d.account_sum.toString().includes(filterSum)
-        : true;
-      const matchesDate = filterDate
-        ? isSameDay(new Date(d.date), filterDate)
-        : true;
+      const matchesSum = filterSum ? d.account_sum.toString().includes(filterSum) : true;
+      const matchesDate = filterDate ? isSameDay(new Date(d.date), filterDate) : true;
 
       return matchesPartner && matchesAccount && matchesSum && matchesDate;
     });
   }, [docs, filterPartner, filterAccount, filterSum, filterDate]);
 
   const sortedDocs = useMemo(() => {
-    let sorted = [...filteredDocs];
+    const sorted = [...filteredDocs];
     switch (sortedColumn) {
       case "partner":
         sorted.sort((a, b) =>
           sortOrder === "asc"
             ? collator.compare(a.partner.short_name, b.partner.short_name)
-            : collator.compare(b.partner.short_name, a.partner.short_name)
+            : collator.compare(b.partner.short_name, a.partner.short_name),
         );
         break;
       case "accountNumber":
         sorted.sort((a, b) =>
           sortOrder === "asc"
             ? collator.compare(a.account_number, b.account_number)
-            : collator.compare(b.account_number, a.account_number)
+            : collator.compare(b.account_number, a.account_number),
         );
         break;
       case "sum":
         sorted.sort((a, b) =>
           sortOrder === "asc"
             ? collator.compare(a.account_number, b.account_number)
-            : collator.compare(b.account_number, a.account_number)
+            : collator.compare(b.account_number, a.account_number),
         );
         break;
       case "date":
         sorted.sort((a, b) =>
           sortOrder === "asc"
             ? new Date(a.date).getTime() - new Date(b.date).getTime()
-            : new Date(b.date).getTime() - new Date(a.date).getTime()
+            : new Date(b.date).getTime() - new Date(a.date).getTime(),
         );
         break;
       default:
-        sorted.sort(
-          (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-        );
+        sorted.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     }
     return sorted;
-  }, [filteredDocs, sortedColumn, sortOrder]);
+  }, [filteredDocs, sortedColumn, sortOrder, collator.compare]);
 
   return (
     <aside
       className={cn(
-        "w-[34dvw] min-w-[512px] h-[94dvh] space-y-2 rounded-3xl border-gray-200 border-2 mr-[30px]",
-        className
+        "w-[38dvw] min-w-[512px] h-[94dvh] space-y-2 rounded-3xl border-gray-200 border-2 mr-[30px]",
+        className,
       )}
     >
       <div className="w-auto h-[90dvh] overflow-y-scroll">
@@ -129,45 +107,22 @@ export const AsidePaymentForm: React.FC<AsideProps> = ({
               <TableRow className="">
                 <TableHead>
                   <Button variant="ghost" onClick={() => handleSort("partner")}>
-                    Контрагент{" "}
-                    {sortedColumn === "partner"
-                      ? sortOrder === "asc"
-                        ? "↑"
-                        : "↓"
-                      : ""}
+                    Контрагент {sortedColumn === "partner" ? (sortOrder === "asc" ? "↑" : "↓") : ""}
                   </Button>
                 </TableHead>
                 <TableHead>
                   <Button variant="ghost" onClick={() => handleSort("sum")}>
-                    Сумма счета{" "}
-                    {sortedColumn === "sum"
-                      ? sortOrder === "asc"
-                        ? "↑"
-                        : "↓"
-                      : ""}
+                    Сумма счета {sortedColumn === "sum" ? (sortOrder === "asc" ? "↑" : "↓") : ""}
                   </Button>
                 </TableHead>
                 <TableHead className="w-1">
                   <Button variant="ghost" onClick={() => handleSort("date")}>
-                    Дата счета{" "}
-                    {sortedColumn === "date"
-                      ? sortOrder === "asc"
-                        ? "↑"
-                        : "↓"
-                      : ""}
+                    Дата счета {sortedColumn === "date" ? (sortOrder === "asc" ? "↑" : "↓") : ""}
                   </Button>
                 </TableHead>
                 <TableHead>
-                  <Button
-                    variant="ghost"
-                    onClick={() => handleSort("accountNumber")}
-                  >
-                    Номер счета{" "}
-                    {sortedColumn === "accountNumber"
-                      ? sortOrder === "asc"
-                        ? "↑"
-                        : "↓"
-                      : ""}
+                  <Button variant="ghost" onClick={() => handleSort("accountNumber")}>
+                    Номер счета {sortedColumn === "accountNumber" ? (sortOrder === "asc" ? "↑" : "↓") : ""}
                   </Button>
                 </TableHead>
               </TableRow>
@@ -189,11 +144,7 @@ export const AsidePaymentForm: React.FC<AsideProps> = ({
                   />
                 </TableHead>
                 <TableHead className="p-1 font-normal">
-                  <DatePicker
-                    selected={filterDate}
-                    onChange={setFilterDate}
-                    className="w-full"
-                  />
+                  <DatePicker selected={filterDate} onChange={setFilterDate} className="w-full" />
                 </TableHead>
                 <TableHead className="p-1 font-normal">
                   <Input
@@ -209,9 +160,7 @@ export const AsidePaymentForm: React.FC<AsideProps> = ({
               {sortedDocs.map((doc) => (
                 <TableRow key={doc.id} onClick={() => onRowClick(doc.id)}>
                   <TableCell>{doc.partner.short_name}</TableCell>
-                  <TableCell className="text-right">
-                    {Number(doc.account_sum)}
-                  </TableCell>
+                  <TableCell className="text-right">{Number(doc.account_sum)}</TableCell>
                   <TableCell>
                     {new Date(doc.date).toLocaleDateString("ru-RU", {
                       day: "2-digit",

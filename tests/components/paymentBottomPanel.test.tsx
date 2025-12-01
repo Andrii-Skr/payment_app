@@ -1,11 +1,10 @@
 /** @jest-environment jsdom */
 
-import React from "react";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { PaymentBottomPanel } from "@/components/payment-schedule/paymentBottomPanel";
 import { usePaymentStore } from "@/store/paymentStore";
-import { PaymentDetail } from "@/types/types";
+import type { PaymentDetail } from "@/types/types";
 import "@testing-library/jest-dom";
 
 const samplePayment: PaymentDetail = {
@@ -46,12 +45,11 @@ describe("PaymentBottomPanel", () => {
     render(
       <PaymentBottomPanel
         pendingPayments={[samplePayment]}
-        groupedPayments={{}}
         overallTotal={100}
         onFinalize={jest.fn()}
         onGroupedFinalize={jest.fn()}
         onPay={jest.fn()}
-      />
+      />,
     );
 
     const clearButton = screen.getByRole("button", { name: "Сбросить выбор" });
@@ -62,4 +60,3 @@ describe("PaymentBottomPanel", () => {
     expect(usePaymentStore.getState().pendingPayments).toEqual([]);
   });
 });
-

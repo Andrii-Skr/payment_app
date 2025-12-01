@@ -1,22 +1,14 @@
 "use client";
 
+import type { UserWithRelations } from "@api/users/route";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { apiClient } from "@/services/api-client";
-import { toast } from "@/lib/hooks/use-toast";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-  Form,
-  Button,
-} from "@/components/ui";
 import { FormInput } from "@/components/shared";
-import type { UserWithRelations } from "@api/users/route";
+import { Button, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Form } from "@/components/ui";
+import { toast } from "@/lib/hooks/use-toast";
+import { apiClient } from "@/services/api-client";
 
 interface Props {
   user: UserWithRelations;
@@ -61,12 +53,7 @@ export function UserPasswordModal({ user, open, onOpenChange, onSaved }: Props) 
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
-            <FormInput
-              control={form.control}
-              name="password"
-              label="Новый пароль"
-              type="password"
-            />
+            <FormInput control={form.control} name="password" label="Новый пароль" type="password" />
             <DialogFooter className="pt-2">
               <Button
                 type="button"

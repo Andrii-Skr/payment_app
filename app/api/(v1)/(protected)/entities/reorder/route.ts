@@ -1,9 +1,9 @@
 // /app/api/entities/reorder/route.ts
-import { NextRequest, NextResponse } from "next/server";
-import { apiRoute } from "@/utils/apiRoute";
-import prisma from "@/prisma/prisma-client";
-import { Roles } from "@/constants/roles";
+import { type NextRequest, NextResponse } from "next/server";
 import type { Session } from "next-auth";
+import { Roles } from "@/constants/roles";
+import prisma from "@/prisma/prisma-client";
+import { apiRoute } from "@/utils/apiRoute";
 
 type ReorderBody = {
   order: { id: number; sort_order: number }[];
@@ -12,8 +12,8 @@ type ReorderBody = {
 const reorderHandler = async (
   _req: NextRequest,
   body: ReorderBody,
-  _params: {},
-  user: Session["user"] | null
+  _params: Record<string, never>,
+  user: Session["user"] | null,
 ) => {
   if (!user) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
 
@@ -21,7 +21,7 @@ const reorderHandler = async (
     prisma.entity.update({
       where: { id: item.id },
       data: { sort_order: item.sort_order },
-    })
+    }),
   );
 
   await prisma.$transaction(updates);

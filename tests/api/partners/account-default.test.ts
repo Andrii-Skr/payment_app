@@ -1,5 +1,5 @@
-import { testApiHandler } from "next-test-api-route-handler";
 import * as handler from "@api/partners/account/default/route";
+import { testApiHandler } from "next-test-api-route-handler";
 import { Roles } from "@/constants/roles";
 
 jest.mock("@/prisma/prisma-client", () => ({
@@ -10,12 +10,14 @@ jest.mock("@/prisma/prisma-client", () => ({
       updateMany: jest.fn(),
       update: jest.fn(),
     },
-    $transaction: jest.fn((fn) => fn({
-      partner_account_numbers_on_entities: {
-        updateMany: jest.fn(),
-        update: jest.fn(),
-      },
-    })),
+    $transaction: jest.fn((fn) =>
+      fn({
+        partner_account_numbers_on_entities: {
+          updateMany: jest.fn(),
+          update: jest.fn(),
+        },
+      }),
+    ),
     user: { findUnique: jest.fn() },
     api_request_log: { create: jest.fn().mockResolvedValue(null) },
     $disconnect: jest.fn(),
@@ -23,9 +25,7 @@ jest.mock("@/prisma/prisma-client", () => ({
 }));
 
 jest.mock("next-auth", () => ({
-  getServerSession: jest.fn(() =>
-    Promise.resolve({ user: { id: 1, role: Roles.ADMIN } })
-  ),
+  getServerSession: jest.fn(() => Promise.resolve({ user: { id: 1, role: Roles.ADMIN } })),
 }));
 
 jest.mock("@/lib/authOptions", () => ({ authOptions: {} }));
@@ -41,13 +41,13 @@ describe("PATCH /partners/account/default", () => {
     prisma.partner_account_number.findUnique.mockResolvedValue({ partner_id: 1 });
     const updateMany = jest.fn();
     const update = jest.fn();
-    prisma.$transaction.mockImplementation(async (fn :any) =>
+    prisma.$transaction.mockImplementation(async (fn: any) =>
       fn({
         partner_account_numbers_on_entities: {
           updateMany,
           update,
         },
-      })
+      }),
     );
 
     await testApiHandler({

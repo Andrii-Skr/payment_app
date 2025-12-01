@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
+import { Roles } from "@/constants/roles";
 import prisma from "@/prisma/prisma-client";
 import { apiRoute } from "@/utils/apiRoute";
-import { Roles } from "@/constants/roles";
-import { z } from "zod";
 
 const schema = z.object({
   user_id: z.number(),
@@ -15,7 +15,7 @@ type Body = z.infer<typeof schema>;
 
 const handler = async (_req: NextRequest, body: Body) => {
   const { user_id, login, name, role_id } = body;
-  const data: Record<string, any> = {};
+  const data: Partial<{ login: string; name: string; role_id: number }> = {};
   if (login !== undefined) data.login = login;
   if (name !== undefined) data.name = name;
   if (role_id !== undefined) data.role_id = role_id;

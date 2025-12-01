@@ -1,12 +1,12 @@
 "use client";
-import * as React from "react";
+import type * as React from "react";
 import { useEffect } from "react";
-import { Control, useFormContext } from "react-hook-form";
-import { FormValues } from "@/types/formTypes";
-import { useAccountListStore } from "@/store/accountListStore";
-import type { AccountItem } from "@/store/accountListStore";
+import { type Control, useFormContext } from "react-hook-form";
 import { Combobox } from "@/components/shared";
 import { useAutoFillBankDetails } from "@/lib/hooks/useAutoFillBankDetails";
+import type { AccountItem } from "@/store/accountListStore";
+import { useAccountListStore } from "@/store/accountListStore";
+import type { FormValues } from "@/types/formTypes";
 
 type Props = {
   control: Control<FormValues>;
@@ -30,15 +30,11 @@ export const AccountsCombobox: React.FC<Props> = ({
   className,
   disabled,
 }) => {
-  const currentAccountList = useAccountListStore(
-    (state) => state.currentAccountList
-  ) as AccountItem[];
+  const currentAccountList = useAccountListStore((state) => state.currentAccountList) as AccountItem[];
 
   const list =
     currentAccountList
-      ?.filter(
-        (a) => a.is_deleted !== true && a.is_visible !== false
-      )
+      ?.filter((a) => a.is_deleted !== true && a.is_visible !== false)
       .map((e) => ({
         key: String(e.id),
         value: e.bank_account,
@@ -58,7 +54,7 @@ export const AccountsCombobox: React.FC<Props> = ({
 
   // 🔥 Сброс и автозаполнение при смене edrpou или short_name
   useEffect(() => {
-     if (!edrpou && !short_name) {
+    if (!edrpou && !short_name) {
       setValue("partner_account_number_id", null);
       setValue("selectedAccount", "");
       setValue("mfo", "");
@@ -71,11 +67,7 @@ export const AccountsCombobox: React.FC<Props> = ({
       return;
     }
 
-    if (
-      selectedId !== undefined &&
-      selectedId !== null &&
-      currentAccountList.some((a) => a.id === selectedId)
-    ) {
+    if (selectedId !== undefined && selectedId !== null && currentAccountList.some((a) => a.id === selectedId)) {
       return;
     }
 
@@ -93,14 +85,7 @@ export const AccountsCombobox: React.FC<Props> = ({
       setValue("mfo", "");
       setValue("bank_name", "");
     }
-  }, [
-    edrpou,
-    short_name,
-    currentAccountList,
-    selectedId,
-    selectedAccountValue,
-    setValue,
-  ]);
+  }, [edrpou, short_name, currentAccountList, selectedId, selectedAccountValue, setValue]);
 
   // Автозаполнение MFO и bank_name при смене счета
   const { mfo, bankName } = useAutoFillBankDetails(bankAccount);

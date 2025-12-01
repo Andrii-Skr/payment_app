@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from "next/server";
+import { Prisma } from "@prisma/client";
+import { type NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
+import { Roles } from "@/constants/roles";
 import prisma from "@/prisma/prisma-client";
 import { apiRoute } from "@/utils/apiRoute";
-import { Roles } from "@/constants/roles";
-import { z } from "zod";
-import { Prisma } from "@prisma/client";
 
 /* ----------------------------- Schemas ----------------------------- */
 const roleSchema = z.object({
@@ -15,12 +15,8 @@ const linkSchema = z.object({
   user_id: z.number(),
   add_entities: z.array(z.number()).optional(),
   remove_entities: z.array(z.number()).optional(),
-  add_partners: z
-    .array(z.object({ partner_id: z.number(), entity_id: z.number() }))
-    .optional(),
-  remove_partners: z
-    .array(z.object({ partner_id: z.number(), entity_id: z.number() }))
-    .optional(),
+  add_partners: z.array(z.object({ partner_id: z.number(), entity_id: z.number() })).optional(),
+  remove_partners: z.array(z.object({ partner_id: z.number(), entity_id: z.number() })).optional(),
 });
 
 type RoleBody = z.infer<typeof roleSchema>;
@@ -72,13 +68,7 @@ const patchHandler = async (_req: NextRequest, body: RoleBody) => {
 };
 
 const postHandler = async (_req: NextRequest, body: LinkBody) => {
-  const {
-    user_id,
-    add_entities = [],
-    remove_entities = [],
-    add_partners = [],
-    remove_partners = [],
-  } = body;
+  const { user_id, add_entities = [], remove_entities = [], add_partners = [], remove_partners = [] } = body;
 
   await prisma.$transaction(async (tx) => {
     if (add_entities.length > 0) {

@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { useSessionRefresh } from "@/lib/hooks/useSessionRefresh";
 

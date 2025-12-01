@@ -1,10 +1,10 @@
-import { NextRequest, NextResponse } from "next/server";
-import { apiRoute } from "@/utils/apiRoute";
-import { hasRole } from "@/lib/access/hasRole";
-import { Roles } from "@/constants/roles";
-import prisma from "@/prisma/prisma-client";
+import type { Prisma } from "@prisma/client";
+import { type NextRequest, NextResponse } from "next/server";
 import type { Session } from "next-auth";
-import { Prisma } from "@prisma/client";
+import { Roles } from "@/constants/roles";
+import { hasRole } from "@/lib/access/hasRole";
+import prisma from "@/prisma/prisma-client";
+import { apiRoute } from "@/utils/apiRoute";
 
 export type CreateEntityBody = Prisma.entityUncheckedCreateInput;
 
@@ -12,8 +12,8 @@ export type CreateEntityBody = Prisma.entityUncheckedCreateInput;
 const getHandler = async (
   req: NextRequest,
   _body: null,
-  _params: {},
-  user: Session["user"] | null
+  _params: Record<string, never>,
+  user: Session["user"] | null,
 ) => {
   if (!user) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
@@ -47,27 +47,22 @@ const getHandler = async (
   });
 
   const entities =
-    userWithEntities?.users_entities
-      .map((e) => e.entity)
-      .sort((a, b) => a.sort_order - b.sort_order) ?? [];
+    userWithEntities?.users_entities.map((e) => e.entity).sort((a, b) => a.sort_order - b.sort_order) ?? [];
   return NextResponse.json(entities);
 };
 
 const postHandler = async (
   _req: NextRequest,
   body: CreateEntityBody,
-  _params: {},
-  user: Session["user"] | null
+  _params: Record<string, never>,
+  user: Session["user"] | null,
 ) => {
   if (!user) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
   if (!hasRole(user.role, Roles.ADMIN)) {
-    return NextResponse.json(
-      { message: "Forbidden: Admins only" },
-      { status: 403 }
-    );
+    return NextResponse.json({ message: "Forbidden: Admins only" }, { status: 403 });
   }
 
   const entity = await prisma.entity.create({ data: body });
@@ -77,8 +72,8 @@ const postHandler = async (
 const patchHandler = async (
   _req: NextRequest,
   body: CreateEntityBody,
-  _params: {},
-  user: Session["user"] | null
+  _params: Record<string, never>,
+  user: Session["user"] | null,
 ) => {
   if (!user) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
@@ -95,7 +90,7 @@ const patchHandler = async (
     });
 
     return NextResponse.json(entity);
-  } catch (error) {
+  } catch (_error) {
     return NextResponse.json({ message: "Entity not found" }, { status: 404 });
   }
 };

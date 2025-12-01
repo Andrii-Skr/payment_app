@@ -10,10 +10,7 @@ import { z } from "zod";
  */
 const uaIbanSchema = z
   .string()
-  .regex(
-    /^UA\d{27}$/,
-    "Некорректный IBAN для Украины (должно быть 29 символов: UA + 27 цифр)"
-  );
+  .regex(/^UA\d{27}$/, "Некорректный IBAN для Украины (должно быть 29 символов: UA + 27 цифр)");
 
 type Result = { mfo: string; error: null } | { mfo: ""; error: string };
 

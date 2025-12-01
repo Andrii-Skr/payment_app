@@ -1,4 +1,4 @@
-import { Decimal } from "@prisma/client/runtime/library";
+import type { Decimal } from "@prisma/client/runtime/library";
 
 /** Принимаем дату в любом виде, возвращаем Date или null */
 type MaybeDate = Date | string | null | undefined;
@@ -20,13 +20,10 @@ export const isSameDay = (d1: MaybeDate, d2: MaybeDate): boolean => {
   );
 };
 
-export const getDisplayDate = (spec: {
-  expected_date?: MaybeDate;
-  dead_line_date?: MaybeDate;
-}): Date | null => toDate(spec.expected_date ?? spec.dead_line_date);
+export const getDisplayDate = (spec: { expected_date?: MaybeDate; dead_line_date?: MaybeDate }): Date | null =>
+  toDate(spec.expected_date ?? spec.dead_line_date);
 
-export const formatMoney = (value: number | Decimal): string =>
-  Number(value).toFixed(2);
+export const formatMoney = (value: number | Decimal): string => Number(value).toFixed(2);
 
 const colors = [
   "bg-blue-100",

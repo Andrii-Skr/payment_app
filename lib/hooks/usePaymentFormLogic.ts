@@ -1,19 +1,18 @@
 "use client";
 
-import React from "react";
-import { useParams, useRouter, useSearchParams } from "next/navigation";
-import { apiClient } from "@/services/api-client";
-import { TransformedObject } from "@/lib/transformData/doc";
-import { toast } from "@/lib/hooks/use-toast";
-import { useDocumentsStore } from "@/store/documentsListStore";
-
+import type { TemplateWithBankDetails } from "@api/templates/[id]/route";
 import type { entity } from "@prisma/client";
-import { FormValues } from "@/types/formTypes";
-import { TemplateWithBankDetails } from "@api/templates/[id]/route";
-import { AxiosError } from "axios";
+import type { AxiosError } from "axios";
 import { format } from "date-fns";
-import { CreateDocumentPayload } from "@/services/documents";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
+import React from "react";
+import { toast } from "@/lib/hooks/use-toast";
+import { TransformedObject } from "@/lib/transformData/doc";
+import { apiClient } from "@/services/api-client";
+import type { CreateDocumentPayload } from "@/services/documents";
 import { useAccountListStore } from "@/store/accountListStore";
+import { useDocumentsStore } from "@/store/documentsListStore";
+import type { FormValues } from "@/types/formTypes";
 
 type DuplicateCheckResponse = {
   success: false;
@@ -24,12 +23,10 @@ type DuplicateCheckResponse = {
 export function usePaymentFormLogic({
   reset,
   setValue,
-  getValues,
   defaultValues,
 }: {
   reset: (values: FormValues) => void;
   setValue: (name: keyof FormValues, value: any) => void;
-  getValues: () => FormValues;
   defaultValues: FormValues;
 }) {
   const { entity_id } = useParams();
@@ -40,17 +37,13 @@ export function usePaymentFormLogic({
   const entityIdNum = Number(entity_id);
 
   const [isDuplicateDialogOpen, setDuplicateDialogOpen] = React.useState(false);
-  const [pendingDocData, setPendingDocData] =
-    React.useState<CreateDocumentPayload | null>(null);
+  const [pendingDocData, setPendingDocData] = React.useState<CreateDocumentPayload | null>(null);
 
   const [entity, setEntity] = React.useState<entity | null>(null);
-  const [templatesList, setTemplatesList] = React.useState<
-    TemplateWithBankDetails[]
-  >([]);
+  const [templatesList, setTemplatesList] = React.useState<TemplateWithBankDetails[]>([]);
   const [isTemplateDialogOpen, setTemplateDialogOpen] = React.useState(false);
   const [isReplaceDialogOpen, setIsReplaceDialogOpen] = React.useState(false);
-  const [selectedTemplate, setSelectedTemplate] =
-    React.useState<TemplateWithBankDetails | null>(null);
+  const [selectedTemplate, setSelectedTemplate] = React.useState<TemplateWithBankDetails | null>(null);
 
   // Zustand store for documents
   const { docs, fetchDocs } = useDocumentsStore();
@@ -61,7 +54,7 @@ export function usePaymentFormLogic({
       apiClient.templates.getById(entityIdNum).then(setTemplatesList);
       fetchDocs(entityIdNum); // 💡 загружаем список документов из стора
     }
-  }, [entityIdNum]);
+  }, [entityIdNum, fetchDocs]);
 
   React.useEffect(() => {
     setValue("entity_id", entityIdNum);
@@ -99,16 +92,9 @@ export function usePaymentFormLogic({
 
         // 👇 Проверка и автоматическое включение видимости партнёра
         if (data.partner_id) {
-          const { is_visible } = await apiClient.partners.getPartnerVisibility(
-            data.partner_id,
-            entityIdNum
-          );
+          const { is_visible } = await apiClient.partners.getPartnerVisibility(data.partner_id, entityIdNum);
           if (is_visible === false) {
-            await apiClient.partners.togglePartnerVisibility(
-              data.partner_id,
-              true,
-              entityIdNum
-            );
+            await apiClient.partners.togglePartnerVisibility(data.partner_id, true, entityIdNum);
           }
         }
       } else {

@@ -26,7 +26,7 @@ const cronLogger = pino(
         level: "debug",
       },
     ],
-  })
+  }),
 );
 
 export default cronLogger;

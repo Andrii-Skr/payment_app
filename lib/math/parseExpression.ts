@@ -1,4 +1,3 @@
-
 import { evaluate } from "mathjs";
 
 export const parseExpression = (value: string): string => {

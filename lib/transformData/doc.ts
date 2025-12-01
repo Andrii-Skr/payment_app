@@ -1,5 +1,5 @@
-import { DocumentWithIncludes } from "@api/documents/[id]/route";
-import { FormValues } from "@/types/formTypes";
+import type { DocumentWithIncludes } from "@api/documents/[id]/route";
+import type { FormValues } from "@/types/formTypes";
 
 export const TransformedObject = (data: DocumentWithIncludes): FormValues => {
   return {
@@ -22,12 +22,8 @@ export const TransformedObject = (data: DocumentWithIncludes): FormValues => {
           if (a.is_paid !== b.is_paid) {
             return a.is_paid ? 1 : -1;
           }
-          const aDate = a.expected_date
-            ? new Date(a.expected_date).getTime()
-            : -Infinity;
-          const bDate = b.expected_date
-            ? new Date(b.expected_date).getTime()
-            : -Infinity;
+          const aDate = a.expected_date ? new Date(a.expected_date).getTime() : -Infinity;
+          const bDate = b.expected_date ? new Date(b.expected_date).getTime() : -Infinity;
           return bDate - aDate;
         })
         .map((specDoc) => ({

@@ -1,5 +1,5 @@
-import { testApiHandler } from "next-test-api-route-handler";
 import * as handler from "@api/regular-payments/delete/route";
+import { testApiHandler } from "next-test-api-route-handler";
 import { Roles } from "@/constants/roles";
 
 jest.mock("@/prisma/prisma-client", () => ({
@@ -13,9 +13,7 @@ jest.mock("@/prisma/prisma-client", () => ({
 }));
 
 jest.mock("next-auth", () => ({
-  getServerSession: jest.fn(() =>
-    Promise.resolve({ user: { id: 1, role: Roles.ADMIN } })
-  ),
+  getServerSession: jest.fn(() => Promise.resolve({ user: { id: 1, role: Roles.ADMIN } })),
 }));
 
 jest.mock("@/lib/authOptions", () => ({ authOptions: {} }));
@@ -34,7 +32,11 @@ describe("PATCH /regular-payments/delete", () => {
     await testApiHandler({
       appHandler: handler,
       test: async ({ fetch }) => {
-        const res = await fetch({ method: "PATCH", headers: { "content-type": "application/json" }, body: JSON.stringify({ id: 1 }) });
+        const res = await fetch({
+          method: "PATCH",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ id: 1 }),
+        });
         expect(res.status).toBe(401);
       },
     });
@@ -46,7 +48,11 @@ describe("PATCH /regular-payments/delete", () => {
     await testApiHandler({
       appHandler: handler,
       test: async ({ fetch }) => {
-        const res = await fetch({ method: "PATCH", headers: { "content-type": "application/json" }, body: JSON.stringify({ id: 1 }) });
+        const res = await fetch({
+          method: "PATCH",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ id: 1 }),
+        });
         expect(res.status).toBe(404);
       },
     });

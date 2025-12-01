@@ -1,32 +1,31 @@
 "use client";
 
+import type { UserWithRelations } from "@api/users/route";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { apiClient } from "@/services/api-client";
-import { toast } from "@/lib/hooks/use-toast";
+import { FormInput } from "@/components/shared";
 import {
+  Button,
   Dialog,
   DialogContent,
-  DialogHeader,
   DialogFooter,
+  DialogHeader,
   DialogTitle,
   Form,
   FormField,
   FormItem,
   FormLabel,
-  FormControl,
   FormMessage,
   Select,
-  SelectTrigger,
   SelectContent,
   SelectItem,
+  SelectTrigger,
   SelectValue,
-  Button,
 } from "@/components/ui";
-import { FormInput } from "@/components/shared";
-import type { UserWithRelations } from "@api/users/route";
+import { toast } from "@/lib/hooks/use-toast";
+import { apiClient } from "@/services/api-client";
 
 interface Props {
   user: UserWithRelations;
@@ -96,10 +95,7 @@ export function UserEditModal({ user, open, onOpenChange, onSaved }: Props) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Роль</FormLabel>
-                  <Select
-                    value={String(field.value)}
-                    onValueChange={(v) => field.onChange(Number(v))}
-                  >
+                  <Select value={String(field.value)} onValueChange={(v) => field.onChange(Number(v))}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>

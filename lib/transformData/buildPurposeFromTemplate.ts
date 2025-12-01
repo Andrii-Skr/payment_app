@@ -4,11 +4,9 @@ export function buildPurposeFromTemplate(
   template: string,
   vatPercent: number | null,
   totalSum: number,
-  vatType: boolean
+  vatType: boolean,
 ): string {
-  const [base] = template
-    .split("у т.ч. ПДВ")
-    .map((s) => s.trim().replace(/,+$/, "")); // remove trailing comma
+  const [base] = template.split("у т.ч. ПДВ").map((s) => s.trim().replace(/,+$/, "")); // remove trailing comma
 
   if (vatType && vatPercent != null) {
     const vat = (totalSum * vatPercent) / (100 + vatPercent);

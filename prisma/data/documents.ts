@@ -1,7 +1,8 @@
 // src/prisma/data/documents.ts
+
+import type { Prisma } from "@prisma/client";
 import prisma from "@/prisma/prisma-client";
-import { Prisma } from "@prisma/client";
-import { normalizeArray, ReplaceDecimal } from "@/utils/normalizeDecimal";
+import { normalizeArray, type ReplaceDecimal } from "@/utils/normalizeDecimal";
 
 /* ───────── сырой тип из Prisma ───────── */
 export type DocumentWithPartnerDB = Prisma.documentsGetPayload<{
@@ -20,9 +21,7 @@ export type DocumentWithPartnerDB = Prisma.documentsGetPayload<{
 export type DocumentWithPartner = ReplaceDecimal<DocumentWithPartnerDB>;
 
 /* ───────── документы одной entity ───────── */
-export async function getDocumentsForEntity(
-  entityId: number
-): Promise<DocumentWithPartner[]> {
+export async function getDocumentsForEntity(entityId: number): Promise<DocumentWithPartner[]> {
   const raw = await prisma.documents.findMany({
     where: {
       entity_id: entityId,
@@ -41,10 +40,7 @@ export async function getDocumentsForEntity(
 }
 
 /* ───────── документы для выбранных партнёров ───────── */
-export async function getDocumentsForPartners(
-  entityId: number,
-  partnerIds: number[]
-): Promise<DocumentWithPartner[]> {
+export async function getDocumentsForPartners(entityId: number, partnerIds: number[]): Promise<DocumentWithPartner[]> {
   const raw = await prisma.documents.findMany({
     where: {
       entity_id: entityId,

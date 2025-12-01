@@ -1,26 +1,22 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
+import type { Session } from "next-auth";
+import { Roles } from "@/constants/roles";
+import { type DocumentWithPartner, getDocumentsForEntity, getDocumentsForPartners } from "@/prisma/data/documents";
 import prisma from "@/prisma/prisma-client";
 import { apiRoute } from "@/utils/apiRoute";
-import { Roles } from "@/constants/roles";
-import type { Session } from "next-auth";
-import {
-  getDocumentsForEntity,
-  getDocumentsForPartners,
-  DocumentWithPartner,
-} from "@/prisma/data/documents";
 
 const getHandler = async (
   req: NextRequest,
   _body: null,
-  _params: {},
-  user: Session["user"] | null
+  _params: Record<string, never>,
+  user: Session["user"] | null,
 ) => {
   if (!user) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
   const entityId = Number(req.nextUrl.searchParams.get("id"));
-  if (!entityId || isNaN(entityId)) {
+  if (!entityId || Number.isNaN(entityId)) {
     return NextResponse.json({ message: "Missing or invalid id" }, { status: 400 });
   }
 
@@ -41,9 +37,7 @@ const getHandler = async (
     return NextResponse.json({ message: "User not found" }, { status: 404 });
   }
 
-  const partnerIds = dbUser.users_partners
-    .filter((p) => p.entity_id === entityId)
-    .map((p) => p.partner_id);
+  const partnerIds = dbUser.users_partners.filter((p) => p.entity_id === entityId).map((p) => p.partner_id);
   const entityIds = dbUser.users_entities.map((e) => e.entity_id);
 
   let documents: DocumentWithPartner[] = [];

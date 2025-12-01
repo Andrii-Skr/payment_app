@@ -1,32 +1,22 @@
 "use client";
+import React from "react";
+import { type Control, useFormContext } from "react-hook-form";
 import { Combobox } from "@/components/shared";
-import { FormValues } from "@/types/formTypes";
 import { useAccountListStore } from "@/store/accountListStore";
 import { usePartnersStore } from "@/store/partnersStore";
-import React from "react";
-import { Control, useFormContext } from "react-hook-form";
+import type { FormValues } from "@/types/formTypes";
 
 type Props = {
   control: Control<FormValues>;
   id: number | undefined;
   name: keyof Omit<FormValues, "expectedDate" | "deadLineDate" | "date">;
   label: string;
-  description?: string;
   placeholder: string;
   empty: string;
   disabled?: boolean;
 };
 
-export const EdrpouCombobox: React.FC<Props> = ({
-  id,
-  control,
-  name,
-  label,
-  description,
-  placeholder,
-  empty,
-  disabled,
-}) => {
+export const EdrpouCombobox: React.FC<Props> = ({ id, control, name, label, placeholder, empty, disabled }) => {
   const { partners, fetchPartners } = usePartnersStore();
   const updateAccountList = useAccountListStore((s) => s.updateAccountList);
   const { setValue, watch } = useFormContext();
@@ -34,17 +24,17 @@ export const EdrpouCombobox: React.FC<Props> = ({
 
   React.useEffect(() => {
     if (id) fetchPartners(id);
-  }, [id]);
+  }, [id, fetchPartners]);
 
   React.useEffect(() => {
     const partner = partners.find((p) => p.edrpou === edrpou);
 
     if (partner) {
       updateAccountList(partner.partner_account_number);
-     } else {
+    } else {
       updateAccountList([]);
     }
-  }, [edrpou, partners]);
+  }, [edrpou, partners, updateAccountList]);
 
   const onChange = (index: number) => {
     const partner = partners[index];

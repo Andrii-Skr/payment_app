@@ -1,6 +1,6 @@
 import { useSession } from "next-auth/react";
+import type { Role } from "@/constants/roles";
 import { hasRole } from "@/lib/access/hasRole";
-import { Role } from "@/constants/roles";
 
 export const useAccessControl = () => {
   const { data: session } = useSession();

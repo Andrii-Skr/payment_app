@@ -1,15 +1,15 @@
-import React from "react";
+import type React from "react";
+import { type Control, useWatch } from "react-hook-form";
 import {
-  EdrpouCombobox,
   AccountsCombobox,
-  PartnersCombobox,
   AddPartner,
-  ContainerGrid,
   ComputedFormInput,
+  ContainerGrid,
+  EdrpouCombobox,
+  PartnersCombobox,
 } from "@/components/shared";
-import { Control, useWatch } from "react-hook-form";
-import { FormValues } from "@/types/formTypes";
 import { useDocumentsStore } from "@/store/documentsListStore";
+import type { FormValues } from "@/types/formTypes";
 
 type Props = {
   control: Control<FormValues>;
@@ -25,30 +25,17 @@ export const PartnerBlock: React.FC<Props> = ({ control, entityIdNum }) => {
 
   const hasPaid = payments?.some((p) => p?.isPaid);
   const docs = useDocumentsStore((s) => s.docs);
-  const remainder = useDocumentsStore((s) =>
-    s.getRemainder(Number(entityId), Number(partnerId))
-  );
+  const remainder = useDocumentsStore((s) => s.getRemainder(Number(entityId), Number(partnerId)));
 
-  const paySumTotal = (payments || []).reduce(
-    (acc: number, curr: any) => acc + (Number(curr.paySum) || 0),
-    0
-  );
+  const paySumTotal = (payments || []).reduce((acc: number, curr: any) => acc + (Number(curr.paySum) || 0), 0);
 
   const savedDoc = docs.find((d) => d.id === Number(docId));
   const savedAccountSum = savedDoc ? Number(savedDoc.account_sum) : 0;
-  const savedPaySum = savedDoc
-    ? savedDoc.spec_doc.reduce((s, spec) => s + Number(spec.pay_sum), 0)
-    : 0;
+  const savedPaySum = savedDoc ? savedDoc.spec_doc.reduce((s, spec) => s + Number(spec.pay_sum), 0) : 0;
   const accountSumNum = Number(String(accountSum).replace(/,/g, ".")) || 0;
 
   const computedRemainder = Number(
-    (
-      remainder +
-      savedPaySum -
-      paySumTotal +
-      accountSumNum -
-      savedAccountSum
-    ).toFixed(2)
+    (remainder + savedPaySum - paySumTotal + accountSumNum - savedAccountSum).toFixed(2),
   );
 
   return (
@@ -72,11 +59,7 @@ export const PartnerBlock: React.FC<Props> = ({ control, entityIdNum }) => {
           placeholder="Выберите номер счета..."
           disabled={hasPaid}
         />
-        <AddPartner
-          entityIdNum={entityIdNum}
-          className="self-end justify-start"
-          disabled={hasPaid}
-        />
+        <AddPartner entityIdNum={entityIdNum} className="self-end justify-start" disabled={hasPaid} />
       </ContainerGrid>
 
       <ContainerGrid className="">
@@ -89,12 +72,7 @@ export const PartnerBlock: React.FC<Props> = ({ control, entityIdNum }) => {
           id={entityIdNum}
           disabled={hasPaid}
         />
-        <ComputedFormInput
-          label="Сальдо"
-          value={computedRemainder}
-          className="mt-[-6px]"
-          tabIndex={-1}
-        />
+        <ComputedFormInput label="Сальдо" value={computedRemainder} className="mt-[-6px]" tabIndex={-1} />
         {/* <FormInput
           control={control}
           className="no-spin"

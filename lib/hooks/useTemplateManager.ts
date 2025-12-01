@@ -1,20 +1,18 @@
 "use client";
 
-import { apiClient } from "@/services/api-client";
-import { FormValues } from "@/types/formTypes";
-import { toast } from "@/lib/hooks/use-toast";
-import { TemplateWithBankDetails } from "@api/templates/[id]/route";
-import { TemplatePayload } from "@/services/templates";
+import type { TemplateWithBankDetails } from "@api/templates/[id]/route";
 import { format } from "date-fns";
 import { AUTO_PURPOSE_MARKER } from "@/constants/marker";
+import { toast } from "@/lib/hooks/use-toast";
+import { apiClient } from "@/services/api-client";
+import type { TemplatePayload } from "@/services/templates";
+import type { FormValues } from "@/types/formTypes";
 
 export function useTemplateManager({
-  reset,
   getValues,
   entityIdNum,
   setTemplatesList,
 }: {
-  reset: (values: FormValues) => void;
   getValues: () => FormValues;
   entityIdNum: number;
   setTemplatesList: (templates: TemplateWithBankDetails[]) => void;
@@ -24,7 +22,7 @@ export function useTemplateManager({
     idx: number,
     list: TemplateWithBankDetails[],
     setSelected: (t: TemplateWithBankDetails | null) => void,
-    setDialogOpen: (v: boolean) => void
+    setDialogOpen: (v: boolean) => void,
   ) => {
     const tpl = list[idx];
 
@@ -35,13 +33,10 @@ export function useTemplateManager({
   };
 
   /* ---------- сохранение (upsert) ---------- */
-  const handleSaveTemplate = async (
-    sampleValue: string,
-    setValue: (name: keyof FormValues, value: string) => void
-  ) => {
+  const handleSaveTemplate = async (sampleValue: string, setValue: (name: keyof FormValues, value: string) => void) => {
     setValue("sample", sampleValue.trim());
 
-     const { payments, full_name, short_name, ...payload } = getValues();
+    const { payments: _payments, full_name: _fullName, short_name: _shortName, ...payload } = getValues();
 
     const res = await apiClient.templates.save({
       ...payload,

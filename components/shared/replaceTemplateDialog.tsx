@@ -1,4 +1,4 @@
-import React from "react";
+import type React from "react";
 import { Button } from "@/components/ui";
 
 interface ReplaceTemplateDialogProps {
@@ -30,11 +30,7 @@ export const ReplaceTemplateDialog: React.FC<ReplaceTemplateDialogProps> = ({
   };
 
   return (
-    <div
-      role="dialog"
-      aria-modal="true"
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
-    >
+    <div role="dialog" aria-modal="true" className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
       <div className="bg-white p-6 rounded-md w-[300px]">
         <h2 className="text-lg font-bold mb-4">{title}</h2>
         <p className="mb-4">{description}</p>

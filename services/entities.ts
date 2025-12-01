@@ -1,6 +1,6 @@
+import type { entity } from "@prisma/client";
 import axiosInstance from "@/services/instance";
-import { InfoFormValues, Row } from "@/types/infoTypes";
-import { entity } from "@prisma/client";
+import type { InfoFormValues, Row } from "@/types/infoTypes";
 
 export const getAll = async (withDeleted = false): Promise<entity[] | []> => {
   try {
@@ -54,9 +54,7 @@ export const remove = async (id: number, data: boolean) => {
   }
 };
 
-export const reorder = async (
-  order: { id: number; sort_order: number }[]
-): Promise<void> => {
+export const reorder = async (order: { id: number; sort_order: number }[]): Promise<void> => {
   try {
     await axiosInstance.patch("/entities/reorder", { order });
   } catch (error) {

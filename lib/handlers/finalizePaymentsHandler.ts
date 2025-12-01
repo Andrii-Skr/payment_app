@@ -1,8 +1,8 @@
-import { PaymentDetail } from "@/types/types";
-import { apiClient } from "@/services/api-client";
-import { toast } from "@/lib/hooks/use-toast";
-import { buildPaymentsCsv, downloadBlob } from "@/utils/paymentsCsv";
 import { format } from "date-fns";
+import { toast } from "@/lib/hooks/use-toast";
+import { apiClient } from "@/services/api-client";
+import type { PaymentDetail } from "@/types/types";
+import { buildPaymentsCsv, downloadBlob } from "@/utils/paymentsCsv";
 
 /**
  * Хендлер финализации платежей.
@@ -12,7 +12,7 @@ export const finalizePaymentsHandler = async (
   reloadFn: () => Promise<void>,
   clearState: () => void,
   type: "grouped" | "plain" = "plain",
-  originalList?: PaymentDetail[]
+  originalList?: PaymentDetail[],
 ) => {
   try {
     if (exportList.length === 0) {

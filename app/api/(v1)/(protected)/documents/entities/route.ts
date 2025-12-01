@@ -1,12 +1,12 @@
 /* ────────────── route.ts ────────────── */
 
-import { NextRequest, NextResponse } from "next/server";
-import { apiRoute } from "@/utils/apiRoute";
-import { hasRole } from "@/lib/access/hasRole";
-import { Roles } from "@/constants/roles";
-import prisma from "@/prisma/prisma-client";
-import type { Session } from "next-auth";
 import { Prisma } from "@prisma/client";
+import { type NextRequest, NextResponse } from "next/server";
+import type { Session } from "next-auth";
+import { Roles } from "@/constants/roles";
+import { hasRole } from "@/lib/access/hasRole";
+import prisma from "@/prisma/prisma-client";
+import { apiRoute } from "@/utils/apiRoute";
 
 /* ────────────── Prisma helpers ────────────── */
 
@@ -27,7 +27,7 @@ export const entityQuery = Prisma.validator<Prisma.entityFindManyArgs>()({
 
     /* --- Документы --- */
     documents: {
-     where: UNPAID_DOC_WHERE,
+      where: UNPAID_DOC_WHERE,
       include: {
         partner: true,
         spec_doc: true,
@@ -59,22 +59,17 @@ export type EntityWithAll = Prisma.entityGetPayload<typeof entityQuery>;
 function filterDocsByVisibility(entities: EntityWithAll[]): EntityWithAll[] {
   return entities.map((e) => {
     // id партнёров, видимых именно ДЛЯ этой entity
-    const visiblePartnerIds = new Set(
-      e.partners.map((p) => p.partner_id),
-    );
+    const visiblePartnerIds = new Set(e.partners.map((p) => p.partner_id));
 
     return {
       ...e,
-      documents: e.documents.filter((d) =>
-        visiblePartnerIds.has(d.partner_id),
-      ),
+      documents: e.documents.filter((d) => visiblePartnerIds.has(d.partner_id)),
     };
   });
 }
 
 /* ────────────── удобная обёртка json ────────────── */
-const json = (data: unknown, init?: ResponseInit) =>
-  NextResponse.json(data, init);
+const json = (data: unknown, init?: ResponseInit) => NextResponse.json(data, init);
 
 /* ────────────── основной fetchEntities ────────────── */
 const fetchEntities = async (where: Prisma.entityWhereInput) => {
@@ -91,19 +86,17 @@ const fetchEntities = async (where: Prisma.entityWhereInput) => {
 const getHandler = async (
   _req: NextRequest,
   _body: null,
-  _params: {},
+  _params: Record<string, never>,
   user: Session["user"] | null,
 ) => {
   if (!user) return json({ message: "Unauthorized" }, { status: 401 });
 
   const userId = Number(user.id);
-  if (!Number.isFinite(userId))
-    return json({ message: "Invalid user id" }, { status: 400 });
+  if (!Number.isFinite(userId)) return json({ message: "Invalid user id" }, { status: 400 });
 
   try {
     /* --- ADMIN видит всё --- */
-    if (hasRole(user.role, Roles.ADMIN))
-      return json(await fetchEntities({ is_deleted: false }));
+    if (hasRole(user.role, Roles.ADMIN)) return json(await fetchEntities({ is_deleted: false }));
 
     /* --- MANAGER: высчитываем доступы --- */
     const dbUser = await prisma.user.findUnique({
@@ -132,7 +125,7 @@ const getHandler = async (
         acc[entity_id].add(partner_id);
         return acc;
       },
-      {}
+      {},
     );
 
     const filtered = entities.map((e) => {

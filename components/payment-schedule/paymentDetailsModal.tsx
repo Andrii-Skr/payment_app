@@ -1,23 +1,17 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Modal } from "@/components/ui/modal";
+import type React from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableHeader,
-  TableRow,
-  TableHead,
-  TableBody,
-  TableCell,
-} from "@/components/ui/table";
-import { PaymentDetail } from "@/types/types";
-import { usePaymentStore } from "@/store/paymentStore";
-import { useAccessControl } from "@/lib/hooks/useAccessControl";
+import { Modal } from "@/components/ui/modal";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Roles } from "@/constants/roles";
-import { apiClient } from "@/services/api-client";
 import { toast } from "@/lib/hooks/use-toast";
+import { useAccessControl } from "@/lib/hooks/useAccessControl";
+import { apiClient } from "@/services/api-client";
+import { usePaymentStore } from "@/store/paymentStore";
+import type { PaymentDetail } from "@/types/types";
 
 export interface PaymentDetailsModalProps {
   isOpen: boolean;
@@ -43,7 +37,7 @@ export const PaymentDetailsModal: React.FC<PaymentDetailsModalProps> = ({
   const { canAccess } = useAccessControl();
   const isAdmin = canAccess(Roles.ADMIN);
 
-  const { pendingPayments, setPendingPayments } = usePaymentStore();
+  const { pendingPayments } = usePaymentStore();
   const router = useRouter();
 
   const unpaidDetails = details.filter((d) => !d.is_paid);
@@ -52,12 +46,10 @@ export const PaymentDetailsModal: React.FC<PaymentDetailsModalProps> = ({
   useEffect(() => {
     const updated: Record<number, boolean> = {};
     unpaidDetails.forEach((detail) => {
-      updated[detail.spec_doc_id] = pendingPayments.some(
-        (p) => p.spec_doc_id === detail.spec_doc_id
-      );
+      updated[detail.spec_doc_id] = pendingPayments.some((p) => p.spec_doc_id === detail.spec_doc_id);
     });
     setSelectedRows(updated);
-  }, [details, pendingPayments]);
+  }, [pendingPayments, unpaidDetails.forEach]);
 
   const toggleCheckbox = (spec_doc_id: number) => {
     setSelectedRows((prev) => ({
@@ -67,9 +59,7 @@ export const PaymentDetailsModal: React.FC<PaymentDetailsModalProps> = ({
   };
 
   const handleSave = () => {
-    const selected = unpaidDetails.filter(
-      (detail) => selectedRows[detail.spec_doc_id]
-    );
+    const selected = unpaidDetails.filter((detail) => selectedRows[detail.spec_doc_id]);
     onSave(selected);
     onClose();
   };
@@ -79,12 +69,10 @@ export const PaymentDetailsModal: React.FC<PaymentDetailsModalProps> = ({
       await apiClient.specDocs.unpay(id);
       toast.success("Оплата отменена");
 
-      setDetails((prev) =>
-        prev.map((d) => (d.spec_doc_id === id ? { ...d, is_paid: false } : d))
-      );
+      setDetails((prev) => prev.map((d) => (d.spec_doc_id === id ? { ...d, is_paid: false } : d)));
 
       await reloadDocuments();
-    } catch (error) {
+    } catch (_error) {
       toast.error("Ошибка при отмене оплаты");
     }
   };
@@ -97,12 +85,14 @@ export const PaymentDetailsModal: React.FC<PaymentDetailsModalProps> = ({
         {isAdmin && (
           <div className="mb-4 flex gap-4">
             <button
+              type="button"
               className={activeTab === "unpaid" ? "font-bold underline" : ""}
               onClick={() => setActiveTab("unpaid")}
             >
               Ожидающие оплаты
             </button>
             <button
+              type="button"
               className={activeTab === "paid" ? "font-bold underline" : ""}
               onClick={() => setActiveTab("paid")}
             >
@@ -131,16 +121,12 @@ export const PaymentDetailsModal: React.FC<PaymentDetailsModalProps> = ({
                     key={detail.spec_doc_id}
                     className="hover:bg-muted"
                     onDoubleClick={() =>
-                      router.push(
-                        `/create/payment-form/${detail.entity_id}?doc_id=${detail.doc_id}`
-                      )
+                      router.push(`/create/payment-form/${detail.entity_id}?doc_id=${detail.doc_id}`)
                     }
                   >
                     <TableCell>{detail.account_number}</TableCell>
                     <TableCell>{detail.purpose_of_payment}</TableCell>
-                    <TableCell>
-                      {new Date(detail.date).toLocaleDateString("ru-RU")}
-                    </TableCell>
+                    <TableCell>{new Date(detail.date).toLocaleDateString("ru-RU")}</TableCell>
                     <TableCell>{detail.pay_sum}</TableCell>
                     <TableCell className="text-center">
                       <input
@@ -150,11 +136,7 @@ export const PaymentDetailsModal: React.FC<PaymentDetailsModalProps> = ({
                       />
                     </TableCell>
                     <TableCell>
-                      {detail.dead_line_date
-                        ? new Date(detail.dead_line_date).toLocaleDateString(
-                            "ru-RU"
-                          )
-                        : ""}
+                      {detail.dead_line_date ? new Date(detail.dead_line_date).toLocaleDateString("ru-RU") : ""}
                     </TableCell>
                   </TableRow>
                 ))}
@@ -182,23 +164,15 @@ export const PaymentDetailsModal: React.FC<PaymentDetailsModalProps> = ({
                     key={detail.spec_doc_id}
                     className="hover:bg-muted"
                     onDoubleClick={() =>
-                      router.push(
-                        `/create/payment-form/${detail.entity_id}?doc_id=${detail.doc_id}`
-                      )
+                      router.push(`/create/payment-form/${detail.entity_id}?doc_id=${detail.doc_id}`)
                     }
                   >
                     <TableCell>{detail.account_number}</TableCell>
                     <TableCell>{detail.purpose_of_payment}</TableCell>
-                    <TableCell>
-                      {new Date(detail.date).toLocaleDateString("ru-RU")}
-                    </TableCell>
+                    <TableCell>{new Date(detail.date).toLocaleDateString("ru-RU")}</TableCell>
                     <TableCell>{detail.pay_sum}</TableCell>
                     <TableCell className="text-right">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleUnpay(detail.spec_doc_id)}
-                      >
+                      <Button size="sm" variant="outline" onClick={() => handleUnpay(detail.spec_doc_id)}>
                         Отменить оплату
                       </Button>
                     </TableCell>

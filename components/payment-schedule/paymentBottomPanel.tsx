@@ -1,18 +1,16 @@
 "use client";
 
-import React, { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
+import { EyeOff, Undo2 } from "lucide-react";
+import type React from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ChoiceDialog } from "@/components/ui/choice-dialog";
-import { PaymentDetail } from "@/types/types";
 import { usePaymentStore } from "@/store/paymentStore";
-import { EyeOff, Undo2 } from "lucide-react";
-
-type GroupedPayments = Record<number, { name: string; total: number }>;
+import type { PaymentDetail } from "@/types/types";
 
 type PaymentBottomPanelProps = {
   pendingPayments: PaymentDetail[];
-  groupedPayments: GroupedPayments;
   overallTotal: number;
   onFinalize: () => void;
   onGroupedFinalize: () => void;
@@ -21,7 +19,6 @@ type PaymentBottomPanelProps = {
 
 export const PaymentBottomPanel: React.FC<PaymentBottomPanelProps> = ({
   pendingPayments,
-  groupedPayments,
   overallTotal,
   onFinalize,
   onGroupedFinalize,
@@ -30,9 +27,7 @@ export const PaymentBottomPanel: React.FC<PaymentBottomPanelProps> = ({
   const isExpanded = usePaymentStore((s) => s.isPaymentPanelExpanded);
   const expandPanel = usePaymentStore((s) => s.expandPaymentPanel);
   const collapsePanel = usePaymentStore((s) => s.collapsePaymentPanel);
-  const clearPendingPayments = usePaymentStore(
-    (s) => s.clearPendingPayments,
-  );
+  const clearPendingPayments = usePaymentStore((s) => s.clearPendingPayments);
 
   const [payDialogOpen, setPayDialogOpen] = useState(false);
   const [finalizeDialogOpen, setFinalizeDialogOpen] = useState(false);
@@ -52,16 +47,13 @@ export const PaymentBottomPanel: React.FC<PaymentBottomPanelProps> = ({
             className="fixed bottom-0 left-4 right-4 bg-[rgba(229,231,235,0.6)] p-4 pl-20 pr-20 z-50 shadow-lg"
           >
             <div className="flex justify-end mb-2 font-bold text-lg">
-              Общая сумма:{" "}
-              {overallTotal.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, " ")}
+              Общая сумма: {overallTotal.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, " ")}
             </div>
             <div className="flex justify-end items-center space-x-2 mt-2">
               {!paidMode && (
                 <>
                   <Button onClick={() => setPayDialogOpen(true)}>Оплатить</Button>
-                  <Button onClick={() => setFinalizeDialogOpen(true)}>
-                    Сформировать
-                  </Button>
+                  <Button onClick={() => setFinalizeDialogOpen(true)}>Сформировать</Button>
                 </>
               )}
               <Button
@@ -75,7 +67,7 @@ export const PaymentBottomPanel: React.FC<PaymentBottomPanelProps> = ({
               >
                 <Undo2 />
               </Button>
-              <Button variant="secondary"  title="Скрыть" onClick={collapsePanel}>
+              <Button variant="secondary" title="Скрыть" onClick={collapsePanel}>
                 <EyeOff />
               </Button>
             </div>
@@ -84,11 +76,7 @@ export const PaymentBottomPanel: React.FC<PaymentBottomPanelProps> = ({
       </AnimatePresence>
 
       {!isExpanded && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="fixed bottom-4 right-4"
-        >
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="fixed bottom-4 right-4">
           <Button onClick={expandPanel}>Показать панель</Button>
         </motion.div>
       )}

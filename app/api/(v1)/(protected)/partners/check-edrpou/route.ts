@@ -1,14 +1,14 @@
-import { NextRequest, NextResponse } from "next/server";
-import { apiRoute } from "@/utils/apiRoute";
-import prisma from "@/prisma/prisma-client";
-import { Roles } from "@/constants/roles";
+import { type NextRequest, NextResponse } from "next/server";
 import type { Session } from "next-auth";
+import { Roles } from "@/constants/roles";
+import prisma from "@/prisma/prisma-client";
+import { apiRoute } from "@/utils/apiRoute";
 
 const getHandler = async (
   req: NextRequest,
   _body: null,
-  _params: {},
-  user: Session["user"] | null
+  _params: Record<string, never>,
+  user: Session["user"] | null,
 ) => {
   if (!user) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });

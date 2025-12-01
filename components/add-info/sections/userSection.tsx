@@ -1,14 +1,14 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { apiClient } from "@/services/api-client";
+import type { UserWithRelations } from "@api/users/route";
+import { useCallback, useEffect, useId, useMemo, useState } from "react";
 import { Container } from "@/components/shared";
 import { Checkbox, LoadingMessage } from "@/components/ui";
-import { UserTable } from "./userTable";
+import { apiClient } from "@/services/api-client";
 import { UserEditModal } from "./userEditModal";
-import { UserRightsModal } from "./userRightsModal";
 import { UserPasswordModal } from "./userPasswordModal";
-import type { UserWithRelations } from "@api/users/route";
+import { UserRightsModal } from "./userRightsModal";
+import { UserTable } from "./userTable";
 
 export function UserSection() {
   /* -------------------- данные -------------------- */
@@ -16,6 +16,7 @@ export function UserSection() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showDeleted, setShowDeleted] = useState(false);
+  const showDeletedId = useId();
 
   /* -------------------- состояние модалок -------------------- */
   const [editTarget, setEditTarget] = useState<UserWithRelations | null>(null);
@@ -48,10 +49,7 @@ export function UserSection() {
   }, [rows, rightsTarget]);
 
   /* -------------------- memo-фильтр удалённых -------------------- */
-  const filteredRows = useMemo(
-    () => (showDeleted ? rows : rows.filter((u) => !u.is_deleted)),
-    [rows, showDeleted]
-  );
+  const filteredRows = useMemo(() => (showDeleted ? rows : rows.filter((u) => !u.is_deleted)), [rows, showDeleted]);
 
   /* -------------------- удаление / восстановление -------------------- */
   const handleRemove = async (id: number, is_deleted: boolean) => {
@@ -66,8 +64,9 @@ export function UserSection() {
   /* -------------------- UI -------------------- */
   return (
     <Container className="flex-col items-start gap-5 w-full min-w-[995px]">
-      <label className="flex items-center gap-2 select-none text-sm">
+      <label className="flex items-center gap-2 select-none text-sm" htmlFor={showDeletedId}>
         <Checkbox
+          id={showDeletedId}
           checked={showDeleted}
           onCheckedChange={(v) => setShowDeleted(Boolean(v))}
           className="h-4 w-4"
@@ -109,7 +108,7 @@ export function UserSection() {
           user={rightsTarget}
           open={!!rightsTarget}
           onOpenChange={(v) => !v && setRightsTarget(null)}
-          onSaved={loadUsers}           /* обновляем список, не закрываем окно */
+          onSaved={loadUsers} /* обновляем список, не закрываем окно */
         />
       )}
 

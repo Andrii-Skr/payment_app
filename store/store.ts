@@ -1,8 +1,6 @@
+import type { entity } from "@prisma/client";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { entity, partner_account_number } from "@prisma/client";
-import type { PartnerAccountWithEntities } from "@/services/partners";
-
 
 type entityState = {
   currentEntity?: entity;
@@ -21,14 +19,11 @@ export const useEntityStore = create(
     }),
     {
       name: "entity-storage",
-    }
-  )
+    },
+  ),
 );
 
-
 // -----------------------------------------------------------------------------------------------------
-
-
 
 // -----------------------------------------------------------------------------------------------------
 
@@ -48,5 +43,3 @@ export const useEntityScheduleStore = create<EntityStore>((set) => ({
 }));
 
 //---------------------------------------------------------------------------------------------------------------
-
-

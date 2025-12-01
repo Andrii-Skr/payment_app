@@ -1,23 +1,22 @@
 "use client";
 
-import { useEffect, useState, useCallback, useMemo } from "react";
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-
-import { entitySchema, InfoFormValues, Row } from "@/types/infoTypes";
-import { useAutoFillBankDetails } from "@/lib/hooks/useAutoFillBankDetails";
-
-import { Form, Button, LoadingMessage, Checkbox } from "@/components/ui";
-import { EntityTable } from "./entityTable";
+import { useCallback, useEffect, useId, useMemo, useState } from "react";
+import { useForm } from "react-hook-form";
 import { Container, FormInput } from "@/components/shared";
-import { apiClient } from "@/services/api-client";
+import { Button, Checkbox, Form, LoadingMessage } from "@/components/ui";
 import { toast } from "@/lib/hooks/use-toast";
+import { useAutoFillBankDetails } from "@/lib/hooks/useAutoFillBankDetails";
+import { apiClient } from "@/services/api-client";
+import { entitySchema, type InfoFormValues, type Row } from "@/types/infoTypes";
+import { EntityTable } from "./entityTable";
 
 export function EntitySection() {
   const [rows, setRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showDeleted, setShowDeleted] = useState(false);
+  const showDeletedId = useId();
 
   const form = useForm<InfoFormValues>({
     resolver: zodResolver(entitySchema),
@@ -47,9 +46,7 @@ export function EntitySection() {
     try {
       const data = await apiClient.entities.getAll(true);
 
-      data.sort(
-        (a: Row, b: Row) => Number(a.is_deleted) - Number(b.is_deleted)
-      );
+      data.sort((a: Row, b: Row) => Number(a.is_deleted) - Number(b.is_deleted));
 
       setRows(data);
       setError(null);
@@ -71,9 +68,10 @@ export function EntitySection() {
       toast.success("Успешно создан.");
       form.reset();
       await loadEntities();
-    } catch (err: string | any) {
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
       console.log(err);
-      toast.error(err.message);
+      toast.error(message);
     }
   };
 
@@ -97,10 +95,7 @@ export function EntitySection() {
   };
 
   /* ───────── фильтрация для таблицы ───────── */
-  const filteredRows = useMemo(
-    () => (showDeleted ? rows : rows.filter((r) => !r.is_deleted)),
-    [rows, showDeleted]
-  );
+  const filteredRows = useMemo(() => (showDeleted ? rows : rows.filter((r) => !r.is_deleted)), [rows, showDeleted]);
 
   /* ───────── JSX ───────── */
   return (
@@ -108,9 +103,7 @@ export function EntitySection() {
       {/* ───── форма создания контрагента ───── */}
       <Form {...form}>
         <form
-          onSubmit={form.handleSubmit(handleCreate, (errors) =>
-            console.warn("Zod validation errors:", errors)
-          )}
+          onSubmit={form.handleSubmit(handleCreate, (errors) => console.warn("Zod validation errors:", errors))}
           className="space-y-4"
         >
           <Container className="justify-start gap-2">
@@ -121,12 +114,7 @@ export function EntitySection() {
               placeholder='ТОВ "Ромашка"'
               className="bank-account-size"
             />
-            <FormInput
-              control={form.control}
-              name="short_name"
-              label="Короткое имя"
-              placeholder="Ромашка"
-            />
+            <FormInput control={form.control} name="short_name" label="Короткое имя" placeholder="Ромашка" />
             <FormInput
               control={form.control}
               name="edrpou"
@@ -145,11 +133,7 @@ export function EntitySection() {
             />
           </Container>
           <div className="flex gap-3">
-            <Button
-              type="submit"
-              className="w-[145px] "
-              disabled={form.formState.isSubmitting}
-            >
+            <Button type="submit" className="w-[145px] " disabled={form.formState.isSubmitting}>
               {form.formState.isSubmitting ? "Сохраняю…" : "Создать"}
             </Button>
           </div>
@@ -157,8 +141,9 @@ export function EntitySection() {
       </Form>
 
       {/* ───── чекбокс «Показать удалённые» ───── */}
-      <label className="flex items-center gap-2 select-none text-sm">
+      <label className="flex items-center gap-2 select-none text-sm" htmlFor={showDeletedId}>
         <Checkbox
+          id={showDeletedId}
           checked={showDeleted}
           onCheckedChange={(v) => setShowDeleted(Boolean(v))}
           className="h-4 w-4"
@@ -172,11 +157,7 @@ export function EntitySection() {
       ) : error ? (
         <p className="text-destructive">{error}</p>
       ) : (
-        <EntityTable
-          rows={filteredRows}
-          onRemove={handleRemove}
-          onUpdate={handleUpdate}
-        />
+        <EntityTable rows={filteredRows} onRemove={handleRemove} onUpdate={handleUpdate} />
       )}
     </Container>
   );

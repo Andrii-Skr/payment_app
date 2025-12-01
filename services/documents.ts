@@ -1,12 +1,9 @@
+import type { DocumentWithIncludes, DocumentWithIncludesNullable } from "@api/documents/[id]/route";
+import type { EntityWithAll } from "@api/documents/entities/route";
+import type { documents } from "@prisma/client";
+import type { DocumentWithPartner } from "@/prisma/data/documents";
 import axiosInstance from "@/services/instance";
-import { FormValues } from "@/types/formTypes";
-import { documents } from "@prisma/client";
-import { DocumentWithPartner } from "@/prisma/data/documents";
-import {
-  DocumentWithIncludes,
-  DocumentWithIncludesNullable,
-} from "@api/documents/[id]/route";
-import { EntityWithAll } from "@api/documents/entities/route";
+import type { FormValues } from "@/types/formTypes";
 
 export type CreateDocumentPayload = Omit<FormValues, "date"> & {
   date: string;
@@ -48,13 +45,9 @@ export const remove = async (id: number) => {
   }
 };
 
-export const getById = async (
-  id: number
-): Promise<DocumentWithIncludesNullable> => {
+export const getById = async (id: number): Promise<DocumentWithIncludesNullable> => {
   try {
-    const { data } = await axiosInstance.get<DocumentWithIncludes>(
-      `/documents/${id}`
-    );
+    const { data } = await axiosInstance.get<DocumentWithIncludes>(`/documents/${id}`);
     return data;
   } catch (error) {
     console.log(error);
@@ -64,9 +57,7 @@ export const getById = async (
 
 export const entitySchedule = async (): Promise<EntityWithAll[] | null> => {
   try {
-    const { data } = await axiosInstance.get<EntityWithAll[]>(
-      `/documents/entities`
-    );
+    const { data } = await axiosInstance.get<EntityWithAll[]>(`/documents/entities`);
     return data;
   } catch (error) {
     console.log(error);
@@ -75,14 +66,9 @@ export const entitySchedule = async (): Promise<EntityWithAll[] | null> => {
 };
 
 //------------
-export const getByEntity = async (
-  id: number
-): Promise<DocumentWithPartner[]> => {
+export const getByEntity = async (id: number): Promise<DocumentWithPartner[]> => {
   try {
-    const { data } = await axiosInstance.get<DocumentWithPartner[]>(
-      `/documents/payments-list`,
-      { params: { id } }
-    );
+    const { data } = await axiosInstance.get<DocumentWithPartner[]>(`/documents/payments-list`, { params: { id } });
     return data;
   } catch (error) {
     console.error("getByEntity error:", error);

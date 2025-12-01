@@ -1,25 +1,19 @@
-import { NextRequest, NextResponse } from "next/server";
-import { apiRoute } from "@/utils/apiRoute";
-import prisma from "@/prisma/prisma-client";
+import { Prisma } from "@prisma/client";
+import { type NextRequest, NextResponse } from "next/server";
 import type { Session } from "next-auth";
 import { Roles } from "@/constants/roles";
-import { CreateEntityBody } from "@/app/api/(v1)/(protected)/entities/route";
-import { Prisma } from "@prisma/client";
+import prisma from "@/prisma/prisma-client";
+import { apiRoute } from "@/utils/apiRoute";
 
 type Params = { id: string };
 
-const getHandler = async (
-  _req: NextRequest,
-  _body: null,
-  params: Params,
-  user: Session["user"] | null
-) => {
+const getHandler = async (_req: NextRequest, _body: null, params: Params, user: Session["user"] | null) => {
   if (!user) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
   const entityId = parseInt(params.id, 10);
-  if (isNaN(entityId)) {
+  if (Number.isNaN(entityId)) {
     return NextResponse.json({ message: "Invalid entity ID" }, { status: 400 });
   }
 
@@ -38,21 +32,18 @@ const patchHandler = async (
   _req: NextRequest,
   body: { is_deleted: boolean },
   params: Params,
-  user: Session["user"] | null
+  user: Session["user"] | null,
 ) => {
   if (!user) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
   const id = parseInt(params.id, 10);
-  if (isNaN(id)) {
+  if (Number.isNaN(id)) {
     return NextResponse.json({ message: "Invalid ID" }, { status: 400 });
   }
 
   if (!body || typeof body.is_deleted !== "boolean") {
-    return NextResponse.json(
-      { message: "Invalid request body" },
-      { status: 400 }
-    );
+    return NextResponse.json({ message: "Invalid request body" }, { status: 400 });
   }
 
   try {
@@ -63,20 +54,11 @@ const patchHandler = async (
 
     return NextResponse.json(entity);
   } catch (error) {
-    if (
-      error instanceof Prisma.PrismaClientKnownRequestError &&
-      error.code === "P2025"
-    ) {
-      return NextResponse.json(
-        { message: "Entity not found" },
-        { status: 404 }
-      );
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2025") {
+      return NextResponse.json({ message: "Entity not found" }, { status: 404 });
     }
     console.error("Entity update failed:", error);
-    return NextResponse.json(
-      { message: "Internal Server Error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
   }
 };
 

@@ -1,11 +1,11 @@
 "use client";
-import { AddInfoList } from "@/components/add-info/";
-import { Tabs, TabsContent } from "../ui/tabs";
-import { Container } from "./container";
-import { EntityList } from "../payment-schedule/entityList";
 import { usePathname } from "next/navigation";
+import { AddInfoList } from "@/components/add-info/";
 import { AutoPaymentTable, PaymentSchedule } from "@/components/shared";
 import { cn } from "@/lib/utils";
+import { EntityList } from "../payment-schedule/entityList";
+import { Tabs, TabsContent } from "../ui/tabs";
+import { Container } from "./container";
 
 type Props = {
   className?: string;

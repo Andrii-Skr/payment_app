@@ -5,7 +5,6 @@ import { useTemplateManager } from "@/lib/hooks/useTemplateManager";
 describe("confirmTemplateReplace", () => {
   it("устанавливает selectedAccount как null, если счёт отсутствует", () => {
     const { confirmTemplateReplace } = useTemplateManager({
-      reset: jest.fn(),
       getValues: jest.fn(),
       entityIdNum: 1,
       setTemplatesList: jest.fn(),

@@ -1,6 +1,9 @@
 /** @jest-environment node */
 
-let rateLimit: (ip: string, login: string) => {
+let rateLimit: (
+  ip: string,
+  login: string,
+) => {
   allowed: boolean;
   retryAfter?: number;
   reason?: "ip" | "login";

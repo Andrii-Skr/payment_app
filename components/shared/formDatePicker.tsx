@@ -1,16 +1,8 @@
 "use client";
 
-import React from "react";
+import type { Control, FieldValues, Path } from "react-hook-form";
 import { DatePicker } from "@/components/shared/datePicker";
-import {
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui";
-import { Control, FieldValues, Path } from "react-hook-form";
+import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui";
 
 type FormDatePickerProps<T extends FieldValues> = {
   control: Control<T>;
@@ -34,33 +26,26 @@ export function FormDatePicker<T extends FieldValues>({
       control={control}
       name={name}
       render={({ field }) => {
-  const rawValue = field.value as unknown;
-        
-  const value =
-    typeof rawValue === "string"
-      ? new Date(rawValue)
-      : rawValue instanceof Date
-      ? rawValue
-      : null;
+        const rawValue = field.value as unknown;
 
-  return (
-    <FormItem className="flex flex-col space-y-1">
-      <FormLabel className="mt-1 mb-1.5">{label}</FormLabel>
-      <FormControl>
-        <DatePicker
-          selected={value}
-          onChange={field.onChange}
-          disabled={readOnly}
-          preserveDayOnly={preserveDayOnly}
-        />
-      </FormControl>
-      {description && (
-        <FormDescription className="mb-2">{description}</FormDescription>
-      )}
-      <FormMessage />
-    </FormItem>
-  );
-}}
+        const value = typeof rawValue === "string" ? new Date(rawValue) : rawValue instanceof Date ? rawValue : null;
+
+        return (
+          <FormItem className="flex flex-col space-y-1">
+            <FormLabel className="mt-1 mb-1.5">{label}</FormLabel>
+            <FormControl>
+              <DatePicker
+                selected={value}
+                onChange={field.onChange}
+                disabled={readOnly}
+                preserveDayOnly={preserveDayOnly}
+              />
+            </FormControl>
+            {description && <FormDescription className="mb-2">{description}</FormDescription>}
+            <FormMessage />
+          </FormItem>
+        );
+      }}
     />
   );
 }

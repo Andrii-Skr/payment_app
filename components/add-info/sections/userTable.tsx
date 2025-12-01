@@ -1,16 +1,8 @@
 "use client";
 
-import {
-  Button,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui";
-import { Pencil, Shield, Trash2, Key } from "lucide-react";
 import type { UserWithRelations } from "@api/users/route";
+import { Key, Pencil, Shield, Trash2 } from "lucide-react";
+import { Button, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui";
 
 interface Props {
   rows: UserWithRelations[];
@@ -21,14 +13,7 @@ interface Props {
   onPassword: (user: UserWithRelations) => void;
 }
 
-export function UserTable({
-  rows,
-  onRemove,
-  onUpdated,
-  onEdit,
-  onRights,
-  onPassword,
-}: Props) {
+export function UserTable({ rows, onRemove, onUpdated, onEdit, onRights, onPassword }: Props) {
   return (
     <Table>
       <TableHeader>

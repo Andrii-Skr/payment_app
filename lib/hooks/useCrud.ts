@@ -7,10 +7,7 @@ type CrudService<TForm, TRow> = {
   delete: (id: string | number) => Promise<void>;
 };
 
-export function useCrud<TForm, TRow>(
-  service: CrudService<TForm, TRow>,
-  map?: (data: TForm) => unknown
-) {
+export function useCrud<TForm, TRow>(service: CrudService<TForm, TRow>, map?: (data: TForm) => unknown) {
   const [rows, setRows] = React.useState<TRow[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);

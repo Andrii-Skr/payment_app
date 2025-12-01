@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
+import type { Session } from "next-auth";
+import { Roles } from "@/constants/roles";
 import prisma from "@/prisma/prisma-client";
 import { apiRoute } from "@/utils/apiRoute";
-import { Roles } from "@/constants/roles";
-import type { Session } from "next-auth";
 
 /** PATCH /api/templates/visibility  { template_id, is_visible } */
 interface Body {
@@ -13,8 +13,8 @@ interface Body {
 const handler = async (
   _req: NextRequest,
   body: Body,
-  _params: {},
-  _user: Session["user"] | null
+  _params: Record<string, never>,
+  _user: Session["user"] | null,
 ) => {
   try {
     const { template_id, is_visible } = body;
@@ -30,10 +30,7 @@ const handler = async (
     });
   } catch (e) {
     console.error("Template visibility error:", e);
-    return NextResponse.json(
-      { success: false, message: "Failed to update visibility." },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: false, message: "Failed to update visibility." }, { status: 500 });
   }
 };
 

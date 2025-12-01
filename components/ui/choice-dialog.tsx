@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -8,7 +9,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 
 type ChoiceDialogProps = {
   open: boolean;
@@ -39,8 +39,8 @@ export const ChoiceDialog: React.FC<ChoiceDialogProps> = ({
       </DialogHeader>
 
       <DialogFooter className="flex flex-col items-stretch gap-2">
-        {choices.map((choice, i) => (
-          <Button key={i} onClick={choice.onSelect} variant={choice.variant}>
+        {choices.map((choice) => (
+          <Button key={choice.label} onClick={choice.onSelect} variant={choice.variant}>
             {choice.label}
           </Button>
         ))}

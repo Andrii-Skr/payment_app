@@ -13,7 +13,7 @@ export const entitySchema = z.object({
   bank_name: z.string().nullable().optional(),
   mfo: z.string().nullable().optional(),
   sort_order: z.number().default(0),
-  is_deleted: z.boolean().optional()
+  is_deleted: z.boolean().optional(),
 });
 
 export const partnerSchema = z.object({

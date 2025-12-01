@@ -3,7 +3,5 @@ import { EntitySelectController } from "@/components/shared/entitySelectControll
 import { PartnersTable } from "./partnersTable";
 
 export const PartnerSection = () => (
-  <EntitySelectController>
-    {(entityId) => <PartnersTable entityId={entityId} />}
-  </EntitySelectController>
+  <EntitySelectController>{(entityId) => <PartnersTable entityId={entityId} />}</EntitySelectController>
 );

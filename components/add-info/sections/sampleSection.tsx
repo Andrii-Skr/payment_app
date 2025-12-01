@@ -2,7 +2,5 @@ import { EntitySelectController } from "@/components/shared/entitySelectControll
 import { SampleTable } from "./sampleTable";
 
 export const SampleSection = () => (
-  <EntitySelectController>
-    {(entityId) => <SampleTable entityId={entityId} />}
-  </EntitySelectController>
+  <EntitySelectController>{(entityId) => <SampleTable entityId={entityId} />}</EntitySelectController>
 );

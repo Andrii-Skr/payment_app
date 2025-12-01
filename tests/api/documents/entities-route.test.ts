@@ -1,5 +1,5 @@
-import { testApiHandler } from "next-test-api-route-handler";
 import * as handler from "@api/documents/entities/route";
+import { testApiHandler } from "next-test-api-route-handler";
 import { Roles } from "@/constants/roles";
 
 jest.mock("@/prisma/prisma-client", () => ({
@@ -14,9 +14,7 @@ jest.mock("@/prisma/prisma-client", () => ({
 }));
 
 jest.mock("next-auth", () => ({
-  getServerSession: jest.fn(() =>
-    Promise.resolve({ user: { id: 1, role: Roles.ADMIN } })
-  ),
+  getServerSession: jest.fn(() => Promise.resolve({ user: { id: 1, role: Roles.ADMIN } })),
 }));
 
 jest.mock("@/lib/authOptions", () => ({ authOptions: {} }));
@@ -73,10 +71,7 @@ describe("GET /documents/entities", () => {
         bank_name: "",
         mfo: "",
         sort_order: 0,
-        documents: [
-          { partner_id: 10 },
-          { partner_id: 11 },
-        ],
+        documents: [{ partner_id: 10 }, { partner_id: 11 }],
         partners: [
           { partner_id: 10, partner: { id: 10, full_name: "", short_name: "", edrpou: "" } },
           { partner_id: 11, partner: { id: 11, full_name: "", short_name: "", edrpou: "" } },

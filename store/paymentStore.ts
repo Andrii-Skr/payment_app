@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { PaymentDetail } from "@/types/types";
+import type { PaymentDetail } from "@/types/types";
 
 interface PaymentStore {
   pendingPayments: PaymentDetail[];

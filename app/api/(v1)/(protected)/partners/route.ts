@@ -1,9 +1,8 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-
+import { Roles } from "@/constants/roles";
 import prisma from "@/prisma/prisma-client";
 import { apiRoute } from "@/utils/apiRoute";
-import { Roles } from "@/constants/roles";
 
 /* ----------------------------- Zod схема ----------------------------- */
 
@@ -22,20 +21,8 @@ type PartnerBody = z.infer<typeof partnerSchema>;
 
 /* ---------------------------- POST handler ---------------------------- */
 
-const handler = async (
-  _req: NextRequest,
-  body: PartnerBody
-): Promise<NextResponse> => {
-  const {
-    full_name,
-    short_name,
-    edrpou,
-    entity_id,
-    bank_account,
-    mfo,
-    bank_name,
-    type,
-  } = body;
+const handler = async (_req: NextRequest, body: PartnerBody): Promise<NextResponse> => {
+  const { full_name, short_name, edrpou, entity_id, bank_account, mfo, bank_name, type } = body;
 
   const existingPartner = await prisma.partners.findUnique({
     where: { edrpou },
@@ -47,9 +34,7 @@ const handler = async (
 
   if (existingPartner) {
     // Проверка: уже привязан к entity?
-    const alreadyLinked = existingPartner.entities.some(
-      (e) => e.entity_id === entity_id
-    );
+    const alreadyLinked = existingPartner.entities.some((e) => e.entity_id === entity_id);
 
     if (!alreadyLinked) {
       await prisma.partners_on_entities.create({
@@ -61,10 +46,7 @@ const handler = async (
     }
 
     // НЕ создаём банковский счёт повторно, просто возвращаем
-    return NextResponse.json(
-      { success: true, partner: existingPartner, reused: true },
-      { status: 200 }
-    );
+    return NextResponse.json({ success: true, partner: existingPartner, reused: true }, { status: 200 });
   }
 
   // Новый партнёр: создаём полностью
@@ -82,7 +64,7 @@ const handler = async (
         create: {
           bank_account,
           mfo,
-          bank_name
+          bank_name,
         },
       },
       entities: {
@@ -105,10 +87,7 @@ const handler = async (
     },
   });
 
-  return NextResponse.json(
-    { success: true, partner, reused: false },
-    { status: 201 }
-  );
+  return NextResponse.json({ success: true, partner, reused: false }, { status: 201 });
 };
 
 /* ------------------------------ Экспорт ------------------------------ */

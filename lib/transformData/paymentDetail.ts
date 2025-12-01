@@ -1,4 +1,4 @@
-import { PaymentDetail, PaymentEntry } from "@/types/types";
+import type { PaymentDetail, PaymentEntry } from "@/types/types";
 
 export function createPaymentDetail(entry: PaymentEntry): PaymentDetail {
   return {
@@ -23,6 +23,6 @@ export function createPaymentDetail(entry: PaymentEntry): PaymentDetail {
     is_auto_purpose_of_payment: entry.document.is_auto_purpose_of_payment,
 
     vat_type: entry.document.vat_type,
-    vat_percent: Number(entry.document.vat_percent ),
+    vat_percent: Number(entry.document.vat_percent),
   };
 }

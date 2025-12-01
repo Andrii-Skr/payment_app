@@ -1,20 +1,13 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
-import { AnimatePresence, motion } from "framer-motion";
-import type { entity } from "@prisma/client";
 import type { UserWithRelations } from "@api/users/route";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  Checkbox,
-} from "@/components/ui";
+import type { entity } from "@prisma/client";
+import { AnimatePresence, motion } from "framer-motion";
+import { useEffect, useMemo, useState } from "react";
+import { Checkbox, Dialog, DialogContent, DialogHeader, DialogTitle, LoadingMessage } from "@/components/ui";
+import { toast } from "@/lib/hooks/use-toast";
 import { apiClient } from "@/services/api-client";
 import type { PartnersWithAccounts } from "@/services/partners";
-import { toast } from "@/lib/hooks/use-toast";
-import { LoadingMessage } from "@/components/ui";
 
 interface Props {
   user: UserWithRelations;
@@ -23,12 +16,7 @@ interface Props {
   onSaved: () => Promise<void>;
 }
 
-export function UserRightsModal({
-  user,
-  open,
-  onOpenChange,
-  onSaved,
-}: Props) {
+export function UserRightsModal({ user, open, onOpenChange, onSaved }: Props) {
   /* -------------------- данные -------------------- */
   const [entities, setEntities] = useState<entity[]>([]);
   const [partners, setPartners] = useState<PartnersWithAccounts[]>([]);
@@ -38,14 +26,12 @@ export function UserRightsModal({
 
   /* локальные права для мгновенного UI */
   const [entityRights, setEntityRights] = useState<Set<number>>(new Set());
-  const [partnerRights, setPartnerRights] = useState<Map<number, Set<number>>>(
-    new Map(),
-  );
+  const [partnerRights, setPartnerRights] = useState<Map<number, Set<number>>>(new Map());
 
   /* текущий выбранный объект юрлица (удобно для заголовка) */
   const selectedEntity = useMemo(
     () => entities.find((e) => e.id === selectedEntityId) || null,
-    [entities, selectedEntityId]
+    [entities, selectedEntityId],
   );
 
   /* инициализируем права */
@@ -55,7 +41,7 @@ export function UserRightsModal({
     const map = new Map<number, Set<number>>();
     user.users_partners.forEach((p) => {
       if (!map.has(p.entity_id)) map.set(p.entity_id, new Set<number>());
-      map.get(p.entity_id)!.add(p.partner_id);
+      map.get(p.entity_id)?.add(p.partner_id);
     });
     setPartnerRights(map);
   }, [user, open]);
@@ -111,12 +97,8 @@ export function UserRightsModal({
     try {
       await apiClient.users.updateRights({
         user_id: user.id,
-        add_partners: had
-          ? undefined
-          : [{ partner_id: id, entity_id: selectedEntityId ?? 0 }],
-        remove_partners: had
-          ? [{ partner_id: id, entity_id: selectedEntityId ?? 0 }]
-          : undefined,
+        add_partners: had ? undefined : [{ partner_id: id, entity_id: selectedEntityId ?? 0 }],
+        remove_partners: had ? [{ partner_id: id, entity_id: selectedEntityId ?? 0 }] : undefined,
       });
       toast.success("Права обновлены");
       onSaved();
@@ -154,13 +136,12 @@ export function UserRightsModal({
               {entities.map((e) => {
                 const isSelected = selectedEntityId === e.id;
                 return (
-                  <div
+                  <button
                     key={e.id}
+                    type="button"
                     onClick={() => selectEntity(e.id)}
-                    className={`flex items-center gap-2 text-sm cursor-pointer rounded-md px-2 py-1 transition-colors ${
-                      isSelected
-                        ? "bg-primary/15 text-primary font-semibold"
-                        : "hover:bg-muted/50"
+                    className={`flex w-full items-center gap-2 text-left text-sm cursor-pointer rounded-md px-2 py-1 transition-colors ${
+                      isSelected ? "bg-primary/15 text-primary font-semibold" : "hover:bg-muted/50"
                     }`}
                   >
                     <Checkbox
@@ -170,7 +151,7 @@ export function UserRightsModal({
                       className="shrink-0"
                     />
                     <span>{e.short_name}</span>
-                  </div>
+                  </button>
                 );
               })}
             </div>
@@ -189,14 +170,10 @@ export function UserRightsModal({
                     className="space-y-1"
                   >
                     {/* Заголовок юрлица */}
-                    <p className="text-sm font-semibold mb-1 text-muted-foreground">
-                      {selectedEntity.short_name}
-                    </p>
+                    <p className="text-sm font-semibold mb-1 text-muted-foreground">{selectedEntity.short_name}</p>
 
                     {partners.length === 0 ? (
-                      <p className="text-sm text-muted-foreground">
-                        Нет контрагентов
-                      </p>
+                      <p className="text-sm text-muted-foreground">Нет контрагентов</p>
                     ) : (
                       partners.map((p) => (
                         <div
@@ -204,10 +181,7 @@ export function UserRightsModal({
                           className="flex items-center gap-2 text-sm cursor-pointer rounded-md px-2 py-1 hover:bg-muted/50 transition-colors"
                         >
                           <Checkbox
-                            checked={
-                              partnerRights.get(selectedEntityId ?? -1)?.has(p.id) ??
-                              false
-                            }
+                            checked={partnerRights.get(selectedEntityId ?? -1)?.has(p.id) ?? false}
                             onCheckedChange={() => togglePartner(p.id)}
                             onClick={(ev) => ev.stopPropagation()}
                             className="shrink-0"

@@ -1,29 +1,17 @@
 "use client";
 
-import React from "react";
-import { useRouter } from "next/navigation";
 import { format, isSameDay } from "date-fns";
-
-import { Modal } from "@/components/ui/modal";
+import { useRouter } from "next/navigation";
+import React from "react";
 import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableHeader,
-  TableRow,
-  TableHead,
-  TableBody,
-  TableCell,
-} from "@/components/ui/table";
-import {
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-} from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Modal } from "@/components/ui/modal";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
-import { DocumentType, SpecDocType } from "../../types/types";
+import type { DocumentType, SpecDocType } from "../../types/types";
 
 type Partner = DocumentType["partner"];
 
@@ -40,30 +28,26 @@ export const PartnerDocumentsModal: React.FC<PartnerDocumentsModalProps> = ({
   partner,
   documents,
 }) => {
-  if (!isOpen) return null;
-
   const router = useRouter();
 
   // DatePicker хранит выбранную дату как объект Date | undefined
   const [filterDate, setFilterDate] = React.useState<Date | undefined>();
   const [filterSum, setFilterSum] = React.useState("");
 
+  if (!isOpen) return null;
+
   /* ---------- фильтрация ---------- */
   const filteredDocuments = documents.filter((doc) => {
-    const matchesDate = filterDate
-      ? isSameDay(new Date(doc.date), filterDate)
-      : true;
+    const matchesDate = filterDate ? isSameDay(new Date(doc.date), filterDate) : true;
 
-    const matchesSum = filterSum
-      ? doc.account_sum.toString().includes(filterSum)
-      : true;
+    const matchesSum = filterSum ? doc.account_sum.toString().includes(filterSum) : true;
 
     return matchesDate && matchesSum;
   });
 
   /* ---------- сортировка по дате (новые выше) ---------- */
   const sortedDocuments = [...filteredDocuments].sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
   );
 
   return (
@@ -84,22 +68,12 @@ export const PartnerDocumentsModal: React.FC<PartnerDocumentsModalProps> = ({
             <Label className="text-sm">Фильтр по дате</Label>
             <Popover>
               <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className="w-full h-7 p-3 justify-start text-left font-normal"
-                >
-                  {filterDate
-                    ? format(filterDate, "dd.MM.yyyy")
-                    : "Выберите дату"}
+                <Button variant="outline" className="w-full h-7 p-3 justify-start text-left font-normal">
+                  {filterDate ? format(filterDate, "dd.MM.yyyy") : "Выберите дату"}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="p-0" align="start">
-                <Calendar
-                  mode="single"
-                  captionLayout="dropdown"
-                  selected={filterDate}
-                  onSelect={setFilterDate}
-                />
+                <Calendar mode="single" captionLayout="dropdown" selected={filterDate} onSelect={setFilterDate} />
               </PopoverContent>
             </Popover>
           </div>
@@ -129,27 +103,16 @@ export const PartnerDocumentsModal: React.FC<PartnerDocumentsModalProps> = ({
           </TableHeader>
           <TableBody>
             {sortedDocuments.map((doc) => {
-              const totalSpecSum = doc.spec_doc.reduce(
-                (sum, spec: SpecDocType) => sum + Number(spec.pay_sum),
-                0
-              );
-              const balance = (Number(doc.account_sum) - totalSpecSum).toFixed(
-                2
-              );
+              const totalSpecSum = doc.spec_doc.reduce((sum, spec: SpecDocType) => sum + Number(spec.pay_sum), 0);
+              const balance = (Number(doc.account_sum) - totalSpecSum).toFixed(2);
 
               return (
                 <TableRow
                   key={doc.id}
                   className="hover:bg-muted"
-                  onDoubleClick={() =>
-                    router.push(
-                      `/create/payment-form/${doc.entity_id}?doc_id=${doc.id}`
-                    )
-                  }
+                  onDoubleClick={() => router.push(`/create/payment-form/${doc.entity_id}?doc_id=${doc.id}`)}
                 >
-                  <TableCell>
-                    {new Date(doc.date).toLocaleDateString("ru-RU")}
-                  </TableCell>
+                  <TableCell>{new Date(doc.date).toLocaleDateString("ru-RU")}</TableCell>
                   <TableCell
                     className="w-[230px] h-[49px] overflow-hidden line-clamp-2 whitespace-pre-line"
                     title={doc.note ?? ""}
@@ -162,40 +125,32 @@ export const PartnerDocumentsModal: React.FC<PartnerDocumentsModalProps> = ({
                     <div className="flex gap-4">
                       {[...doc.spec_doc]
                         .sort((a, b) => {
-                          const dateA = new Date(
-                            (a.expected_date ?? a.dead_line_date) as unknown as string
-                          ).getTime();
-                          const dateB = new Date(
-                            (b.expected_date ?? b.dead_line_date) as unknown as string
-                          ).getTime();
+                          const dateA = new Date((a.expected_date ?? a.dead_line_date) as unknown as string).getTime();
+                          const dateB = new Date((b.expected_date ?? b.dead_line_date) as unknown as string).getTime();
                           return dateB - dateA;
                         })
                         .map((spec: SpecDocType) => {
                           const displayDate = spec.expected_date
                             ? new Date(spec.expected_date)
                             : spec.dead_line_date
-                            ? new Date(spec.dead_line_date)
-                            : new Date();
+                              ? new Date(spec.dead_line_date)
+                              : new Date();
 
-                        const amountClass = spec.is_paid
-                          ? "text-green-500"
-                          : spec.expected_date
-                          ? "text-red-500"
-                          : spec.dead_line_date
-                          ? "text-red-500 font-bold"
-                          : "";
+                          const amountClass = spec.is_paid
+                            ? "text-green-500"
+                            : spec.expected_date
+                              ? "text-red-500"
+                              : spec.dead_line_date
+                                ? "text-red-500 font-bold"
+                                : "";
 
-                        return (
-                          <div key={spec.id} className="flex flex-col">
-                            <span>
-                              {displayDate.toLocaleDateString("ru-RU")}
-                            </span>
-                            <span className={amountClass}>
-                              {Number(spec.pay_sum)}
-                            </span>
-                          </div>
-                        );
-                      })}
+                          return (
+                            <div key={spec.id} className="flex flex-col">
+                              <span>{displayDate.toLocaleDateString("ru-RU")}</span>
+                              <span className={amountClass}>{Number(spec.pay_sum)}</span>
+                            </div>
+                          );
+                        })}
                     </div>
                   </TableCell>
                 </TableRow>

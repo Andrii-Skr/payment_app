@@ -1,7 +1,6 @@
-import React from "react";
-import { Checkbox } from "@/components/ui/checkbox";
+import type { Control, FieldValues, Path } from "react-hook-form";
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui";
-import { Control, FieldValues, Path } from "react-hook-form";
+import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 
 interface Props<T extends FieldValues> {
@@ -11,19 +10,15 @@ interface Props<T extends FieldValues> {
   className?: string;
 }
 
-export function FormCheckbox<T extends FieldValues>({ control, name, label,className }: Props<T>) {
+export function FormCheckbox<T extends FieldValues>({ control, name, label, className }: Props<T>) {
   return (
     <FormField
       control={control}
       name={name}
-
       render={({ field }) => (
-        <FormItem className={cn("flex flex-row items-center space-x-2 space-y-0",className)}>
+        <FormItem className={cn("flex flex-row items-center space-x-2 space-y-0", className)}>
           <FormControl>
-            <Checkbox
-              checked={field.value}
-              onCheckedChange={checked => field.onChange(!!checked)}
-            />
+            <Checkbox checked={field.value} onCheckedChange={(checked) => field.onChange(!!checked)} />
           </FormControl>
           <FormLabel className="">{label}</FormLabel>
           <FormMessage />

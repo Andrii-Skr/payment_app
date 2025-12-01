@@ -1,19 +1,9 @@
 {
   "compilerOptions": {
     "baseUrl": ".",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
-    "typeRoots": [
-      "./node_modules/@types",
-      "./types"
-    ],
-    "types": [
-      "next-auth",
-      "jest"
-    ],
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "typeRoots": ["./node_modules/@types", "./types"],
+    "types": ["next-auth", "jest"],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -31,24 +21,11 @@
       }
     ],
     "paths": {
-      "@/*": [
-        "./*"
-      ],
-      "@api/*": [
-        "app/api/(v1)/(protected)/*"
-      ]
+      "@/*": ["./*"],
+      "@api/*": ["app/api/(v1)/(protected)/*"]
     },
     "target": "ES2017"
   },
-  "include": [
-    "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
-    ".next/types/**/*.ts",
-    "types"
-  ],
-  "exclude": [
-    ".next",
-    "node_modules"
-  ]
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "types"],
+  "exclude": [".next", "node_modules"]
 }

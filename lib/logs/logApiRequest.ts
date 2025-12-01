@@ -1,7 +1,7 @@
+import type { Prisma } from "@prisma/client";
 import type { NextRequest } from "next/server";
 import type { User } from "next-auth";
 import prisma from "@/prisma/prisma-client";
-import { Prisma } from "@prisma/client";
 import { redactBody } from "./redactBody";
 
 export async function logApiRequest(
@@ -9,20 +9,15 @@ export async function logApiRequest(
   user: User | null,
   status: number,
   startedAt: number,
-  bodyRaw?: unknown
+  bodyRaw?: unknown,
 ) {
   try {
     /* ---------- собираем данные ---------- */
     const ip =
       // next 15 подставляет .ip, fallback на заголовки
-      (req as any).ip ??
-      req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
-      null;
+      (req as any).ip ?? req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? null;
 
-    const numericUserId =
-      user?.id !== undefined && !Number.isNaN(Number(user.id))
-        ? Number(user.id)
-        : null;
+    const numericUserId = user?.id !== undefined && !Number.isNaN(Number(user.id)) ? Number(user.id) : null;
 
     let body_json: Prisma.InputJsonValue | null | unknown = null;
     if (bodyRaw !== undefined) {
@@ -46,7 +41,7 @@ export async function logApiRequest(
         status,
         duration: Math.round(performance.now() - startedAt),
         user_agent: req.headers.get("user-agent") ?? null,
-        body_json:body_json as Prisma.InputJsonValue,
+        body_json: body_json as Prisma.InputJsonValue,
       },
     });
   } catch (err) {

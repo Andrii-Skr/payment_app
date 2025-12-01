@@ -1,20 +1,11 @@
 // components/shared/partnerInput.tsx
 "use client";
 
-import {
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-  Input,
-} from "@/components/ui";
-import React from "react";
-import { Control, FieldValues, Path } from "react-hook-form";
+import type React from "react";
+import type { Control, FieldValues, Path } from "react-hook-form";
+import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, Input } from "@/components/ui";
 
-interface PartnerInputProps<T extends FieldValues = FieldValues>
-  extends React.InputHTMLAttributes<HTMLInputElement> {
+interface PartnerInputProps<T extends FieldValues = FieldValues> extends React.InputHTMLAttributes<HTMLInputElement> {
   control: Control<T>;
   name: Path<T>;
   label: string;
@@ -42,13 +33,7 @@ export function PartnerInput<T extends FieldValues>({
         <FormItem>
           <FormLabel>{label}</FormLabel>
           <FormControl>
-            <Input
-              type={type}
-              placeholder={placeholder}
-              className={className}
-              {...field}
-              {...rest}
-            />
+            <Input type={type} placeholder={placeholder} className={className} {...field} {...rest} />
           </FormControl>
           {description && <FormDescription>{description}</FormDescription>}
           <FormMessage />

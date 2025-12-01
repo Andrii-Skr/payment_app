@@ -1,10 +1,10 @@
-import prisma from "@/prisma/prisma-client";
-import { NextRequest, NextResponse } from "next/server";
-import { apiRoute } from "@/utils/apiRoute";
-import { Roles } from "@/constants/roles";
+import type { Prisma } from "@prisma/client";
+import { type NextRequest, NextResponse } from "next/server";
 import type { Session } from "next-auth";
-import { Prisma } from "@prisma/client";
+import { Roles } from "@/constants/roles";
 import { getSafeDateForPrisma } from "@/lib/date/getSafeDateForPrisma";
+import prisma from "@/prisma/prisma-client";
+import { apiRoute } from "@/utils/apiRoute";
 
 type Payment = {
   paySum: number;
@@ -33,8 +33,8 @@ type CreateDocumentBody = {
 const postHandler = async (
   _req: NextRequest,
   body: CreateDocumentBody & { allowDuplicate?: boolean },
-  _params: {},
-  user: Session["user"] | null
+  _params: Record<string, never>,
+  user: Session["user"] | null,
 ) => {
   if (!user) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
@@ -42,10 +42,7 @@ const postHandler = async (
 
   const parsedDate = getSafeDateForPrisma(body.date);
   if (!parsedDate) {
-    return NextResponse.json(
-      { message: "Invalid date format" },
-      { status: 400 }
-    );
+    return NextResponse.json({ message: "Invalid date format" }, { status: 400 });
   }
   // 🔍 Проверка на дубликат, если не явно разрешено
   if (!body.allowDuplicate) {
@@ -60,16 +57,14 @@ const postHandler = async (
     });
 
     if (exists) {
-      const sameSum =
-        Number(exists.account_sum) === Number(body.accountSum) &&
-        Number(body.accountSum) > 0;
+      const sameSum = Number(exists.account_sum) === Number(body.accountSum) && Number(body.accountSum) > 0;
       return NextResponse.json(
         {
           success: false,
           message: "Документ с такими данными уже существует.",
           ...(sameSum ? {} : { allowDuplicate: true }),
         },
-        { status: 409 }
+        { status: 409 },
       );
     }
   }
@@ -91,26 +86,17 @@ const postHandler = async (
       is_saved: true,
       note: body.note,
       spec_doc: {
-        create: body.payments.map(
-          ({ paySum, expectedDate, deadLineDate, purposeOfPayment }) => ({
-            pay_sum: paySum,
-            expected_date: expectedDate
-              ? new Date(expectedDate)
-              : !deadLineDate
-              ? new Date()
-              : null,
-            dead_line_date: deadLineDate ? new Date(deadLineDate) : null,
-            purpose_of_payment: purposeOfPayment ?? "",
-          })
-        ),
+        create: body.payments.map(({ paySum, expectedDate, deadLineDate, purposeOfPayment }) => ({
+          pay_sum: paySum,
+          expected_date: expectedDate ? new Date(expectedDate) : !deadLineDate ? new Date() : null,
+          dead_line_date: deadLineDate ? new Date(deadLineDate) : null,
+          purpose_of_payment: purposeOfPayment ?? "",
+        })),
       },
     },
   });
 
-  return NextResponse.json(
-    { success: true, message: "Document created successfully.", result },
-    { status: 200 }
-  );
+  return NextResponse.json({ success: true, message: "Document created successfully.", result }, { status: 200 });
 };
 
 export type DocumentWithRelations = Prisma.documentsGetPayload<{
@@ -129,8 +115,8 @@ export type DocumentWithRelations = Prisma.documentsGetPayload<{
 const getHandler = async (
   _req: NextRequest,
   _body: null,
-  _params: {},
-  user: Session["user"] | null
+  _params: Record<string, never>,
+  user: Session["user"] | null,
 ) => {
   if (!user) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });

@@ -2,15 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import {
-  Card,
-    CardContent,
-    Input,
-    Button,
-    Label,
-} from "@/components/ui";
+import { Button, Card, CardContent, Input, Label } from "@/components/ui";
 import { toast } from "@/lib/hooks/use-toast";
-
 
 export default function Register() {
   const [login, setLogin] = useState("");
@@ -44,23 +37,11 @@ export default function Register() {
           <form onSubmit={handleRegister} className="space-y-4">
             <div>
               <Label htmlFor="login">Логин</Label>
-              <Input
-                id="login"
-                type="text"
-                value={login}
-                onChange={(e) => setLogin(e.target.value)}
-                required
-              />
+              <Input id="login" type="text" value={login} onChange={(e) => setLogin(e.target.value)} required />
             </div>
             <div>
               <Label htmlFor="name">Имя</Label>
-              <Input
-                id="name"
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-              />
+              <Input id="name" type="text" value={name} onChange={(e) => setName(e.target.value)} required />
             </div>
             <div>
               <Label htmlFor="password">Пароль</Label>
@@ -72,7 +53,9 @@ export default function Register() {
                 required
               />
             </div>
-            <Button type="submit" className="w-full">Зарегистрироваться</Button>
+            <Button type="submit" className="w-full">
+              Зарегистрироваться
+            </Button>
           </form>
         </CardContent>
       </Card>

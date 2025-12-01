@@ -2,8 +2,8 @@
  * Обновляет таблицу `bank_info` актуальными данными НБУ.
  */
 
-import axios from "axios";
 import { PrismaClient } from "@prisma/client";
+import axios from "axios";
 
 const prisma = new PrismaClient();
 if (!process.env.NBU_BANKS_URL) {
@@ -25,13 +25,11 @@ export async function updateBankInfo() {
         mfo: normalizeMfo(item.mfo),
         bank_name: String(item.txt ?? ""),
       },
-    })
+    }),
   );
 
   await prisma.$transaction(ops);
 
-  console.info(
-    `✔  Обновлено / добавлено ${ops.length} банковских записей в bank_info`
-  );
+  console.info(`✔  Обновлено / добавлено ${ops.length} банковских записей в bank_info`);
 }
 // updateBankInfo()

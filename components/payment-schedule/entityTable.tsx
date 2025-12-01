@@ -1,36 +1,25 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import {
-  Table,
-  TableHeader,
-  TableRow,
-  TableHead,
-  TableBody,
-} from "@/components/ui/";
-import { FiltersBar } from "./filtersBar";
-import { EntityGroupRow } from "./entityGroupRow";
-import { PaymentDetailsModal } from "./paymentDetailsModal";
-import { PartnerDocumentsModal } from "./partnerDocumentsModal";
-import { PaymentBottomPanel } from "./paymentBottomPanel";
-import { ChoiceDialog } from "@/components/ui/";
-import { useEntityTableLogic } from "@/lib/hooks/useEntityTableLogic";
-import { usePendingPayments } from "@/lib/hooks/usePendingPayments";
-import { useAccessControl } from "@/lib/hooks/useAccessControl";
+import type React from "react";
+import { useEffect, useState } from "react";
+import type { EntityWithAll } from "@/app/api/(v1)/(protected)/documents/entities/route";
+import { ChoiceDialog, Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/";
 import { Roles } from "@/constants/roles";
-import { apiClient } from "@/services/api-client";
-import { createPaymentDetail } from "@/lib/transformData/paymentDetail";
-import { groupPaymentsByReceiver } from "@/lib/transformData/groupPayments";
 import { finalizePaymentsHandler } from "@/lib/handlers/finalizePaymentsHandler";
 import { toast } from "@/lib/hooks/use-toast";
-import type {
-  DocumentType,
-  PartnerType,
-  PaymentDetail,
-  PaymentEntry,
-} from "@/types/types";
-import type { EntityWithAll } from "@/app/api/(v1)/(protected)/documents/entities/route";
+import { useAccessControl } from "@/lib/hooks/useAccessControl";
+import { useEntityTableLogic } from "@/lib/hooks/useEntityTableLogic";
+import { usePendingPayments } from "@/lib/hooks/usePendingPayments";
+import { groupPaymentsByReceiver } from "@/lib/transformData/groupPayments";
+import { createPaymentDetail } from "@/lib/transformData/paymentDetail";
+import { apiClient } from "@/services/api-client";
 import { useEntitySelectionStore } from "@/store/entitySelectionStore";
+import type { DocumentType, PartnerType, PaymentDetail, PaymentEntry } from "@/types/types";
+import { EntityGroupRow } from "./entityGroupRow";
+import { FiltersBar } from "./filtersBar";
+import { PartnerDocumentsModal } from "./partnerDocumentsModal";
+import { PaymentBottomPanel } from "./paymentBottomPanel";
+import { PaymentDetailsModal } from "./paymentDetailsModal";
 
 export const EntityTable: React.FC<{
   entities: EntityWithAll[];
@@ -38,9 +27,7 @@ export const EntityTable: React.FC<{
 }> = ({ entities, reloadDocuments }) => {
   /* ---------- flatten & helpers ---------- */
   const documents = entities.flatMap((e) => e.documents ?? []);
-  const entityNames = Object.fromEntries(
-    entities.map((e) => [e.id, e.short_name ?? e.full_name])
-  );
+  const entityNames = Object.fromEntries(entities.map((e) => [e.id, e.short_name ?? e.full_name]));
 
   /* ---------- ACL ---------- */
   const { canAccess } = useAccessControl();
@@ -53,36 +40,25 @@ export const EntityTable: React.FC<{
   const [period, setPeriod] = useState(14);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalTitle, setModalTitle] = useState("");
-  const [modalPaymentDetails, setModalPaymentDetails] = useState<
-    PaymentDetail[]
-  >([]);
+  const [modalPaymentDetails, setModalPaymentDetails] = useState<PaymentDetail[]>([]);
   const [partnerModalOpen, setPartnerModalOpen] = useState(false);
-  const [selectedPartner, setSelectedPartner] = useState<PartnerType | null>(
-    null
-  );
-  const [selectedPartnerDocuments, setSelectedPartnerDocuments] = useState<
-    DocumentType[]
-  >([]);
+  const [selectedPartner, setSelectedPartner] = useState<PartnerType | null>(null);
+  const [selectedPartnerDocuments, setSelectedPartnerDocuments] = useState<DocumentType[]>([]);
   const selectedEntity = useEntitySelectionStore((s) => s.selectedEntity);
   const setSelectedEntity = useEntitySelectionStore((s) => s.setSelectedEntity);
   const [partnerFilter, setPartnerFilter] = useState("");
-  const [pendingPartnerShortName, setPendingPartnerShortName] =
-    useState<string>("");
+  const [pendingPartnerShortName, setPendingPartnerShortName] = useState<string>("");
 
   /* confirm-dialog */
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
-  const [pendingVisibilityPartnerId, setPendingVisibilityPartnerId] = useState<
-    number | null
-  >(null);
+  const [pendingVisibilityPartnerId, setPendingVisibilityPartnerId] = useState<number | null>(null);
   const [pendingEntityId, setPendingEntityId] = useState<number | null>(null);
 
   /* ---------- calc monday ---------- */
   useEffect(() => {
-    const kyivNow = new Date(
-      new Date().toLocaleString("en-US", { timeZone: "Europe/Kyiv" })
-    );
+    const kyivNow = new Date(new Date().toLocaleString("en-US", { timeZone: "Europe/Kyiv" }));
     const day = kyivNow.getDay();
-    const daysToSubtract = (day === 0 ? 7 : day) + 1
+    const daysToSubtract = (day === 0 ? 7 : day) + 1;
     kyivNow.setDate(kyivNow.getDate() - daysToSubtract);
     kyivNow.setHours(0, 0, 0, 0);
     setStartDate(kyivNow);
@@ -93,25 +69,18 @@ export const EntityTable: React.FC<{
     numeric: true,
     sensitivity: "base",
   });
-  const { dateRange, groupedByEntity, formattedDateRange } =
-    useEntityTableLogic({
-      documents,
-      entities,
-      startDate: startDate ?? new Date(),
-      period,
-      selectedEntity,
-      partnerFilter,
-      collator,
-    });
+  const { dateRange, groupedByEntity, formattedDateRange } = useEntityTableLogic({
+    documents,
+    entities,
+    startDate: startDate ?? new Date(),
+    period,
+    selectedEntity,
+    partnerFilter,
+    collator,
+  });
 
   /* ---------- pending payments ---------- */
-  const {
-    pendingPayments,
-    groupedPayments,
-    overallTotal,
-    update,
-    clearPendingPayments,
-  } = usePendingPayments();
+  const { pendingPayments, overallTotal, update, clearPendingPayments } = usePendingPayments();
 
   /* ---------- cell / partner click ---------- */
   const handleCellClick = (cellUnpaid: PaymentEntry[]) => {
@@ -122,10 +91,7 @@ export const EntityTable: React.FC<{
     setModalOpen(true);
   };
 
-  const handlePartnerNameClick = (
-    partner: PartnerType,
-    docs: DocumentType[]
-  ) => {
+  const handlePartnerNameClick = (partner: PartnerType, docs: DocumentType[]) => {
     setSelectedPartner(partner);
     setSelectedPartnerDocuments(docs);
     setPartnerModalOpen(true);
@@ -135,29 +101,18 @@ export const EntityTable: React.FC<{
   const handleModalSave = (selected: PaymentDetail[]) => {
     update(
       selected,
-      modalPaymentDetails.map((d) => d.spec_doc_id)
+      modalPaymentDetails.map((d) => d.spec_doc_id),
     );
     setModalOpen(false);
   };
 
   /* ---------- top-up / finalize ---------- */
   const finalizePayments = async () =>
-    finalizePaymentsHandler(
-      pendingPayments,
-      reloadDocuments,
-      clearPendingPayments,
-      "plain"
-    );
+    finalizePaymentsHandler(pendingPayments, reloadDocuments, clearPendingPayments, "plain");
 
   const finalizeGroupedPayments = async () => {
     const grouped = groupPaymentsByReceiver(pendingPayments);
-    finalizePaymentsHandler(
-      grouped,
-      reloadDocuments,
-      clearPendingPayments,
-      "grouped",
-      pendingPayments
-    );
+    finalizePaymentsHandler(grouped, reloadDocuments, clearPendingPayments, "grouped", pendingPayments);
   };
 
   const onPay = async () => {
@@ -172,28 +127,16 @@ export const EntityTable: React.FC<{
   };
 
   /* ---------- visibility ---------- */
-  const handleToggleVisibilityRequest = (
-    partnerId: number,
-    shortName: string,
-    entityId: number
-  ) => {
+  const handleToggleVisibilityRequest = (partnerId: number, shortName: string, entityId: number) => {
     setPendingVisibilityPartnerId(partnerId);
     setPendingEntityId(entityId);
     setPendingPartnerShortName(shortName);
     setConfirmDialogOpen(true);
   };
 
-  const handleToggleVisibility = async (
-    partnerId: number,
-    visible: boolean,
-    entityId: number
-  ) => {
+  const handleToggleVisibility = async (partnerId: number, visible: boolean, entityId: number) => {
     try {
-      await apiClient.partners.togglePartnerVisibility(
-        partnerId,
-        visible,
-        entityId
-      );
+      await apiClient.partners.togglePartnerVisibility(partnerId, visible, entityId);
       toast.success("Контрагент скрыт");
       await reloadDocuments();
     } catch {
@@ -202,9 +145,7 @@ export const EntityTable: React.FC<{
   };
 
   /* ---------- sort order ---------- */
-  const entityOrderMap = new Map(
-    entities.map((e) => [e.id, e.sort_order ?? 0])
-  );
+  const entityOrderMap = new Map(entities.map((e) => [e.id, e.sort_order ?? 0]));
 
   if (!startDate) return null;
 
@@ -227,30 +168,19 @@ export const EntityTable: React.FC<{
       <Table containerClassName="overflow-y-auto max-h-[89vh]">
         <TableHeader className="bg-white sticky top-0 z-40">
           <TableRow>
-            <TableHead className="sticky left-0 z-[30] bg-white w-10">
-              💼
-            </TableHead>
-            <TableHead className="sticky left-9 z-[30] bg-white min-w-[180px]">
-              Контрагент
-            </TableHead>
-            <TableHead className="sticky left-[210px] z-[30] bg-white min-w-[100px] text-right">
-              Остаток
-            </TableHead>
-            <TableHead className="sticky left-[310px] z-[30] bg-white min-w-[100px] text-right">
-              Не оплачено
-            </TableHead>
-            {formattedDateRange.map((d, i) => (
-              <TableHead key={i}>{d}</TableHead>
+            <TableHead className="sticky left-0 z-[30] bg-white w-10">💼</TableHead>
+            <TableHead className="sticky left-9 z-[30] bg-white min-w-[180px]">Контрагент</TableHead>
+            <TableHead className="sticky left-[210px] z-[30] bg-white min-w-[100px] text-right">Остаток</TableHead>
+            <TableHead className="sticky left-[310px] z-[30] bg-white min-w-[100px] text-right">Не оплачено</TableHead>
+            {formattedDateRange.map((d) => (
+              <TableHead key={d}>{d}</TableHead>
             ))}
           </TableRow>
         </TableHeader>
 
         <TableBody>
           {Object.entries(groupedByEntity)
-            .sort(
-              ([a], [b]) =>
-                (entityOrderMap.get(+a) ?? 0) - (entityOrderMap.get(+b) ?? 0)
-            )
+            .sort(([a], [b]) => (entityOrderMap.get(+a) ?? 0) - (entityOrderMap.get(+b) ?? 0))
             .map(([entityId, rows]) => (
               <EntityGroupRow
                 key={entityId}
@@ -295,7 +225,6 @@ export const EntityTable: React.FC<{
       {canUseBottomPanel && (
         <PaymentBottomPanel
           pendingPayments={pendingPayments}
-          groupedPayments={groupedPayments}
           overallTotal={overallTotal}
           onFinalize={finalizePayments}
           onGroupedFinalize={finalizeGroupedPayments}
@@ -304,35 +233,29 @@ export const EntityTable: React.FC<{
       )}
 
       {/* ---------- confirm dialog ---------- */}
-      {confirmDialogOpen &&
-        pendingVisibilityPartnerId !== null &&
-        pendingEntityId !== null && (
-          <ChoiceDialog
-            open={confirmDialogOpen}
-            title="Скрыть контрагента?"
-            description={`Контрагент ${pendingPartnerShortName} будет скрыт из таблицы, но не удалён из системы.`}
-            choices={[
-              {
-                label: "Скрыть",
-                onSelect: async () => {
-                  setConfirmDialogOpen(false);
-                  await handleToggleVisibility(
-                    pendingVisibilityPartnerId,
-                    false,
-                    pendingEntityId
-                  );
-                  setPendingVisibilityPartnerId(null);
-                  setPendingEntityId(null);
-                },
+      {confirmDialogOpen && pendingVisibilityPartnerId !== null && pendingEntityId !== null && (
+        <ChoiceDialog
+          open={confirmDialogOpen}
+          title="Скрыть контрагента?"
+          description={`Контрагент ${pendingPartnerShortName} будет скрыт из таблицы, но не удалён из системы.`}
+          choices={[
+            {
+              label: "Скрыть",
+              onSelect: async () => {
+                setConfirmDialogOpen(false);
+                await handleToggleVisibility(pendingVisibilityPartnerId, false, pendingEntityId);
+                setPendingVisibilityPartnerId(null);
+                setPendingEntityId(null);
               },
-            ]}
-            onCancel={() => {
-              setConfirmDialogOpen(false);
-              setPendingVisibilityPartnerId(null);
-              setPendingEntityId(null);
-            }}
-          />
-        )}
+            },
+          ]}
+          onCancel={() => {
+            setConfirmDialogOpen(false);
+            setPendingVisibilityPartnerId(null);
+            setPendingEntityId(null);
+          }}
+        />
+      )}
     </div>
   );
 };

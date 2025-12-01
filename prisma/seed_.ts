@@ -1,5 +1,5 @@
-import prisma from "./prisma-client";
 import bcrypt from "bcrypt";
+import prisma from "./prisma-client";
 
 function getRandomOffset() {
   return Math.floor(Math.random() * 5) + 1;
@@ -26,9 +26,7 @@ async function clearData() {
     "template",
   ];
   for (const t of tables) {
-    await prisma.$executeRawUnsafe(
-      `TRUNCATE TABLE "${t}" RESTART IDENTITY CASCADE;`
-    );
+    await prisma.$executeRawUnsafe(`TRUNCATE TABLE "${t}" RESTART IDENTITY CASCADE;`);
   }
 }
 
@@ -118,8 +116,7 @@ async function seedDocument(partner_id: number) {
       account_sum_expression: "",
       vat_type: true,
       vat_percent: 20,
-      purpose_of_payment:
-        "Оплата услуг № qw32 від 19.05.2025, у т.ч. ПДВ 20% = 186,67 грн.",
+      purpose_of_payment: "Оплата услуг № qw32 від 19.05.2025, у т.ч. ПДВ 20% = 186,67 грн.",
       partner_account_number_id: acc.id,
       is_saved: true,
       is_paid: false,

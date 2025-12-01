@@ -1,9 +1,9 @@
 "use client";
-import { Tabs, TabsList, TabsTrigger } from "../ui/tabs";
-import { Container } from "../shared/";
 import { usePathname, useRouter } from "next/navigation";
-import { useAccessControl } from "@/lib/hooks/useAccessControl";
 import { Roles } from "@/constants/roles";
+import { useAccessControl } from "@/lib/hooks/useAccessControl";
+import { Container } from "../shared/";
+import { Tabs, TabsList, TabsTrigger } from "../ui/tabs";
 
 type Props = {
   className?: string;
@@ -53,18 +53,10 @@ export const TabTitle: React.FC<Props> = ({ className }) => {
 
   return (
     <Container className={className}>
-      <Tabs
-        defaultValue="/create"
-        value={activeTabValue}
-        onValueChange={handleClick}
-      >
+      <Tabs defaultValue="/create" value={activeTabValue} onValueChange={handleClick}>
         <TabsList>
           {visibleTabs.map((tab) => (
-            <TabsTrigger
-              key={tab.value}
-              value={tab.value}
-              onClick={() => handleClick(tab.value)}
-            >
+            <TabsTrigger key={tab.value} value={tab.value} onClick={() => handleClick(tab.value)}>
               {tab.label}
             </TabsTrigger>
           ))}

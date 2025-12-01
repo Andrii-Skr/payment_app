@@ -1,5 +1,5 @@
+import type { TemplateWithBankDetails } from "@api/templates/[id]/route";
 import { useTemplateManager } from "@/lib/hooks/useTemplateManager";
-import { TemplateWithBankDetails } from "@api/templates/[id]/route";
 
 describe("confirmTemplateReplace", () => {
   it("keeps selectedAccount from template", () => {
@@ -31,7 +31,6 @@ describe("confirmTemplateReplace", () => {
     } as unknown as TemplateWithBankDetails;
 
     const { confirmTemplateReplace } = useTemplateManager({
-      reset: jest.fn(),
       getValues: jest.fn(),
       entityIdNum: 1,
       setTemplatesList: jest.fn(),
@@ -65,11 +64,7 @@ function applyAccountEffect(params: {
     return result;
   }
 
-  if (
-    selectedId !== undefined &&
-    selectedId !== null &&
-    accounts.some((a) => a.id === selectedId)
-  ) {
+  if (selectedId !== undefined && selectedId !== null && accounts.some((a) => a.id === selectedId)) {
     return result;
   }
 

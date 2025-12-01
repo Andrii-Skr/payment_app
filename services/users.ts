@@ -1,6 +1,6 @@
-import axiosInstance from "@/services/instance";
-import type { role } from "@prisma/client";
 import type { UserWithRelations } from "@api/users/route";
+import type { role } from "@prisma/client";
+import axiosInstance from "@/services/instance";
 
 export const getAll = async (withDeleted = false): Promise<UserWithRelations[] | []> => {
   try {
@@ -13,12 +13,7 @@ export const getAll = async (withDeleted = false): Promise<UserWithRelations[] |
   }
 };
 
-export const updateRole = async (
-  user_id: number,
-  role_id: number,
-  login?: string,
-  name?: string,
-) => {
+export const updateRole = async (user_id: number, role_id: number, login?: string, name?: string) => {
   try {
     await axiosInstance.patch("/users", { user_id, role_id, login, name });
   } catch (error) {
@@ -44,10 +39,7 @@ export const remove = async (user_id: number, is_deleted: boolean) => {
   }
 };
 
-export const updateUser = async (
-  user_id: number,
-  data: { login: string; name: string; role_id: number },
-) => {
+export const updateUser = async (user_id: number, data: { login: string; name: string; role_id: number }) => {
   try {
     await axiosInstance.patch("/users/update", { user_id, ...data });
   } catch (error) {
@@ -78,4 +70,3 @@ export const changePassword = async (user_id: number, password: string) => {
 };
 
 export type Role = { id: number; name: string };
-

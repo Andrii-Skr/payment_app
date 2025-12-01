@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { DocumentWithPartner } from "@/prisma/data/documents";   // ← уже number
+import type { DocumentWithPartner } from "@/prisma/data/documents"; // ← уже number
 import { apiClient } from "@/services/api-client";
 import { normalizeArray } from "@/utils/normalizeDecimal";
 
@@ -29,14 +29,9 @@ export const useDocumentsStore = create<State & Actions & Selectors>((set, get) 
   },
 
   getRemainder: (entityId, partnerId) => {
-    const docs = get().docs.filter(
-      (d) => d.entity_id === entityId && d.partner_id === partnerId
-    );
+    const docs = get().docs.filter((d) => d.entity_id === entityId && d.partner_id === partnerId);
     const total = docs.reduce((acc, doc) => {
-      const specSum = doc.spec_doc.reduce(
-        (s, spec) => s + +spec.pay_sum,
-        0
-      );
+      const specSum = doc.spec_doc.reduce((s, spec) => s + +spec.pay_sum, 0);
       return acc + +doc.account_sum - specSum;
     }, 0);
     return Number(total.toFixed(2));

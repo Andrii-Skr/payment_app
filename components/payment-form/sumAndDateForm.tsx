@@ -1,33 +1,27 @@
 "use client";
-import {
-  Container,
-  FormDatePicker,
-  FormInput,
-  ComputedFormInput,
-  RegularPaymentDialog,
-  ContainerGrid,
-} from "@/components/shared";
-import { FormValues } from "@/types/formTypes";
-import { Button } from "@/components/ui";
-import { apiClient } from "@/services/api-client";
 import { CircleX, Repeat1 } from "lucide-react";
 import React from "react";
+import { type Control, useFieldArray, useFormContext, useWatch } from "react-hook-form";
 import {
-  Control,
-  useFieldArray,
-  useFormContext,
-  useWatch,
-} from "react-hook-form";
-import { useAccessControl } from "@/lib/hooks/useAccessControl";
+  ComputedFormInput,
+  Container,
+  ContainerGrid,
+  FormDatePicker,
+  FormInput,
+  RegularPaymentDialog,
+} from "@/components/shared";
+import { Button } from "@/components/ui";
 import { Roles } from "@/constants/roles";
+import { useAccessControl } from "@/lib/hooks/useAccessControl";
 import { useAutoFillPaymentsPurpose } from "@/lib/hooks/useAutoFillPaymentsPurpose";
+import { apiClient } from "@/services/api-client";
+import type { FormValues } from "@/types/formTypes";
 
 type Props = {
   control: Control<FormValues>;
-  onBlur?: () => void;
 };
 
-const SumAndDateForm: React.FC<Props> = ({ control, onBlur }) => {
+const SumAndDateForm: React.FC<Props> = ({ control }) => {
   const { fields, prepend, remove } = useFieldArray({
     control,
     name: "payments",
@@ -38,26 +32,18 @@ const SumAndDateForm: React.FC<Props> = ({ control, onBlur }) => {
   const { canAccess } = useAccessControl();
 
   const [alertOpen, setAlertOpen] = React.useState(false);
-  const [selectedPaymentIndex, setSelectedPaymentIndex] = React.useState<
-    number | null
-  >(null);
+  const [selectedPaymentIndex, setSelectedPaymentIndex] = React.useState<number | null>(null);
 
   const accountSum = useWatch({ control, name: "accountSum" });
   const payments = useWatch({ control, name: "payments" });
 
-  const totalPayments = (payments || []).reduce(
-    (acc: number, curr: any) => acc + (Number(curr.paySum) || 0),
-    0
-  );
+  const totalPayments = (payments || []).reduce((acc: number, curr: any) => acc + (Number(curr.paySum) || 0), 0);
 
   const cleanedAccountSum = Number(String(accountSum).replace(/,/g, ".")) || 0;
   const rawRemainder = cleanedAccountSum - Number(totalPayments);
   const remainder = Number(rawRemainder.toFixed(2));
 
-  const handlePaySumBlur = (
-    e: React.FocusEvent<HTMLInputElement>,
-    index: number
-  ) => {
+  const handlePaySumBlur = (e: React.FocusEvent<HTMLInputElement>, index: number) => {
     const value = e.target.value;
     if (value.includes(",")) {
       const newValue = value.replace(/,/g, ".");
@@ -102,13 +88,10 @@ const SumAndDateForm: React.FC<Props> = ({ control, onBlur }) => {
 
       <div>
         {fields.map((field, index) => {
-          const payment = payments && payments[index];
+          const payment = payments?.[index];
           const isPaid = payment ? payment.isPaid : false;
           return (
-            <div
-              key={field.id}
-              className="w-auto rounded-3xl border-gray-400 border-2 ml-[-20px] p-2"
-            >
+            <div key={field.id} className="w-auto rounded-3xl border-gray-400 border-2 ml-[-20px] p-2">
               <ContainerGrid className="">
                 <div className="relative">
                   <FormInput
@@ -125,15 +108,14 @@ const SumAndDateForm: React.FC<Props> = ({ control, onBlur }) => {
                     type="button"
                     variant="ghost"
                     size={"sm"}
-                    className="absolute right-0 top-11 transform -translate-y-4 rounded text-xs font-bold"
+                    className="absolute right-3 top-11 transform -translate-y-4 rounded text-xs font-bold"
                     disabled={isPaid}
                     onClick={() => {
                       if (remainder > 0) {
                         setValue(
                           `payments.${index}.paySum`,
-                          remainder +
-                            Number(getValues(`payments.${index}.paySum`)),
-                          { shouldValidate: true }
+                          remainder + Number(getValues(`payments.${index}.paySum`)),
+                          { shouldValidate: true },
                         );
                       }
                     }}
@@ -208,11 +190,7 @@ const SumAndDateForm: React.FC<Props> = ({ control, onBlur }) => {
 
       <RegularPaymentDialog
         open={alertOpen}
-        paySum={
-          selectedPaymentIndex !== null
-            ? getValues(`payments.${selectedPaymentIndex}.paySum`)
-            : ""
-        }
+        paySum={selectedPaymentIndex !== null ? getValues(`payments.${selectedPaymentIndex}.paySum`) : ""}
         onOpenChange={setAlertOpen}
         onConfirm={handleConfirmRegular}
       />

@@ -1,20 +1,13 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, MouseEvent } from "react";
-import {
-  Table,
-  TableHeader,
-  TableBody,
-  TableRow,
-  TableHead,
-  TableCell,
-} from "@/components/ui";
-import { Input, Checkbox } from "@/components/ui";
-import { Button } from "@/components/ui/button";
+import type { TemplateWithBankDetails } from "@api/templates/[id]/route";
 import { Eye, EyeOff, Pencil, Trash2 } from "lucide-react";
+import type React from "react";
+import { type MouseEvent, useCallback, useEffect, useState } from "react";
+import { Checkbox, Input, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui";
+import { Button } from "@/components/ui/button";
 import { toast } from "@/lib/hooks/use-toast";
 import { apiClient } from "@/services/api-client";
-import type { TemplateWithBankDetails } from "@api/templates/[id]/route";
 
 import { TemplateEditModal } from "./templateEditModal";
 
@@ -31,9 +24,7 @@ export const SampleTable: React.FC<SampleTableProps> = ({ entityId }) => {
   const [showHidden, setShowHidden] = useState(false);
   const [showDeleted, setShowDeleted] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
-  const [editTarget, setEditTarget] = useState<TemplateWithBankDetails | null>(
-    null
-  );
+  const [editTarget, setEditTarget] = useState<TemplateWithBankDetails | null>(null);
 
   /* ------------------------ data load ----------------------- */
   const loadTemplates = useCallback(async () => {
@@ -81,15 +72,11 @@ export const SampleTable: React.FC<SampleTableProps> = ({ entityId }) => {
     if (!showDeleted && t.is_deleted) return false;
     if (!filterText.trim()) return true;
     const q = filterText.toLowerCase();
-    return (
-      t.name.toLowerCase().includes(q) ||
-      t.partner.short_name.toLowerCase().includes(q)
-    );
+    return t.name.toLowerCase().includes(q) || t.partner.short_name.toLowerCase().includes(q);
   });
 
   /* ------------------------- render ------------------------- */
-  if (!entityId)
-    return <p className="text-muted-foreground">Выберите юрлицо</p>;
+  if (!entityId) return <p className="text-muted-foreground">Выберите юрлицо</p>;
 
   return (
     <div className="space-y-3">
@@ -102,20 +89,12 @@ export const SampleTable: React.FC<SampleTableProps> = ({ entityId }) => {
       />
 
       <div className="flex items-center gap-4 pl-1">
-        <Checkbox
-          id="showHidden"
-          checked={showHidden}
-          onCheckedChange={(v) => setShowHidden(!!v)}
-        />
+        <Checkbox id="showHidden" checked={showHidden} onCheckedChange={(v) => setShowHidden(!!v)} />
         <label htmlFor="showHidden" className="text-sm select-none">
           Показать скрытые
         </label>
 
-        <Checkbox
-          id="showDeleted"
-          checked={showDeleted}
-          onCheckedChange={(v) => setShowDeleted(!!v)}
-        />
+        <Checkbox id="showDeleted" checked={showDeleted} onCheckedChange={(v) => setShowDeleted(!!v)} />
         <label htmlFor="showDeleted" className="text-sm select-none">
           Показать удалённые
         </label>
@@ -138,10 +117,7 @@ export const SampleTable: React.FC<SampleTableProps> = ({ entityId }) => {
           </TableHeader>
           <TableBody>
             {filtered.map((tpl, idx) => (
-              <TableRow
-                key={tpl.id}
-                className={tpl.is_deleted ? "opacity-50" : ""}
-              >
+              <TableRow key={tpl.id} className={tpl.is_deleted ? "opacity-50" : ""}>
                 <TableCell className="text-center">{idx + 1}</TableCell>
                 <TableCell>{tpl.name}</TableCell>
                 <TableCell>{tpl.partner.short_name}</TableCell>

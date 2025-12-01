@@ -1,34 +1,23 @@
 "use client";
 
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import { Button, Form } from "@/components/ui";
-import { Row } from "@/types/infoTypes";
-
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 import { Container, FormInput } from "@/components/shared";
+import { Button, Form } from "@/components/ui";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import type { Row } from "@/types/infoTypes";
 
 const schema = z.object({
   full_name: z.string().min(1, "Обязательное поле"),
   short_name: z.string().min(1, "Обязательное поле"),
-  edrpou: z
-    .string()
-    .min(8)
-    .max(10)
-    .regex(/^\d+$/, "ЕДРПОУ должен содержать только цифры"),
+  edrpou: z.string().min(8).max(10).regex(/^\d+$/, "ЕДРПОУ должен содержать только цифры"),
   bank_account: z.string().length(29),
   sort_order: z
     .union([z.string(), z.number()])
     .transform((val) => (val === "" ? undefined : Number(val)))
-    .refine((val) => val === undefined || !isNaN(val), {
+    .refine((val) => val === undefined || !Number.isNaN(val), {
       message: "Введите число",
     })
     .optional(),
@@ -75,7 +64,7 @@ export function EditEntityDialog({ row, onClose, onSave }: Props) {
       await onSave({ ...values, id: row.id });
 
       onClose();
-    } catch (err: any) {}
+    } catch (_err: any) {}
   }
 
   return (
@@ -88,41 +77,17 @@ export function EditEntityDialog({ row, onClose, onSave }: Props) {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(submit)} className="space-y-4">
             <Container className="gap-2 justify-start">
-              <FormInput
-                control={form.control}
-                name="full_name"
-                label="Название"
-                className="bank-account-size"
-              />
-              <FormInput
-                control={form.control}
-                name="short_name"
-                label="Название"
-              />
+              <FormInput control={form.control} name="full_name" label="Название" className="bank-account-size" />
+              <FormInput control={form.control} name="short_name" label="Название" />
               <FormInput control={form.control} name="edrpou" label="ЕДРПОУ" />
             </Container>
             <Container className="gap-2 justify-start">
-              <FormInput
-                control={form.control}
-                name="bank_account"
-                className="bank-account-size"
-                label="р/с"
-              />
-              <FormInput
-                control={form.control}
-                name="sort_order"
-                label="Сортировка"
-                type="number"
-              />
+              <FormInput control={form.control} name="bank_account" className="bank-account-size" label="р/с" />
+              <FormInput control={form.control} name="sort_order" label="Сортировка" type="number" />
             </Container>
 
             <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={onClose}
-                disabled={form.formState.isSubmitting}
-              >
+              <Button type="button" variant="outline" onClick={onClose} disabled={form.formState.isSubmitting}>
                 Отмена
               </Button>
               <Button type="submit" disabled={form.formState.isSubmitting}>

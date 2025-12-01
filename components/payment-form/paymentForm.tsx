@@ -1,38 +1,22 @@
 "use client";
 
-import React, { useState } from "react";
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-
-import {
-  Button,
-  Form,
-  Alert,
-  AlertDescription,
-  ChoiceDialog,
-} from "@/components/ui";
-import {
-  SaveTemplateDialog,
-  SumAndDateForm,
-  AsidePaymentForm,
-} from "@/components/shared";
-import { formSchema, FormValues } from "@/types/formTypes";
+import { Trash2 } from "lucide-react";
+import type React from "react";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { AccountDetailsForm, PartnerBlock, PurposeAndNoteForm, TemplateSelector } from "@/components/payment-form";
+import { AsidePaymentForm, SaveTemplateDialog, SumAndDateForm } from "@/components/shared";
+import { Alert, AlertDescription, Button, ChoiceDialog, Form } from "@/components/ui";
+import { toast } from "@/lib/hooks/use-toast";
 import { usePaymentFormLogic } from "@/lib/hooks/usePaymentFormLogic";
 import { useTemplateManager } from "@/lib/hooks/useTemplateManager";
 import { parseExpression } from "@/lib/math/parseExpression";
 import { TransformedObject } from "@/lib/transformData/doc";
-import { useDocumentsStore } from "@/store/documentsListStore";
-import { apiClient } from "@/services/api-client";
-import { toast } from "@/lib/hooks/use-toast";
-import { Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-import {
-  TemplateSelector,
-  AccountDetailsForm,
-  PurposeAndNoteForm,
-  PartnerBlock,
-} from "@/components/payment-form";
+import { apiClient } from "@/services/api-client";
+import { useDocumentsStore } from "@/store/documentsListStore";
+import { type FormValues, formSchema } from "@/types/formTypes";
 
 /* ---------- default values ---------- */
 const defaultValues: FormValues = {
@@ -69,9 +53,7 @@ const defaultValues: FormValues = {
   is_auto_purpose_of_payment: true,
 };
 
-export const PaymentForm: React.FC<{ className?: string }> = ({
-  className,
-}) => {
+export const PaymentForm: React.FC<{ className?: string }> = ({ className }) => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   /* ---------- react-hook-form ---------- */
@@ -80,15 +62,7 @@ export const PaymentForm: React.FC<{ className?: string }> = ({
     defaultValues,
     shouldUnregister: false,
   });
-  const {
-    setValue,
-    getValues,
-    reset,
-    control,
-    watch,
-    handleSubmit,
-    setFocus,
-  } = form;
+  const { setValue, getValues, reset, control, watch, handleSubmit, setFocus } = form;
   const docId = watch("doc_id");
   const payments = watch("payments");
 
@@ -113,10 +87,13 @@ export const PaymentForm: React.FC<{ className?: string }> = ({
     setDuplicateDialogOpen,
     pendingDocData,
     setPendingDocData,
-  } = usePaymentFormLogic({ reset, setValue, getValues, defaultValues });
+  } = usePaymentFormLogic({ reset, setValue, defaultValues });
 
-  const { handleSampleChange, handleSaveTemplate, confirmTemplateReplace } =
-    useTemplateManager({ reset, getValues, entityIdNum, setTemplatesList });
+  const { handleSampleChange, handleSaveTemplate, confirmTemplateReplace } = useTemplateManager({
+    getValues,
+    entityIdNum,
+    setTemplatesList,
+  });
 
   const { removeDoc } = useDocumentsStore();
 
@@ -129,7 +106,7 @@ export const PaymentForm: React.FC<{ className?: string }> = ({
     } else {
       const clean = value.replace(/,/g, ".");
       const num = Number(clean);
-      setValue("accountSum", !isNaN(num) ? num.toFixed(2) : clean);
+      setValue("accountSum", !Number.isNaN(num) ? num.toFixed(2) : clean);
     }
   };
 
@@ -165,16 +142,13 @@ export const PaymentForm: React.FC<{ className?: string }> = ({
 
   /* ---------- render ---------- */
   return (
-    <div className={cn('flex flex-row-reverse justify-around', className)}>
+    <div className={cn("flex flex-row-reverse justify-around", className)}>
       {/* левая панель со списком документов */}
       <AsidePaymentForm docs={docs} onRowClick={handleDocRowClick} />
 
       {/* основная форма */}
       <Form {...form}>
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="space-y-1 w-auto min-w-[850px]"
-        >
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-1 w-auto min-w-[750px]">
           {/* заголовок с плательщиком */}
           <Alert className="flex justify-between items-center p-2">
             <AlertDescription className="p-0">
@@ -187,13 +161,7 @@ export const PaymentForm: React.FC<{ className?: string }> = ({
               className="flex gap-2 h-6 text-red-500 p-0"
               onClick={() => setDeleteDialogOpen(true)}
               disabled={!docId || !isDeletable}
-              title={
-                !docId
-                  ? "Документ не выбран"
-                  : !isDeletable
-                  ? "Документ содержит оплаченные строки"
-                  : undefined
-              }
+              title={!docId ? "Документ не выбран" : !isDeletable ? "Документ содержит оплаченные строки" : undefined}
             >
               <Trash2 /> Удалить Документ
             </Button>
@@ -203,27 +171,19 @@ export const PaymentForm: React.FC<{ className?: string }> = ({
           <TemplateSelector
             control={control}
             templatesList={templatesList}
-            onSampleChange={(i) =>
-              handleSampleChange(
-                i,
-                templatesList,
-                setSelectedTemplate,
-                setIsReplaceDialogOpen
-              )
-            }
+            onSampleChange={(i) => handleSampleChange(i, templatesList, setSelectedTemplate, setIsReplaceDialogOpen)}
             onSaveClick={() => setTemplateDialogOpen(true)}
           />
 
           {/* блоки формы */}
           <div className="w-auto rounded-3xl border-gray-400 border-2 ml-[-20px] p-2">
-
-          <AccountDetailsForm
-            control={control}
-            onBlur={handleAccountSumBlur}
-            onDoubleClick={handleAccountSumDoubleClick}
+            <AccountDetailsForm
+              control={control}
+              onBlur={handleAccountSumBlur}
+              onDoubleClick={handleAccountSumDoubleClick}
             />
-          <PurposeAndNoteForm />
-            </div>
+            <PurposeAndNoteForm />
+          </div>
           <PartnerBlock control={control} entityIdNum={entityIdNum} />
           <SumAndDateForm control={control} />
         </form>
@@ -240,9 +200,7 @@ export const PaymentForm: React.FC<{ className?: string }> = ({
       <ChoiceDialog
         open={isReplaceDialogOpen}
         title="Заменить данные формы?"
-        description={`Данные формы будут заменены значениями из шаблона "${getValues(
-          "sample"
-        )}". Продолжить?`}
+        description={`Данные формы будут заменены значениями из шаблона "${getValues("sample")}". Продолжить?`}
         onCancel={() => {
           setIsReplaceDialogOpen(false);
           setSelectedTemplate(null);

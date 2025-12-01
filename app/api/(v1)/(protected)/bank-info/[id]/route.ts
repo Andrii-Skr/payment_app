@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/prisma/prisma-client";
-import { apiRoute } from "@/utils/apiRoute";
+import { type NextRequest, NextResponse } from "next/server";
 import type { Session } from "next-auth";
 import { Roles } from "@/constants/roles";
+import prisma from "@/prisma/prisma-client";
+import { apiRoute } from "@/utils/apiRoute";
 
 // GET handler
 type Params = { id: string };
@@ -13,17 +13,10 @@ const getBankInfo = async (id: string) => {
   });
 };
 
-export type BankInfoWithIncludesNullable = Awaited<
-  ReturnType<typeof getBankInfo>
->;
+export type BankInfoWithIncludesNullable = Awaited<ReturnType<typeof getBankInfo>>;
 export type BankInfoWithIncludes = NonNullable<BankInfoWithIncludesNullable>;
 
-const getHandler = async (
-  _req: NextRequest,
-  _body: null,
-  params: Params,
-  _user: Session["user"] | null
-) => {
+const getHandler = async (_req: NextRequest, _body: null, params: Params, _user: Session["user"] | null) => {
   const id = params.id;
 
   const bank_info: BankInfoWithIncludesNullable = await getBankInfo(id);

@@ -1,31 +1,18 @@
 "use client";
 
-import React, { useState } from "react";
-import { TableRow, TableCell } from "@/components/ui";
 import { EyeOff } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-} from "@/components/ui/dropdown-menu";
+import type React from "react";
+import { useState } from "react";
+import { TableCell, TableRow } from "@/components/ui";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { Roles } from "@/constants/roles";
+import { formatMoney, getColorForEntity, getDisplayDate, isSameDay } from "@/lib/helpers";
 import { toast } from "@/lib/hooks/use-toast";
-import {
-  getColorForEntity,
-  isSameDay,
-  getDisplayDate,
-  formatMoney,
-} from "@/lib/helpers";
-import { cn } from "@/lib/utils";
+import { useAccessControl } from "@/lib/hooks/useAccessControl";
 import { usePendingPayments } from "@/lib/hooks/usePendingPayments";
 import { createPaymentDetail } from "@/lib/transformData/paymentDetail";
-import { useAccessControl } from "@/lib/hooks/useAccessControl";
-import { Roles } from "@/constants/roles";
-import type {
-  PartnerType,
-  DocumentType,
-  PaymentEntry,
-  PaymentDetail,
-} from "@/types/types";
+import { cn } from "@/lib/utils";
+import type { DocumentType, PartnerType, PaymentDetail, PaymentEntry } from "@/types/types";
 
 export type EntityGroupRowProps = {
   entityId: number;
@@ -67,7 +54,7 @@ export const EntityGroupRow: React.FC<EntityGroupRowProps> = ({
     const unpaidEntries: PaymentEntry[] = [];
     const paidEntries: PaymentEntry[] = [];
 
-    documents.forEach((doc) =>
+    documents.forEach((doc) => {
       doc.spec_doc.forEach((spec) => {
         const entry = {
           spec_doc: spec,
@@ -75,22 +62,16 @@ export const EntityGroupRow: React.FC<EntityGroupRowProps> = ({
           isExpected: !!spec.expected_date,
         };
         (spec.is_paid ? paidEntries : unpaidEntries).push(entry);
-      })
-    );
+      });
+    });
 
     const totalRemaining = documents.reduce((acc, doc) => {
       const totalAccount = +doc.account_sum;
-      const totalSpecSum = doc.spec_doc.reduce(
-        (s, spec) => s + +spec.pay_sum,
-        0
-      );
+      const totalSpecSum = doc.spec_doc.reduce((s, spec) => s + +spec.pay_sum, 0);
       return acc + totalAccount - totalSpecSum;
     }, 0);
 
-    const totalUnpaid = unpaidEntries.reduce(
-      (sum, e) => sum + +e.spec_doc.pay_sum,
-      0
-    );
+    const totalUnpaid = unpaidEntries.reduce((sum, e) => sum + +e.spec_doc.pay_sum, 0);
 
     const color = getColorForEntity(entityId);
     const pendingIds = new Set(pendingPayments.map((p) => p.spec_doc_id));
@@ -107,20 +88,16 @@ export const EntityGroupRow: React.FC<EntityGroupRowProps> = ({
         }}
       >
         {rowIndex === 0 && (
-          <TableCell
-            rowSpan={rows.length}
-            className={`sticky left-0 z-[20] w-[30px] border-r top-[-50px] ${color}`}
-          >
+          <TableCell rowSpan={rows.length} className={`sticky left-0 z-[20] w-[30px] border-r top-[-50px] ${color}`}>
             <div className="font-bold rotate-180 text-center [writing-mode:vertical-rl] [-webkit-writing-mode:vertical-rl]">
               {entityNames[entityId]}
             </div>
           </TableCell>
         )}
 
-        <TableCell
-          className={`sticky left-10 z-[10] w-[210px] ${color} transition-colors group-hover:bg-muted/50`}
-        >
+        <TableCell className={`sticky left-10 z-[10] w-[210px] ${color} transition-colors group-hover:bg-muted/50`}>
           <button
+            type="button"
             className="text-blue-500 hover:underline"
             onClick={() => onPartnerClick(partner, documents)}
           >
@@ -131,8 +108,7 @@ export const EntityGroupRow: React.FC<EntityGroupRowProps> = ({
         <TableCell
           className={`sticky left-[210px] z-[10] w-[120px] ${color} text-right transition-colors group-hover:bg-muted/50`}
         >
-          {formatMoney(totalRemaining)
-            }
+          {formatMoney(totalRemaining)}
         </TableCell>
 
         <TableCell
@@ -141,29 +117,20 @@ export const EntityGroupRow: React.FC<EntityGroupRowProps> = ({
           {totalUnpaid > 0 ? (
             <span className="text-red-500">{formatMoney(totalUnpaid)}</span>
           ) : (
-              <span>{formatMoney(totalUnpaid)}</span>
+            <span>{formatMoney(totalUnpaid)}</span>
           )}
-
         </TableCell>
 
-        {dateRange.map((date, idx) => {
-          const cellUnpaid = unpaidEntries.filter((e) =>
-            isSameDay(date, getDisplayDate(e.spec_doc))
-          );
-          const cellPaid = paidEntries.filter((e) =>
-            isSameDay(date, getDisplayDate(e.spec_doc))
-          );
+        {dateRange.map((date) => {
+          const cellUnpaid = unpaidEntries.filter((e) => isSameDay(date, getDisplayDate(e.spec_doc)));
+          const cellPaid = paidEntries.filter((e) => isSameDay(date, getDisplayDate(e.spec_doc)));
 
           const expectedSum = cellUnpaid
-            .filter(
-              (e) => e.spec_doc.expected_date && !pendingIds.has(e.spec_doc.id)
-            )
+            .filter((e) => e.spec_doc.expected_date && !pendingIds.has(e.spec_doc.id))
             .reduce((s, e) => s + +e.spec_doc.pay_sum, 0);
 
           const deadlineSum = cellUnpaid
-            .filter(
-              (e) => !e.spec_doc.expected_date && !pendingIds.has(e.spec_doc.id)
-            )
+            .filter((e) => !e.spec_doc.expected_date && !pendingIds.has(e.spec_doc.id))
             .reduce((s, e) => s + +e.spec_doc.pay_sum, 0);
 
           const pendingUnpaidSum = cellUnpaid
@@ -180,31 +147,23 @@ export const EntityGroupRow: React.FC<EntityGroupRowProps> = ({
 
           return (
             <TableCell
-              key={idx}
+              key={date.getTime()}
               onClick={(e) => {
                 const entries = cellUnpaid.length ? cellUnpaid : cellPaid;
                 const specDocIds = entries.map((e) => e.spec_doc.id);
-                const hasAllPending = specDocIds.every((id) =>
-                  pendingIds.has(id)
-                );
+                const hasAllPending = specDocIds.every((id) => pendingIds.has(id));
 
                 if (e.ctrlKey || e.metaKey) {
                   if (!canUseQuickPayment || entries.length === 0) return;
 
                   if (hasAllPending) {
-                    setPendingPayments(
-                      pendingPayments.filter(
-                        (p) => !specDocIds.includes(p.spec_doc_id)
-                      )
-                    );
+                    setPendingPayments(pendingPayments.filter((p) => !specDocIds.includes(p.spec_doc_id)));
                   } else {
                     update(entries.map(createPaymentDetail), []);
                   }
                 } else {
                   // обычный клик — ADMIN видит всё (unpaid + paid), остальные — только unpaid
-                  const entriesClick = isAdmin
-                    ? [...cellUnpaid, ...cellPaid]
-                    : [...cellUnpaid];
+                  const entriesClick = isAdmin ? [...cellUnpaid, ...cellPaid] : [...cellUnpaid];
                   if (entriesClick.length === 0) return;
                   onCellClick(entriesClick);
                 }
@@ -213,25 +172,11 @@ export const EntityGroupRow: React.FC<EntityGroupRowProps> = ({
             >
               <div className="flex flex-col items-end">
                 {expectedSum + deadlineSum > 0 && (
-                  <span className="text-red-500">
-                    {formatMoney(expectedSum + deadlineSum)}
-                  </span>
+                  <span className="text-red-500">{formatMoney(expectedSum + deadlineSum)}</span>
                 )}
-                {pendingUnpaidSum > 0 && (
-                  <span className="text-blue-500">
-                    {formatMoney(pendingUnpaidSum)}
-                  </span>
-                )}
-                {pendingPaidSum > 0 && (
-                  <span className="text-fuchsia-500">
-                    {formatMoney(pendingPaidSum)}
-                  </span>
-                )}
-                {confirmedSum > 0 && (
-                  <span className="text-green-500">
-                    {formatMoney(confirmedSum)}
-                  </span>
-                )}
+                {pendingUnpaidSum > 0 && <span className="text-blue-500">{formatMoney(pendingUnpaidSum)}</span>}
+                {pendingPaidSum > 0 && <span className="text-fuchsia-500">{formatMoney(pendingPaidSum)}</span>}
+                {confirmedSum > 0 && <span className="text-green-500">{formatMoney(confirmedSum)}</span>}
               </div>
             </TableCell>
           );
@@ -257,18 +202,13 @@ export const EntityGroupRow: React.FC<EntityGroupRowProps> = ({
           >
             <DropdownMenuItem
               onClick={() => {
-                const hasUnpaid = contextPartner.documents.some((doc) =>
-                  doc.spec_doc.some((spec) => !spec.is_paid)
-                );
+                const hasUnpaid = contextPartner.documents.some((doc) => doc.spec_doc.some((spec) => !spec.is_paid));
                 if (hasUnpaid) {
                   toast.error("Нельзя скрыть: есть неоплаченные документы");
                   setContextOpen(false);
                   return;
                 }
-                onToggleVisibilityRequest(
-                  contextPartner.id,
-                  contextPartner.documents[0].partner.short_name
-                );
+                onToggleVisibilityRequest(contextPartner.id, contextPartner.documents[0].partner.short_name);
                 setContextOpen(false);
               }}
               className="gap-2 text-red-500"

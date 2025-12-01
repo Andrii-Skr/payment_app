@@ -11,7 +11,10 @@
     "build:full": "pnpm build:web && pnpm build:scripts",
     "dev": "next dev --turbo",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "biome check . --max-diagnostics none",
+    "lint:fix": "biome check --write --unsafe . --max-diagnostics none",
+    "format": "biome format .",
+    "format:fix": "biome format --write .",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:push": "prisma db push",
@@ -89,6 +92,7 @@
     "@babel/preset-env": "^7.28.0",
     "@babel/preset-react": "^7.27.1",
     "@babel/preset-typescript": "^7.27.1",
+    "@biomejs/biome": "2.3.8",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",
@@ -112,5 +116,5 @@
     "ts-node": "^10.9.2",
     "typescript": "^5"
   },
-  "packageManager": "pnpm@10.16.1"
+  "packageManager": "pnpm@10.24.0+sha512.01ff8ae71b4419903b65c60fb2dc9d34cf8bb6e06d03bde112ef38f7a34d6904c424ba66bea5cdcf12890230bf39f9580473140ed9c946fef328b6e5238a345a"
 }

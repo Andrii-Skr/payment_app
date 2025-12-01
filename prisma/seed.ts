@@ -1,5 +1,5 @@
-import prisma from "./prisma-client";
 import bcrypt from "bcrypt";
+import prisma from "./prisma-client";
 
 /* ───────── helpers ───────── */
 function getRandomOffset() {
@@ -27,9 +27,7 @@ async function clearData() {
     "template",
   ];
   for (const t of tables) {
-    await prisma.$executeRawUnsafe(
-      `TRUNCATE TABLE "${t}" RESTART IDENTITY CASCADE;`,
-    );
+    await prisma.$executeRawUnsafe(`TRUNCATE TABLE "${t}" RESTART IDENTITY CASCADE;`);
   }
 }
 
@@ -79,7 +77,7 @@ async function seedUsers() {
     { login: "testuser", password: "testuser", role_id: 2, name: "test user" },
   ];
   await Promise.all(
-    users.map(async u => {
+    users.map(async (u) => {
       const hashed = await bcrypt.hash(u.password, 10);
       await prisma.user.create({ data: { ...u, password: hashed } });
     }),
@@ -97,7 +95,7 @@ async function seedPartners() {
     shortPrefix: string,
     fullPrefix: string,
     edrpouPrefix: string,
-    type: number
+    type: number,
   ) => {
     for (let i = 0; i < count; i++) {
       const edrpou = `${edrpouPrefix}${(i + 1).toString().padStart(2, "0")}`;
@@ -138,7 +136,7 @@ async function seedPartners() {
 
 async function seedPartnerAccounts() {
   const testAccounts = allPartners
-    .filter(p => p.edrpou !== "20030635")
+    .filter((p) => p.edrpou !== "20030635")
     .map((p, i) => ({
       partner_id: p.id,
       bank_account: `UA00000${i + 1}1234567890123456`,
@@ -146,7 +144,7 @@ async function seedPartnerAccounts() {
       mfo: `3000${(i % 10) + 1}`,
     }));
 
-  const real = allPartners.find(p => p.edrpou === "20030635");
+  const real = allPartners.find((p) => p.edrpou === "20030635");
   const realAccount = real
     ? {
         partner_id: real.id,
@@ -162,10 +160,8 @@ async function seedPartnerAccounts() {
 
   const accounts = await prisma.partner_account_number.findMany();
   await prisma.partner_account_numbers_on_entities.createMany({
-    data: accounts.map(acc => ({
-      entity_id:
-        partnerEntityLinks.find(pl => pl.partner_id === acc.partner_id)?.entity_id ??
-        1,
+    data: accounts.map((acc) => ({
+      entity_id: partnerEntityLinks.find((pl) => pl.partner_id === acc.partner_id)?.entity_id ?? 1,
       partner_account_number_id: acc.id,
       is_visible: true,
       is_default: true,
@@ -177,7 +173,7 @@ async function seedPartnerAccounts() {
 async function seedDocuments() {
   const allAccounts = await prisma.partner_account_number.findMany();
   const getAccountByPartnerId = (partner_id: number) =>
-    allAccounts.find(acc => acc.partner_id === partner_id)?.id ?? 1;
+    allAccounts.find((acc) => acc.partner_id === partner_id)?.id ?? 1;
 
   const documents = allPartners.map((p, i) => {
     const isAurora = p.edrpou.startsWith("100003");
@@ -185,8 +181,7 @@ async function seedDocuments() {
     const isVibor = p.edrpou.startsWith("100002");
     const isReal = p.edrpou === "20030635";
 
-    const entity_id =
-      isAurora ? 3 : isZenit ? 2 : isVibor || isReal ? 1 : 1;
+    const entity_id = isAurora ? 3 : isZenit ? 2 : isVibor || isReal ? 1 : 1;
 
     return {
       entity_id,
@@ -245,11 +240,10 @@ async function seedUserAccess() {
   });
 
   await prisma.users_partners.createMany({
-    data: allPartners.slice(4, 7).map(p => ({
+    data: allPartners.slice(4, 7).map((p) => ({
       user_id: user.id,
       partner_id: p.id,
-      entity_id:
-        partnerEntityLinks.find(l => l.partner_id === p.id)?.entity_id ?? 1,
+      entity_id: partnerEntityLinks.find((l) => l.partner_id === p.id)?.entity_id ?? 1,
     })),
   });
 
@@ -261,11 +255,10 @@ async function seedUserAccess() {
   });
 
   await prisma.users_partners.createMany({
-    data: allPartners.slice(7, 14).map(p => ({
+    data: allPartners.slice(7, 14).map((p) => ({
       user_id: testuser.id,
       partner_id: p.id,
-      entity_id:
-        partnerEntityLinks.find(l => l.partner_id === p.id)?.entity_id ?? 1,
+      entity_id: partnerEntityLinks.find((l) => l.partner_id === p.id)?.entity_id ?? 1,
     })),
   });
 }

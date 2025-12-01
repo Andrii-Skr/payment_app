@@ -1,12 +1,11 @@
-
 "use client";
 
 import { useState } from "react";
+import { SampleSection } from "@/components/add-info";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { EntitySection } from "./sections/entitySection";
 import { PartnerSection } from "./sections/partnerSection";
-import { SampleSection } from "@/components/add-info";
 import { UserSection } from "./sections/userSection";
 
 type Tab = "entity" | "partner" | "user" | "sample";
@@ -16,7 +15,6 @@ export const AddInfoList = () => {
 
   return (
     <Card className="flex h-full min-h-[28rem] overflow-hidden">
-
       <aside className="flex w-56 shrink-0 flex-col gap-2 border-r p-4">
         <Button
           variant={tab === "entity" ? "default" : "ghost"}
@@ -32,11 +30,7 @@ export const AddInfoList = () => {
         >
           Контрагент
         </Button>
-        <Button
-          variant={tab === "user" ? "default" : "ghost"}
-          className="justify-start"
-          onClick={() => setTab("user")}
-        >
+        <Button variant={tab === "user" ? "default" : "ghost"} className="justify-start" onClick={() => setTab("user")}>
           Пользователи
         </Button>
         <Button

@@ -1,12 +1,11 @@
-
-import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/prisma/prisma-client';
-import { apiRoute } from '@/utils/apiRoute';
-import { Roles } from '@/constants/roles';
-import type { Session } from 'next-auth';
-import { auto_payment } from '@prisma/client';
-import { hasRole } from '@/lib/access/hasRole';
-import { buildPaymentPurpose } from '@/lib/transformData/buildPaymentPurpose';
+import type { auto_payment } from "@prisma/client";
+import { type NextRequest, NextResponse } from "next/server";
+import type { Session } from "next-auth";
+import { Roles } from "@/constants/roles";
+import { hasRole } from "@/lib/access/hasRole";
+import { buildPaymentPurpose } from "@/lib/transformData/buildPaymentPurpose";
+import prisma from "@/prisma/prisma-client";
+import { apiRoute } from "@/utils/apiRoute";
 
 //postHandler
 type AutoPaymentDto = {
@@ -24,11 +23,11 @@ type AutoPaymentDto = {
 const postHandler = async (
   _req: NextRequest,
   body: AutoPaymentDto,
-  _params: {},                         // статический маршрут
-  user: Session['user'] | null,
+  _params: Record<string, never>, // статический маршрут
+  user: Session["user"] | null,
 ) => {
   if (!user) {
-    return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
   const auto = await prisma.auto_payment.create({
@@ -47,10 +46,7 @@ const postHandler = async (
     data: { is_auto_payment: true },
   });
 
-  return NextResponse.json(
-    { success: true, message: 'Data processed successfully.', auto },
-    { status: 200 },
-  );
+  return NextResponse.json({ success: true, message: "Data processed successfully.", auto }, { status: 200 });
 };
 
 // getHandler
@@ -76,18 +72,15 @@ export type AutoPaymentWithDocs = auto_payment & {
 const getHandler = async (
   _req: NextRequest,
   _body: null,
-  _params: {},
-  user: Session["user"] | null
+  _params: Record<string, never>,
+  user: Session["user"] | null,
 ) => {
   if (!user) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
   if (!hasRole(user.role, Roles.ADMIN)) {
-    return NextResponse.json(
-      { message: "Forbidden: Admins only" },
-      { status: 403 }
-    );
+    return NextResponse.json({ message: "Forbidden: Admins only" }, { status: 403 });
   }
 
   const result: AutoPaymentWithDocs[] = await prisma.auto_payment.findMany({
@@ -139,7 +132,7 @@ type UpdateBody = {
 const patchHandler = async (
   _req: NextRequest,
   body: UpdateBody,
-  _params: {},
+  _params: Record<string, never>,
   user: Session["user"] | null,
 ) => {
   if (!user) {
@@ -154,10 +147,7 @@ const patchHandler = async (
   });
 
   if (autos.length === 0) {
-    return NextResponse.json(
-      { message: "auto_payment не найден" },
-      { status: 404 },
-    );
+    return NextResponse.json({ message: "auto_payment не найден" }, { status: 404 });
   }
 
   const doc = await prisma.documents.findUnique({
@@ -173,10 +163,7 @@ const patchHandler = async (
   });
 
   if (!doc) {
-    return NextResponse.json(
-      { message: "Документ не найден" },
-      { status: 404 },
-    );
+    return NextResponse.json({ message: "Документ не найден" }, { status: 404 });
   }
 
   const updates = await Promise.all(
@@ -195,7 +182,7 @@ const patchHandler = async (
         where: { id: ap.id },
         data: { purpose_of_payment: purpose, updated_at: new Date() },
       });
-    })
+    }),
   );
 
   return NextResponse.json({ count: updates.length });

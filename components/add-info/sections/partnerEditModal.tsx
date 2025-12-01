@@ -1,24 +1,19 @@
 "use client";
 
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { PartnerForm } from "./partnerForm";
-import { PartnerAccountsList } from "./partnerAccountsList";
-import { PartnersWithAccounts } from "@/services/partners";
-import { toast } from "@/lib/hooks/use-toast";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
-import type { AccountItem } from "@/store/accountListStore";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Button, Form } from "@/components/ui";
 import { Container, PartnerInput } from "@/components/shared";
-import { apiClient } from "@/services/api-client";
+import { Button, Form } from "@/components/ui";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { toast } from "@/lib/hooks/use-toast";
 import { useToggleDelete } from "@/lib/hooks/useToggleDelete";
+import { apiClient } from "@/services/api-client";
+import type { PartnersWithAccounts } from "@/services/partners";
+import type { AccountItem } from "@/store/accountListStore";
+import { PartnerAccountsList } from "./partnerAccountsList";
+import { PartnerForm } from "./partnerForm";
 
 const toAccountItem = (acc: any): AccountItem => {
   const rel = "entities" in acc ? (acc.entities as any)[0] : undefined;
@@ -49,23 +44,16 @@ export const PartnerEditModal = ({
   entityId: number;
   onSaved: () => void;
 }) => {
-  const [accounts, setAccounts] = useState<AccountItem[]>(
-    partner.partner_account_number.map(toAccountItem)
-  );
+  const [accounts, setAccounts] = useState<AccountItem[]>(partner.partner_account_number.map(toAccountItem));
   const [loadingAccId, setLoadingAccId] = useState<number | null>(null);
 
-  const mutateAccounts = (
-    fn: (arr: AccountItem[]) => AccountItem[]
-  ) => setAccounts((prev) => fn(prev));
+  const mutateAccounts = (fn: (arr: AccountItem[]) => AccountItem[]) => setAccounts((prev) => fn(prev));
 
   const toggleDeleteAccount = useToggleDelete({
     apiFn: apiClient.partners.deleteAccount,
     mutateFn: (id, is_deleted, _entityId) =>
-      mutateAccounts((arr) =>
-        arr.map((a) => (a.id === id ? { ...a, is_deleted } : a))
-      ),
-    getEntityState: (id, _entityId) =>
-      accounts.find((a) => a.id === id)?.is_deleted ?? false,
+      mutateAccounts((arr) => arr.map((a) => (a.id === id ? { ...a, is_deleted } : a))),
+    getEntityState: (id, _entityId) => accounts.find((a) => a.id === id)?.is_deleted ?? false,
     messages: {
       delete: "Счёт удалён",
       restore: "Счёт восстановлен",
@@ -77,16 +65,10 @@ export const PartnerEditModal = ({
     setLoadingAccId(accId);
     try {
       await apiClient.partners.setDefaultAccount(accId, entityId, checked);
-      mutateAccounts((arr) =>
-        arr.map((a) => ({ ...a, is_default: checked ? a.id === accId : false }))
-      );
-      toast.success(
-        checked ? "Счёт назначен основным" : "Счёт больше не основной"
-      );
+      mutateAccounts((arr) => arr.map((a) => ({ ...a, is_default: checked ? a.id === accId : false })));
+      toast.success(checked ? "Счёт назначен основным" : "Счёт больше не основной");
     } catch {
-      toast.error(
-        checked ? "Не удалось назначить счёт" : "Не удалось снять счёт"
-      );
+      toast.error(checked ? "Не удалось назначить счёт" : "Не удалось снять счёт");
     } finally {
       setLoadingAccId(null);
     }
@@ -145,8 +127,7 @@ export const PartnerEditModal = ({
             full_name: partner.full_name,
             short_name: partner.short_name,
             edrpou: partner.edrpou,
-            bank_account:
-              accounts.find((a) => a.is_default)?.bank_account ?? "",
+            bank_account: accounts.find((a) => a.is_default)?.bank_account ?? "",
           }}
           onSaved={() => {
             onSaved();
@@ -171,10 +152,7 @@ export const PartnerEditModal = ({
           </Button>
         ) : (
           <Form {...bankForm}>
-            <form
-              onSubmit={bankForm.handleSubmit(handleAddBank)}
-              className="space-y-2 mt-4"
-            >
+            <form onSubmit={bankForm.handleSubmit(handleAddBank)} className="space-y-2 mt-4">
               <Container className="justify-start gap-2">
                 <PartnerInput<BankForm>
                   control={bankForm.control}

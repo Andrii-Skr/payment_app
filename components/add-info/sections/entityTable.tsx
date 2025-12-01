@@ -1,18 +1,10 @@
 "use client";
 
-import { useState } from "react";
-import { Row } from "@/types/infoTypes";
-import {
-  Button,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui";
 import { Pencil, Trash2 } from "lucide-react";
+import { useState } from "react";
 import { EditEntityDialog } from "@/components/add-info";
+import { Button, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui";
+import type { Row } from "@/types/infoTypes";
 
 type Props = {
   rows: Row[];
@@ -44,17 +36,11 @@ export function EntityTable({ rows, onRemove, onUpdate }: Props) {
               <TableCell>{r.full_name}</TableCell>
               <TableCell>{r.short_name}</TableCell>
               <TableCell>{r.edrpou}</TableCell>
-              <TableCell className="whitespace-nowrap">
-                {r.bank_account}
-              </TableCell>
+              <TableCell className="whitespace-nowrap">{r.bank_account}</TableCell>
               <TableCell>{r.sort_order}</TableCell>
 
               <TableCell className="flex space-x-2">
-                <Button
-                  size="icon"
-                  variant="outline"
-                  onClick={() => setEditingRow(r)}
-                >
+                <Button size="icon" variant="outline" onClick={() => setEditingRow(r)}>
                   <Pencil size={16} />
                 </Button>
 

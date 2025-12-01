@@ -1,15 +1,6 @@
-import { InfoFormValues } from "@/types/infoTypes";
-import {
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-  Input,
-} from "@/components/ui";
-import React from "react";
-import { Control, FieldValues, Path } from "react-hook-form";
+import type React from "react";
+import type { Control, FieldValues, Path } from "react-hook-form";
+import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, Input } from "@/components/ui";
 
 type FormInputProps<T extends FieldValues> = {
   control: Control<T>;
@@ -39,13 +30,7 @@ const FormInput = <T extends FieldValues>({
         <FormItem>
           <FormLabel>{label}</FormLabel>
           <FormControl>
-            <Input
-              className={className}
-              type={type}
-              placeholder={placeholder}
-              {...field}
-              {...rest}
-            />
+            <Input className={className} type={type} placeholder={placeholder} {...field} {...rest} />
           </FormControl>
           <FormDescription>{description}</FormDescription>
           <FormMessage />

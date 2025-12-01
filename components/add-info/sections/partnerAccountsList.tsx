@@ -1,19 +1,10 @@
 "use client";
 
-import {
-  Button,
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  Label,
-  Separator,
-  Switch,
-} from "@/components/ui";
 import { Trash2 } from "lucide-react";
-import type { AccountItem } from "@/store/accountListStore";
+import { Button, Card, CardContent, CardHeader, CardTitle, Label, Separator, Switch } from "@/components/ui";
 import { formatBankAccount } from "@/lib/helpers/formatiban";
 import { toast } from "@/lib/hooks/use-toast";
+import type { AccountItem } from "@/store/accountListStore";
 
 type Props = {
   accounts: AccountItem[];
@@ -35,7 +26,7 @@ export const PartnerAccountsList: React.FC<Props> = ({
   entityId,
 }) => {
   const visibleAccounts = accounts.filter(
-    (a) => (showDeleted || !a.is_deleted) && (showHidden || a.is_visible !== false)
+    (a) => (showDeleted || !a.is_deleted) && (showHidden || a.is_visible !== false),
   );
 
   if (!visibleAccounts.length) return null;
@@ -43,9 +34,7 @@ export const PartnerAccountsList: React.FC<Props> = ({
   return (
     <Card className="mt-6">
       <CardHeader>
-        <CardTitle className="text-sm font-semibold">
-          Счета контрагента
-        </CardTitle>
+        <CardTitle className="text-sm font-semibold">Счета контрагента</CardTitle>
       </CardHeader>
       <CardContent>
         {visibleAccounts.map((acc, idx) => (
@@ -62,9 +51,7 @@ export const PartnerAccountsList: React.FC<Props> = ({
                         await onSetDefault(acc.id, checked);
                       } catch {
                         toast.error(
-                          checked
-                            ? "Не удалось назначить счёт основным"
-                            : "Не удалось снять счёт из основных"
+                          checked ? "Не удалось назначить счёт основным" : "Не удалось снять счёт из основных",
                         );
                       }
                     }}

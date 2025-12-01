@@ -1,10 +1,10 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
+import type { Session } from "next-auth";
+import { z } from "zod";
+import { Roles } from "@/constants/roles";
+import { hasRole } from "@/lib/access/hasRole";
 import prisma from "@/prisma/prisma-client";
 import { apiRoute } from "@/utils/apiRoute";
-import type { Session } from "next-auth";
-import { hasRole } from "@/lib/access/hasRole";
-import { Roles } from "@/constants/roles";
-import { z } from "zod";
 
 /* ─────────────── Типы ─────────────── */
 type Params = { id: string };
@@ -16,20 +16,13 @@ const schema = z.object({
 type Body = z.infer<typeof schema>;
 
 /* ─────────────── GET ─────────────── */
-const getHandler = async (
-  req: NextRequest,
-  _body: null,
-  params: Params,
-  user: Session["user"] | null
-) => {
-  if (!user)
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+const getHandler = async (req: NextRequest, _body: null, params: Params, user: Session["user"] | null) => {
+  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const userId = Number(user.id);
   const role = user.role;
   const entityId = Number(params.id);
-  if (isNaN(entityId))
-    return NextResponse.json({ error: "Invalid ID" }, { status: 400 });
+  if (Number.isNaN(entityId)) return NextResponse.json({ error: "Invalid ID" }, { status: 400 });
 
   /* query-параметры */
   const url = new URL(req.url);
@@ -97,24 +90,18 @@ const getHandler = async (
       users_entities: { select: { entity_id: true } },
     },
   });
-  if (!dbUser)
-    return NextResponse.json({ error: "User not found" }, { status: 404 });
+  if (!dbUser) return NextResponse.json({ error: "User not found" }, { status: 404 });
 
-  const partnerIds = dbUser.users_partners
-    .filter((p) => p.entity_id === entityId)
-    .map((p) => p.partner_id);
+  const partnerIds = dbUser.users_partners.filter((p) => p.entity_id === entityId).map((p) => p.partner_id);
   const entityIds = dbUser.users_entities.map((e) => e.entity_id);
   const hasEntityAccess = entityIds.includes(entityId);
 
-  if (!hasEntityAccess && partnerIds.length === 0)
-    return NextResponse.json([]);
+  if (!hasEntityAccess && partnerIds.length === 0) return NextResponse.json([]);
 
   const linkedRecords = await prisma.partners_on_entities.findMany({
     where: {
       ...relationFilter,
-      ...(!hasEntityAccess && partnerIds.length
-        ? { partner_id: { in: partnerIds } }
-        : {}),
+      ...(!hasEntityAccess && partnerIds.length ? { partner_id: { in: partnerIds } } : {}),
     },
     include,
   });
@@ -126,8 +113,7 @@ const getHandler = async (
 /* ─────────────── PATCH ─────────────── */
 const patchHandler = async (_req: NextRequest, body: Body, params: Params) => {
   const id = Number(params.id);
-  if (isNaN(id))
-    return NextResponse.json({ error: "Invalid ID" }, { status: 400 });
+  if (Number.isNaN(id)) return NextResponse.json({ error: "Invalid ID" }, { status: 400 });
 
   const updated = await prisma.partners.update({
     where: { id },

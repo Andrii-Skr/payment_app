@@ -1,25 +1,21 @@
 // utils/paymentsCsv.ts
 import { format } from "date-fns";
-import type { PaymentDetail } from "@/types/types";
 import { fetchEntitiesBatch } from "@/services/entityService";
+import type { PaymentDetail } from "@/types/types";
 
 const INVISIBLE_SEPARATOR = "\u2063";
 
 type CsvRow = Record<string, string>;
 
 /** Порядок колонок в итоговом файле */
-const CSV_HEADER =
-  "DAY;NUMBER;A;B;OKPO_A;OKPO_B;ACCOUNT_A;ACCOUNT_B;BANK_A;BANK_B;" +
-  "MFO_A;MFO_B;AMOUNT;DETAILS";
+const CSV_HEADER = "DAY;NUMBER;A;B;OKPO_A;OKPO_B;ACCOUNT_A;ACCOUNT_B;BANK_A;BANK_B;" + "MFO_A;MFO_B;AMOUNT;DETAILS";
 
 /**
  * Формируем CSV-файл из списка платежей.
  * @param payments массив PaymentDetail
  * @returns Blob с text/csv
  */
-export const buildPaymentsCsv = async (
-  payments: PaymentDetail[]
-): Promise<Blob> => {
+export const buildPaymentsCsv = async (payments: PaymentDetail[]): Promise<Blob> => {
   // Собираем уникальные entity_id
   const entityIds = Array.from(new Set(payments.map((p) => p.entity_id)));
 
@@ -32,7 +28,7 @@ export const buildPaymentsCsv = async (
 
     return {
       DAY: format(new Date(), "yyyy-MM-dd"),
-      NUMBER: p.spec_doc_id.toString()?? "",
+      NUMBER: p.spec_doc_id.toString() ?? "",
       A: payer?.full_name ?? "",
       B: p.partner_name ?? "",
       OKPO_A: payer?.edrpou ?? "",

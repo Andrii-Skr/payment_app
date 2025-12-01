@@ -10,9 +10,7 @@ function isPrismaDecimal(val: unknown): val is Decimal {
   return typeof val === "object" && val !== null && "toNumber" in val;
 }
 
-export function normalizeDecimalFields<T extends Record<string, unknown>>(
-  obj: T
-): ReplaceDecimal<T> {
+export function normalizeDecimalFields<T extends Record<string, unknown>>(obj: T): ReplaceDecimal<T> {
   const out: Record<string, unknown> = {};
 
   for (const [k, v] of Object.entries(obj)) {
@@ -22,6 +20,5 @@ export function normalizeDecimalFields<T extends Record<string, unknown>>(
   return out as ReplaceDecimal<T>;
 }
 
-export const normalizeArray = <T extends Record<string, unknown>>(
-  arr: T[]
-): ReplaceDecimal<T>[] => arr.map(normalizeDecimalFields);
+export const normalizeArray = <T extends Record<string, unknown>>(arr: T[]): ReplaceDecimal<T>[] =>
+  arr.map(normalizeDecimalFields);

@@ -1,6 +1,6 @@
 import { Prisma, PrismaClient } from "@prisma/client";
 import { getDate, lastDayOfMonth } from "date-fns";
-import { toZonedTime, fromZonedTime } from "date-fns-tz";
+import { fromZonedTime, toZonedTime } from "date-fns-tz";
 
 const prisma = new PrismaClient();
 const TZ = "Europe/Kyiv";
@@ -19,18 +19,14 @@ export async function rolloverAutoPayments() {
       pay_sum: true,
       expected_date: true,
       dead_line_date: true,
-      purpose_of_payment : true,
+      purpose_of_payment: true,
     },
   });
 
   await prisma.$transaction(async (tx) => {
     for (const ap of autos) {
       const src = ap.expected_date ?? ap.dead_line_date;
-      const srcField = ap.expected_date
-        ? "expected_date"
-        : ap.dead_line_date
-        ? "dead_line_date"
-        : null;
+      const srcField = ap.expected_date ? "expected_date" : ap.dead_line_date ? "dead_line_date" : null;
       if (!src || !srcField) continue;
 
       const srcKyiv = toZonedTime(src, TZ);
@@ -67,10 +63,7 @@ export async function rolloverAutoPayments() {
         });
       } catch (e) {
         /* ③  ловим дубль (уник. индекс) и при желании идём на UPDATE */
-        if (
-          e instanceof Prisma.PrismaClientKnownRequestError &&
-          e.code === "P2002"
-        ) {
+        if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") {
           await tx.spec_doc.updateMany({
             where: {
               auto_payment: { id: ap.id },

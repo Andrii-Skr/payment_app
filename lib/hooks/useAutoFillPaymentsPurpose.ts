@@ -1,13 +1,10 @@
-import { useEffect } from "react";
-import { useWatch, UseFormSetValue, Control } from "react-hook-form";
-import { FormValues } from "@/types/formTypes";
-import { AUTO_PURPOSE_MARKER } from "@/constants/marker";
 import { format } from "date-fns";
+import { useEffect } from "react";
+import { type Control, type UseFormSetValue, useWatch } from "react-hook-form";
+import { AUTO_PURPOSE_MARKER } from "@/constants/marker";
+import type { FormValues } from "@/types/formTypes";
 
-export function useAutoFillPaymentsPurpose(
-  control: Control<FormValues>,
-  setValue: UseFormSetValue<FormValues>
-) {
+export function useAutoFillPaymentsPurpose(control: Control<FormValues>, setValue: UseFormSetValue<FormValues>) {
   const accountNumber = useWatch({ control, name: "accountNumber" });
   const date = useWatch({ control, name: "date" });
   const vatType = useWatch({ control, name: "vatType" });
@@ -39,9 +36,7 @@ export function useAutoFillPaymentsPurpose(
 
     if (!vatType || !vatPercent) {
       newPurposes.push(
-        ...payments.map(
-          () => `${userPart} ${AUTO_PURPOSE_MARKER} ${accountNumber} від ${formattedDate}, без ПДВ`
-        )
+        ...payments.map(() => `${userPart} ${AUTO_PURPOSE_MARKER} ${accountNumber} від ${formattedDate}, без ПДВ`),
       );
     } else {
       const rawVats = payments.map((p) => {
@@ -51,10 +46,10 @@ export function useAutoFillPaymentsPurpose(
 
       const totalVat = rawVats.reduce((acc, v) => acc + v, 0);
       const totalVatRounded = +totalVat.toFixed(2);
-      const roundedVats: number[] = [];
+      const _roundedVats: number[] = [];
       let accumulatedRoundedVat = 0;
 
-      payments.forEach((p, i) => {
+      payments.forEach((_p, i) => {
         let roundedVat: number;
         if (i < payments.length - 1) {
           roundedVat = +rawVats[i].toFixed(2);
@@ -63,12 +58,8 @@ export function useAutoFillPaymentsPurpose(
           roundedVat = +(totalVatRounded - accumulatedRoundedVat).toFixed(2);
         }
 
-        const vatText = `у т.ч. ПДВ ${vatPercent}% = ${roundedVat
-          .toFixed(2)
-          .replace(".", ",")} грн.`;
-        newPurposes.push(
-          `${userPart} ${AUTO_PURPOSE_MARKER} ${accountNumber} від ${formattedDate}, ${vatText}`
-        );
+        const vatText = `у т.ч. ПДВ ${vatPercent}% = ${roundedVat.toFixed(2).replace(".", ",")} грн.`;
+        newPurposes.push(`${userPart} ${AUTO_PURPOSE_MARKER} ${accountNumber} від ${formattedDate}, ${vatText}`);
       });
     }
 
@@ -79,13 +70,5 @@ export function useAutoFillPaymentsPurpose(
         setValue(`payments.${i}.purposeOfPayment`, newPurposes[i] as any);
       });
     }
-  }, [
-    mainPurpose,
-    JSON.stringify(payments),
-    vatType,
-    vatPercent,
-    accountNumber,
-    date,
-    isAuto,
-  ]);
+  }, [mainPurpose, vatType, vatPercent, accountNumber, isAuto, formattedDate, payments, setValue]);
 }

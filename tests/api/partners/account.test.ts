@@ -1,5 +1,5 @@
-import { testApiHandler } from "next-test-api-route-handler";
 import * as handler from "@api/partners/account/route";
+import { testApiHandler } from "next-test-api-route-handler";
 import { Roles } from "@/constants/roles";
 
 jest.mock("@/prisma/prisma-client", () => ({
@@ -14,9 +14,7 @@ jest.mock("@/prisma/prisma-client", () => ({
 }));
 
 jest.mock("next-auth", () => ({
-  getServerSession: jest.fn(() =>
-    Promise.resolve({ user: { id: 1, role: Roles.ADMIN } })
-  ),
+  getServerSession: jest.fn(() => Promise.resolve({ user: { id: 1, role: Roles.ADMIN } })),
 }));
 
 jest.mock("@/lib/authOptions", () => ({ authOptions: {} }));
@@ -56,7 +54,16 @@ describe("POST /partners/account", () => {
     await testApiHandler({
       appHandler: handler,
       test: async ({ fetch }) => {
-        const res = await fetch({ method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ partner_id: 1, entity_id: 1, bank_account: "12345678901234567890123456789", mfo: "1" }) });
+        const res = await fetch({
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            partner_id: 1,
+            entity_id: 1,
+            bank_account: "12345678901234567890123456789",
+            mfo: "1",
+          }),
+        });
         expect(res.status).toBe(200);
       },
     });

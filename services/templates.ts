@@ -1,14 +1,12 @@
-import { TemplateBody } from "@/app/api/(v1)/(protected)/templates/route";
+import type { TemplateWithBankDetails } from "@api/templates/[id]/route";
 import axiosInstance from "@/services/instance";
-import { FormValues } from "@/types/formTypes";
-import { TemplateWithBankDetails } from "@api/templates/[id]/route";
 
-export type GetTemplatesOptions ={
+export type GetTemplatesOptions = {
   showDeleted?: boolean;
   showHidden?: boolean;
-}
+};
 
-export type TemplatePayload ={
+export type TemplatePayload = {
   id?: number;
   entity_id?: number;
   sample: string;
@@ -23,29 +21,25 @@ export type TemplatePayload ={
   vatType: boolean;
   vatPercent: number;
 
-  date: string  | null;
+  date: string | null;
   partner_account_number_id: number;
 
   purposeOfPayment?: string;
   note?: string;
   is_auto_purpose_of_payment?: boolean;
-}
-export type TemplateResponse ={
+};
+export type TemplateResponse = {
   success: boolean;
   message: string;
   sample?: TemplateWithBankDetails;
-}
+};
 
-export const getById = async (
-  entityId: number,
-  options: GetTemplatesOptions = {}
-) => {
+export const getById = async (entityId: number, options: GetTemplatesOptions = {}) => {
   const params = new URLSearchParams();
   if (options.showDeleted) params.append("showDeleted", "true");
   if (options.showHidden) params.append("showHidden", "true");
 
-  const url =
-    `/templates/${entityId}` + (params.size ? `?${params.toString()}` : "");
+  const url = `/templates/${entityId}${params.size ? `?${params.toString()}` : ""}`;
 
   const { data } = await axiosInstance.get<TemplateWithBankDetails[]>(url);
   return data;
@@ -53,43 +47,28 @@ export const getById = async (
 
 export async function update(
   id: number,
-  payload: Omit<TemplatePayload, "id">
+  payload: Omit<TemplatePayload, "id">,
 ): Promise<Omit<TemplateResponse, "sample">> {
   try {
-    const { data } = await axiosInstance.patch<TemplateResponse>(
-      `/templates/${id}`,
-      payload
-    );
+    const { data } = await axiosInstance.patch<TemplateResponse>(`/templates/${id}`, payload);
     return { success: data.success, message: data.message };
   } catch (err: any) {
-    const message =
-      err?.response?.data?.message ?? "Ошибка при обновлении шаблона";
+    const message = err?.response?.data?.message ?? "Ошибка при обновлении шаблона";
     return { success: false, message };
   }
 }
 
-
-export async function save(
-  payload: TemplatePayload
-): Promise<Omit<TemplateResponse, "sample">> {
+export async function save(payload: TemplatePayload): Promise<Omit<TemplateResponse, "sample">> {
   try {
-    const { data } = await axiosInstance.post<TemplateResponse>(
-      "/templates",
-      payload
-    );
+    const { data } = await axiosInstance.post<TemplateResponse>("/templates", payload);
     return { success: data.success, message: data.message };
   } catch (err: any) {
-    const message =
-      err?.response?.data?.message ??
-      "Ошибка при создании/обновлении шаблона";
+    const message = err?.response?.data?.message ?? "Ошибка при создании/обновлении шаблона";
     return { success: false, message };
   }
 }
 
-export const toggleVisibility = async (
-  template_id: number,
-  is_visible: boolean
-) => {
+export const toggleVisibility = async (template_id: number, is_visible: boolean) => {
   try {
     await axiosInstance.patch("/templates/visibility", {
       template_id,
@@ -101,10 +80,7 @@ export const toggleVisibility = async (
   }
 };
 
-export const toggleDelete = async (
-  template_id: number,
-  is_deleted: boolean
-) => {
+export const toggleDelete = async (template_id: number, is_deleted: boolean) => {
   try {
     await axiosInstance.patch("/templates/delete", {
       template_id,

@@ -1,15 +1,14 @@
 import cron from "node-cron";
-import { rolloverAutoPayments } from "./rolloverAutoPayments";
-import { updateBankInfo } from "./updateBankInfo";
-import prisma from "../prisma/prisma-client";
 import cronLogger from "../lib/logs/cron-logger";
+import prisma from "../prisma/prisma-client";
+import { rolloverAutoPayments } from "./rolloverAutoPayments";
 
 const KYIV_TZ = "Europe/Kyiv";
 const isTestMode = process.env.TEST_MODE === "true";
 
 // ⏰ Расписания
 const ROLLOVER_SCHEDULE = isTestMode ? "* * * * *" : "0 3 * * *";
-const BANK_UPDATE_SCHEDULE = isTestMode ? "* * * * *" : "0 4 * * *";
+const _BANK_UPDATE_SCHEDULE = isTestMode ? "* * * * *" : "0 4 * * *";
 
 cronLogger.info({ msg: `⏰ Cron service started in ${isTestMode ? "TEST" : "PROD"} mode`, tag: "init" });
 
@@ -28,7 +27,7 @@ cron.schedule(
       cronLogger.error({ msg: "✖ Rollover failed", error: e, tag: "rollover" });
     }
   },
-  { timezone: KYIV_TZ }
+  { timezone: KYIV_TZ },
 );
 
 /** 🏦 Обновление банков */
@@ -54,11 +53,10 @@ cron.schedule(
 // Удержание процесса
 setInterval(() => {}, 1000 * 60 * 60);
 
-
-["SIGINT", "SIGTERM"].forEach((signal) =>
+["SIGINT", "SIGTERM"].forEach((signal) => {
   process.on(signal, async () => {
     cronLogger.info({ msg: `🔻 Shutting down cron (${signal})`, tag: "cron" });
     await prisma.$disconnect();
     process.exit(0);
-  })
-);
+  });
+});

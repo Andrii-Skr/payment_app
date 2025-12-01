@@ -1,16 +1,10 @@
 // components/FiltersBar.tsx
 "use client";
 import React from "react";
-import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { DatePicker } from "@/components/shared/datePicker";
 import { Input } from "@/components/ui";
+import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 type FiltersBarProps = {
   startDate: Date;
@@ -44,11 +38,7 @@ export const FiltersBar: React.FC<FiltersBarProps> = ({
       const formatter = new Intl.DateTimeFormat("ru-RU", {
         timeZone: "Europe/Kyiv",
       });
-      setFormattedRange(
-        `${formatter.format(dateRange[0])} - ${formatter.format(
-          dateRange[period - 1]
-        )}`
-      );
+      setFormattedRange(`${formatter.format(dateRange[0])} - ${formatter.format(dateRange[period - 1])}`);
     }
   }, [dateRange, period]);
 
@@ -80,25 +70,19 @@ export const FiltersBar: React.FC<FiltersBarProps> = ({
 
       <div className="flex justify-start items-center space-x-2">
         {[7, 14, 30].map((d) => (
-          <Button
-            key={d}
-            variant={period === d ? "secondary" : "default"}
-            onClick={() => setPeriod(d)}
-          >
+          <Button key={d} variant={period === d ? "secondary" : "default"} onClick={() => setPeriod(d)}>
             {d === 30 ? "Месяц" : `${d} дней`}
           </Button>
         ))}
         <Select
           value={selectedEntity === "all" ? "all" : selectedEntity.toString()}
-          onValueChange={(value) =>
-            setSelectedEntity(value === "all" ? "all" : Number(value))
-          }
+          onValueChange={(value) => setSelectedEntity(value === "all" ? "all" : Number(value))}
         >
           <SelectTrigger className="w-[300px] h-[32px] text-xs">
             <SelectValue placeholder="Все ЮрЛица" />
           </SelectTrigger>
-          <SelectContent >
-            <SelectItem  value="all">Все ЮрЛица</SelectItem>
+          <SelectContent>
+            <SelectItem value="all">Все ЮрЛица</SelectItem>
             {Object.entries(entityNames).map(([id, name]) => (
               <SelectItem key={id} value={id}>
                 {name}

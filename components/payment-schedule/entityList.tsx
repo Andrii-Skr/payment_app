@@ -1,51 +1,24 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { Button } from "../ui/button";
+import { closestCenter, DndContext, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
+import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import type { entity } from "@prisma/client";
 import { FilePlus2, GripVertical } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { Roles } from "@/constants/roles";
+import { useAccessControl } from "@/lib/hooks/useAccessControl";
 import { cn } from "@/lib/utils";
 import { apiClient } from "@/services/api-client";
-import { entity } from "@prisma/client";
-
-import {
-  DndContext,
-  closestCenter,
-  PointerSensor,
-  useSensor,
-  useSensors,
-} from "@dnd-kit/core";
-import {
-  arrayMove,
-  SortableContext,
-  useSortable,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
-
-import { useAccessControl } from "@/lib/hooks/useAccessControl";
-import { Roles } from "@/constants/roles";
+import { Button } from "../ui/button";
 
 type Props = {
   className?: string;
 };
 
-function SortableItem({
-  e,
-  onClick,
-  isAdmin,
-}: {
-  e: entity;
-  onClick: (e: entity) => void;
-  isAdmin: boolean;
-}) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-  } = useSortable({ id: e.id });
+function SortableItem({ e, onClick, isAdmin }: { e: entity; onClick: (e: entity) => void; isAdmin: boolean }) {
+  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: e.id });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -54,11 +27,7 @@ function SortableItem({
 
   return (
     <div ref={setNodeRef} style={style}>
-      <Button
-        variant="outline"
-        className="flex items-center w-60 mb-2 justify-start"
-        onClick={() => onClick(e)}
-      >
+      <Button variant="outline" className="flex items-center w-60 mb-2 justify-start" onClick={() => onClick(e)}>
         {/* drag работает только за иконку */}
         {isAdmin && (
           <span {...attributes} {...listeners} className="mr-2 cursor-move">
@@ -109,22 +78,10 @@ export const EntityList: React.FC<Props> = ({ className }) => {
   return (
     <div className={cn("flex flex-col max-w-60", className)}>
       {isAdmin ? (
-        <DndContext
-          sensors={sensors}
-          collisionDetection={closestCenter}
-          onDragEnd={handleDragEnd}
-        >
-          <SortableContext
-            items={entityList.map((e) => e.id)}
-            strategy={verticalListSortingStrategy}
-          >
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+          <SortableContext items={entityList.map((e) => e.id)} strategy={verticalListSortingStrategy}>
             {entityList.map((e) => (
-              <SortableItem
-                key={e.id}
-                e={e}
-                onClick={handleClick}
-                isAdmin={isAdmin}
-              />
+              <SortableItem key={e.id} e={e} onClick={handleClick} isAdmin={isAdmin} />
             ))}
           </SortableContext>
         </DndContext>

@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/prisma/prisma-client";
-import { apiRoute } from "@/utils/apiRoute";
+import { type NextRequest, NextResponse } from "next/server";
 import type { Session } from "next-auth";
 import { Roles } from "@/constants/roles";
+import prisma from "@/prisma/prisma-client";
+import { apiRoute } from "@/utils/apiRoute";
 
 /* ─────── Типы с сохранением твоих обозначений ─────── */
 
@@ -38,14 +38,9 @@ export type DocumentWithIncludes = NonNullable<DocumentWithIncludesNullable>;
 
 /* ─────── GET handler ─────── */
 
-const getHandler = async (
-  _req: NextRequest,
-  _body: null,
-  params: Params,
-  _user: Session["user"] | null
-) => {
+const getHandler = async (_req: NextRequest, _body: null, params: Params, _user: Session["user"] | null) => {
   const docId = parseInt(params.id, 10);
-  if (isNaN(docId)) {
+  if (Number.isNaN(docId)) {
     return NextResponse.json({ error: "Invalid document ID" }, { status: 400 });
   }
 

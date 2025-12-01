@@ -1,11 +1,12 @@
 // ──────────────────────────────────────────────────────────────
 // app/api/auth/[...nextauth]/route.ts
 // ──────────────────────────────────────────────────────────────
+
+import type { NextRequest, NextResponse } from "next/server";
 import NextAuth from "next-auth";
-import { authOptions } from "@/lib/authOptions";
 
 import { getToken } from "next-auth/jwt";
-import type { NextRequest, NextResponse } from "next/server";
+import { authOptions } from "@/lib/authOptions";
 import { logApiRequest } from "@/lib/logs/logApiRequest";
 
 // Базовый обработчик, который NextAuth создаёт из ваших опций
@@ -15,10 +16,7 @@ const nextAuthHandler = NextAuth(authOptions);
  * Обёртка: передаём запрос в NextAuth, затем логируем.
  * NB: подпись должна принимать context с params.nextauth!
  */
-async function handleAuth(
-  req: NextRequest,
-  ctx: { params: { nextauth: string[] } }
-): Promise<NextResponse> {
+async function handleAuth(req: NextRequest, ctx: { params: { nextauth: string[] } }): Promise<NextResponse> {
   const started = performance.now();
   // проксируем запрос в NextAuth, обязательно передаём ctx
   const res = await nextAuthHandler(req, ctx);
@@ -36,12 +34,7 @@ async function handleAuth(
   }
 
   // --- логируем ---
-  void logApiRequest(
-    req,
-    numericUserId ? ({ id: numericUserId } as any) : null,
-    status,
-    started
-  );
+  void logApiRequest(req, numericUserId ? ({ id: numericUserId } as any) : null, status, started);
 
   return res;
 }

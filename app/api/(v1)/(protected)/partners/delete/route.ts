@@ -1,9 +1,9 @@
-import prisma from "@/prisma/prisma-client";
-import { NextRequest, NextResponse } from "next/server";
-import { apiRoute } from "@/utils/apiRoute";
-import { Roles } from "@/constants/roles";
+import { type NextRequest, NextResponse } from "next/server";
 import type { Session } from "next-auth";
 import { z } from "zod";
+import { Roles } from "@/constants/roles";
+import prisma from "@/prisma/prisma-client";
+import { apiRoute } from "@/utils/apiRoute";
 
 // 🔧 Теперь требуем entity_id + partner_id
 const schema = z.object({
@@ -17,8 +17,8 @@ type Body = z.infer<typeof schema>;
 const patchHandler = async (
   _req: NextRequest,
   body: Body,
-  _params: {},
-  user: Session["user"] | null
+  _params: Record<string, never>,
+  user: Session["user"] | null,
 ) => {
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

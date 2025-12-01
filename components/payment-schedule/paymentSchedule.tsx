@@ -1,38 +1,31 @@
 "use client";
 
-import { EntityTable } from "@/components/shared";
-import { apiClient } from "@/services/api-client";
 import React from "react";
-import { EntityWithAll } from "@/app/api/(v1)/(protected)/documents/entities/route";
+import type { EntityWithAll } from "@/app/api/(v1)/(protected)/documents/entities/route";
+import { EntityTable } from "@/components/shared";
 import { usePendingPayments } from "@/lib/hooks/usePendingPayments";
+import { apiClient } from "@/services/api-client";
 
-type Props = {
-  className?: string;
-};
-
-export const PaymentSchedule: React.FC<Props> = ({ className }) => {
+export const PaymentSchedule: React.FC = () => {
   const [entities, setEntities] = React.useState<EntityWithAll[]>([]);
   const { syncWithDocuments } = usePendingPayments();
 
-  const fetchEntities = async () => {
+  const fetchEntities = React.useCallback(async () => {
     const data = await apiClient.documents.entitySchedule();
 
     if (data) {
       syncWithDocuments(data.flatMap((e) => e.documents));
       setEntities(data);
     }
-  };
+  }, [syncWithDocuments]);
 
   React.useEffect(() => {
-    fetchEntities();
-  }, []);
+    void fetchEntities();
+  }, [fetchEntities]);
 
   return (
     <main className="flex-1">
-      <EntityTable
-        entities={entities}
-        reloadDocuments={fetchEntities}
-      />
+      <EntityTable entities={entities} reloadDocuments={fetchEntities} />
     </main>
   );
 };

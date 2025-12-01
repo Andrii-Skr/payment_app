@@ -3,9 +3,7 @@ import * as handler from "@/app/api/auth/[...nextauth]/route";
 
 jest.mock("next-auth", () => ({
   __esModule: true,
-  default: jest.fn(() =>
-    jest.fn(() => Promise.resolve(new Response(null, { status: 200 })))
-  ),
+  default: jest.fn(() => jest.fn(() => Promise.resolve(new Response(null, { status: 200 })))),
   getToken: jest.fn(() => ({ sub: "1" })),
 }));
 
@@ -23,5 +21,4 @@ describe("auth nextauth route", () => {
       },
     });
   });
-
 });

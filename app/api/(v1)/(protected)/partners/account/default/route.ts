@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
+import { Roles } from "@/constants/roles";
 import prisma from "@/prisma/prisma-client";
 import { apiRoute } from "@/utils/apiRoute";
-import { Roles } from "@/constants/roles";
-import { z } from "zod";
 
 const schema = z.object({
   partner_account_number_id: z.number(),
@@ -22,10 +22,7 @@ const handler = async (_req: NextRequest, body: Body) => {
     });
 
     if (!account) {
-      return NextResponse.json(
-        { error: "Account not found" },
-        { status: 404 },
-      );
+      return NextResponse.json({ error: "Account not found" }, { status: 404 });
     }
 
     const updated = await prisma.$transaction(async (tx) => {
@@ -53,12 +50,8 @@ const handler = async (_req: NextRequest, body: Body) => {
     return NextResponse.json({ success: true, updated });
   } catch (error) {
     console.error("Ошибка при обновлении is_default:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
-
 };
 
 export const PATCH = apiRoute<Body>(handler, {

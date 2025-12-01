@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
+import type { entity } from "@prisma/client";
 import { useEffect, useState } from "react";
-import { apiClient } from "@/services/api-client";
 import { ComboboxUniversal } from "@/components/ui/";
-import { entity } from "@prisma/client";
+import { apiClient } from "@/services/api-client";
 
 type Props = {
   children: (entityId: number | null, entityList: entity[]) => React.ReactNode;

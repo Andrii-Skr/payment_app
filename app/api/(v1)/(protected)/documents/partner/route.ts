@@ -1,16 +1,16 @@
-import { NextRequest, NextResponse } from "next/server";
-import { apiRoute } from "@/utils/apiRoute";
-import prisma from "@/prisma/prisma-client";
-import { Roles } from "@/constants/roles";
+import { type NextRequest, NextResponse } from "next/server";
 import type { Session } from "next-auth";
+import { Roles } from "@/constants/roles";
+import prisma from "@/prisma/prisma-client";
+import { apiRoute } from "@/utils/apiRoute";
 
 /* ─────────────── Тип запроса ─────────────── */
 
 const getHandler = async (
   req: NextRequest,
   _body: null,
-  _params: {},
-  user: Session["user"] | null
+  _params: Record<string, never>,
+  user: Session["user"] | null,
 ) => {
   if (!user) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
@@ -21,10 +21,7 @@ const getHandler = async (
   const entityId = Number(searchParams.get("entity_id"));
 
   if (!partnerId || !entityId) {
-    return NextResponse.json(
-      { message: "Both partner_id and entity_id are required" },
-      { status: 400 }
-    );
+    return NextResponse.json({ message: "Both partner_id and entity_id are required" }, { status: 400 });
   }
 
   /* ─────────────── ADMIN: полные права ─────────────── */
@@ -57,9 +54,7 @@ const getHandler = async (
     return NextResponse.json({ message: "User not found" }, { status: 404 });
   }
 
-  const allowedPartnerIds = dbUser.users_partners
-    .filter((p) => p.entity_id === entityId)
-    .map((p) => p.partner_id);
+  const allowedPartnerIds = dbUser.users_partners.filter((p) => p.entity_id === entityId).map((p) => p.partner_id);
   const allowedEntityIds = dbUser.users_entities.map((e) => e.entity_id);
 
   // Партнёр связан с entity через partners_on_entities?
@@ -71,10 +66,7 @@ const getHandler = async (
     select: { entity_id: true },
   });
 
-  const hasAccess =
-    allowedPartnerIds.includes(partnerId) ||
-    allowedEntityIds.includes(entityId) ||
-    linked !== null;
+  const hasAccess = allowedPartnerIds.includes(partnerId) || allowedEntityIds.includes(entityId) || linked !== null;
 
   if (!hasAccess) {
     return NextResponse.json({ message: "Forbidden" }, { status: 403 });

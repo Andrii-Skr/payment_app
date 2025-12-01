@@ -1,11 +1,10 @@
 "use client";
-import { useEffect, useState } from "react";
-import { useFormContext, useWatch, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-
-import { partnerFormSchema, type PartnerValues } from "@/types/partner";
-
-import { PartnerInput, Container } from "@/components/shared";
+import { CirclePlus } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useForm, useFormContext, useWatch } from "react-hook-form";
+import { PartnerAccountsList } from "@/components/payment-form/partnerAccountsList";
+import { Container, PartnerInput } from "@/components/shared";
 import {
   Button,
   Dialog,
@@ -17,16 +16,14 @@ import {
   DialogTrigger,
   Form,
 } from "@/components/ui";
-import { CirclePlus } from "lucide-react";
-
-import { createPartner, addBankAccount, updatePartner } from "@/services/partners";
-import { apiClient } from "@/services/api-client";
-import { useAccountListStore } from "@/store/accountListStore";
-import { usePartnersStore } from "@/store/partnersStore";
-import { PartnerAccountsList } from "@/components/payment-form/partnerAccountsList";
-import { FormValues } from "@/types/formTypes";
 import { toast } from "@/lib/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { apiClient } from "@/services/api-client";
+import { addBankAccount, createPartner, updatePartner } from "@/services/partners";
+import { useAccountListStore } from "@/store/accountListStore";
+import { usePartnersStore } from "@/store/partnersStore";
+import type { FormValues } from "@/types/formTypes";
+import { type PartnerValues, partnerFormSchema } from "@/types/partner";
 
 type Props = {
   entityIdNum: number;
@@ -34,11 +31,7 @@ type Props = {
   disabled?: boolean;
 };
 
-export const AddPartner: React.FC<Props> = ({
-  entityIdNum,
-  className,
-  disabled,
-}) => {
+export const AddPartner: React.FC<Props> = ({ entityIdNum, className, disabled }) => {
   const parentForm = useFormContext<FormValues>();
   const { fetchPartners } = usePartnersStore();
   const { currentAccountList } = useAccountListStore();
@@ -80,7 +73,7 @@ export const AddPartner: React.FC<Props> = ({
 
     setShowAccountsList(!!edrpou);
     fetchPartners(entityIdNum);
-  }, [open]);
+  }, [open, entityIdNum, fetchPartners, internalForm.setValue, parentForm.getValues]);
 
   useEffect(() => {
     if (!open) return;
@@ -91,10 +84,7 @@ export const AddPartner: React.FC<Props> = ({
         const entities = await apiClient.entities.getAll();
         for (const ent of entities) {
           if (ent.id === entityIdNum) continue;
-          const partner = await apiClient.partners.getByEdrpou(
-            watchedEdrpou,
-            ent.id
-          );
+          const partner = await apiClient.partners.getByEdrpou(watchedEdrpou, ent.id);
           if (partner) {
             internalForm.setValue("full_name", partner.full_name);
             internalForm.setValue("short_name", partner.short_name);
@@ -107,7 +97,7 @@ export const AddPartner: React.FC<Props> = ({
     };
 
     fillFromOther();
-  }, [watchedEdrpou, open]);
+  }, [watchedEdrpou, open, entityIdNum, internalForm.setValue]);
 
   // 2️⃣ после обновления списка — подставляем актуальный основной счёт
   useEffect(() => {
@@ -123,13 +113,12 @@ export const AddPartner: React.FC<Props> = ({
     internalForm.setValue("bank_account", defaultAcc.bank_account);
     parentForm.setValue("selectedAccount", defaultAcc.bank_account);
     parentForm.setValue("partner_account_number_id", defaultAcc.id);
-  }, [currentAccountList, open]);
+  }, [currentAccountList, open, internalForm.setValue, parentForm.getValues, parentForm.setValue]);
 
   const edrpou = parentForm.getValues("edrpou");
   const readonlyEdrpou = !!edrpou;
 
   const onSubmit = async (data: PartnerValues) => {
-
     const isEdit = !!parentForm.getValues("partner_id");
 
     if (!isEdit && !data.bank_account) {
@@ -137,7 +126,7 @@ export const AddPartner: React.FC<Props> = ({
         type: "validate",
         message: "Укажите номер счёта",
       });
-      
+
       return;
     }
     try {
@@ -178,9 +167,13 @@ export const AddPartner: React.FC<Props> = ({
         }
 
         const bankAccount =
-          reused && data.bank_account
-            ? addRes!.created
-            : partner.partner_account_number[0];
+          (reused && data.bank_account ? addRes?.created : partner.partner_account_number[0]) ??
+          partner.partner_account_number[0];
+
+        if (!bankAccount) {
+          toast.error("Не удалось определить банковский счёт.");
+          return;
+        }
 
         parentForm.setValue("selectedAccount", bankAccount.bank_account);
         parentForm.setValue("partner_account_number_id", bankAccount.id);
@@ -214,9 +207,7 @@ export const AddPartner: React.FC<Props> = ({
       <DialogContent className="sm:max-w-[840px]">
         <DialogHeader>
           <DialogTitle>Контрагент</DialogTitle>
-          <DialogDescription>
-            Укажите или обновите данные контрагента и счёт.
-          </DialogDescription>
+          <DialogDescription>Укажите или обновите данные контрагента и счёт.</DialogDescription>
         </DialogHeader>
 
         <Form {...internalForm}>
@@ -236,17 +227,8 @@ export const AddPartner: React.FC<Props> = ({
                 label="Полное имя"
                 className="bank-account-size"
               />
-              <PartnerInput
-                control={internalForm.control}
-                name="short_name"
-                label="Короткое имя"
-              />
-              <PartnerInput
-                control={internalForm.control}
-                name="edrpou"
-                label="ЕДРПОУ"
-                readOnly={readonlyEdrpou}
-              />
+              <PartnerInput control={internalForm.control} name="short_name" label="Короткое имя" />
+              <PartnerInput control={internalForm.control} name="edrpou" label="ЕДРПОУ" readOnly={readonlyEdrpou} />
             </Container>
 
             {!showAccountsList && (

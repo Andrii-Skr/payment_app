@@ -1,6 +1,6 @@
-import { testApiHandler } from "next-test-api-route-handler";
 import * as partnerHandler from "@api/partners/[id]/route";
 import * as checkEdrpouHandler from "@api/partners/check-edrpou/route";
+import { testApiHandler } from "next-test-api-route-handler";
 import { Roles } from "@/constants/roles";
 
 jest.mock("@/prisma/prisma-client", () => ({
@@ -15,9 +15,7 @@ jest.mock("@/prisma/prisma-client", () => ({
 }));
 
 jest.mock("next-auth", () => ({
-  getServerSession: jest.fn(() =>
-    Promise.resolve({ user: { id: 1, role: Roles.ADMIN } })
-  ),
+  getServerSession: jest.fn(() => Promise.resolve({ user: { id: 1, role: Roles.ADMIN } })),
 }));
 
 jest.mock("@/lib/authOptions", () => ({ authOptions: {} }));
@@ -34,9 +32,7 @@ describe("partner routes filter accounts without entity relation", () => {
         partner: {
           id: 3,
           partner_account_number: [],
-          entities: [
-            { entity_id: 2, partner_id: 3, is_deleted: false, is_visible: true },
-          ],
+          entities: [{ entity_id: 2, partner_id: 3, is_deleted: false, is_visible: true }],
         },
       },
     ]);

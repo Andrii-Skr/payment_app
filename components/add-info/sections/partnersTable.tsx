@@ -1,46 +1,35 @@
 "use client";
 
-import { useEffect, useState, Fragment, MouseEvent } from "react";
-import { Card } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui";
 import { Eye, EyeOff, Pencil, Trash2 } from "lucide-react";
-
-import { apiClient } from "@/services/api-client";
-import { PartnersWithAccounts } from "@/services/partners";
-import { PartnerForm } from "./partnerForm";
-import { PartnerEditModal } from "./partnerEditModal";
-import { PartnerAccountsList } from "./partnerAccountsList";
+import { Fragment, type MouseEvent, useEffect, useId, useState } from "react";
+import { Checkbox } from "@/components/ui";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { toast } from "@/lib/hooks/use-toast";
 import { useToggleDelete } from "@/lib/hooks/useToggleDelete";
+import { apiClient } from "@/services/api-client";
+import type { PartnersWithAccounts } from "@/services/partners";
+import { PartnerAccountsList } from "./partnerAccountsList";
+import { PartnerEditModal } from "./partnerEditModal";
+import { PartnerForm } from "./partnerForm";
 
 export const PartnersTable = ({ entityId }: { entityId: number | null }) => {
   const [partners, setPartners] = useState<PartnersWithAccounts[]>([]);
-  const [editTarget, setEditTarget] = useState<PartnersWithAccounts | null>(
-    null
-  );
+  const [editTarget, setEditTarget] = useState<PartnersWithAccounts | null>(null);
   const [expanded, setExpanded] = useState<number | null>(null);
-  const [reload, setReload] = useState(0);
+  const [_reload, setReload] = useState(0);
   const [loadingAccId, setLoadingAccId] = useState<number | null>(null);
 
   const [showDeleted, setShowDeleted] = useState(false);
   const [showHidden, setShowHidden] = useState(false);
+  const showDeletedId = useId();
+  const showHiddenId = useId();
 
   const reloadPartners = () => setReload((v) => v + 1);
 
   /* ——— helpers ——— */
-  const mutatePartner = (
-    partnerId: number,
-    cb: (p: PartnersWithAccounts) => PartnersWithAccounts
-  ) => {
+  const mutatePartner = (partnerId: number, cb: (p: PartnersWithAccounts) => PartnersWithAccounts) => {
     setPartners((prev) => prev.map((p) => (p.id === partnerId ? cb(p) : p)));
   };
 
@@ -50,14 +39,14 @@ export const PartnersTable = ({ entityId }: { entityId: number | null }) => {
     apiClient.partners
       .partnersService(entityId, { showDeleted: true, showHidden: true })
       .then((data) => setPartners(data ?? []));
-  }, [entityId, reload]);
+  }, [entityId]);
 
   /* clean state when entity changes */
   useEffect(() => {
     setExpanded(null);
     setEditTarget(null);
     setLoadingAccId(null);
-  }, [entityId]);
+  }, []);
 
   /* ——— фильтрация для чекбоксов ——— */
   const filteredPartners = partners.filter((p) => {
@@ -73,12 +62,9 @@ export const PartnersTable = ({ entityId }: { entityId: number | null }) => {
     mutateFn: (id, is_deleted, _entityId) =>
       mutatePartner(id, (x) => ({
         ...x,
-        entities: x.entities.map((rel) =>
-          rel.entity_id === entityId ? { ...rel, is_deleted } : rel
-        ),
+        entities: x.entities.map((rel) => (rel.entity_id === entityId ? { ...rel, is_deleted } : rel)),
       })),
-    getEntityState: (id, _entityId) =>
-      partners.find((p) => p.id === id)?.entities?.[0]?.is_deleted ?? false,
+    getEntityState: (id, _entityId) => partners.find((p) => p.id === id)?.entities?.[0]?.is_deleted ?? false,
     messages: {
       delete: "Контрагент удалён",
       restore: "Контрагент восстановлен",
@@ -92,35 +78,21 @@ export const PartnersTable = ({ entityId }: { entityId: number | null }) => {
     if (!current) return;
 
     try {
-      await apiClient.partners.togglePartnerVisibility(
-        p.id,
-        !current.is_visible,
-        entityId!
-      );
+      await apiClient.partners.togglePartnerVisibility(p.id, !current.is_visible, entityId!);
 
       mutatePartner(p.id, (x) => ({
         ...x,
-        entities: x.entities.map((rel) =>
-          rel.entity_id === entityId
-            ? { ...rel, is_visible: !rel.is_visible }
-            : rel
-        ),
+        entities: x.entities.map((rel) => (rel.entity_id === entityId ? { ...rel, is_visible: !rel.is_visible } : rel)),
       }));
 
-      toast.success(
-        !current.is_visible ? "Контрагент показан" : "Контрагент скрыт"
-      );
+      toast.success(!current.is_visible ? "Контрагент показан" : "Контрагент скрыт");
     } catch {
       toast.error("Ошибка при смене видимости");
     }
   };
 
   /* ——— назначить счёт дефолтным ——— */
-  const handleSetDefault = async (
-    partnerId: number,
-    accId: number,
-    checked: boolean,
-  ) => {
+  const handleSetDefault = async (partnerId: number, accId: number, checked: boolean) => {
     setLoadingAccId(accId);
     try {
       if (entityId === null) {
@@ -135,13 +107,9 @@ export const PartnersTable = ({ entityId }: { entityId: number | null }) => {
           is_default: checked ? a.id === accId : false,
         })),
       }));
-      toast.success(
-        checked ? "Счёт назначен основным" : "Счёт больше не основной"
-      );
+      toast.success(checked ? "Счёт назначен основным" : "Счёт больше не основной");
     } catch {
-      toast.error(
-        checked ? "Не удалось назначить счёт" : "Не удалось снять счёт"
-      );
+      toast.error(checked ? "Не удалось назначить счёт" : "Не удалось снять счёт");
     } finally {
       setLoadingAccId(null);
     }
@@ -154,15 +122,11 @@ export const PartnersTable = ({ entityId }: { entityId: number | null }) => {
       setPartners((prev) =>
         prev.map((p) => ({
           ...p,
-          partner_account_number: p.partner_account_number.map((a) =>
-            a.id === accId ? { ...a, is_deleted } : a
-          ),
-        }))
+          partner_account_number: p.partner_account_number.map((a) => (a.id === accId ? { ...a, is_deleted } : a)),
+        })),
       ),
     getEntityState: (accId, _entityId) =>
-      partners
-        .flatMap((p) => p.partner_account_number)
-        .find((a) => a.id === accId)?.is_deleted ?? false,
+      partners.flatMap((p) => p.partner_account_number).find((a) => a.id === accId)?.is_deleted ?? false,
     messages: {
       delete: "Счёт удалён",
       restore: "Счёт восстановлен",
@@ -172,37 +136,22 @@ export const PartnersTable = ({ entityId }: { entityId: number | null }) => {
 
   /* ——— рендер ——— */
   if (!entityId) {
-    return (
-      <Card className="mt-6 p-4 rounded-2xl shadow-sm text-muted-foreground text-center">
-        Выберите юрлицо
-      </Card>
-    );
+    return <Card className="mt-6 p-4 rounded-2xl shadow-sm text-muted-foreground text-center">Выберите юрлицо</Card>;
   }
 
   return (
     <Card className="mt-6 rounded-2xl shadow-sm p-0 overflow-hidden">
       {/* — верхняя панель — */}
       <div className="p-4 border-b space-y-2">
-        <PartnerForm
-          key={`create-${entityId}`}
-          mode="create"
-          entityId={entityId}
-          onSaved={reloadPartners}
-        />
+        <PartnerForm key={`create-${entityId}`} mode="create" entityId={entityId} onSaved={reloadPartners} />
 
         <div className="flex gap-4 items-center">
-          <label className="flex items-center gap-2 text-sm">
-            <Checkbox
-              checked={showDeleted}
-              onCheckedChange={(v) => setShowDeleted(Boolean(v))}
-            />
+          <label className="flex items-center gap-2 text-sm" htmlFor={showDeletedId}>
+            <Checkbox id={showDeletedId} checked={showDeleted} onCheckedChange={(v) => setShowDeleted(Boolean(v))} />
             Показать удалённые
           </label>
-          <label className="flex items-center gap-2 text-sm">
-            <Checkbox
-              checked={showHidden}
-              onCheckedChange={(v) => setShowHidden(Boolean(v))}
-            />
+          <label className="flex items-center gap-2 text-sm" htmlFor={showHiddenId}>
+            <Checkbox id={showHiddenId} checked={showHidden} onCheckedChange={(v) => setShowHidden(Boolean(v))} />
             Показать скрытые
           </label>
         </div>
@@ -222,10 +171,7 @@ export const PartnersTable = ({ entityId }: { entityId: number | null }) => {
         <TableBody>
           {filteredPartners.length === 0 ? (
             <TableRow>
-              <TableCell
-                colSpan={4}
-                className="text-center text-muted-foreground"
-              >
+              <TableCell colSpan={4} className="text-center text-muted-foreground">
                 Контрагенты не найдены
               </TableCell>
             </TableRow>
@@ -235,9 +181,7 @@ export const PartnersTable = ({ entityId }: { entityId: number | null }) => {
               return (
                 <Fragment key={p.id}>
                   <TableRow
-                    onClick={() =>
-                      setExpanded((id) => (id === p.id ? null : p.id))
-                    }
+                    onClick={() => setExpanded((id) => (id === p.id ? null : p.id))}
                     className="cursor-pointer hover:bg-muted transition"
                   >
                     <TableCell>{p.full_name}</TableCell>
@@ -249,20 +193,14 @@ export const PartnersTable = ({ entityId }: { entityId: number | null }) => {
                       <Button
                         size="icon"
                         variant="outline"
-                        className={
-                          !rel.is_visible ? "bg-green-500" : "bg-red-500"
-                        }
+                        className={!rel.is_visible ? "bg-green-500" : "bg-red-500"}
                         title={rel.is_visible ? "Скрыть" : "Показать"}
                         onClick={(e: MouseEvent) => {
                           e.stopPropagation();
                           handleToggleVisibility(p);
                         }}
                       >
-                        {rel.is_visible ? (
-                          <EyeOff size={16} />
-                        ) : (
-                          <Eye size={16} />
-                        )}
+                        {rel.is_visible ? <EyeOff size={16} /> : <Eye size={16} />}
                       </Button>
 
                       {/* редактировать */}
@@ -282,9 +220,7 @@ export const PartnersTable = ({ entityId }: { entityId: number | null }) => {
                       <Button
                         size="icon"
                         variant="outline"
-                        className={
-                          rel.is_deleted ? "bg-green-500" : "bg-red-500"
-                        }
+                        className={rel.is_deleted ? "bg-green-500" : "bg-red-500"}
                         title={rel.is_deleted ? "Восстановить" : "Удалить"}
                         onClick={(e: MouseEvent) => {
                           e.stopPropagation();
@@ -306,12 +242,8 @@ export const PartnersTable = ({ entityId }: { entityId: number | null }) => {
                           showDeleted={showDeleted}
                           showHidden={showHidden}
                           entityId={entityId}
-                          onSetDefault={(accId, checked) =>
-                            handleSetDefault(p.id, accId, checked)
-                          }
-                          onDelete={(accId) =>
-                            handleDeleteAccount(accId, entityId!)
-                          }
+                          onSetDefault={(accId, checked) => handleSetDefault(p.id, accId, checked)}
+                          onDelete={(accId) => handleDeleteAccount(accId, entityId!)}
                         />
                       </TableCell>
                     </TableRow>

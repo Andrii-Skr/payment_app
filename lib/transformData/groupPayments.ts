@@ -1,6 +1,6 @@
-import { PaymentDetail } from "@/types/types";
 import { format } from "date-fns";
 import { AUTO_PURPOSE_MARKER } from "@/constants/marker";
+import type { PaymentDetail } from "@/types/types";
 
 /**
  * Группирует платежи по получателю (entity_id, partner_id, partner_account_number)
@@ -12,7 +12,7 @@ export function groupPaymentsByReceiver(payments: PaymentDetail[]): PaymentDetai
   for (const p of payments) {
     const key = `${p.entity_id}-${p.partner_id}-${p.partner_account_number}`;
     if (!map.has(key)) map.set(key, []);
-    map.get(key)!.push(p);
+    map.get(key)?.push(p);
   }
 
   return Array.from(map.values()).map((group) => {
@@ -27,18 +27,18 @@ export function groupPaymentsByReceiver(payments: PaymentDetail[]): PaymentDetai
     // --- Подгруппировка по дате
     const byDate = new Map<string, Set<string>>();
     const vatTotals = new Map<number, number>();
-    let totalVat = 0;
+    let _totalVat = 0;
 
     group.forEach((p) => {
       const date = format(new Date(p.date), "dd.MM.yyyy");
 
       if (!byDate.has(date)) byDate.set(date, new Set());
-      byDate.get(date)!.add(p.account_number);
+      byDate.get(date)?.add(p.account_number);
 
       if (p.vat_type && p.vat_percent) {
         const vatAmount = p.pay_sum - p.pay_sum / (1 + p.vat_percent / 100);
         vatTotals.set(p.vat_percent, (vatTotals.get(p.vat_percent) ?? 0) + vatAmount);
-        totalVat += vatAmount;
+        _totalVat += vatAmount;
       }
     });
 

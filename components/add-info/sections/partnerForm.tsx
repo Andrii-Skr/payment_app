@@ -1,16 +1,16 @@
 // components/partners/partnerForm.tsx
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { partnerFormSchema } from "@/types/partner";
+import { Container, PartnerInput } from "@/components/shared";
 
 import { Button, Form } from "@/components/ui";
 import { toast } from "@/lib/hooks/use-toast";
-import { Container, PartnerInput } from "@/components/shared";
 import { apiClient } from "@/services/api-client";
+import { partnerFormSchema } from "@/types/partner";
 
 /* ---------- schema & types ---------- */
 
@@ -30,13 +30,7 @@ interface Props {
 
 /* ---------- component ---------- */
 
-export const PartnerForm: React.FC<Props> = ({
-  mode,
-  entityId,
-  initialValues,
-  onSaved,
-  onCancel,
-}) => {
+export const PartnerForm: React.FC<Props> = ({ mode, entityId, initialValues, onSaved, onCancel }) => {
   const schema = mode === "edit" ? partnerFormSchema : createSchema;
   const form = useForm<PartnerFormValues>({
     resolver: zodResolver(schema),
@@ -62,10 +56,7 @@ export const PartnerForm: React.FC<Props> = ({
         const entities = await apiClient.entities.getAll();
         for (const ent of entities) {
           if (ent.id === entityId) continue;
-          const partner = await apiClient.partners.getByEdrpou(
-            watchedEdrpou,
-            ent.id,
-          );
+          const partner = await apiClient.partners.getByEdrpou(watchedEdrpou, ent.id);
           if (partner) {
             form.setValue("full_name", partner.full_name);
             form.setValue("short_name", partner.short_name);
@@ -78,16 +69,16 @@ export const PartnerForm: React.FC<Props> = ({
     };
 
     fillFromOther();
-  }, [watchedEdrpou, mode]);
+  }, [watchedEdrpou, mode, entityId, form.setValue]);
 
   /* подставляем initialValues при edit */
   useEffect(() => {
     if (mode === "edit" && initialValues) {
-      (
-        Object.entries(initialValues) as [keyof PartnerFormValues, any][]
-      ).forEach(([k, v]) => form.setValue(k, v));
+      (Object.entries(initialValues) as [keyof PartnerFormValues, any][]).forEach(([k, v]) => {
+        form.setValue(k, v);
+      });
     }
-  }, [initialValues, mode]);
+  }, [initialValues, mode, form.setValue]);
 
   /* ---------- submit ---------- */
 
@@ -113,7 +104,12 @@ export const PartnerForm: React.FC<Props> = ({
         }
       } else {
         /* редактируем имена партнёра */
-        await apiClient.partners.updatePartner(initialValues!.id!, {
+        const partnerId = initialValues?.id;
+        if (!partnerId) {
+          toast.error("Не найден контрагент для обновления");
+          return;
+        }
+        await apiClient.partners.updatePartner(partnerId, {
           full_name: vals.full_name,
           short_name: vals.short_name,
         });
@@ -131,11 +127,7 @@ export const PartnerForm: React.FC<Props> = ({
 
   return (
     <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-4"
-        noValidate
-      >
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4" noValidate>
         <Container className="justify-start gap-2">
           <PartnerInput<PartnerFormValues>
             control={form.control}
@@ -143,11 +135,7 @@ export const PartnerForm: React.FC<Props> = ({
             label="Полное имя"
             className="bank-account-size"
           />
-          <PartnerInput<PartnerFormValues>
-            control={form.control}
-            name="short_name"
-            label="Короткое имя"
-          />
+          <PartnerInput<PartnerFormValues> control={form.control} name="short_name" label="Короткое имя" />
           <PartnerInput<PartnerFormValues>
             control={form.control}
             name="edrpou"
@@ -176,12 +164,7 @@ export const PartnerForm: React.FC<Props> = ({
           </Button>
 
           {mode === "edit" && onCancel && (
-            <Button
-              type="button"
-              variant="ghost"
-              className="w-[145px]"
-              onClick={onCancel}
-            >
+            <Button type="button" variant="ghost" className="w-[145px]" onClick={onCancel}>
               Отмена
             </Button>
           )}

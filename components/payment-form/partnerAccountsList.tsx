@@ -1,28 +1,19 @@
 "use client";
 
-import React, { useState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Trash2 } from "lucide-react";
-import {
-  Button,
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  Label,
-  Separator,
-  Switch,
-} from "@/components/ui";
-import { formatBankAccount } from "@/lib/helpers/formatiban";
-import { useAccountListStore } from "@/store/accountListStore";
-import { apiClient } from "@/services/api-client";
-import { toast } from "@/lib/hooks/use-toast";
-import { usePartnersStore } from "@/store/partnersStore";
-import type { AccountItem } from "@/store/accountListStore";
-import { Form } from "@/components/ui";
-import { Container, PartnerInput } from "@/components/shared";
+import type React from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { Container, PartnerInput } from "@/components/shared";
+import { Button, Card, CardContent, CardHeader, CardTitle, Form, Label, Separator, Switch } from "@/components/ui";
+import { formatBankAccount } from "@/lib/helpers/formatiban";
+import { toast } from "@/lib/hooks/use-toast";
+import { apiClient } from "@/services/api-client";
+import type { AccountItem } from "@/store/accountListStore";
+import { useAccountListStore } from "@/store/accountListStore";
+import { usePartnersStore } from "@/store/partnersStore";
 
 type Props = {
   show: boolean;
@@ -32,13 +23,7 @@ type Props = {
   onDefaultChange?: (acc: { bank_account: string; id: number }) => void;
 };
 
-export const PartnerAccountsList: React.FC<Props> = ({
-  show,
-  hideDelete,
-  entityId,
-  partnerId,
-  onDefaultChange,
-}) => {
+export const PartnerAccountsList: React.FC<Props> = ({ show, hideDelete, entityId, partnerId, onDefaultChange }) => {
   const { currentAccountList, updateAccountList } = useAccountListStore();
   const { fetchPartners } = usePartnersStore();
   const [loadingId, setLoadingId] = useState<number | null>(null);
@@ -85,9 +70,7 @@ export const PartnerAccountsList: React.FC<Props> = ({
         });
       }
 
-      toast.success(
-        checked ? "Счёт назначен основным" : "Счёт больше не основной"
-      );
+      toast.success(checked ? "Счёт назначен основным" : "Счёт больше не основной");
     } catch {
       updateAccountList(prevList);
       toast.error("Ошибка при назначении счёта");
@@ -100,11 +83,7 @@ export const PartnerAccountsList: React.FC<Props> = ({
     setLoadingId(id);
     try {
       await apiClient.partners.deleteAccount(id, true, entityId);
-      updateAccountList(
-        currentAccountList.map((acc) =>
-          acc.id === id ? { ...acc, is_deleted: true } : acc
-        )
-      );
+      updateAccountList(currentAccountList.map((acc) => (acc.id === id ? { ...acc, is_deleted: true } : acc)));
       toast.success("Счёт удалён");
     } catch {
       toast.error("Ошибка при удалении счёта");
@@ -127,8 +106,7 @@ export const PartnerAccountsList: React.FC<Props> = ({
         toast.error(result.message);
       } else {
         const created = result.created;
-        const rel =
-          "entities" in created ? (created.entities as any)[0] : undefined;
+        const rel = "entities" in created ? (created.entities as any)[0] : undefined;
         const accItem: AccountItem = {
           ...created,
           is_default: rel?.is_default ?? created.is_default ?? false,
@@ -151,9 +129,7 @@ export const PartnerAccountsList: React.FC<Props> = ({
   return (
     <Card className="mt-6">
       <CardHeader>
-        <CardTitle className="text-sm font-semibold">
-          Счета контрагента
-        </CardTitle>
+        <CardTitle className="text-sm font-semibold">Счета контрагента</CardTitle>
       </CardHeader>
       <CardContent>
         {visibleAccounts.map((acc, idx) => (
@@ -192,11 +168,7 @@ export const PartnerAccountsList: React.FC<Props> = ({
 
         {partnerId &&
           (!addMode ? (
-            <Button
-              variant="ghost"
-              onClick={() => setAddMode(true)}
-              className="mt-4"
-            >
+            <Button variant="ghost" onClick={() => setAddMode(true)} className="mt-4">
               + Добавить счёт
             </Button>
           ) : (
