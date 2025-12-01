@@ -21,7 +21,8 @@ ARG NBU_BANKS_URL
 ENV DATABASE_URL=$DATABASE_URL \
     NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL \
     NEXTAUTH_URL=$NEXTAUTH_URL \
-    NBU_BANKS_URL=$NBU_BANKS_URL
+    NBU_BANKS_URL=$NBU_BANKS_URL \
+    NEXT_TELEMETRY_DISABLED=1
 
 RUN pnpm prisma:generate \
  && pnpm build:web \
@@ -31,7 +32,7 @@ RUN pnpm prisma:generate \
 # 3. Финальный рантайм-образ
 FROM node:22.15.0-slim AS runtime
 WORKDIR /app
-ENV NODE_ENV=production PORT=3000
+ENV NODE_ENV=production PORT=3000 NEXT_TELEMETRY_DISABLED=1
 RUN apt-get update -y \
  && apt-get install -y --no-install-recommends openssl ca-certificates \
  && rm -rf /var/lib/apt/lists/*
