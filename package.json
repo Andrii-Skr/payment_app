@@ -76,7 +76,7 @@
     "framer-motion": "^12.6.3",
     "input-otp": "^1.4.1",
     "lucide-react": "^0.447.0",
-    "next": "15.5.7",
+    "next": "^15.5.9",
     "next-auth": "^4.24.13",
     "node-cron": "^3.0.3",
     "pino": "^9.6.0",
@@ -117,5 +117,5 @@
     "ts-node": "^10.9.2",
     "typescript": "^5"
   },
-  "packageManager": "pnpm@10.25.0+sha512.5e82639027af37cf832061bcc6d639c219634488e0f2baebe785028a793de7b525ffcd3f7ff574f5e9860654e098fe852ba8ac5dd5cefe1767d23a020a92f501"
+  "packageManager": "pnpm@10.25.0"
 }
