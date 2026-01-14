@@ -1,42 +1,55 @@
 "use client";
 
-import { useState } from "react";
+import { useShallow } from "zustand/shallow";
 import { SampleSection } from "@/components/add-info";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { useAddInfoStore } from "@/store/addInfoStore";
 import { EntitySection } from "./sections/entitySection";
 import { PartnerSection } from "./sections/partnerSection";
 import { UserSection } from "./sections/userSection";
 
-type Tab = "entity" | "partner" | "user" | "sample";
-
 export const AddInfoList = () => {
-  const [tab, setTab] = useState<Tab>("entity");
+  const { activeTab, setActiveTab, hasHydrated } = useAddInfoStore(
+    useShallow((state) => ({
+      activeTab: state.activeTab,
+      setActiveTab: state.setActiveTab,
+      hasHydrated: state.hasHydrated,
+    })),
+  );
+
+  if (!hasHydrated) {
+    return <Card className="flex h-full min-h-[28rem] overflow-hidden opacity-0" aria-hidden="true" />;
+  }
 
   return (
     <Card className="flex h-full min-h-[28rem] overflow-hidden">
       <aside className="flex w-56 shrink-0 flex-col gap-2 border-r p-4">
         <Button
-          variant={tab === "entity" ? "default" : "ghost"}
+          variant={activeTab === "entity" ? "default" : "ghost"}
           className="justify-start"
-          onClick={() => setTab("entity")}
+          onClick={() => setActiveTab("entity")}
         >
           ЮрЛицо
         </Button>
         <Button
-          variant={tab === "partner" ? "default" : "ghost"}
+          variant={activeTab === "partner" ? "default" : "ghost"}
           className="justify-start"
-          onClick={() => setTab("partner")}
+          onClick={() => setActiveTab("partner")}
         >
           Контрагент
         </Button>
-        <Button variant={tab === "user" ? "default" : "ghost"} className="justify-start" onClick={() => setTab("user")}>
+        <Button
+          variant={activeTab === "user" ? "default" : "ghost"}
+          className="justify-start"
+          onClick={() => setActiveTab("user")}
+        >
           Пользователи
         </Button>
         <Button
-          variant={tab === "sample" ? "default" : "ghost"}
+          variant={activeTab === "sample" ? "default" : "ghost"}
           className="justify-start"
-          onClick={() => setTab("sample")}
+          onClick={() => setActiveTab("sample")}
         >
           Шаблоны
         </Button>
@@ -44,10 +57,10 @@ export const AddInfoList = () => {
 
       {/* -------- content -------- */}
       <main className="flex-1 overflow-auto p-6">
-        {tab === "entity" && <EntitySection />}
-        {tab === "partner" && <PartnerSection />}
-        {tab === "user" && <UserSection />}
-        {tab === "sample" && <SampleSection />}
+        {activeTab === "entity" && <EntitySection />}
+        {activeTab === "partner" && <PartnerSection />}
+        {activeTab === "user" && <UserSection />}
+        {activeTab === "sample" && <SampleSection />}
       </main>
     </Card>
   );

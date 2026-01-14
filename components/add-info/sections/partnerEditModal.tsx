@@ -74,6 +74,10 @@ export const PartnerEditModal = ({
     }
   };
 
+  const handleUpdateAccount = (accountId: number, bankAccount: string) => {
+    mutateAccounts((arr) => arr.map((a) => (a.id === accountId ? { ...a, bank_account: bankAccount } : a)));
+  };
+
   const bankSchema = z.object({
     bank_account: z.string().length(29, "29 символов"),
     mfo: z.string().optional(),
@@ -143,6 +147,7 @@ export const PartnerEditModal = ({
           showHidden={true}
           onSetDefault={(accId, checked) => handleSetDefault(accId, checked)}
           onDelete={toggleDeleteAccount}
+          onUpdateAccount={handleUpdateAccount}
           entityId={entityId}
         />
 

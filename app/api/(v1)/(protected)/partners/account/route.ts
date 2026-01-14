@@ -17,6 +17,14 @@ const schema = z.object({
 
 type Body = z.infer<typeof schema>;
 
+const updateSchema = z.object({
+  partner_account_number_id: z.number(),
+  entity_id: z.number(),
+  bank_account: z.string().length(29),
+});
+
+type UpdateBody = z.infer<typeof updateSchema>;
+
 const handler = async (_req: NextRequest, body: Body) => {
   const existing = await prisma.partner_account_number.findFirst({
     where: {
@@ -108,6 +116,71 @@ const handler = async (_req: NextRequest, body: Body) => {
 
 export const POST = apiRoute<Body>(handler, {
   schema,
+  requireAuth: true,
+  roles: [Roles.ADMIN, Roles.MANAGER],
+});
+
+const updateHandler = async (_req: NextRequest, body: UpdateBody) => {
+  const { partner_account_number_id, entity_id, bank_account } = body;
+
+  const account = await prisma.partner_account_number.findUnique({
+    where: { id: partner_account_number_id },
+    select: { id: true, partner_id: true },
+  });
+
+  if (!account) {
+    return NextResponse.json({ success: false, message: "Счёт не найден" }, { status: 404 });
+  }
+
+  const link = await prisma.partner_account_numbers_on_entities.findUnique({
+    where: {
+      entity_id_partner_account_number_id: {
+        entity_id,
+        partner_account_number_id,
+      },
+    },
+    select: { is_deleted: true },
+  });
+
+  if (!link) {
+    return NextResponse.json({ success: false, message: "Счёт не найден у юрлица" }, { status: 404 });
+  }
+
+  if (link.is_deleted) {
+    return NextResponse.json({ success: false, message: "Счёт удалён" }, { status: 409 });
+  }
+
+  const docsCount = await prisma.documents.count({
+    where: { partner_account_number_id },
+  });
+
+  if (docsCount > 0) {
+    return NextResponse.json({ success: false, message: "Нельзя редактировать счёт с документами" }, { status: 409 });
+  }
+
+  const duplicate = await prisma.partner_account_number.findFirst({
+    where: {
+      partner_id: account.partner_id,
+      bank_account,
+      NOT: { id: partner_account_number_id },
+    },
+    select: { id: true },
+  });
+
+  if (duplicate) {
+    return NextResponse.json({ success: false, message: "Счёт уже существует у контрагента" }, { status: 409 });
+  }
+
+  const updated = await prisma.partner_account_number.update({
+    where: { id: partner_account_number_id },
+    data: { bank_account },
+  });
+
+  return NextResponse.json({ success: true, updated });
+};
+
+export const PATCH = apiRoute<UpdateBody>(updateHandler, {
+  schema: updateSchema,
   requireAuth: true,
   roles: [Roles.ADMIN, Roles.MANAGER],
 });

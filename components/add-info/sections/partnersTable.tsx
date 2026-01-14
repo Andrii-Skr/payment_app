@@ -134,6 +134,15 @@ export const PartnersTable = ({ entityId }: { entityId: number | null }) => {
     },
   });
 
+  const handleUpdateAccount = (partnerId: number, accId: number, bankAccount: string) => {
+    mutatePartner(partnerId, (p) => ({
+      ...p,
+      partner_account_number: p.partner_account_number.map((a) =>
+        a.id === accId ? { ...a, bank_account: bankAccount } : a,
+      ),
+    }));
+  };
+
   /* ——— рендер ——— */
   if (!entityId) {
     return <Card className="mt-6 p-4 rounded-2xl shadow-sm text-muted-foreground text-center">Выберите юрлицо</Card>;
@@ -244,6 +253,7 @@ export const PartnersTable = ({ entityId }: { entityId: number | null }) => {
                           entityId={entityId}
                           onSetDefault={(accId, checked) => handleSetDefault(p.id, accId, checked)}
                           onDelete={(accId) => handleDeleteAccount(accId, entityId!)}
+                          onUpdateAccount={(accId, bankAccount) => handleUpdateAccount(p.id, accId, bankAccount)}
                         />
                       </TableCell>
                     </TableRow>

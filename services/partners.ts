@@ -13,6 +13,9 @@ export type PartnerAccountWithEntities = partner_account_number & {
   is_default: boolean;
   is_visible: boolean;
   is_deleted: boolean;
+  _count?: {
+    documents: number;
+  };
 };
 
 export type PartnersWithAccounts = partners & {
@@ -33,6 +36,12 @@ export type CreatePartnerResponse = {
 export type AddBankAccountResponse = {
   success: boolean;
   created: PartnerAccountWithEntities;
+  message?: string;
+};
+
+export type UpdateAccountResponse = {
+  success: boolean;
+  updated: PartnerAccountWithEntities;
   message?: string;
 };
 
@@ -172,6 +181,21 @@ export const addBankAccount = async (data: {
     console.error("Ошибка при добавлении счёта:", error);
     const message = error?.response?.data?.message;
     throw new Error(message || "Не удалось добавить счёт.");
+  }
+};
+
+export const updateAccount = async (data: {
+  partner_account_number_id: number;
+  entity_id: number;
+  bank_account: string;
+}): Promise<UpdateAccountResponse> => {
+  try {
+    const res = await axiosInstance.patch<UpdateAccountResponse>("/partners/account", data);
+    return res.data;
+  } catch (error: any) {
+    console.error("Ошибка при обновлении счёта:", error);
+    const message = error?.response?.data?.message;
+    throw new Error(message || "Не удалось обновить счёт.");
   }
 };
 

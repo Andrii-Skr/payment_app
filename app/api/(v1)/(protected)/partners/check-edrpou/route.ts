@@ -47,6 +47,13 @@ const getHandler = async (
               is_deleted: true,
             },
           },
+          _count: {
+            select: {
+              documents: {
+                where: { is_deleted: false },
+              },
+            },
+          },
         },
       },
     },

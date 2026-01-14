@@ -6,6 +6,9 @@ export type AccountItem = partner_account_number & {
   is_default: boolean;
   is_visible: boolean;
   is_deleted: boolean;
+  _count?: {
+    documents: number;
+  };
 };
 
 type AccountListState = {
