@@ -30,8 +30,10 @@
       "minimatch": "^3.1.2",
       "js-yaml": "3.14.2",
       "glob": "10.5.0",
-      "preact": "^10.27.3",
-      "diff": "^8.0.3"
+      "preact": "^10.28.3",
+      "diff": "^8.0.3",
+      "tar": "^7.5.7",
+      "lodash": "^4.17.23"
     },
     "onlyBuiltDependencies": [
       "@prisma/client",
@@ -78,7 +80,7 @@
     "framer-motion": "^12.6.3",
     "input-otp": "^1.4.1",
     "lucide-react": "^0.447.0",
-    "next": "^15.5.9",
+    "next": "^15.5.12",
     "next-auth": "^4.24.13",
     "node-cron": "^3.0.3",
     "pino": "^9.6.0",
