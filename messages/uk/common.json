@@ -1,0 +1,43 @@
+{
+  "nav": {
+    "createPayment": "Створити платіж",
+    "paymentSchedule": "Перегляд графіка оплат",
+    "regularPayments": "Регулярні платежі",
+    "adminPanel": "Адмінка"
+  },
+  "userMenu": {
+    "greeting": "Привіт, {name}",
+    "guest": "Гість",
+    "logout": "Вийти"
+  },
+  "auth": {
+    "signIn": {
+      "title": "Вхід",
+      "loginLabel": "Логін",
+      "loginPlaceholder": "Логін",
+      "passwordLabel": "Пароль",
+      "passwordPlaceholder": "Пароль",
+      "submit": "Увійти"
+    },
+    "register": {
+      "title": "Реєстрація",
+      "loginLabel": "Логін",
+      "nameLabel": "Ім'я",
+      "passwordLabel": "Пароль",
+      "submit": "Зареєструватися",
+      "success": "Реєстрація пройшла успішно",
+      "error": "Помилка реєстрації"
+    },
+    "unauthorizedTitle": "Доступ заборонено",
+    "unauthorizedDescription": "У вас немає прав для перегляду цієї сторінки."
+  },
+  "notFound": {
+    "title": "Сторінку не знайдено",
+    "description": "Схоже, такої сторінки не існує.",
+    "backHome": "На головну"
+  },
+  "errors": {
+    "requiredCredentials": "Введіть логін і пароль",
+    "signInFailed": "Помилка входу"
+  }
+}

@@ -17,6 +17,7 @@ export default {
   moduleNameMapper: {
     "^@/(.*)$": "<rootDir>/$1",
     "^@api/(.*)$": "<rootDir>/app/api/(v1)/(protected)/$1",
+    "^next-intl$": "<rootDir>/tests/mocks/next-intl.tsx",
     "^next-test-api-route-handler$": "<rootDir>/tests/mocks/next-test-api-route-handler.ts",
   },
 };

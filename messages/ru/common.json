@@ -1,0 +1,43 @@
+{
+  "nav": {
+    "createPayment": "Создать платеж",
+    "paymentSchedule": "Просмотр графика оплат",
+    "regularPayments": "Регулярные платежи",
+    "adminPanel": "Админка"
+  },
+  "userMenu": {
+    "greeting": "Привет, {name}",
+    "guest": "Гость",
+    "logout": "Выйти"
+  },
+  "auth": {
+    "signIn": {
+      "title": "Вход",
+      "loginLabel": "Логин",
+      "loginPlaceholder": "Логин",
+      "passwordLabel": "Пароль",
+      "passwordPlaceholder": "Пароль",
+      "submit": "Войти"
+    },
+    "register": {
+      "title": "Регистрация",
+      "loginLabel": "Логин",
+      "nameLabel": "Имя",
+      "passwordLabel": "Пароль",
+      "submit": "Зарегистрироваться",
+      "success": "Регистрация прошла успешно",
+      "error": "Ошибка регистрации"
+    },
+    "unauthorizedTitle": "Доступ запрещён",
+    "unauthorizedDescription": "У вас нет прав для просмотра этой страницы."
+  },
+  "notFound": {
+    "title": "Страница не найдена",
+    "description": "Похоже, такой страницы не существует.",
+    "backHome": "На главную"
+  },
+  "errors": {
+    "requiredCredentials": "Введите логин и пароль",
+    "signInFailed": "Ошибка входа"
+  }
+}

@@ -2,6 +2,7 @@
 
 import { getSession } from "next-auth/react";
 import { useEffect } from "react";
+import { DEFAULT_LOCALE, getLocaleFromPathname, localizePath } from "@/lib/i18n/locales";
 import { logoutAndReset } from "@/lib/utils/logoutAndReset";
 
 export function useSessionRefresh(intervalMs = 5 * 60 * 1000) {
@@ -25,8 +26,9 @@ export function useSessionRefresh(intervalMs = 5 * 60 * 1000) {
         const session = await getSession();
 
         if (!session) {
+          const locale = getLocaleFromPathname(window.location.pathname) ?? DEFAULT_LOCALE;
           console.log("🔒 Session expired — logging out");
-          logoutAndReset("/auth/signin");
+          logoutAndReset(localizePath("/auth/signin", locale));
         } else if (process.env.NODE_ENV === "development") {
           console.log("✅ Session active — refreshed");
         }

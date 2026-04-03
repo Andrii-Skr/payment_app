@@ -2,6 +2,7 @@ import bcrypt from "bcrypt";
 import type { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import type { Role } from "@/constants/roles";
+import { DEFAULT_LOCALE, localizePath } from "@/lib/i18n/locales";
 import prisma from "@/prisma/prisma-client";
 import { rateLimit, resetRateLimit } from "@/utils/rateLimiter";
 
@@ -53,7 +54,7 @@ export const authOptions: NextAuthOptions = {
     updateAge: 1 * 60 * 60,
   },
   pages: {
-    signIn: "/auth/signin",
+    signIn: localizePath("/auth/signin", DEFAULT_LOCALE),
   },
   callbacks: {
     async jwt({ token, user }) {

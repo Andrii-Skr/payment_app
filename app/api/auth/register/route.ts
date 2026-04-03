@@ -2,7 +2,7 @@ import bcrypt from "bcrypt";
 import { type NextRequest, NextResponse } from "next/server";
 import { Roles } from "@/constants/roles";
 import prisma from "@/prisma/prisma-client";
-import type { RegisterBody } from "@/types/registerSchema";
+import { type RegisterBody, registerSchema } from "@/types/registerSchema";
 import { apiRoute } from "@/utils/apiRoute";
 import { rateLimit } from "@/utils/rateLimiter";
 
@@ -43,7 +43,12 @@ const postHandler = async (req: NextRequest, body: RegisterBody) => {
       login,
       password: hashedPassword,
       name,
-      role: { connect: { id: 2 } }, // можно вынести в enum
+      role: { connect: { name: Roles.USER } },
+    },
+    select: {
+      id: true,
+      login: true,
+      name: true,
     },
   });
 
@@ -51,6 +56,7 @@ const postHandler = async (req: NextRequest, body: RegisterBody) => {
 };
 
 export const POST = apiRoute<RegisterBody>(postHandler, {
+  schema: registerSchema,
   requireAuth: true,
   roles: [Roles.ADMIN, Roles.MANAGER],
 });

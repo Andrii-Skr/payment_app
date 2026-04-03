@@ -1,31 +1,57 @@
-// src/middleware.ts
-
 import { NextResponse } from "next/server";
 import type { NextRequestWithAuth } from "next-auth/middleware";
 import { withAuth } from "next-auth/middleware";
 import { hasRole } from "@/lib/access/hasRole";
+import { DEFAULT_LOCALE, getLocaleFromPathname, localizePath, stripLocaleFromPathname } from "@/lib/i18n/locales";
+
+const PUBLIC_PATHS = ["/auth/signin", "/auth/register"];
+const ADMIN_ONLY_PATHS = ["/regular", "/add"];
 
 export default withAuth(
   function middleware(req: NextRequestWithAuth) {
     const { pathname } = req.nextUrl;
+    const localeFromPath = getLocaleFromPathname(pathname);
+    const locale = localeFromPath ?? DEFAULT_LOCALE;
+    const pathWithoutLocale = stripLocaleFromPathname(pathname);
     const token = req.nextauth.token;
 
-    const adminOnlyPaths = ["/admin", "/regular", "/add"];
-    const isAdminOnly = adminOnlyPaths.some((p) => pathname.startsWith(p));
-
-    if (isAdminOnly && !hasRole(token?.role, "admin")) {
-      return NextResponse.redirect(new URL("/unauthorized", req.url));
+    if (!localeFromPath) {
+      const redirectUrl = req.nextUrl.clone();
+      redirectUrl.pathname = localizePath(pathname, locale);
+      return NextResponse.redirect(redirectUrl);
     }
 
-    return NextResponse.next();
+    const isAdminOnly = ADMIN_ONLY_PATHS.some((p) => pathWithoutLocale.startsWith(p));
+
+    if (isAdminOnly && !hasRole(token?.role, "admin")) {
+      const redirectUrl = req.nextUrl.clone();
+      redirectUrl.pathname = localizePath("/unauthorized", locale);
+      return NextResponse.redirect(redirectUrl);
+    }
+
+    const requestHeaders = new Headers(req.headers);
+    requestHeaders.set("x-locale", locale);
+
+    return NextResponse.next({
+      request: {
+        headers: requestHeaders,
+      },
+    });
   },
   {
-    pages: { signIn: "/auth/signin" },
-    callbacks: { authorized: ({ token }) => !!token },
+    pages: { signIn: localizePath("/auth/signin", DEFAULT_LOCALE) },
+    callbacks: {
+      authorized: ({ token, req }) => {
+        const pathWithoutLocale = stripLocaleFromPathname(req.nextUrl.pathname);
+        if (PUBLIC_PATHS.includes(pathWithoutLocale)) {
+          return true;
+        }
+        return !!token;
+      },
+    },
   },
 );
 
-// 💡 Авторизацию пускаем на весь сайт (кроме явных исключений)
 export const config = {
-  matcher: ["/((?!auth/signin|auth/register|api/log-test|api/auth|_next/static|_next/image|favicon.ico).*)"],
+  matcher: ["/((?!api/auth|api|_next/static|_next/image|favicon.ico).*)"],
 };

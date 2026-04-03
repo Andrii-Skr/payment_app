@@ -1,0 +1,43 @@
+{
+  "nav": {
+    "createPayment": "Create payment",
+    "paymentSchedule": "Payment schedule",
+    "regularPayments": "Recurring payments",
+    "adminPanel": "Admin panel"
+  },
+  "userMenu": {
+    "greeting": "Hi, {name}",
+    "guest": "Guest",
+    "logout": "Sign out"
+  },
+  "auth": {
+    "signIn": {
+      "title": "Sign in",
+      "loginLabel": "Login",
+      "loginPlaceholder": "Login",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "Password",
+      "submit": "Sign in"
+    },
+    "register": {
+      "title": "Register",
+      "loginLabel": "Login",
+      "nameLabel": "Name",
+      "passwordLabel": "Password",
+      "submit": "Create user",
+      "success": "Registration completed successfully",
+      "error": "Registration failed"
+    },
+    "unauthorizedTitle": "Access denied",
+    "unauthorizedDescription": "You do not have permission to access this page."
+  },
+  "notFound": {
+    "title": "Page not found",
+    "description": "The page you are looking for does not exist.",
+    "backHome": "Back to home"
+  },
+  "errors": {
+    "requiredCredentials": "Enter login and password",
+    "signInFailed": "Sign in failed"
+  }
+}

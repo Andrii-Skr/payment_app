@@ -2,29 +2,32 @@
 
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
+import { useTranslations } from "next-intl";
 import type { FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/lib/hooks/use-toast";
+import { useLocalePath } from "@/lib/hooks/useLocalePath";
 
 export default function SignIn() {
   const router = useRouter();
+  const { withLocale } = useLocalePath();
+  const t = useTranslations("auth.signIn");
+  const tErrors = useTranslations("errors");
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    // 1. Берём значения прямо из формы (автозаполнение уже там)
     const formData = new FormData(e.currentTarget);
     const login = (formData.get("login") ?? "").toString();
     const password = (formData.get("password") ?? "").toString();
 
     if (!login || !password) {
-      toast.error("Введите логин и пароль");
+      toast.error(tErrors("requiredCredentials"));
       return;
     }
 
-    // 2. Отправляем их в NextAuth
     const result = await signIn("credentials", {
       login,
       password,
@@ -32,50 +35,50 @@ export default function SignIn() {
     });
 
     if (result?.ok) {
-      router.push("/create");
+      router.push(withLocale("/create"));
     } else {
-      toast.error("Ошибка входа");
+      toast.error(tErrors("signInFailed"));
     }
   };
 
   return (
     <div className="min-h-[calc(100vh-40px)] flex items-center justify-center bg-gray-100">
       <div className="p-6 bg-white rounded-3xl shadow-md w-[340px]">
-        <h1 className="text-2xl font-bold mb-4 text-center">Вход</h1>
+        <h1 className="text-2xl font-bold mb-4 text-center">{t("title")}</h1>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Логин */}
+        <form onSubmit={handleSubmit} className="w-full space-y-4">
           <div className="space-y-1">
             <Label htmlFor="login" className="sr-only">
-              Логин
+              {t("loginLabel")}
             </Label>
             <Input
               id="login"
-              name="login" /* <- было username */
+              name="login"
               type="text"
               autoComplete="username"
-              placeholder="Логин"
+              placeholder={t("loginPlaceholder")}
+              className="w-full !max-w-none !h-8"
               required
             />
           </div>
 
-          {/* Пароль */}
           <div className="space-y-1">
             <Label htmlFor="password" className="sr-only">
-              Пароль
+              {t("passwordLabel")}
             </Label>
             <Input
               id="password"
               name="password"
               type="password"
               autoComplete="current-password"
-              placeholder="Пароль"
+              placeholder={t("passwordPlaceholder")}
+              className="w-full !max-w-none !h-8"
               required
             />
           </div>
 
           <Button type="submit" className="w-full">
-            Войти
+            {t("submit")}
           </Button>
         </form>
       </div>
