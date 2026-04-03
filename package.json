@@ -33,12 +33,13 @@
       "preact": "^10.28.3",
       "diff": "^8.0.3",
       "tar": "^7.5.8",
-      "lodash": "^4.17.23",
+      "lodash": "^4.18.0",
       "handlebars": "^4.7.9",
       "picomatch": "^4.0.4",
       "yaml": "^2.8.3"
     },
     "onlyBuiltDependencies": [
+      "bcrypt",
       "@parcel/watcher",
       "@prisma/client",
       "@prisma/engines",
