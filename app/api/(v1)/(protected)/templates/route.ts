@@ -3,6 +3,7 @@ import type { Session } from "next-auth";
 import { AUTO_PURPOSE_MARKER } from "@/constants/marker";
 import { Roles } from "@/constants/roles";
 import { getSafeDateForPrisma } from "@/lib/date/getSafeDateForPrisma";
+import { normalizeTextareaValue } from "@/lib/helpers/normalizeTextareaValue";
 import prisma from "@/prisma/prisma-client";
 import { apiRoute } from "@/utils/apiRoute";
 
@@ -51,8 +52,11 @@ const postHandler = async (
     vat_percent: body.vatPercent,
     date: getSafeDateForPrisma(body.date) ?? null,
     partner_account_number_id: body.partner_account_number_id,
-    purpose_of_payment: body.purposeOfPayment?.split(AUTO_PURPOSE_MARKER)[0]?.trim() ?? "",
-    note: body.note,
+    purpose_of_payment:
+      normalizeTextareaValue(body.purposeOfPayment ?? "")
+        .split(AUTO_PURPOSE_MARKER)[0]
+        ?.trim() ?? "",
+    note: normalizeTextareaValue(body.note ?? ""),
     is_auto_purpose_of_payment: body.is_auto_purpose_of_payment ?? true,
     user_id: Number(user.id),
   };

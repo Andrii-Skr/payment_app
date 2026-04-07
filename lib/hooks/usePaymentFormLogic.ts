@@ -6,6 +6,7 @@ import type { AxiosError } from "axios";
 import { format } from "date-fns";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import React from "react";
+import { normalizeOptionalTextareaValue, normalizeTextareaValue } from "@/lib/helpers/normalizeTextareaValue";
 import { toast } from "@/lib/hooks/use-toast";
 import { TransformedObject } from "@/lib/transformData/doc";
 import { apiClient } from "@/services/api-client";
@@ -82,6 +83,12 @@ export function usePaymentFormLogic({
     const payload: CreateDocumentPayload = {
       ...data,
       date: format(data.date, "yyyy-MM-dd"),
+      purposeOfPayment: normalizeTextareaValue(data.purposeOfPayment),
+      note: normalizeOptionalTextareaValue(data.note),
+      payments: data.payments.map((payment) => ({
+        ...payment,
+        purposeOfPayment: normalizeTextareaValue(payment.purposeOfPayment),
+      })),
     };
 
     try {

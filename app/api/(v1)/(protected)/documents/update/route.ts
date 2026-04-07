@@ -2,6 +2,7 @@ import { type NextRequest, NextResponse } from "next/server";
 import type { Session } from "next-auth";
 import { Roles } from "@/constants/roles";
 import { getSafeDateForPrisma } from "@/lib/date/getSafeDateForPrisma";
+import { normalizeOptionalTextareaValue, normalizeTextareaValue } from "@/lib/helpers/normalizeTextareaValue";
 import prisma from "@/prisma/prisma-client";
 import { apiRoute } from "@/utils/apiRoute";
 
@@ -45,6 +46,13 @@ const patchHandler = async (
     return NextResponse.json({ message: "Invalid date format" }, { status: 400 });
   }
 
+  const normalizedPurposeOfPayment = normalizeTextareaValue(body.purposeOfPayment);
+  const normalizedNote = normalizeOptionalTextareaValue(body.note);
+  const normalizedPayments = body.payments.map((payment) => ({
+    ...payment,
+    purposeOfPayment: normalizeTextareaValue(payment.purposeOfPayment),
+  }));
+
   try {
     const result = await prisma.documents.update({
       where: { id: body.doc_id },
@@ -58,14 +66,14 @@ const patchHandler = async (
         vat_type: body.vatType,
         vat_percent: body.vatType ? body.vatPercent : 0,
         partner_account_number_id: body.partner_account_number_id,
-        purpose_of_payment: body.purposeOfPayment,
+        purpose_of_payment: normalizedPurposeOfPayment,
         user_id: parseInt(user.id, 10),
         is_auto_purpose_of_payment: body.is_auto_purpose_of_payment,
         is_saved: true,
-        note: body.note,
+        note: normalizedNote,
         spec_doc: {
           deleteMany: {}, // удаляем старые
-          create: body.payments.map(({ paySum, expectedDate, deadLineDate, isPaid, purposeOfPayment }) => ({
+          create: normalizedPayments.map(({ paySum, expectedDate, deadLineDate, isPaid, purposeOfPayment }) => ({
             pay_sum: paySum,
             expected_date: expectedDate ? new Date(expectedDate) : !deadLineDate ? new Date() : null,
             dead_line_date: deadLineDate ? new Date(deadLineDate) : null,

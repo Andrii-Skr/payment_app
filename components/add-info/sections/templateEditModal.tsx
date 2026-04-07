@@ -12,6 +12,7 @@ import { Combobox, ContainerGrid, FormDatePicker, FormInput, FormTextarea, VatSe
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { formatBankAccount } from "@/lib/helpers/formatiban";
+import { normalizeOptionalTextareaValue } from "@/lib/helpers/normalizeTextareaValue";
 import { toast } from "@/lib/hooks/use-toast";
 import { apiClient } from "@/services/api-client";
 import type { PartnerAccountWithEntities } from "@/services/partners";
@@ -150,8 +151,8 @@ export const TemplateEditModal: React.FC<Props> = ({ template, open, onOpenChang
         vatPercent: d.vatPercent,
         date: d.date ? format(d.date, "yyyy-MM-dd") : null,
         partner_account_number_id: d.accountId,
-        purposeOfPayment: d.purposeOfPayment || undefined,
-        note: d.note || undefined,
+        purposeOfPayment: normalizeOptionalTextareaValue(d.purposeOfPayment),
+        note: normalizeOptionalTextareaValue(d.note),
       });
 
       toast.success("Шаблон обновлён");

@@ -3,6 +3,7 @@
 import type { TemplateWithBankDetails } from "@api/templates/[id]/route";
 import { format } from "date-fns";
 import { AUTO_PURPOSE_MARKER } from "@/constants/marker";
+import { normalizeOptionalTextareaValue } from "@/lib/helpers/normalizeTextareaValue";
 import { toast } from "@/lib/hooks/use-toast";
 import { apiClient } from "@/services/api-client";
 import type { TemplatePayload } from "@/services/templates";
@@ -41,6 +42,8 @@ export function useTemplateManager({
     const res = await apiClient.templates.save({
       ...payload,
       date: payload.date ? format(payload.date, "yyyy-MM-dd") : undefined,
+      purposeOfPayment: normalizeOptionalTextareaValue(payload.purposeOfPayment),
+      note: normalizeOptionalTextareaValue(payload.note),
     } as TemplatePayload);
 
     if (!res.success) {
