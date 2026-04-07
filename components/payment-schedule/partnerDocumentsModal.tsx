@@ -79,6 +79,18 @@ export const PartnerDocumentsModal: React.FC<PartnerDocumentsModalProps> = ({
     doc.spec_doc.reduce((sum, spec: SpecDocType) => sum + Number(spec.pay_sum), 0);
 
   const getBalance = (doc: DocumentType) => Number(doc.account_sum) - getTotalSpecSum(doc);
+  const getSpecDateTimestamp = (spec: SpecDocType) => {
+    const rawDate = spec.expected_date ?? spec.dead_line_date;
+    if (!rawDate) return Number.NEGATIVE_INFINITY;
+
+    const timestamp = new Date(rawDate as unknown as string).getTime();
+    return Number.isNaN(timestamp) ? Number.NEGATIVE_INFINITY : timestamp;
+  };
+  const getPaymentsSortTimestamp = (doc: DocumentType) =>
+    doc.spec_doc.reduce(
+      (maxTimestamp, spec) => Math.max(maxTimestamp, getSpecDateTimestamp(spec)),
+      Number.NEGATIVE_INFINITY,
+    );
 
   const collator = new Intl.Collator("ru-RU", { numeric: true, sensitivity: "base" });
 
@@ -131,7 +143,7 @@ export const PartnerDocumentsModal: React.FC<PartnerDocumentsModalProps> = ({
         compareResult = getBalance(a) - getBalance(b);
         break;
       case "payments":
-        compareResult = getTotalSpecSum(a) - getTotalSpecSum(b);
+        compareResult = getPaymentsSortTimestamp(a) - getPaymentsSortTimestamp(b);
         break;
       default:
         compareResult = 0;
@@ -274,8 +286,8 @@ export const PartnerDocumentsModal: React.FC<PartnerDocumentsModalProps> = ({
                     <div className="flex flex-wrap gap-x-4 gap-y-2">
                       {[...doc.spec_doc]
                         .sort((a, b) => {
-                          const dateA = new Date((a.expected_date ?? a.dead_line_date) as unknown as string).getTime();
-                          const dateB = new Date((b.expected_date ?? b.dead_line_date) as unknown as string).getTime();
+                          const dateA = getSpecDateTimestamp(a);
+                          const dateB = getSpecDateTimestamp(b);
                           return dateB - dateA;
                         })
                         .map((spec: SpecDocType) => {
