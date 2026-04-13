@@ -75,7 +75,7 @@
     "@radix-ui/react-switch": "^1.2.4",
     "@radix-ui/react-tabs": "^1.1.1",
     "@radix-ui/react-toast": "^1.2.6",
-    "axios": "^1.13.5",
+    "axios": "^1.15.0",
     "bcrypt": "^5.1.1",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
@@ -87,7 +87,7 @@
     "lucide-react": "^0.447.0",
     "next": "^15.5.14",
     "next-auth": "^4.24.13",
-    "next-intl": "^4.9.0",
+    "next-intl": "^4.9.1",
     "node-cron": "^3.0.3",
     "pino": "^9.6.0",
     "pino-pretty": "^13.0.0",
@@ -116,7 +116,7 @@
     "identity-obj-proxy": "^3.0.0",
     "jest": "^30.0.4",
     "jest-environment-jsdom": "^30.0.4",
-    "mathjs": "^14.4.0",
+    "mathjs": "^15.2.0",
     "next-test-api-route-handler": "^4.0.16",
     "node-mocks-http": "^1.17.0",
     "postcss": "^8",
@@ -128,5 +128,5 @@
     "ts-node": "^10.9.2",
     "typescript": "^5"
   },
-  "packageManager": "pnpm@10.28.0+sha512.05df71d1421f21399e053fde567cea34d446fa02c76571441bfc1c7956e98e363088982d940465fd34480d4d90a0668bc12362f8aa88000a64e83d0b0e47be48"
+  "packageManager": "pnpm@10.33.0+sha512.10568bb4a6afb58c9eb3630da90cc9516417abebd3fabbe6739f0ae795728da1491e9db5a544c76ad8eb7570f5c4bb3d6c637b2cb41bfdcdb47fa823c8649319"
 }
