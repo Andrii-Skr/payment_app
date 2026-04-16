@@ -5,6 +5,10 @@
     "regularPayments": "Recurring payments",
     "adminPanel": "Admin panel"
   },
+  "adminUsers": {
+    "create": "Create",
+    "showDeleted": "Show deleted"
+  },
   "userMenu": {
     "greeting": "Hi, {name}",
     "guest": "Guest",

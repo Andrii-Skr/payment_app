@@ -1,9 +1,14 @@
 "use client";
 
 import type { UserWithRelations } from "@api/users/route";
+import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useId, useMemo, useState } from "react";
 import { Container } from "@/components/shared";
-import { Checkbox, LoadingMessage } from "@/components/ui";
+import { Button, Checkbox, LoadingMessage } from "@/components/ui";
+import { Roles } from "@/constants/roles";
+import { useAccessControl } from "@/lib/hooks/useAccessControl";
+import { useLocalePath } from "@/lib/hooks/useLocalePath";
 import { apiClient } from "@/services/api-client";
 import { UserEditModal } from "./userEditModal";
 import { UserPasswordModal } from "./userPasswordModal";
@@ -11,6 +16,11 @@ import { UserRightsModal } from "./userRightsModal";
 import { UserTable } from "./userTable";
 
 export function UserSection() {
+  const t = useTranslations("adminUsers");
+  const { withLocale } = useLocalePath();
+  const { canAccess } = useAccessControl();
+  const canCreateUsers = canAccess(Roles.ADMIN);
+
   /* -------------------- данные -------------------- */
   const [rows, setRows] = useState<UserWithRelations[]>([]);
   const [loading, setLoading] = useState(true);
@@ -64,15 +74,25 @@ export function UserSection() {
   /* -------------------- UI -------------------- */
   return (
     <Container className="flex-col items-start gap-5 w-full min-w-[995px]">
-      <label className="flex items-center gap-2 select-none text-sm" htmlFor={showDeletedId}>
-        <Checkbox
-          id={showDeletedId}
-          checked={showDeleted}
-          onCheckedChange={(v) => setShowDeleted(Boolean(v))}
-          className="h-4 w-4"
-        />
-        Показать удалённые
-      </label>
+      <div className="flex w-full items-center justify-between gap-4">
+        <label className="flex items-center gap-2 select-none text-sm" htmlFor={showDeletedId}>
+          <Checkbox
+            id={showDeletedId}
+            checked={showDeleted}
+            onCheckedChange={(v) => setShowDeleted(Boolean(v))}
+            className="h-4 w-4"
+          />
+          {t("showDeleted")}
+        </label>
+
+        {canCreateUsers && (
+          <Button asChild>
+            <Link href={withLocale("/auth/register")} target="_blank" rel="noopener noreferrer">
+              {t("create")}
+            </Link>
+          </Button>
+        )}
+      </div>
 
       {loading ? (
         <LoadingMessage />

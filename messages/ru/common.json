@@ -5,6 +5,10 @@
     "regularPayments": "Регулярные платежи",
     "adminPanel": "Админка"
   },
+  "adminUsers": {
+    "create": "Создать",
+    "showDeleted": "Показать удалённые"
+  },
   "userMenu": {
     "greeting": "Привет, {name}",
     "guest": "Гость",
