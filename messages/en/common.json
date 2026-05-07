@@ -14,6 +14,20 @@
     "guest": "Guest",
     "logout": "Sign out"
   },
+  "paymentForm": {
+    "payerName": "Payer name:",
+    "loading": "Loading...",
+    "deleteDocument": "Delete document",
+    "deletedDocument": "Document deleted",
+    "documentNotSelected": "Document is not selected",
+    "documentHasPaidRows": "Document contains paid rows",
+    "documentHasActiveAutoPayments": "Document has active recurring payments",
+    "deletedDocumentHint": "This document is deleted",
+    "documentDeleteTitle": "Delete document",
+    "documentDeleteDescription": "Are you sure you want to delete the current document?",
+    "documentDeleteSuccess": "Document deleted",
+    "documentDeleteError": "Delete error"
+  },
   "auth": {
     "signIn": {
       "title": "Sign in",

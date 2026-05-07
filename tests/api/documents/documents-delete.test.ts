@@ -42,7 +42,7 @@ describe("PATCH /documents/delete", () => {
   });
 
   it("200 помечает документ удалённым", async () => {
-    prisma.documents.findUnique.mockResolvedValueOnce({ id: 1 });
+    prisma.documents.findUnique.mockResolvedValueOnce({ id: 1, auto_payment: [] });
     prisma.documents.update.mockResolvedValueOnce({ id: 1 });
 
     await testApiHandler({
@@ -54,6 +54,26 @@ describe("PATCH /documents/delete", () => {
           body: JSON.stringify({ id: 1 }),
         });
         expect(res.status).toBe(200);
+      },
+    });
+  });
+
+  it("409 если у документа есть активные регулярные платежи", async () => {
+    prisma.documents.findUnique.mockResolvedValueOnce({
+      id: 1,
+      auto_payment: [{ id: 10 }],
+    });
+
+    await testApiHandler({
+      appHandler: handler,
+      test: async ({ fetch }) => {
+        const res = await fetch({
+          method: "PATCH",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ id: 1 }),
+        });
+        expect(res.status).toBe(409);
+        expect(prisma.documents.update).not.toHaveBeenCalled();
       },
     });
   });

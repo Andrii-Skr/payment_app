@@ -1,7 +1,9 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import type { AxiosError } from "axios";
 import { Trash2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import type React from "react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -51,10 +53,13 @@ const defaultValues: FormValues = {
   purposeOfPayment: "",
   note: "",
   is_auto_purpose_of_payment: true,
+  is_deleted: false,
+  has_active_auto_payments: false,
 };
 
 export const PaymentForm: React.FC<{ className?: string }> = ({ className }) => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const t = useTranslations("paymentForm");
 
   /* ---------- react-hook-form ---------- */
   const form = useForm<FormValues>({
@@ -65,8 +70,19 @@ export const PaymentForm: React.FC<{ className?: string }> = ({ className }) => 
   const { setValue, getValues, reset, control, watch, handleSubmit, setFocus } = form;
   const docId = watch("doc_id");
   const payments = watch("payments");
+  const isDeleted = watch("is_deleted");
+  const hasActiveAutoPayments = watch("has_active_auto_payments");
 
   const isDeletable = payments.every((p) => !p.isPaid);
+  const deleteDisabledReason = !docId
+    ? t("documentNotSelected")
+    : isDeleted
+      ? t("deletedDocumentHint")
+      : !isDeletable
+        ? t("documentHasPaidRows")
+        : hasActiveAutoPayments
+          ? t("documentHasActiveAutoPayments")
+          : undefined;
 
   /* ---------- custom hooks ---------- */
   const {
@@ -123,7 +139,7 @@ export const PaymentForm: React.FC<{ className?: string }> = ({ className }) => 
   const handleConfirmDelete = async () => {
     const id = getValues("doc_id");
     if (!id) {
-      toast.error("Документ не выбран");
+      toast.error(t("documentNotSelected"));
       setDeleteDialogOpen(false);
       return;
     }
@@ -131,10 +147,11 @@ export const PaymentForm: React.FC<{ className?: string }> = ({ className }) => 
     try {
       await removeDoc(id, entityIdNum);
       reset({ ...defaultValues, entity_id: entityIdNum });
-      toast.success("Документ удалён");
+      toast.success(t("documentDeleteSuccess"));
     } catch (err) {
       console.error(err);
-      toast.error("Ошибка при удалении");
+      const message = (err as AxiosError<{ error?: string }>)?.response?.data?.error ?? t("documentDeleteError");
+      toast.error(message);
     } finally {
       setDeleteDialogOpen(false);
     }
@@ -152,18 +169,18 @@ export const PaymentForm: React.FC<{ className?: string }> = ({ className }) => 
           {/* заголовок с плательщиком */}
           <Alert className="flex justify-between items-center p-2">
             <AlertDescription className="p-0">
-              Наименование Плательщика:&nbsp;
-              {entity?.short_name || "Загрузка..."}
+              {t("payerName")}&nbsp;
+              {entity?.short_name || t("loading")}
             </AlertDescription>
             <Button
               type="button"
               variant="ghost"
               className="flex gap-2 h-6 text-red-500 p-0"
               onClick={() => setDeleteDialogOpen(true)}
-              disabled={!docId || !isDeletable}
-              title={!docId ? "Документ не выбран" : !isDeletable ? "Документ содержит оплаченные строки" : undefined}
+              disabled={Boolean(deleteDisabledReason)}
+              title={deleteDisabledReason}
             >
-              <Trash2 /> Удалить Документ
+              <Trash2 /> {isDeleted ? t("deletedDocument") : t("deleteDocument")}
             </Button>
           </Alert>
 
@@ -223,10 +240,10 @@ export const PaymentForm: React.FC<{ className?: string }> = ({ className }) => 
       {/* удаление документа */}
       <ChoiceDialog
         open={deleteDialogOpen}
-        title="Удалить документ"
-        description="Вы уверены, что хотите удалить текущий документ?"
+        title={t("documentDeleteTitle")}
+        description={t("documentDeleteDescription")}
         onCancel={() => setDeleteDialogOpen(false)}
-        choices={[{ label: "Удалить", onSelect: handleConfirmDelete }]}
+        choices={[{ label: t("deleteDocument"), onSelect: handleConfirmDelete }]}
       />
 
       {/* добавление дубликата документа */}

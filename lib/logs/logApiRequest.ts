@@ -4,6 +4,8 @@ import type { User } from "next-auth";
 import prisma from "@/prisma/prisma-client";
 import { redactBody } from "./redactBody";
 
+const MUTATING_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
+
 export async function logApiRequest(
   req: NextRequest,
   user: User | null,
@@ -12,6 +14,10 @@ export async function logApiRequest(
   bodyRaw?: unknown,
 ) {
   try {
+    if (!MUTATING_METHODS.has(req.method.toUpperCase())) {
+      return;
+    }
+
     /* ---------- собираем данные ---------- */
     const ip =
       // next 15 подставляет .ip, fallback на заголовки

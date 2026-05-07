@@ -93,35 +93,38 @@ const SumAndDateForm: React.FC<Props> = ({ control }) => {
           return (
             <div key={field.id} className="w-auto rounded-3xl border-gray-400 border-2 ml-[-20px] p-2">
               <ContainerGrid className="">
-                <div className="relative">
+                <div>
                   <FormInput
-                    className="no-spin pr-12"
+                    className="no-spin pr-16"
                     control={control}
                     type="number"
                     name={`payments.${index}.paySum`}
                     label="Сумма оплаты"
                     description="Сумма, которую нужно оплатить"
+                    inputWrapperClassName="w-full max-w-[260px]"
                     readOnly={isPaid}
                     onBlur={(e) => handlePaySumBlur(e, index)}
+                    endAdornment={
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size={"sm"}
+                        className="h-6 px-2 rounded text-xs font-bold"
+                        disabled={isPaid}
+                        onClick={() => {
+                          if (remainder > 0) {
+                            setValue(
+                              `payments.${index}.paySum`,
+                              remainder + Number(getValues(`payments.${index}.paySum`)),
+                              { shouldValidate: true },
+                            );
+                          }
+                        }}
+                      >
+                        MAX
+                      </Button>
+                    }
                   />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size={"sm"}
-                    className="absolute right-0 top-11 transform -translate-y-4 rounded text-xs font-bold"
-                    disabled={isPaid}
-                    onClick={() => {
-                      if (remainder > 0) {
-                        setValue(
-                          `payments.${index}.paySum`,
-                          remainder + Number(getValues(`payments.${index}.paySum`)),
-                          { shouldValidate: true },
-                        );
-                      }
-                    }}
-                  >
-                    MAX
-                  </Button>
                 </div>
                 <ComputedFormInput
                   label="Остаток"
