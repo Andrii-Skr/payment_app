@@ -12,6 +12,12 @@ const getDocument = async (docId: number) => {
   return await prisma.documents.findUnique({
     where: { id: docId },
     include: {
+      auto_payment: {
+        where: { is_deleted: false },
+        select: {
+          id: true,
+        },
+      },
       partner: {
         select: {
           short_name: true,

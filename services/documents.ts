@@ -42,6 +42,7 @@ export const remove = async (id: number) => {
     await axiosInstance.patch("/documents/delete", { id });
   } catch (error) {
     console.log(error);
+    throw error;
   }
 };
 

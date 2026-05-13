@@ -14,6 +14,8 @@ export const TransformedObject = (data: DocumentWithIncludes): FormValues => {
     edrpou: data.partner?.edrpou ?? "",
     is_auto_payment: data.is_auto_payment,
     is_auto_purpose_of_payment: data.is_auto_purpose_of_payment,
+    is_deleted: data.is_deleted,
+    has_active_auto_payments: data.auto_payment.length > 0,
 
     payments:
       data.spec_doc

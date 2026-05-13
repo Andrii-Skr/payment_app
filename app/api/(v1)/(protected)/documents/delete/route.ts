@@ -13,9 +13,21 @@ type Body = z.infer<typeof schema>;
 const handler = async (_req: NextRequest, body: Body) => {
   const id = body.id;
 
-  const doc = await prisma.documents.findUnique({ where: { id } });
+  const doc = await prisma.documents.findUnique({
+    where: { id },
+    include: {
+      auto_payment: {
+        where: { is_deleted: false },
+        select: { id: true },
+      },
+    },
+  });
   if (!doc) {
     return NextResponse.json({ error: "Документ не найден" }, { status: 404 });
+  }
+
+  if (doc.auto_payment.length > 0) {
+    return NextResponse.json({ error: "Нельзя удалить документ с активными регулярными платежами" }, { status: 409 });
   }
 
   await prisma.documents.update({

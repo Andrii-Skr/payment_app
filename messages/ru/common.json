@@ -14,6 +14,20 @@
     "guest": "Гость",
     "logout": "Выйти"
   },
+  "paymentForm": {
+    "payerName": "Наименование Плательщика:",
+    "loading": "Загрузка...",
+    "deleteDocument": "Удалить документ",
+    "deletedDocument": "Документ удалён",
+    "documentNotSelected": "Документ не выбран",
+    "documentHasPaidRows": "Документ содержит оплаченные строки",
+    "documentHasActiveAutoPayments": "Документ содержит активные регулярные платежи",
+    "deletedDocumentHint": "Этот документ удалён",
+    "documentDeleteTitle": "Удалить документ",
+    "documentDeleteDescription": "Вы уверены, что хотите удалить текущий документ?",
+    "documentDeleteSuccess": "Документ удалён",
+    "documentDeleteError": "Ошибка при удалении"
+  },
   "auth": {
     "signIn": {
       "title": "Вход",

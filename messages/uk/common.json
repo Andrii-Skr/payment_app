@@ -14,6 +14,20 @@
     "guest": "Гість",
     "logout": "Вийти"
   },
+  "paymentForm": {
+    "payerName": "Найменування платника:",
+    "loading": "Завантаження...",
+    "deleteDocument": "Видалити документ",
+    "deletedDocument": "Документ видалено",
+    "documentNotSelected": "Документ не вибрано",
+    "documentHasPaidRows": "Документ містить оплачені рядки",
+    "documentHasActiveAutoPayments": "Документ містить активні регулярні платежі",
+    "deletedDocumentHint": "Цей документ видалено",
+    "documentDeleteTitle": "Видалити документ",
+    "documentDeleteDescription": "Ви впевнені, що хочете видалити поточний документ?",
+    "documentDeleteSuccess": "Документ видалено",
+    "documentDeleteError": "Помилка під час видалення"
+  },
   "auth": {
     "signIn": {
       "title": "Вхід",
