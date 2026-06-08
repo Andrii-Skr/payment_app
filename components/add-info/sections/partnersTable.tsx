@@ -1,7 +1,7 @@
 "use client";
 
 import { Eye, EyeOff, Pencil, Trash2 } from "lucide-react";
-import { Fragment, type MouseEvent, useEffect, useId, useState } from "react";
+import { Fragment, type MouseEvent, useEffect, useId, useRef, useState } from "react";
 import { Checkbox } from "@/components/ui";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/";
 import { Button } from "@/components/ui/button";
@@ -18,13 +18,14 @@ export const PartnersTable = ({ entityId }: { entityId: number | null }) => {
   const [partners, setPartners] = useState<PartnersWithAccounts[]>([]);
   const [editTarget, setEditTarget] = useState<PartnersWithAccounts | null>(null);
   const [expanded, setExpanded] = useState<number | null>(null);
-  const [_reload, setReload] = useState(0);
+  const [reload, setReload] = useState(0);
   const [loadingAccId, setLoadingAccId] = useState<number | null>(null);
 
   const [showDeleted, setShowDeleted] = useState(false);
   const [showHidden, setShowHidden] = useState(false);
   const showDeletedId = useId();
   const showHiddenId = useId();
+  const previousEntityIdRef = useRef<number | null>(null);
 
   const reloadPartners = () => setReload((v) => v + 1);
 
@@ -35,18 +36,27 @@ export const PartnersTable = ({ entityId }: { entityId: number | null }) => {
 
   /* ——— fetch ——— */
   useEffect(() => {
-    if (!entityId) return;
+    if (!entityId) {
+      setPartners([]);
+      return;
+    }
+
     apiClient.partners
       .partnersService(entityId, { showDeleted: true, showHidden: true })
       .then((data) => setPartners(data ?? []));
-  }, [entityId]);
+
+    void reload;
+  }, [entityId, reload]);
 
   /* clean state when entity changes */
   useEffect(() => {
+    if (previousEntityIdRef.current === entityId) return;
+
     setExpanded(null);
     setEditTarget(null);
     setLoadingAccId(null);
-  }, []);
+    previousEntityIdRef.current = entityId;
+  }, [entityId]);
 
   /* ——— фильтрация для чекбоксов ——— */
   const filteredPartners = partners.filter((p) => {
