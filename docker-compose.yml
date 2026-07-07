@@ -40,7 +40,7 @@ services:
       - app
     volumes:
       - logs:/app/logs
-    restart: on-failure
+    restart: unless-stopped
 
 volumes:
   logs: 
