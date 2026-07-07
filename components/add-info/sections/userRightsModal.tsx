@@ -136,22 +136,25 @@ export function UserRightsModal({ user, open, onOpenChange, onSaved }: Props) {
               {entities.map((e) => {
                 const isSelected = selectedEntityId === e.id;
                 return (
-                  <button
+                  <div
                     key={e.id}
-                    type="button"
-                    onClick={() => selectEntity(e.id)}
-                    className={`flex w-full items-center gap-2 text-left text-sm cursor-pointer rounded-md px-2 py-1 transition-colors ${
+                    className={`flex w-full items-center gap-2 rounded-md px-2 py-1 text-sm transition-colors ${
                       isSelected ? "bg-primary/15 text-primary font-semibold" : "hover:bg-muted/50"
                     }`}
                   >
                     <Checkbox
                       checked={entityRights.has(e.id)}
                       onCheckedChange={() => toggleEntity(e.id)}
-                      onClick={(ev) => ev.stopPropagation()}
                       className="shrink-0"
                     />
-                    <span>{e.short_name}</span>
-                  </button>
+                    <button
+                      type="button"
+                      onClick={() => selectEntity(e.id)}
+                      className="flex-1 cursor-pointer text-left"
+                    >
+                      <span>{e.short_name}</span>
+                    </button>
+                  </div>
                 );
               })}
             </div>

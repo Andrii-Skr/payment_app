@@ -37,6 +37,21 @@ const getHandler = async (req: NextRequest, _body: null, params: Params, user: S
   };
 
   /* общее include для партнёра */
+  const entityRelationSelect = {
+    entity_id: true,
+    partner_id: true,
+    is_deleted: true,
+    is_visible: true,
+    entity: {
+      select: {
+        id: true,
+        short_name: true,
+        full_name: true,
+        is_deleted: true,
+      },
+    },
+  } as const;
+
   const include = {
     partner: {
       include: {
@@ -68,12 +83,23 @@ const getHandler = async (req: NextRequest, _body: null, params: Params, user: S
         },
         entities: {
           where: { entity_id: entityId },
-          select: {
-            entity_id: true,
-            partner_id: true,
-            is_deleted: true,
-            is_visible: true,
+          select: entityRelationSelect,
+        },
+      },
+    },
+  };
+
+  const adminInclude = {
+    partner: {
+      include: {
+        ...include.partner.include,
+        entities: {
+          where: {
+            entity: {
+              is_deleted: false,
+            },
           },
+          select: entityRelationSelect,
         },
       },
     },
@@ -83,7 +109,7 @@ const getHandler = async (req: NextRequest, _body: null, params: Params, user: S
   if (hasRole(role, Roles.ADMIN)) {
     const relationRecords = await prisma.partners_on_entities.findMany({
       where: relationFilter,
-      include,
+      include: adminInclude,
     });
     const partners = relationRecords.map((r) => r.partner);
     return NextResponse.json(partners);

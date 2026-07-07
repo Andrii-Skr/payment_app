@@ -10,6 +10,7 @@ import { Container, PartnerInput } from "@/components/shared";
 import { Button, Card, CardContent, CardHeader, CardTitle, Form, Label, Separator, Switch } from "@/components/ui";
 import { formatBankAccount } from "@/lib/helpers/formatiban";
 import { toast } from "@/lib/hooks/use-toast";
+import { bankAccountSchema } from "@/lib/validators/bankAccount";
 import { apiClient } from "@/services/api-client";
 import type { AccountItem } from "@/store/accountListStore";
 import { useAccountListStore } from "@/store/accountListStore";
@@ -30,7 +31,7 @@ export const PartnerAccountsList: React.FC<Props> = ({ show, hideDelete, entityI
   const [addMode, setAddMode] = useState(false);
 
   const bankSchema = z.object({
-    bank_account: z.string().length(29, "29 символов"),
+    bank_account: bankAccountSchema,
     mfo: z.string().optional(),
     bank_name: z.string().optional(),
   });

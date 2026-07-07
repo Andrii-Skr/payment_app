@@ -9,6 +9,21 @@
     "create": "Створити",
     "showDeleted": "Показати видалені"
   },
+  "adminPartners": {
+    "editTitle": "Редагування контрагента",
+    "openAddAccount": "+ Додати рахунок",
+    "addAccountDialogTitle": "Додати рахунок",
+    "bankAccountLabel": "Рахунок",
+    "additionalEntitiesTitle": "Додати для інших юросіб",
+    "additionalEntitiesDescription": "Хочете одразу створити цей рахунок і для інших юросіб, які вже працюють із цим контрагентом?",
+    "additionalEntitiesHint": "Для вибраних юросіб рахунок буде додано одразу, але він не стане основним автоматично.",
+    "noOtherEntities": "У цього контрагента немає інших активних пов'язаних юросіб.",
+    "save": "Зберегти",
+    "cancel": "Скасувати",
+    "accountAdded": "Рахунок додано",
+    "accountAddError": "Не вдалося додати рахунок",
+    "addAccountResult": "Рахунок додано ще для {linked} юросіб. Пропущено: {skipped}."
+  },
   "userMenu": {
     "greeting": "Привіт, {name}",
     "guest": "Гість",

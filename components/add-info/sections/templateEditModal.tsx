@@ -8,9 +8,17 @@ import type React from "react";
 import { useEffect, useMemo, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { z } from "zod";
-import { Combobox, ContainerGrid, FormDatePicker, FormInput, FormTextarea, VatSelector } from "@/components/shared";
+import {
+  Combobox,
+  ContainerGrid,
+  FormCheckbox,
+  FormDatePicker,
+  FormInput,
+  FormTextarea,
+  VatSelector,
+} from "@/components/shared";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { formatBankAccount } from "@/lib/helpers/formatiban";
 import { normalizeOptionalTextareaValue } from "@/lib/helpers/normalizeTextareaValue";
 import { toast } from "@/lib/hooks/use-toast";
@@ -30,6 +38,7 @@ const templateSchema = z.object({
   vatType: z.boolean(),
   vatPercent: z.coerce.number().min(0),
   purposeOfPayment: z.string().nullable(),
+  is_auto_purpose_of_payment: z.boolean(),
   note: z.string().nullable(),
 });
 type TemplateFormData = z.infer<typeof templateSchema>;
@@ -55,6 +64,7 @@ export const TemplateEditModal: React.FC<Props> = ({ template, open, onOpenChang
       vatType: template.vat_type,
       vatPercent: Number(template.vat_percent),
       purposeOfPayment: template.purpose_of_payment ?? "",
+      is_auto_purpose_of_payment: template.is_auto_purpose_of_payment,
       note: template.note ?? "",
     },
   });
@@ -89,6 +99,7 @@ export const TemplateEditModal: React.FC<Props> = ({ template, open, onOpenChang
         vatType: template.vat_type,
         vatPercent: Number(template.vat_percent),
         purposeOfPayment: template.purpose_of_payment ?? "",
+        is_auto_purpose_of_payment: template.is_auto_purpose_of_payment,
         note: template.note ?? "",
       });
     }
@@ -152,6 +163,7 @@ export const TemplateEditModal: React.FC<Props> = ({ template, open, onOpenChang
         date: d.date ? format(d.date, "yyyy-MM-dd") : null,
         partner_account_number_id: d.accountId,
         purposeOfPayment: normalizeOptionalTextareaValue(d.purposeOfPayment),
+        is_auto_purpose_of_payment: d.is_auto_purpose_of_payment,
         note: normalizeOptionalTextareaValue(d.note),
       });
 
@@ -169,6 +181,7 @@ export const TemplateEditModal: React.FC<Props> = ({ template, open, onOpenChang
       <DialogContent className="max-w-xl">
         <DialogHeader>
           <DialogTitle>Редактировать шаблон</DialogTitle>
+          <DialogDescription className="sr-only">Форма редактирования шаблона платежа</DialogDescription>
         </DialogHeader>
 
         <FormProvider {...methods}>
@@ -220,6 +233,13 @@ export const TemplateEditModal: React.FC<Props> = ({ template, open, onOpenChang
             <VatSelector control={control} setValue={setValue} />
 
             <FormTextarea control={control} name="purposeOfPayment" label="Назначение платежа" rows={3} />
+
+            <FormCheckbox
+              control={control}
+              name="is_auto_purpose_of_payment"
+              label="Автозаполнение назначения"
+              className="justify-end"
+            />
 
             <FormTextarea control={control} name="note" label="Примечание" rows={3} />
 

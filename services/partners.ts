@@ -25,6 +25,12 @@ export type PartnersWithAccounts = partners & {
     partner_id: number;
     is_visible: boolean;
     is_deleted: boolean;
+    entity: {
+      id: number;
+      short_name: string;
+      full_name: string;
+      is_deleted: boolean;
+    };
   }[];
 };
 
@@ -36,6 +42,8 @@ export type CreatePartnerResponse = {
 export type AddBankAccountResponse = {
   success: boolean;
   created: PartnerAccountWithEntities;
+  linked_entity_ids: number[];
+  skipped_entity_ids: number[];
   message?: string;
 };
 
@@ -169,6 +177,7 @@ export const deletePartner = async (partner_id: number, is_deleted: boolean, ent
 export const addBankAccount = async (data: {
   partner_id: number;
   entity_id: number;
+  additional_entity_ids?: number[];
   bank_account: string;
   mfo?: string;
   bank_name?: string;

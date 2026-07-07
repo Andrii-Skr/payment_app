@@ -113,4 +113,58 @@ describe("partner routes include account entities", () => {
       },
     });
   });
+
+  it("GET /partners/[id] for manager does not expose other entity relations", async () => {
+    const { getServerSession } = require("next-auth");
+    getServerSession.mockResolvedValueOnce({ user: { id: 2, role: Roles.MANAGER } });
+
+    prisma.user.findUnique.mockResolvedValueOnce({
+      users_partners: [{ partner_id: 2, entity_id: 1 }],
+      users_entities: [],
+    });
+
+    prisma.partners_on_entities.findMany.mockResolvedValueOnce([
+      {
+        partner: {
+          id: 2,
+          partner_account_number: [
+            {
+              id: 5,
+              bank_account: "123",
+              entities: [
+                {
+                  entity_id: 1,
+                  partner_account_number_id: 5,
+                  is_visible: true,
+                  is_default: true,
+                  is_deleted: false,
+                },
+              ],
+            },
+          ],
+          entities: [
+            {
+              entity_id: 1,
+              partner_id: 2,
+              is_deleted: false,
+              is_visible: true,
+              entity: { id: 1, short_name: "A", full_name: "Entity A", is_deleted: false },
+            },
+          ],
+        },
+      },
+    ]);
+
+    await testApiHandler({
+      appHandler: partnerHandler,
+      params: { id: "1" },
+      test: async ({ fetch }) => {
+        const res = await fetch({ method: "GET" });
+        expect(res.status).toBe(200);
+        const data = await res.json();
+        expect(data[0].entities).toHaveLength(1);
+        expect(data[0].entities[0].entity_id).toBe(1);
+      },
+    });
+  });
 });

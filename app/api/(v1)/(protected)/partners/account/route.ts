@@ -1,15 +1,19 @@
 // src/app/api/partners/account/route.ts
 
 import { type NextRequest, NextResponse } from "next/server";
+import type { Session } from "next-auth";
 import { z } from "zod";
 import { Roles } from "@/constants/roles";
+import { hasRole } from "@/lib/access/hasRole";
+import { bankAccountSchema } from "@/lib/validators/bankAccount";
 import prisma from "@/prisma/prisma-client";
 import { apiRoute } from "@/utils/apiRoute";
 
 const schema = z.object({
   partner_id: z.number(),
   entity_id: z.number(),
-  bank_account: z.string().length(29),
+  additional_entity_ids: z.array(z.number()).optional(),
+  bank_account: bankAccountSchema,
   mfo: z.string().optional(),
   bank_name: z.string().optional(),
   is_default: z.boolean().optional(),
@@ -20,24 +24,83 @@ type Body = z.infer<typeof schema>;
 const updateSchema = z.object({
   partner_account_number_id: z.number(),
   entity_id: z.number(),
-  bank_account: z.string().length(29),
+  bank_account: bankAccountSchema,
 });
 
 type UpdateBody = z.infer<typeof updateSchema>;
 
-const handler = async (_req: NextRequest, body: Body) => {
+const accountInclude = {
+  entities: true,
+} as const;
+
+const handler = async (_req: NextRequest, body: Body, _params: Record<string, never>, user: Session["user"] | null) => {
+  const additionalEntityIds = body.additional_entity_ids ?? [];
+  const requestedEntityIds = Array.from(new Set([body.entity_id, ...additionalEntityIds]));
+
+  if (!user) {
+    return NextResponse.json({ success: false, message: "Unauthorized" }, { status: 401 });
+  }
+
+  if (!hasRole(user.role, Roles.ADMIN)) {
+    const dbUser = await prisma.user.findUnique({
+      where: { id: Number(user.id) },
+      select: {
+        users_entities: { select: { entity_id: true } },
+        users_partners: {
+          where: { partner_id: body.partner_id },
+          select: { entity_id: true },
+        },
+      },
+    });
+
+    if (!dbUser) {
+      return NextResponse.json({ success: false, message: "User not found" }, { status: 404 });
+    }
+
+    const accessibleEntityIds = new Set([
+      ...dbUser.users_entities.map((relation) => relation.entity_id),
+      ...dbUser.users_partners.map((relation) => relation.entity_id),
+    ]);
+
+    if (!requestedEntityIds.every((entityId) => accessibleEntityIds.has(entityId))) {
+      return NextResponse.json({ success: false, message: "Недостаточно прав для привязки счёта" }, { status: 403 });
+    }
+  }
+
+  const partnerRelations = await prisma.partners_on_entities.findMany({
+    where: {
+      partner_id: body.partner_id,
+      entity_id: { in: requestedEntityIds },
+      is_deleted: false,
+      entity: {
+        is_deleted: false,
+      },
+    },
+    select: {
+      entity_id: true,
+    },
+  });
+
+  const allowedEntityIds = new Set(partnerRelations.map((relation) => relation.entity_id));
+
+  if (!allowedEntityIds.has(body.entity_id)) {
+    return NextResponse.json({ success: false, message: "Контрагент не связан с выбранным юрлицом" }, { status: 409 });
+  }
+
+  const targetEntityIds = requestedEntityIds.filter((entityId) => allowedEntityIds.has(entityId));
+
   const existing = await prisma.partner_account_number.findFirst({
     where: {
       partner_id: body.partner_id,
       bank_account: body.bank_account,
     },
-    include: {
-      entities: true,
-    },
+    include: accountInclude,
   });
 
   if (existing) {
-    const alreadyLinked = existing.entities.some((e) => e.entity_id === body.entity_id);
+    const existingLinkedEntityIds = new Set(existing.entities.map((entity) => entity.entity_id));
+    const createdEntityIds: number[] = [];
+    const skippedEntityIds = targetEntityIds.filter((entityId) => existingLinkedEntityIds.has(entityId));
 
     await prisma.$transaction(async (tx) => {
       if (body.is_default) {
@@ -50,15 +113,22 @@ const handler = async (_req: NextRequest, body: Body) => {
         });
       }
 
-      if (!alreadyLinked) {
+      for (const entityId of targetEntityIds) {
+        if (existingLinkedEntityIds.has(entityId)) {
+          continue;
+        }
+
         await tx.partner_account_numbers_on_entities.create({
           data: {
-            entity_id: body.entity_id,
+            entity_id: entityId,
             partner_account_number_id: existing.id,
-            is_default: body.is_default ?? false,
+            is_default: entityId === body.entity_id ? (body.is_default ?? false) : false,
           },
         });
-      } else if (body.is_default) {
+        createdEntityIds.push(entityId);
+      }
+
+      if (existingLinkedEntityIds.has(body.entity_id) && body.is_default) {
         await tx.partner_account_numbers_on_entities.update({
           where: {
             entity_id_partner_account_number_id: {
@@ -71,15 +141,18 @@ const handler = async (_req: NextRequest, body: Body) => {
       }
     });
 
-    if (alreadyLinked) {
-      return NextResponse.json({
-        success: true,
-        created: existing,
-        message: "Счёт уже существует у партнёра.",
-      });
-    }
+    const freshAccount = await prisma.partner_account_number.findUniqueOrThrow({
+      where: { id: existing.id },
+      include: accountInclude,
+    });
 
-    return NextResponse.json({ success: true, created: existing });
+    return NextResponse.json({
+      success: true,
+      created: freshAccount,
+      linked_entity_ids: createdEntityIds,
+      skipped_entity_ids: skippedEntityIds,
+      message: skippedEntityIds.length > 0 ? "Счёт уже был привязан к части юрлиц." : undefined,
+    });
   }
 
   const created = await prisma.partner_account_number.create({
@@ -102,16 +175,28 @@ const handler = async (_req: NextRequest, body: Body) => {
       });
     }
 
-    await tx.partner_account_numbers_on_entities.create({
-      data: {
-        entity_id: body.entity_id,
-        partner_account_number_id: created.id,
-        is_default: body.is_default ?? false,
-      },
-    });
+    for (const entityId of targetEntityIds) {
+      await tx.partner_account_numbers_on_entities.create({
+        data: {
+          entity_id: entityId,
+          partner_account_number_id: created.id,
+          is_default: entityId === body.entity_id ? (body.is_default ?? false) : false,
+        },
+      });
+    }
   });
 
-  return NextResponse.json({ success: true, created });
+  const freshAccount = await prisma.partner_account_number.findUniqueOrThrow({
+    where: { id: created.id },
+    include: accountInclude,
+  });
+
+  return NextResponse.json({
+    success: true,
+    created: freshAccount,
+    linked_entity_ids: targetEntityIds,
+    skipped_entity_ids: [],
+  });
 };
 
 export const POST = apiRoute<Body>(handler, {

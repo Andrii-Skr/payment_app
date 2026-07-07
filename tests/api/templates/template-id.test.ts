@@ -51,4 +51,47 @@ describe("/templates/[id]", () => {
       },
     });
   });
+
+  it("PATCH сохраняет is_auto_purpose_of_payment=false без подмены на true", async () => {
+    prisma.template.update.mockResolvedValueOnce({ id: 1, is_auto_purpose_of_payment: false });
+
+    await testApiHandler({
+      appHandler: handler,
+      params: { id: "1" },
+      test: async ({ fetch }) => {
+        const res = await fetch({
+          method: "PATCH",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            entity_id: 1,
+            sample: "Sample",
+            partner_id: 2,
+            full_name: "Partner Full",
+            short_name: "PF",
+            edrpou: "12345678",
+            accountNumber: "INV-1",
+            vatPercent: 20,
+            vatType: true,
+            date: "2026-07-07",
+            accountSum: 100,
+            accountSumExpression: "",
+            partner_account_number_id: 3,
+            purposeOfPayment: "Test purpose",
+            note: "Test note",
+            is_auto_purpose_of_payment: false,
+          }),
+        });
+
+        expect(res.status).toBe(200);
+      },
+    });
+
+    expect(prisma.template.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          is_auto_purpose_of_payment: false,
+        }),
+      }),
+    );
+  });
 });

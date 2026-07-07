@@ -9,6 +9,21 @@
     "create": "Create",
     "showDeleted": "Show deleted"
   },
+  "adminPartners": {
+    "editTitle": "Edit partner",
+    "openAddAccount": "+ Add account",
+    "addAccountDialogTitle": "Add account",
+    "bankAccountLabel": "Account",
+    "additionalEntitiesTitle": "Add for other entities",
+    "additionalEntitiesDescription": "Do you want to create this account for other entities that already work with this partner?",
+    "additionalEntitiesHint": "The selected entities will receive this account immediately, but it will not become their default account.",
+    "noOtherEntities": "This partner has no other active linked entities.",
+    "save": "Save",
+    "cancel": "Cancel",
+    "accountAdded": "Account added",
+    "accountAddError": "Failed to add account",
+    "addAccountResult": "Account added for {linked} additional entities. Skipped: {skipped}."
+  },
   "userMenu": {
     "greeting": "Hi, {name}",
     "guest": "Guest",

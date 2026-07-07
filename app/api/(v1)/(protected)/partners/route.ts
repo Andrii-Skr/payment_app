@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { Roles } from "@/constants/roles";
+import { bankAccountSchema } from "@/lib/validators/bankAccount";
 import prisma from "@/prisma/prisma-client";
 import { apiRoute } from "@/utils/apiRoute";
 
@@ -12,7 +13,7 @@ const partnerSchema = z.object({
   edrpou: z.string().regex(/^\d+$/, "ЕДРПОУ должен содержать только цифры"),
   entity_id: z.number(),
   type: z.string().optional(),
-  bank_account: z.string(),
+  bank_account: bankAccountSchema,
   mfo: z.string().optional(),
   bank_name: z.string().optional(),
 });

@@ -60,7 +60,7 @@ export const PartnersTable = ({ entityId }: { entityId: number | null }) => {
 
   /* ——— фильтрация для чекбоксов ——— */
   const filteredPartners = partners.filter((p) => {
-    const rel = p.entities?.[0];
+    const rel = p.entities.find((entityRelation) => entityRelation.entity_id === entityId);
     if (!showDeleted && rel?.is_deleted) return false;
     if (!showHidden && rel?.is_visible === false) return false;
     return true;
@@ -74,7 +74,9 @@ export const PartnersTable = ({ entityId }: { entityId: number | null }) => {
         ...x,
         entities: x.entities.map((rel) => (rel.entity_id === entityId ? { ...rel, is_deleted } : rel)),
       })),
-    getEntityState: (id, _entityId) => partners.find((p) => p.id === id)?.entities?.[0]?.is_deleted ?? false,
+    getEntityState: (id, currentEntityId) =>
+      partners.find((p) => p.id === id)?.entities?.find((rel) => rel.entity_id === currentEntityId)?.is_deleted ??
+      false,
     messages: {
       delete: "Контрагент удалён",
       restore: "Контрагент восстановлен",
@@ -84,7 +86,7 @@ export const PartnersTable = ({ entityId }: { entityId: number | null }) => {
 
   /* ——— Скрыть / показать ——— */
   const handleToggleVisibility = async (p: PartnersWithAccounts) => {
-    const current = p.entities?.[0];
+    const current = p.entities.find((entityRelation) => entityRelation.entity_id === entityId);
     if (!current) return;
 
     try {
@@ -196,7 +198,8 @@ export const PartnersTable = ({ entityId }: { entityId: number | null }) => {
             </TableRow>
           ) : (
             filteredPartners.map((p) => {
-              const rel = p.entities[0];
+              const rel = p.entities.find((entityRelation) => entityRelation.entity_id === entityId);
+              if (!rel) return null;
               return (
                 <Fragment key={p.id}>
                   <TableRow

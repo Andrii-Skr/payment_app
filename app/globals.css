@@ -106,6 +106,30 @@ body {
   @apply min-w-[280px] w-full;
 }
 
+.always-visible-scrollbar {
+  scrollbar-gutter: stable;
+  scrollbar-width: auto;
+}
+
+.always-visible-scrollbar::-webkit-scrollbar {
+  width: 10px;
+}
+
+.always-visible-scrollbar::-webkit-scrollbar-track {
+  background: hsl(var(--muted));
+  border-radius: 9999px;
+}
+
+.always-visible-scrollbar::-webkit-scrollbar-thumb {
+  background: hsl(var(--border));
+  border-radius: 9999px;
+  border: 2px solid hsl(var(--muted));
+}
+
+.always-visible-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--foreground) / 0.35);
+}
+
 @layer base {
   * {
     @apply border-border;

@@ -4,18 +4,18 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
 import { useForm, useWatch } from "react-hook-form";
-import { z } from "zod";
+import type { z } from "zod";
 import { Container, PartnerInput } from "@/components/shared";
-
 import { Button, Form } from "@/components/ui";
 import { toast } from "@/lib/hooks/use-toast";
+import { bankAccountSchema } from "@/lib/validators/bankAccount";
 import { apiClient } from "@/services/api-client";
 import { partnerFormSchema } from "@/types/partner";
 
 /* ---------- schema & types ---------- */
 
 const createSchema = partnerFormSchema.extend({
-  bank_account: z.string().length(29, "Должно быть 29 символов"),
+  bank_account: bankAccountSchema,
 });
 
 export type PartnerFormValues = z.infer<typeof createSchema>;

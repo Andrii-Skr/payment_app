@@ -1,7 +1,7 @@
 import { Prisma } from "@prisma/client";
 import { type NextRequest, NextResponse } from "next/server";
 import { getServerSession, type User } from "next-auth";
-import type { ZodSchema } from "zod";
+import type { ZodSchema, ZodTypeDef } from "zod";
 import { authOptions } from "@/lib/authOptions";
 import { logApiRequest } from "@/lib/logs/logApiRequest";
 
@@ -20,7 +20,7 @@ export type ApiHandler<TBody = unknown, TParams extends Record<string, string> =
 export type ApiRouteOptions<TBody = unknown> = {
   requireAuth?: boolean;
   roles?: string[];
-  schema?: ZodSchema<TBody>;
+  schema?: ZodSchema<TBody, ZodTypeDef, unknown>;
 };
 
 /* ---------- Обёртка ---------- */

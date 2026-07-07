@@ -9,6 +9,21 @@
     "create": "Создать",
     "showDeleted": "Показать удалённые"
   },
+  "adminPartners": {
+    "editTitle": "Редактирование контрагента",
+    "openAddAccount": "+ Добавить счёт",
+    "addAccountDialogTitle": "Добавить счёт",
+    "bankAccountLabel": "Счёт",
+    "additionalEntitiesTitle": "Добавить для других юрлиц",
+    "additionalEntitiesDescription": "Хотите сразу создать этот счёт и для других юрлиц, которые уже работают с этим контрагентом?",
+    "additionalEntitiesHint": "Для выбранных юрлиц счёт будет добавлен сразу, но не станет основным автоматически.",
+    "noOtherEntities": "У этого контрагента нет других активных связанных юрлиц.",
+    "save": "Сохранить",
+    "cancel": "Отмена",
+    "accountAdded": "Счёт добавлен",
+    "accountAddError": "Не удалось добавить счёт",
+    "addAccountResult": "Счёт добавлен ещё для {linked} юрлиц. Пропущено: {skipped}."
+  },
   "userMenu": {
     "greeting": "Привет, {name}",
     "guest": "Гость",

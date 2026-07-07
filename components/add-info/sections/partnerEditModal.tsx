@@ -1,34 +1,26 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { Container, PartnerInput } from "@/components/shared";
-import { Button, Form } from "@/components/ui";
+import { Button } from "@/components/ui";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "@/lib/hooks/use-toast";
 import { useToggleDelete } from "@/lib/hooks/useToggleDelete";
 import { apiClient } from "@/services/api-client";
 import type { PartnersWithAccounts } from "@/services/partners";
 import type { AccountItem } from "@/store/accountListStore";
+import { AddPartnerAccountDialog } from "./addPartnerAccountDialog";
 import { PartnerAccountsList } from "./partnerAccountsList";
 import { PartnerForm } from "./partnerForm";
 
-const toAccountItem = (acc: any): AccountItem => {
-  const rel = "entities" in acc ? (acc.entities as any)[0] : undefined;
+const toAccountItem = (acc: any, entityId: number): AccountItem => {
+  const rel = "entities" in acc ? (acc.entities as any[]).find((item) => item.entity_id === entityId) : undefined;
   return {
     ...acc,
     is_default: rel?.is_default ?? acc.is_default ?? false,
     is_visible: rel?.is_visible ?? acc.is_visible ?? true,
     is_deleted: rel?.is_deleted ?? acc.is_deleted ?? false,
   } as AccountItem;
-};
-
-type BankForm = {
-  bank_account: string;
-  mfo?: string;
-  bank_name?: string;
 };
 
 export const PartnerEditModal = ({
@@ -44,8 +36,12 @@ export const PartnerEditModal = ({
   entityId: number;
   onSaved: () => void;
 }) => {
-  const [accounts, setAccounts] = useState<AccountItem[]>(partner.partner_account_number.map(toAccountItem));
+  const t = useTranslations("adminPartners");
+  const [accounts, setAccounts] = useState<AccountItem[]>(
+    partner.partner_account_number.map((item) => toAccountItem(item, entityId)),
+  );
   const [loadingAccId, setLoadingAccId] = useState<number | null>(null);
+  const [addAccountOpen, setAddAccountOpen] = useState(false);
 
   const mutateAccounts = (fn: (arr: AccountItem[]) => AccountItem[]) => setAccounts((prev) => fn(prev));
 
@@ -78,49 +74,22 @@ export const PartnerEditModal = ({
     mutateAccounts((arr) => arr.map((a) => (a.id === accountId ? { ...a, bank_account: bankAccount } : a)));
   };
 
-  const bankSchema = z.object({
-    bank_account: z.string().length(29, "29 символов"),
-    mfo: z.string().optional(),
-    bank_name: z.string().optional(),
-  });
-
-  const bankForm = useForm<BankForm>({
-    resolver: zodResolver(bankSchema),
-    defaultValues: { bank_account: "" },
-  });
-
-  const [addMode, setAddMode] = useState(false);
-
-  const handleAddBank = async (vals: BankForm) => {
-    setLoadingAccId(-1);
-    try {
-      const result = await apiClient.partners.addBankAccount({
-        partner_id: partner.id,
-        entity_id: entityId,
-        ...vals,
-      });
-
-      if (result.message) {
-        toast.error(result.message);
-      } else {
-        const accItem = toAccountItem(result.created);
-        mutateAccounts((arr) => [...arr, accItem]);
-        toast.success("Счёт добавлен");
-        bankForm.reset();
-        setAddMode(false);
+  const handleAccountAdded = (account: AccountItem) => {
+    setAccounts((prev) => {
+      const existingIndex = prev.findIndex((item) => item.id === account.id);
+      if (existingIndex === -1) {
+        return [...prev, account];
       }
-    } catch {
-      toast.error("Не удалось добавить счёт");
-    } finally {
-      setLoadingAccId(null);
-    }
+
+      return prev.map((item) => (item.id === account.id ? account : item));
+    });
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[860px]">
         <DialogHeader>
-          <DialogTitle>Редактирование контрагента</DialogTitle>
+          <DialogTitle>{t("editTitle")}</DialogTitle>
         </DialogHeader>
 
         <PartnerForm
@@ -151,39 +120,18 @@ export const PartnerEditModal = ({
           entityId={entityId}
         />
 
-        {!addMode ? (
-          <Button variant="ghost" onClick={() => setAddMode(true)}>
-            + Добавить счёт
-          </Button>
-        ) : (
-          <Form {...bankForm}>
-            <form onSubmit={bankForm.handleSubmit(handleAddBank)} className="space-y-2 mt-4">
-              <Container className="justify-start gap-2">
-                <PartnerInput<BankForm>
-                  control={bankForm.control}
-                  name="bank_account"
-                  label="Счёт"
-                  className="bank-account-size"
-                />
-              </Container>
-
-              <div className="flex gap-2">
-                <Button type="submit">Сохранить</Button>
-                <Button
-                  variant="ghost"
-                  type="button"
-                  onClick={() => {
-                    bankForm.reset();
-                    setAddMode(false);
-                  }}
-                >
-                  Отмена
-                </Button>
-              </div>
-            </form>
-          </Form>
-        )}
+        <Button variant="ghost" onClick={() => setAddAccountOpen(true)}>
+          {t("openAddAccount")}
+        </Button>
       </DialogContent>
+
+      <AddPartnerAccountDialog
+        entityId={entityId}
+        onAccountAdded={handleAccountAdded}
+        onOpenChange={setAddAccountOpen}
+        open={addAccountOpen}
+        partner={partner}
+      />
     </Dialog>
   );
 };

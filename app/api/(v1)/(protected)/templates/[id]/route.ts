@@ -122,7 +122,7 @@ const patchHandler = async (
       partner_account_number_id: body.partner_account_number_id,
       purpose_of_payment: normalizedPurposeOfPayment,
       note: normalizedNote,
-      is_auto_purpose_of_payment: body.is_auto_purpose_of_payment ?? true,
+      is_auto_purpose_of_payment: body.is_auto_purpose_of_payment,
     },
   });
 
