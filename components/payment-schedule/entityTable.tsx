@@ -150,7 +150,7 @@ export const EntityTable: React.FC<{
   if (!startDate) return null;
 
   return (
-    <div>
+    <div className="flex min-h-0 w-full flex-1 flex-col overflow-hidden">
       <FiltersBar
         startDate={startDate}
         setStartDate={setStartDate}
@@ -165,13 +165,16 @@ export const EntityTable: React.FC<{
       />
 
       {/* ---------- table ---------- */}
-      <Table containerClassName="overflow-y-auto max-h-[89vh]">
+      <Table
+        className="min-w-max"
+        containerClassName="always-visible-scrollbar min-h-0 flex-1 overflow-x-auto overflow-y-auto bg-background pr-3 pb-0"
+      >
         <TableHeader className="bg-white sticky top-0 z-40">
           <TableRow>
             <TableHead className="sticky left-0 z-[30] bg-white w-10">💼</TableHead>
-            <TableHead className="sticky left-9 z-[30] bg-white min-w-[180px]">Контрагент</TableHead>
-            <TableHead className="sticky left-[210px] z-[30] bg-white min-w-[100px] text-right">Остаток</TableHead>
-            <TableHead className="sticky left-[310px] z-[30] bg-white min-w-[100px] text-right">Не оплачено</TableHead>
+            <TableHead className="sticky left-10 z-[30] bg-white min-w-[180px]">Контрагент</TableHead>
+            <TableHead className="sticky left-[250px] z-[30] bg-white min-w-[100px] text-right">Остаток</TableHead>
+            <TableHead className="sticky left-[370px] z-[30] bg-white min-w-[100px] text-right">Не оплачено</TableHead>
             {formattedDateRange.map((d) => (
               <TableHead key={d}>{d}</TableHead>
             ))}

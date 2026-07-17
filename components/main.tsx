@@ -1,4 +1,5 @@
 import { TabsList } from "@/components/shared";
+import { cn } from "@/lib/utils";
 
 type Props = {
   className?: string;
@@ -6,7 +7,7 @@ type Props = {
 
 const Main: React.FC<Props> = ({ className }) => {
   return (
-    <main className={className}>
+    <main className={cn("flex min-h-0 flex-1 flex-col", className)}>
       <TabsList />
     </main>
   );

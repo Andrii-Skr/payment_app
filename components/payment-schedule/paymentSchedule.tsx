@@ -24,7 +24,7 @@ export const PaymentSchedule: React.FC = () => {
   }, [fetchEntities]);
 
   return (
-    <main className="flex-1">
+    <main className="flex min-h-0 w-full flex-1 flex-col overflow-hidden">
       <EntityTable entities={entities} reloadDocuments={fetchEntities} />
     </main>
   );

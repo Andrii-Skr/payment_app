@@ -8,7 +8,7 @@ type Props = {
 
 const Header: React.FC<Props> = ({ className }) => {
   return (
-    <header className={cn("", className)}>
+    <header className={cn("sticky top-0 z-50 shrink-0 bg-background", className)}>
       <TabTitle className="" />
       <LogoutDropdown />
     </header>

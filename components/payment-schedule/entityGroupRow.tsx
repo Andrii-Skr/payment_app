@@ -88,7 +88,7 @@ export const EntityGroupRow: React.FC<EntityGroupRowProps> = ({
         }}
       >
         {rowIndex === 0 && (
-          <TableCell rowSpan={rows.length} className={`sticky left-0 z-[20] w-[30px] border-r top-[-50px] ${color}`}>
+          <TableCell rowSpan={rows.length} className={`sticky left-0 z-[20] w-10 border-r top-[-50px] ${color}`}>
             <div className="font-bold rotate-180 text-center [writing-mode:vertical-rl] [-webkit-writing-mode:vertical-rl]">
               {entityNames[entityId]}
             </div>
@@ -106,13 +106,13 @@ export const EntityGroupRow: React.FC<EntityGroupRowProps> = ({
         </TableCell>
 
         <TableCell
-          className={`sticky left-[210px] z-[10] w-[120px] ${color} text-right transition-colors group-hover:bg-muted/50`}
+          className={`sticky left-[250px] z-[10] w-[120px] ${color} text-right transition-colors group-hover:bg-muted/50`}
         >
           {formatMoney(totalRemaining)}
         </TableCell>
 
         <TableCell
-          className={`sticky left-[310px] z-[10] w-[120px] ${color} text-right transition-colors group-hover:bg-muted/50`}
+          className={`sticky left-[370px] z-[10] w-[120px] ${color} text-right transition-colors group-hover:bg-muted/50`}
         >
           {totalUnpaid > 0 ? (
             <span className="text-red-500">{formatMoney(totalUnpaid)}</span>

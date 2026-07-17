@@ -7,6 +7,9 @@ const INVISIBLE_SEPARATOR = "\u2063";
 
 type CsvRow = Record<string, string>;
 
+/** Экранируем значение по CSV-стандарту для разделителя `;`. */
+const escapeCsvValue = (value: string): string => `"${value.replace(/"/g, '""')}"`;
+
 /** Порядок колонок в итоговом файле */
 const CSV_HEADER = "DAY;NUMBER;A;B;OKPO_A;OKPO_B;ACCOUNT_A;ACCOUNT_B;BANK_A;BANK_B;" + "MFO_A;MFO_B;AMOUNT;DETAILS";
 
@@ -45,7 +48,7 @@ export const buildPaymentsCsv = async (payments: PaymentDetail[]): Promise<Blob>
   });
 
   // Собираем CSV
-  const csvBody = rows.map((r) => Object.values(r).join(";")).join("\r\n");
+  const csvBody = rows.map((r) => Object.values(r).map(escapeCsvValue).join(";")).join("\r\n");
   const csvContent = `${CSV_HEADER}\r\n${csvBody}`;
 
   return new Blob([csvContent], { type: "text/csv;charset=utf-8" });

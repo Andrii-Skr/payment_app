@@ -107,7 +107,7 @@ body {
 }
 
 .always-visible-scrollbar {
-  scrollbar-gutter: stable;
+  scrollbar-gutter: stable both-edges;
   scrollbar-width: auto;
 }
 
