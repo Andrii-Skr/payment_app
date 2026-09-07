@@ -236,11 +236,27 @@ const updateHandler = async (_req: NextRequest, body: UpdateBody) => {
   }
 
   const docsCount = await prisma.documents.count({
-    where: { partner_account_number_id },
+    where: {
+      partner_account_number_id,
+      is_deleted: false,
+      spec_doc: {
+        some: {
+          is_deleted: false,
+          is_paid: true,
+        },
+      },
+    },
   });
 
   if (docsCount > 0) {
-    return NextResponse.json({ success: false, message: "Нельзя редактировать счёт с документами" }, { status: 409 });
+    return NextResponse.json(
+      {
+        success: false,
+        code: "PAID_DOCUMENTS",
+        message: "Нельзя редактировать счёт с оплаченными документами",
+      },
+      { status: 409 },
+    );
   }
 
   const duplicate = await prisma.partner_account_number.findFirst({

@@ -2,6 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Pencil, Trash2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -12,6 +13,7 @@ import { formatBankAccount } from "@/lib/helpers/formatiban";
 import { toast } from "@/lib/hooks/use-toast";
 import { bankAccountSchema } from "@/lib/validators/bankAccount";
 import { apiClient } from "@/services/api-client";
+import type { UpdateAccountError } from "@/services/partners";
 import type { AccountItem } from "@/store/accountListStore";
 
 type Props = {
@@ -41,6 +43,7 @@ export const PartnerAccountsList: React.FC<Props> = ({
   showHidden,
   entityId,
 }) => {
+  const t = useTranslations("adminPartners");
   const [editTarget, setEditTarget] = useState<AccountItem | null>(null);
   const [editLoading, setEditLoading] = useState(false);
   const editForm = useForm<EditForm>({
@@ -69,10 +72,15 @@ export const PartnerAccountsList: React.FC<Props> = ({
         bank_account: vals.bank_account,
       });
       onUpdateAccount(editTarget.id, vals.bank_account);
-      toast.success("Счёт обновлён");
+      toast.success(t("accountUpdated"));
       setEditTarget(null);
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Не удалось обновить счёт";
+      const message =
+        (error as UpdateAccountError | undefined)?.code === "PAID_DOCUMENTS"
+          ? t("accountHasPaidDocumentsError")
+          : error instanceof Error
+            ? error.message
+            : t("accountUpdateError");
       toast.error(message);
     } finally {
       setEditLoading(false);
@@ -83,7 +91,7 @@ export const PartnerAccountsList: React.FC<Props> = ({
     <>
       <Card className="mt-6">
         <CardHeader>
-          <CardTitle className="text-sm font-semibold">Счета контрагента</CardTitle>
+          <CardTitle className="text-sm font-semibold">{t("accountsTitle")}</CardTitle>
         </CardHeader>
         <CardContent>
           {visibleAccounts.map((acc, idx) => {
@@ -103,21 +111,19 @@ export const PartnerAccountsList: React.FC<Props> = ({
                           try {
                             await onSetDefault(acc.id, checked);
                           } catch {
-                            toast.error(
-                              checked ? "Не удалось назначить счёт основным" : "Не удалось снять счёт из основных",
-                            );
+                            toast.error(checked ? t("setDefaultAccountError") : t("unsetDefaultAccountError"));
                           }
                         }}
                         disabled={loadingId === acc.id || acc.is_deleted}
                         id={`default-${acc.id}`}
                       />
-                      <Label htmlFor={`default-${acc.id}`}>Основной</Label>
+                      <Label htmlFor={`default-${acc.id}`}>{t("defaultAccount")}</Label>
                     </div>
                     {canEdit && (
                       <Button
                         size="icon"
                         variant="outline"
-                        title="Редактировать"
+                        title={t("editAccount")}
                         onClick={() => setEditTarget(acc)}
                         disabled={loadingId === acc.id || editLoading}
                       >
@@ -129,7 +135,7 @@ export const PartnerAccountsList: React.FC<Props> = ({
                       size="icon"
                       variant="outline"
                       className={acc.is_deleted ? "bg-green-500" : "bg-red-500"}
-                      title={acc.is_deleted ? "Восстановить" : "Удалить"}
+                      title={acc.is_deleted ? t("restoreAccount") : t("deleteAccount")}
                       onClick={() => onDelete(acc.id, entityId)}
                       disabled={loadingId === acc.id}
                     >
@@ -146,7 +152,7 @@ export const PartnerAccountsList: React.FC<Props> = ({
       <Dialog open={!!editTarget} onOpenChange={(open) => !open && setEditTarget(null)}>
         <DialogContent className="sm:max-w-[520px]">
           <DialogHeader>
-            <DialogTitle>Редактировать счёт</DialogTitle>
+            <DialogTitle>{t("editAccountTitle")}</DialogTitle>
           </DialogHeader>
 
           <Form {...editForm}>
@@ -155,14 +161,14 @@ export const PartnerAccountsList: React.FC<Props> = ({
                 <PartnerInput<EditForm>
                   control={editForm.control}
                   name="bank_account"
-                  label="Счёт"
+                  label={t("bankAccountLabel")}
                   className="bank-account-size"
                 />
               </Container>
 
               <div className="flex gap-2">
                 <Button type="submit" disabled={editLoading}>
-                  Сохранить
+                  {t("save")}
                 </Button>
                 <Button
                   type="button"
@@ -173,7 +179,7 @@ export const PartnerAccountsList: React.FC<Props> = ({
                   }}
                   disabled={editLoading}
                 >
-                  Отмена
+                  {t("cancel")}
                 </Button>
               </div>
             </form>

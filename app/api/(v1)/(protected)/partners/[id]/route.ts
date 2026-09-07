@@ -75,7 +75,15 @@ const getHandler = async (req: NextRequest, _body: null, params: Params, user: S
             _count: {
               select: {
                 documents: {
-                  where: { is_deleted: false },
+                  where: {
+                    is_deleted: false,
+                    spec_doc: {
+                      some: {
+                        is_deleted: false,
+                        is_paid: true,
+                      },
+                    },
+                  },
                 },
               },
             },

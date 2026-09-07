@@ -22,7 +22,18 @@
     "cancel": "Скасувати",
     "accountAdded": "Рахунок додано",
     "accountAddError": "Не вдалося додати рахунок",
-    "addAccountResult": "Рахунок додано ще для {linked} юросіб. Пропущено: {skipped}."
+    "addAccountResult": "Рахунок додано ще для {linked} юросіб. Пропущено: {skipped}.",
+    "accountsTitle": "Рахунки контрагента",
+    "defaultAccount": "Основний",
+    "editAccount": "Редагувати рахунок",
+    "deleteAccount": "Видалити рахунок",
+    "restoreAccount": "Відновити рахунок",
+    "editAccountTitle": "Редагувати рахунок",
+    "accountUpdated": "Рахунок оновлено",
+    "accountUpdateError": "Не вдалося оновити рахунок",
+    "accountHasPaidDocumentsError": "Не можна редагувати рахунок з оплаченими документами",
+    "setDefaultAccountError": "Не вдалося призначити рахунок основним",
+    "unsetDefaultAccountError": "Не вдалося зняти рахунок з основних"
   },
   "userMenu": {
     "greeting": "Привіт, {name}",

@@ -22,7 +22,18 @@
     "cancel": "Cancel",
     "accountAdded": "Account added",
     "accountAddError": "Failed to add account",
-    "addAccountResult": "Account added for {linked} additional entities. Skipped: {skipped}."
+    "addAccountResult": "Account added for {linked} additional entities. Skipped: {skipped}.",
+    "accountsTitle": "Partner accounts",
+    "defaultAccount": "Default",
+    "editAccount": "Edit account",
+    "deleteAccount": "Delete account",
+    "restoreAccount": "Restore account",
+    "editAccountTitle": "Edit account",
+    "accountUpdated": "Account updated",
+    "accountUpdateError": "Failed to update account",
+    "accountHasPaidDocumentsError": "An account with paid documents cannot be edited",
+    "setDefaultAccountError": "Failed to set the default account",
+    "unsetDefaultAccountError": "Failed to unset the default account"
   },
   "userMenu": {
     "greeting": "Hi, {name}",

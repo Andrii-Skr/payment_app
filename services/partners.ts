@@ -53,6 +53,10 @@ export type UpdateAccountResponse = {
   message?: string;
 };
 
+export type UpdateAccountError = Error & {
+  code?: string;
+};
+
 const mergeAccountRelation = (acc: PartnerAccountWithEntities, entityId: number): PartnerAccountWithEntities => {
   const rel = acc.entities.find((e) => e.entity_id === entityId);
   return {
@@ -204,7 +208,9 @@ export const updateAccount = async (data: {
   } catch (error: any) {
     console.error("Ошибка при обновлении счёта:", error);
     const message = error?.response?.data?.message;
-    throw new Error(message || "Не удалось обновить счёт.");
+    const updateError: UpdateAccountError = new Error(message || "Не удалось обновить счёт.");
+    updateError.code = error?.response?.data?.code;
+    throw updateError;
   }
 };
 

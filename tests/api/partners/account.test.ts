@@ -6,14 +6,17 @@ jest.mock("@/prisma/prisma-client", () => ({
   __esModule: true,
   default: {
     partners_on_entities: { findMany: jest.fn() },
-    partner_account_numbers_on_entities: { create: jest.fn(), updateMany: jest.fn() },
+    partner_account_numbers_on_entities: { create: jest.fn(), updateMany: jest.fn(), findUnique: jest.fn() },
+    documents: { count: jest.fn() },
     user: { findUnique: jest.fn() },
     api_request_log: { create: jest.fn().mockResolvedValue(null) },
     $transaction: jest.fn(() => Promise.resolve()),
     partner_account_number: {
       findFirst: jest.fn(),
       create: jest.fn(),
+      findUnique: jest.fn(),
       findUniqueOrThrow: jest.fn(),
+      update: jest.fn(),
     },
     $disconnect: jest.fn(),
   },
@@ -176,5 +179,117 @@ describe("POST /partners/account", () => {
         expect(res.status).toBe(403);
       },
     });
+  });
+});
+
+describe("PATCH /partners/account", () => {
+  const updatedAccount = "UA987654321098765432109876543";
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    prisma.partner_account_number.findUnique.mockResolvedValue({ id: 1, partner_id: 10 });
+    prisma.partner_account_numbers_on_entities.findUnique.mockResolvedValue({ is_deleted: false });
+    prisma.partner_account_number.findFirst.mockResolvedValue(null);
+    prisma.partner_account_number.update.mockResolvedValue({ id: 1, bank_account: updatedAccount });
+  });
+
+  it("allows an account with documents that have no paid rows", async () => {
+    prisma.documents.count.mockResolvedValue(0);
+
+    await testApiHandler({
+      appHandler: handler,
+      test: async ({ fetch }) => {
+        const res = await fetch({
+          method: "PATCH",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            partner_account_number_id: 1,
+            entity_id: 2,
+            bank_account: updatedAccount,
+          }),
+        });
+
+        expect(res.status).toBe(200);
+      },
+    });
+
+    expect(prisma.documents.count).toHaveBeenCalledWith({
+      where: {
+        partner_account_number_id: 1,
+        is_deleted: false,
+        spec_doc: {
+          some: {
+            is_deleted: false,
+            is_paid: true,
+          },
+        },
+      },
+    });
+    expect(prisma.partner_account_number.update).toHaveBeenCalledWith({
+      where: { id: 1 },
+      data: { bank_account: updatedAccount },
+    });
+  });
+
+  it("rejects an account with a partially paid document", async () => {
+    prisma.documents.count.mockResolvedValue(1);
+
+    await testApiHandler({
+      appHandler: handler,
+      test: async ({ fetch }) => {
+        const res = await fetch({
+          method: "PATCH",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            partner_account_number_id: 1,
+            entity_id: 2,
+            bank_account: updatedAccount,
+          }),
+        });
+
+        expect(res.status).toBe(409);
+        await expect(res.json()).resolves.toMatchObject({
+          code: "PAID_DOCUMENTS",
+          message: "Нельзя редактировать счёт с оплаченными документами",
+        });
+      },
+    });
+
+    expect(prisma.partner_account_number.update).not.toHaveBeenCalled();
+  });
+
+  it("does not block editing for soft-deleted documents or paid rows", async () => {
+    prisma.documents.count.mockResolvedValue(0);
+
+    await testApiHandler({
+      appHandler: handler,
+      test: async ({ fetch }) => {
+        const res = await fetch({
+          method: "PATCH",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            partner_account_number_id: 1,
+            entity_id: 2,
+            bank_account: updatedAccount,
+          }),
+        });
+
+        expect(res.status).toBe(200);
+      },
+    });
+
+    expect(prisma.documents.count).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          is_deleted: false,
+          spec_doc: {
+            some: {
+              is_deleted: false,
+              is_paid: true,
+            },
+          },
+        }),
+      }),
+    );
   });
 });

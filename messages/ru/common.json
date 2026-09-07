@@ -22,7 +22,18 @@
     "cancel": "Отмена",
     "accountAdded": "Счёт добавлен",
     "accountAddError": "Не удалось добавить счёт",
-    "addAccountResult": "Счёт добавлен ещё для {linked} юрлиц. Пропущено: {skipped}."
+    "addAccountResult": "Счёт добавлен ещё для {linked} юрлиц. Пропущено: {skipped}.",
+    "accountsTitle": "Счета контрагента",
+    "defaultAccount": "Основной",
+    "editAccount": "Редактировать счёт",
+    "deleteAccount": "Удалить счёт",
+    "restoreAccount": "Восстановить счёт",
+    "editAccountTitle": "Редактировать счёт",
+    "accountUpdated": "Счёт обновлён",
+    "accountUpdateError": "Не удалось обновить счёт",
+    "accountHasPaidDocumentsError": "Нельзя редактировать счёт с оплаченными документами",
+    "setDefaultAccountError": "Не удалось назначить счёт основным",
+    "unsetDefaultAccountError": "Не удалось снять счёт из основных"
   },
   "userMenu": {
     "greeting": "Привет, {name}",
