@@ -47,7 +47,7 @@ export const buildPaymentsCsv = async (payments: PaymentDetail[]): Promise<Blob>
       // експортуються лише резидентні реквізити, тому залишаємо поля порожніми.
       CITY_A: "",
       CITY_B: "",
-      AMOUNT: p.pay_sum.toFixed(2).replace(".", ","),
+      AMOUNT: p.pay_sum.toFixed(2),
       DETAILS: p.purpose_of_payment.replace(new RegExp(INVISIBLE_SEPARATOR, "g"), ""),
     };
   });

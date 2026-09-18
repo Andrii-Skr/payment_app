@@ -74,6 +74,14 @@ beforeEach(() => {
 });
 
 describe("buildPaymentsCsv", () => {
+  it("формирует AMOUNT с точкой в качестве десятичного разделителя", async () => {
+    const blob = await buildPaymentsCsv([{ ...payment, pay_sum: 102 }]);
+    const csv = await blob.text();
+    const fields = parseCsvRow(csv.split("\r\n")[1]);
+
+    expect(fields[14]).toBe("102.00");
+  });
+
   it("сохраняет точку с запятой в назначении платежа внутри DETAILS", async () => {
     const purpose =
       "2706400448; *39; ФОП Босенко Марина Миколаївна; за використання торгівельної марки згідно рахунку \u2063№ 177044 від 06.07.2026, без ПДВ";
