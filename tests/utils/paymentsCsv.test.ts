@@ -83,7 +83,8 @@ describe("buildPaymentsCsv", () => {
 
     expect(csv).toContain(`;"${purpose.replace("\u2063", "")}"`);
     const fields = parseCsvRow(csv.split("\r\n")[1]);
-    expect(fields).toHaveLength(14);
+    expect(fields).toHaveLength(16);
+    expect(fields.slice(12, 14)).toEqual(["", ""]);
     expect(fields[fields.length - 1]).toBe(purpose.replace("\u2063", ""));
   });
 

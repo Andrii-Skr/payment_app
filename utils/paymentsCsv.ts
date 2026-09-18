@@ -11,7 +11,8 @@ type CsvRow = Record<string, string>;
 const escapeCsvValue = (value: string): string => `"${value.replace(/"/g, '""')}"`;
 
 /** Порядок колонок в итоговом файле */
-const CSV_HEADER = "DAY;NUMBER;A;B;OKPO_A;OKPO_B;ACCOUNT_A;ACCOUNT_B;BANK_A;BANK_B;" + "MFO_A;MFO_B;AMOUNT;DETAILS";
+const CSV_HEADER =
+  "DAY;NUMBER;A;B;OKPO_A;OKPO_B;ACCOUNT_A;ACCOUNT_B;BANK_A;BANK_B;" + "MFO_A;MFO_B;CITY_A;CITY_B;AMOUNT;DETAILS";
 
 /**
  * Формируем CSV-файл из списка платежей.
@@ -42,6 +43,10 @@ export const buildPaymentsCsv = async (payments: PaymentDetail[]): Promise<Blob>
       BANK_B: p.partner_account_bank_name ?? "",
       MFO_A: payer?.mfo ?? "",
       MFO_B: p.partner_account_mfo ?? "",
+      // Коди країн потрібні лише для нерезидентів. У поточній моделі
+      // експортуються лише резидентні реквізити, тому залишаємо поля порожніми.
+      CITY_A: "",
+      CITY_B: "",
       AMOUNT: p.pay_sum.toFixed(2).replace(".", ","),
       DETAILS: p.purpose_of_payment.replace(new RegExp(INVISIBLE_SEPARATOR, "g"), ""),
     };
