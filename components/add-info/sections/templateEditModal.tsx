@@ -1,13 +1,12 @@
 "use client";
 
 import type { TemplateWithBankDetails } from "@api/templates/[id]/route";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
 import { BadgeCheck } from "lucide-react";
 import type React from "react";
 import { useEffect, useMemo, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
-import { z } from "zod";
+import { z } from "zod/v3";
 import {
   Combobox,
   ContainerGrid,
@@ -22,6 +21,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { formatBankAccount } from "@/lib/helpers/formatiban";
 import { normalizeOptionalTextareaValue } from "@/lib/helpers/normalizeTextareaValue";
 import { toast } from "@/lib/hooks/use-toast";
+import { zodResolver } from "@/lib/validators/zodResolver";
 import { apiClient } from "@/services/api-client";
 import type { PartnerAccountWithEntities } from "@/services/partners";
 

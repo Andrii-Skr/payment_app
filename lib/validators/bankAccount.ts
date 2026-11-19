@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "zod/v3";
 
 const REQUIRED_MESSAGE = "Счёт обязателен";
 const LENGTH_MESSAGE = "Счёт должен состоять из 29 символов";

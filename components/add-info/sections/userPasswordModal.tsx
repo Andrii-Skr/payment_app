@@ -1,13 +1,13 @@
 "use client";
 
 import type { UserWithRelations } from "@api/users/route";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
+import { z } from "zod/v3";
 import { FormInput } from "@/components/shared";
 import { Button, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Form } from "@/components/ui";
 import { toast } from "@/lib/hooks/use-toast";
+import { zodResolver } from "@/lib/validators/zodResolver";
 import { apiClient } from "@/services/api-client";
 
 interface Props {

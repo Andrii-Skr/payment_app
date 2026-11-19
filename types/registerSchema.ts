@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "zod/v3";
 
 export const registerSchema = z.object({
   login: z.string().min(3, "Логин должен содержать минимум 3 символа").max(32, "Логин не должен превышать 32 символа"),

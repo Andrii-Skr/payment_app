@@ -1,14 +1,14 @@
 // components/partners/partnerForm.tsx
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
 import { useForm, useWatch } from "react-hook-form";
-import type { z } from "zod";
+import type { z } from "zod/v3";
 import { Container, PartnerInput } from "@/components/shared";
 import { Button, Form } from "@/components/ui";
 import { toast } from "@/lib/hooks/use-toast";
 import { bankAccountSchema } from "@/lib/validators/bankAccount";
+import { zodResolver } from "@/lib/validators/zodResolver";
 import { apiClient } from "@/services/api-client";
 import { partnerFormSchema } from "@/types/partner";
 
@@ -33,7 +33,7 @@ interface Props {
 export const PartnerForm: React.FC<Props> = ({ mode, entityId, initialValues, onSaved, onCancel }) => {
   const schema = mode === "edit" ? partnerFormSchema : createSchema;
   const form = useForm<PartnerFormValues>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver<PartnerFormValues>(schema as z.ZodType<PartnerFormValues>),
     defaultValues: {
       entity_id: entityId,
       full_name: "",

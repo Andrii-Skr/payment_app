@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "zod/v3";
 import { optionalBankAccountSchema } from "@/lib/validators/bankAccount";
 
 export const partnerFormSchema = z.object({

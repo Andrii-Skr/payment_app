@@ -1,16 +1,16 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
 import { Trash2 } from "lucide-react";
 import type React from "react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
+import { z } from "zod/v3";
 import { Container, PartnerInput } from "@/components/shared";
 import { Button, Card, CardContent, CardHeader, CardTitle, Form, Label, Separator, Switch } from "@/components/ui";
 import { formatBankAccount } from "@/lib/helpers/formatiban";
 import { toast } from "@/lib/hooks/use-toast";
 import { bankAccountSchema } from "@/lib/validators/bankAccount";
+import { zodResolver } from "@/lib/validators/zodResolver";
 import { apiClient } from "@/services/api-client";
 import type { AccountItem } from "@/store/accountListStore";
 import { useAccountListStore } from "@/store/accountListStore";

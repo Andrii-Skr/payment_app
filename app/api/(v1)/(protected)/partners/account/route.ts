@@ -2,7 +2,7 @@
 
 import { type NextRequest, NextResponse } from "next/server";
 import type { Session } from "next-auth";
-import { z } from "zod";
+import { z } from "zod/v3";
 import { Roles } from "@/constants/roles";
 import { hasRole } from "@/lib/access/hasRole";
 import { bankAccountSchema } from "@/lib/validators/bankAccount";

@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 import type { Session } from "next-auth";
-import { z } from "zod";
+import { z } from "zod/v3";
 import { Roles } from "@/constants/roles";
 import prisma from "@/prisma/prisma-client";
 import { apiRoute } from "@/utils/apiRoute";

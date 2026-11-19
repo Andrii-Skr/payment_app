@@ -1,5 +1,4 @@
 "use client";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { CirclePlus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm, useFormContext, useWatch } from "react-hook-form";
@@ -18,6 +17,7 @@ import {
 } from "@/components/ui";
 import { toast } from "@/lib/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { zodResolver } from "@/lib/validators/zodResolver";
 import { apiClient } from "@/services/api-client";
 import { addBankAccount, createPartner, updatePartner } from "@/services/partners";
 import { useAccountListStore } from "@/store/accountListStore";

@@ -1,13 +1,13 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
+import { z } from "zod/v3";
 import { Container, FormInput } from "@/components/shared";
 import { Button, Form } from "@/components/ui";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { bankAccountSchema } from "@/lib/validators/bankAccount";
+import { zodResolver } from "@/lib/validators/zodResolver";
 import type { Row } from "@/types/infoTypes";
 
 const schema = z.object({

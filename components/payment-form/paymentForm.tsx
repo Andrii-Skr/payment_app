@@ -1,6 +1,5 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
 import type { AxiosError } from "axios";
 import { Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -16,6 +15,7 @@ import { useTemplateManager } from "@/lib/hooks/useTemplateManager";
 import { parseExpression } from "@/lib/math/parseExpression";
 import { TransformedObject } from "@/lib/transformData/doc";
 import { cn } from "@/lib/utils";
+import { zodResolver } from "@/lib/validators/zodResolver";
 import { apiClient } from "@/services/api-client";
 import { useDocumentsStore } from "@/store/documentsListStore";
 import { type FormValues, formSchema } from "@/types/formTypes";

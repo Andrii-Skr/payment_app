@@ -1,12 +1,12 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useCallback, useEffect, useId, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Container, FormInput } from "@/components/shared";
 import { Button, Checkbox, Form, LoadingMessage } from "@/components/ui";
 import { toast } from "@/lib/hooks/use-toast";
 import { useAutoFillBankDetails } from "@/lib/hooks/useAutoFillBankDetails";
+import { zodResolver } from "@/lib/validators/zodResolver";
 import { apiClient } from "@/services/api-client";
 import { entitySchema, type InfoFormValues, type Row } from "@/types/infoTypes";
 import { EntityTable } from "./entityTable";

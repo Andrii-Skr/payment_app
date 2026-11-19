@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "zod/v3";
 
 // ────────── вспомогательный валидатор строки вида YYYY-MM-DD ──────────
 const _dateOnlyString = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Дата должна быть в формате YYYY-MM-DD");

@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { z } from "zod";
+import { z } from "zod/v3";
 import { Roles } from "@/constants/roles";
 import { bankAccountSchema } from "@/lib/validators/bankAccount";
 import prisma from "@/prisma/prisma-client";

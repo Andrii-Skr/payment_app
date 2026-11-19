@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { z } from "zod";
+import { z } from "zod/v3";
 
 /**
  * Валидатор «украинского» IBAN:

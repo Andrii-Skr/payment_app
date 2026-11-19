@@ -1,7 +1,7 @@
 import { Prisma } from "@prisma/client";
 import { type NextRequest, NextResponse } from "next/server";
 import { getServerSession, type User } from "next-auth";
-import type { ZodSchema, ZodTypeDef } from "zod";
+import type { ZodSchema, ZodTypeDef } from "zod/v3";
 import { authOptions } from "@/lib/authOptions";
 import { logApiRequest } from "@/lib/logs/logApiRequest";
 

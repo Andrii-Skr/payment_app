@@ -1,5 +1,5 @@
 // lib/zodSchemas.ts
-import { z } from "zod";
+import { z } from "zod/v3";
 import { bankAccountSchema } from "@/lib/validators/bankAccount";
 
 export const entitySchema = z.object({

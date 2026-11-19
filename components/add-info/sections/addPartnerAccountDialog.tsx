@@ -1,15 +1,15 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
+import { z } from "zod/v3";
 import { Container, PartnerInput } from "@/components/shared";
 import { Button, Checkbox, Form, FormDescription, FormField, FormItem, FormMessage } from "@/components/ui";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "@/lib/hooks/use-toast";
 import { bankAccountSchema } from "@/lib/validators/bankAccount";
+import { zodResolver } from "@/lib/validators/zodResolver";
 import { apiClient } from "@/services/api-client";
 import type { AddBankAccountResponse, PartnersWithAccounts } from "@/services/partners";
 import type { AccountItem } from "@/store/accountListStore";
