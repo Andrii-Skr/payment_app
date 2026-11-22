@@ -100,7 +100,7 @@
     "framer-motion": "^12.6.3",
     "input-otp": "^1.4.1",
     "lucide-react": "^0.447.0",
-    "next": "^15.5.28",
+    "next": "^15.5.29",
     "next-auth": "^4.24.15",
     "next-intl": "^4.12.0",
     "node-cron": "^3.0.3",
